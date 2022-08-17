@@ -1,0 +1,7 @@
+plugins {
+    id 'java'
+}
+
+group 'com.klee0kai.stone'
+version '0.0.1'
+

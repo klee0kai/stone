@@ -1,0 +1,5 @@
+rootProject.name = 'Stone'
+include 'stone_lib'
+include 'stone_annotation_lib'
+include 'sample_example'
+
