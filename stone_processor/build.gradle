@@ -1,7 +1,24 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'java-library'
 
 group 'com.klee0kai.stone'
 version '0.0.1'
 
+dependencies {
+    implementation project(':stone_lib')
+
+    implementation "com.google.auto.service:auto-service:1.0.1"
+    annotationProcessor "com.google.auto.service:auto-service:1.0.1"
+
+
+    //jsr250 and  jrs305
+//    implementation "javax.annotation:jsr250-api"
+//    implementation "javax.inject:javax.inject:1"
+//    implementation "javax.inject:javax.inject-tck:1"
+
+    //    incap
+    implementation "net.ltgt.gradle.incap:incap:0.3"
+    implementation "net.ltgt.gradle.incap:incap-processor:0.3"
+
+    // squareup - кодогенерация
+    implementation "com.squareup:javapoet:1.13.0"
+}
