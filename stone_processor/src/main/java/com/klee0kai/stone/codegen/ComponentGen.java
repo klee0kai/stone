@@ -1,5 +1,7 @@
 package com.klee0kai.stone.codegen;
 
+import com.klee0kai.stone.model.ClassDetail;
+
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 
@@ -11,6 +13,10 @@ public class ComponentGen {
     public void init(ProcessingEnvironment env) {
         this.env = env;
         messager = env.getMessager();
+    }
+
+    public void addComponent(ClassDetail... classDetails) {
+
     }
 
     public void genCode() {
