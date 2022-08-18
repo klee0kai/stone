@@ -9,17 +9,17 @@ import org.example.presenter.UserPresenter;
 @Module
 public class PresenterModule {
 
-    @Item
+    @Item(cache = Item.CacheType.WEAK)
     public UserPresenter userPresenter() {
         return new UserPresenter();
     }
 
-    @Item
+    @Item(cache = Item.CacheType.WEAK)
     public RobotPresenter robotPresenter() {
         return new RobotPresenter();
     }
 
-    @Item
+    @Item(cache = Item.CacheType.WEAK)
     public StonePresenter stonePresenter() {
         return new StonePresenter();
     }

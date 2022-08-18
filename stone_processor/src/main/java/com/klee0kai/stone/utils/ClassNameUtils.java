@@ -12,7 +12,7 @@ public class ClassNameUtils {
     }
 
     public static ClassName genClassNameMirror(ClassName origin) {
-        return ClassName.get(origin.packageName(), origin.simpleName() + "_DIGen");
+        return ClassName.get(origin.packageName(), origin.simpleName() + "Stone");
     }
 
 }
