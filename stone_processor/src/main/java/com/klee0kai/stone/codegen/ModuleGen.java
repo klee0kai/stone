@@ -60,8 +60,8 @@ public class ModuleGen {
             moduleClBuilder.addMethod(MethodSpec.methodBuilder(iModuleInit)
                     .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                     .addAnnotation(Override.class)
-                    .addParameter(Object.class, "gen")
-                    .addStatement("if ($L instanceof $T) this.$L = ($T) gen", orClassFieldName, cl.classType, orClassFieldName, cl.classType)
+                    .addParameter(Object.class, "or")
+                    .addStatement("if (or instanceof $T) this.$L = ($T) or", cl.classType, orClassFieldName, cl.classType)
                     .returns(void.class)
                     .build());
 
@@ -75,6 +75,7 @@ public class ModuleGen {
                         .returns(m.returnType)
                         .addStatement("$T cache = $T.get($L)", m.returnType, itemsWeakContainerClass, incrementRefId)
                         .addStatement("if (cache != null) return cache")
+                        .addStatement("if ($L == null) return null", orClassFieldName)
                         .addStatement("return $T.putRef($L,$L,$L.$L())", itemsWeakContainerClass,
                                 incrementRefId++, m.itemAnn.cacheType, orClassFieldName, m.methodName)
                         .build());
@@ -82,7 +83,7 @@ public class ModuleGen {
             }
 
 
-            CodeFileUtil.writeToJavaFile(cl.classType, moduleClBuilder.build());
+            CodeFileUtil.writeToJavaFile(cl.classType.packageName(), moduleClBuilder.build());
         }
     }
 
