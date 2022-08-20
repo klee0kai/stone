@@ -10,7 +10,7 @@ import com.klee0kai.stone.utils.ClassNameUtils;
 import com.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
-import javax.annotation.processing.Generated;
+import javax.annotation.Generated;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;

@@ -1,22 +1,22 @@
 package com.klee0kai.stone.codegen;
 
 import com.klee0kai.stone.AnnotationProcessor;
-import com.klee0kai.stone.annotations.Component;
-import com.klee0kai.stone.container.ItemsWeakContainer;
 import com.klee0kai.stone.interfaces.IComponent;
 import com.klee0kai.stone.model.ClassDetail;
 import com.klee0kai.stone.model.MethodDetail;
 import com.klee0kai.stone.utils.ClassNameUtils;
 import com.klee0kai.stone.utils.CodeFileUtil;
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 
-import javax.annotation.processing.Generated;
+import javax.annotation.Generated;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ComponentGen {
 
