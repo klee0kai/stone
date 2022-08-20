@@ -1,14 +1,14 @@
 package org.example;
 
+import com.klee0kai.stone.Stone;
 import com.klee0kai.stone.container.ItemsWeakContainer;
 import org.example.di.AppComponent;
-import org.example.di.AppComponentStone;
 import org.example.di.DomainModule;
 import org.example.di.PresenterModule;
 
 public class SimpleApp {
 
-    public static final AppComponent DI = new AppComponentStone();
+    public static final AppComponent DI = Stone.createComponent(AppComponent.class);
 
     public static void init() {
         DI.init(new DomainModule(), new PresenterModule());

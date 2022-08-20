@@ -1,12 +1,13 @@
 package org.example;
 
+import com.klee0kai.stone.Stone;
 import org.example.di.*;
 
 import static org.example.SimpleApp.DI;
 
 public class DynamicFeatureLib {
 
-    public static final AppComponentExt DIExt = new AppComponentExtStone();
+    public static final AppComponentExt DIExt = Stone.createComponent(AppComponentExt.class);
 
 
     public static void init() {
