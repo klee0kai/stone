@@ -56,7 +56,7 @@ public class ComponentGen {
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             compBuilder.addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PRIVATE)
-                    .initializer("$S", "")
+                    .initializer("$S", "1")
                     .build());
             compBuilder.addField(FieldSpec.builder(boolean.class, recursiveFieldName, Modifier.PRIVATE)
                     .initializer("false").build());
@@ -111,13 +111,19 @@ public class ComponentGen {
                     .varargs(true)
                     .addStatement("if ($L) return", recursiveFieldName)
                     .addStatement("$L = true", recursiveFieldName)
+                    .addStatement("int relateId = $T.parseInt($L) ", Integer.class, prefixFieldName)
                     .beginControlFlow("if (components!=null) for ($T c :components)", IComponent.class)
                     .beginControlFlow("if (this.$L.contains(c))", relatedFieldName)
                     .addStatement("$L = false", recursiveFieldName)
                     .addStatement("return")
                     .endControlFlow()
+                    .addStatement("if ($T.valueOf(relateId).equals(c.prefix())) relateId++", String.class)
+                    .addStatement("this.$L.add(c)", relatedFieldName)
                     .addStatement("c.init($L)", cl.methods.stream().map(m -> m.methodName)
                             .collect(Collectors.joining(",")))
+                    .endControlFlow()
+                    .addStatement("this.$L = $T.valueOf(relateId)", prefixFieldName, String.class)
+                    .beginControlFlow("if (components!=null) for ($T c :components)", IComponent.class)
                     .addStatement("c.relateTo(this)")
                     .endControlFlow()
                     .addStatement("$L = false", recursiveFieldName)

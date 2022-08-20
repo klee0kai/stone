@@ -11,6 +11,8 @@ public class SimpleAppExt extends SimpleApp {
         super.init();
         DIExt.init(new DomainExtModule(), new PresenterExtModule());
         DIExt.relateTo(DI);
+        System.out.println("SimpleAppExt.init DI.prefix = " + DI.prefix());
+        System.out.println("SimpleAppExt.init DIExt.prefix = " + DIExt.prefix());
     }
 
     @Override
