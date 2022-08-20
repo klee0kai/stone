@@ -3,7 +3,9 @@ package org.example.di;
 
 import com.klee0kai.stone.annotations.Module;
 import org.example.domain.RobotRepository;
+import org.example.domain.StoneRepository;
 import org.example.domain.UserRepository;
+import org.example.module.InfinityStone;
 
 @Module
 public class DomainModule {
@@ -16,5 +18,9 @@ public class DomainModule {
         return new RobotRepository();
     }
 
+
+    public StoneRepository stoneRepository(InfinityStone infinityStone) {
+        return new StoneRepository(infinityStone);
+    }
 
 }

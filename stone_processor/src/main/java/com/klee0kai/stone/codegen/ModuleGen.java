@@ -85,15 +85,29 @@ public class ModuleGen {
                 if (m.singletonAnn == null)
                     m.singletonAnn = new SingletonAnnotation();
 
-                moduleClBuilder.addMethod(MethodSpec.methodBuilder(m.methodName)
+                int argIndex = 0;
+                StringBuilder argsSum = new StringBuilder();
+                StringBuilder argsComma = new StringBuilder();
+                MethodSpec.Builder itemMethodBuilder = MethodSpec.methodBuilder(m.methodName)
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
-                        .returns(m.returnType)
-                        .addStatement("$T cache = $T.get($L+$L)", m.returnType, itemsWeakContainerClass, prefixFieldName, incrementRefId)
+                        .returns(m.returnType);
+                for (TypeName t : m.argTypes) {
+                    if (argsComma.length() > 0)
+                        argsComma.append(", ");
+                    argsSum.append(" + ").append("arg").append(argIndex).append(".toString()");
+                    argsComma.append("arg").append(argIndex);
+                    itemMethodBuilder.addParameter(t, "arg" + (argIndex++));
+                }
+
+                itemMethodBuilder
+                        .addStatement("$T cache = $T.get($L+$L $L)", m.returnType, itemsWeakContainerClass, prefixFieldName, incrementRefId, argsSum)
                         .addStatement("if (cache != null) return cache")
                         .addStatement("if ($L == null) return null", orClassFactoryFieldName)
-                        .addStatement("return $T.putRef($L + $L,$L,$L.$L())", itemsWeakContainerClass,
-                                prefixFieldName, incrementRefId++, m.singletonAnn.cacheType, orClassFactoryFieldName, m.methodName)
+                        .addStatement("return $T.putRef($L + $L $L,$L,$L.$L($L))", itemsWeakContainerClass,
+                                prefixFieldName, incrementRefId++, argsSum, m.singletonAnn.cacheType, orClassFactoryFieldName, m.methodName, argsComma);
+
+                moduleClBuilder.addMethod(itemMethodBuilder
                         .build());
 
             }

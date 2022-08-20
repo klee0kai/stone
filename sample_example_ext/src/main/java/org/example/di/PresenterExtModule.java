@@ -21,7 +21,7 @@ public class PresenterExtModule extends PresenterModule {
 
     @Override
     @Singletone(cache = Singletone.CacheType.WEAK)
-    public StoneExtPresenter stonePresenter() {
+    public StoneExtPresenter stonePresenter(String color) {
         return new StoneExtPresenter();
     }
 

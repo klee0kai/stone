@@ -2,9 +2,10 @@ package org.example.di;
 
 import com.klee0kai.stone.annotations.Module;
 import org.example.domain.RobotExtRepository;
-import org.example.domain.RobotRepository;
+import org.example.domain.StoneExtRepository;
+import org.example.domain.StoneRepository;
 import org.example.domain.UserExtRepository;
-import org.example.domain.UserRepository;
+import org.example.module.InfinityStone;
 
 @Module
 public class DomainExtModule extends DomainModule {
@@ -20,5 +21,8 @@ public class DomainExtModule extends DomainModule {
         return new RobotExtRepository();
     }
 
-
+    @Override
+    public StoneExtRepository stoneRepository(InfinityStone infinityStone) {
+        return new StoneExtRepository(infinityStone);
+    }
 }

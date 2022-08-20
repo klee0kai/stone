@@ -20,7 +20,7 @@ public class PresenterModule {
     }
 
     @Singletone(cache = Singletone.CacheType.WEAK)
-    public StonePresenter stonePresenter() {
+    public StonePresenter stonePresenter(String color) {
         return new StonePresenter();
     }
 
