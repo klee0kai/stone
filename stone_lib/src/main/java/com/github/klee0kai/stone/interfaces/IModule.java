@@ -1,4 +1,4 @@
-package com.klee0kai.stone.interfaces;
+package com.github.klee0kai.stone.interfaces;
 
 public interface IModule {
 

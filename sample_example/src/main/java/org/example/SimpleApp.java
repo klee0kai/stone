@@ -1,7 +1,7 @@
 package org.example;
 
-import com.klee0kai.stone.Stone;
-import com.klee0kai.stone.container.ItemsWeakContainer;
+import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.stone.container.ItemsWeakContainer;
 import org.example.di.AppComponent;
 import org.example.di.DomainModule;
 import org.example.di.PresenterModule;

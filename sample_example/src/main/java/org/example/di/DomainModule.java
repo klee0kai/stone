@@ -1,7 +1,7 @@
 package org.example.di;
 
 
-import com.klee0kai.stone.annotations.Module;
+import com.github.klee0kai.stone.annotations.Module;
 import org.example.domain.RobotRepository;
 import org.example.domain.StoneRepository;
 import org.example.domain.UserRepository;

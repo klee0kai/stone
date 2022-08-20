@@ -1,6 +1,6 @@
-package com.klee0kai.stone;
+package com.github.klee0kai.stone;
 
-import com.klee0kai.stone.container.ItemsWeakContainer;
+import com.github.klee0kai.stone.container.ItemsWeakContainer;
 
 import java.lang.reflect.InvocationTargetException;
 

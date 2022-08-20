@@ -1,4 +1,4 @@
-package com.klee0kai.stone.utils;
+package com.github.klee0kai.stone.utils;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;

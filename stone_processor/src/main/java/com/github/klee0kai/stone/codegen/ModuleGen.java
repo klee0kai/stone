@@ -1,13 +1,13 @@
-package com.klee0kai.stone.codegen;
+package com.github.klee0kai.stone.codegen;
 
-import com.klee0kai.stone.AnnotationProcessor;
-import com.klee0kai.stone.container.ItemsWeakContainer;
-import com.klee0kai.stone.interfaces.IModule;
-import com.klee0kai.stone.model.ClassDetail;
-import com.klee0kai.stone.model.MethodDetail;
-import com.klee0kai.stone.model.SingletonAnnotation;
-import com.klee0kai.stone.utils.ClassNameUtils;
-import com.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.AnnotationProcessor;
+import com.github.klee0kai.stone.container.ItemsWeakContainer;
+import com.github.klee0kai.stone.interfaces.IModule;
+import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.SingletonAnnotation;
+import com.github.klee0kai.stone.utils.ClassNameUtils;
+import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
 import javax.annotation.Generated;

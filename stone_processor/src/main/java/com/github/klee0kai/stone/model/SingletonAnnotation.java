@@ -1,6 +1,6 @@
-package com.klee0kai.stone.model;
+package com.github.klee0kai.stone.model;
 
-import com.klee0kai.stone.annotations.Singletone;
+import com.github.klee0kai.stone.annotations.Singletone;
 
 public class SingletonAnnotation implements Cloneable {
 

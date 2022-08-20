@@ -1,7 +1,7 @@
 package org.example.di;
 
-import com.klee0kai.stone.annotations.Singletone;
-import com.klee0kai.stone.annotations.Module;
+import com.github.klee0kai.stone.annotations.Singletone;
+import com.github.klee0kai.stone.annotations.Module;
 import org.example.presenter.RobotPresenter;
 import org.example.presenter.StonePresenter;
 import org.example.presenter.UserPresenter;

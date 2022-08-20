@@ -1,6 +1,6 @@
 package org.example;
 
-import com.klee0kai.stone.container.ItemsWeakContainer;
+import com.github.klee0kai.stone.container.ItemsWeakContainer;
 import org.example.module.InfinityStone;
 
 import static org.example.DynamicFeatureLib.DIExt;

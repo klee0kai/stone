@@ -1,6 +1,4 @@
-package com.klee0kai.stone.model;
-
-import org.checkerframework.checker.units.qual.C;
+package com.github.klee0kai.stone.model;
 
 import javax.lang.model.element.AnnotationMirror;
 

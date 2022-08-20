@@ -1,4 +1,4 @@
-package com.klee0kai.stone.utils;
+package com.github.klee0kai.stone.utils;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;

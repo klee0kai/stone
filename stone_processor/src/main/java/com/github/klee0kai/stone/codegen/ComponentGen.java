@@ -1,11 +1,11 @@
-package com.klee0kai.stone.codegen;
+package com.github.klee0kai.stone.codegen;
 
-import com.klee0kai.stone.AnnotationProcessor;
-import com.klee0kai.stone.interfaces.IComponent;
-import com.klee0kai.stone.model.ClassDetail;
-import com.klee0kai.stone.model.MethodDetail;
-import com.klee0kai.stone.utils.ClassNameUtils;
-import com.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.AnnotationProcessor;
+import com.github.klee0kai.stone.interfaces.IComponent;
+import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.utils.ClassNameUtils;
+import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;

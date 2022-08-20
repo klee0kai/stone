@@ -1,4 +1,4 @@
-package com.klee0kai.stone.annotations;
+package com.github.klee0kai.stone.annotations;
 
 
 import java.lang.annotation.ElementType;

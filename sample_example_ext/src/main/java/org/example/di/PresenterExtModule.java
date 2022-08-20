@@ -1,7 +1,7 @@
 package org.example.di;
 
-import com.klee0kai.stone.annotations.Module;
-import com.klee0kai.stone.annotations.Singletone;
+import com.github.klee0kai.stone.annotations.Module;
+import com.github.klee0kai.stone.annotations.Singletone;
 import org.example.presenter.*;
 
 @Module

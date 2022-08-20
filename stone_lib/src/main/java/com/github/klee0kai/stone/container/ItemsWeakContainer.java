@@ -1,6 +1,6 @@
-package com.klee0kai.stone.container;
+package com.github.klee0kai.stone.container;
 
-import com.klee0kai.stone.annotations.Singletone;
+import com.github.klee0kai.stone.annotations.Singletone;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;

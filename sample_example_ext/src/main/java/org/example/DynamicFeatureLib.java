@@ -1,6 +1,6 @@
 package org.example;
 
-import com.klee0kai.stone.Stone;
+import com.github.klee0kai.stone.Stone;
 import org.example.di.*;
 
 import static org.example.SimpleApp.DI;

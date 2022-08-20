@@ -1,9 +1,11 @@
-package com.klee0kai.stone;
+package com.github.klee0kai.stone;
 
+import com.github.klee0kai.stone.annotations.Component;
+import com.github.klee0kai.stone.annotations.Module;
+import com.github.klee0kai.stone.codegen.ComponentGen;
+import com.github.klee0kai.stone.codegen.ModuleGen;
 import com.google.auto.service.AutoService;
-import com.klee0kai.stone.codegen.ComponentGen;
-import com.klee0kai.stone.codegen.ModuleGen;
-import com.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.ClassDetail;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
@@ -38,13 +40,13 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
-        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(com.klee0kai.stone.annotations.Module.class)) {
+        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
             TypeElement owner = (TypeElement) ownerElement;
             ClassDetail classDetail = ClassDetail.of(owner);
             moduleGen.addModule(classDetail);
         }
 
-        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(com.klee0kai.stone.annotations.Component.class)) {
+        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
             TypeElement owner = (TypeElement) ownerElement;
             ClassDetail classDetail = ClassDetail.of(owner);
             componentGen.addComponent(classDetail);
