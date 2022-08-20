@@ -19,7 +19,8 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
     dependencies {
-	        implementation 'com.github.klee0kai:stone:Tag'
+	       implementation 'com.github.klee0kai.stone:stone_lib:TAG'
+    	       annotationProcessor 'com.github.klee0kai.stone:stone_processor:TAG'
 	}
 
 
