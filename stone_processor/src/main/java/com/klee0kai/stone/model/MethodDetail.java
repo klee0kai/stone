@@ -1,7 +1,6 @@
 package com.klee0kai.stone.model;
 
-import com.klee0kai.stone.annotations.Item;
-import com.klee0kai.stone.utils.AnnotationMirrorUtil;
+import com.klee0kai.stone.annotations.Singletone;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.ExecutableElement;
@@ -16,14 +15,14 @@ public class MethodDetail implements Cloneable {
 
     public List<TypeName> argTypes = new LinkedList<>();
 
-    public ItemAnnotation itemAnn;
+    public SingletonAnnotation singletonAnn;
 
 
     public static MethodDetail of(ExecutableElement element) {
         MethodDetail methodDetail = new MethodDetail();
         methodDetail.methodName = element.getSimpleName().toString();
         methodDetail.returnType = TypeName.get(element.getReturnType());
-        methodDetail.itemAnn = ItemAnnotation.of(element.getAnnotation(Item.class));
+        methodDetail.singletonAnn = SingletonAnnotation.of(element.getAnnotation(Singletone.class));
         return methodDetail;
     }
 

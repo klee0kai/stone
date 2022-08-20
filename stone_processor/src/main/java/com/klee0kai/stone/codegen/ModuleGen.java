@@ -5,6 +5,7 @@ import com.klee0kai.stone.container.ItemsWeakContainer;
 import com.klee0kai.stone.interfaces.IModule;
 import com.klee0kai.stone.model.ClassDetail;
 import com.klee0kai.stone.model.MethodDetail;
+import com.klee0kai.stone.model.SingletonAnnotation;
 import com.klee0kai.stone.utils.ClassNameUtils;
 import com.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
@@ -14,10 +15,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ModuleGen {
 
@@ -66,8 +64,10 @@ public class ModuleGen {
                     .build());
 
             for (MethodDetail m : cl.methods) {
-                if (m.itemAnn == null)
+                if (Objects.equals(m.methodName, "<init>"))
                     continue;
+                if (m.singletonAnn == null)
+                    m.singletonAnn = new SingletonAnnotation();
 
                 moduleClBuilder.addMethod(MethodSpec.methodBuilder(m.methodName)
                         .addAnnotation(Override.class)
@@ -77,7 +77,7 @@ public class ModuleGen {
                         .addStatement("if (cache != null) return cache")
                         .addStatement("if ($L == null) return null", orClassFieldName)
                         .addStatement("return $T.putRef($L,$L,$L.$L())", itemsWeakContainerClass,
-                                incrementRefId++, m.itemAnn.cacheType, orClassFieldName, m.methodName)
+                                incrementRefId++, m.singletonAnn.cacheType, orClassFieldName, m.methodName)
                         .build());
 
             }

@@ -14,10 +14,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class ComponentGen {
 
@@ -80,6 +77,9 @@ public class ComponentGen {
             compBuilder.addMethod(initMethodBuilder.build());
 
             for (MethodDetail m : cl.methods) {
+                if (Objects.equals(m.methodName, "<init>"))
+                    continue;
+
                 compBuilder.addMethod(
                         MethodSpec.methodBuilder(m.methodName)
                                 .addAnnotation(Override.class)
