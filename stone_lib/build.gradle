@@ -1,8 +1,12 @@
 plugins {
     id 'java'
-    id 'maven-publish'
 }
 
 group 'com.github.klee0kai.stone'
 version '0.0.1'
+
+
+apply from : '../jitpack.gradle'
+
+
 
