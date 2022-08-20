@@ -11,12 +11,12 @@ public class ItemsWeakContainer {
 
     private static final int CLEAN_COUNT = 100;
 
-    private static final HashMap<Integer, WeakReference<Object>> weakItems = new HashMap<>();
-    private static final HashMap<Integer, Reference<Object>> softItems = new HashMap<>();
-    private static final HashMap<Integer, Object> strongItems = new HashMap<>();
+    private static final HashMap<String, WeakReference<Object>> weakItems = new HashMap<>();
+    private static final HashMap<String, Reference<Object>> softItems = new HashMap<>();
+    private static final HashMap<String, Object> strongItems = new HashMap<>();
 
 
-    public static synchronized <T> T putRef(int key, Singletone.CacheType cacheType, T a) {
+    public static synchronized <T> T putRef(String key, Singletone.CacheType cacheType, T a) {
         switch (cacheType) {
             case WEAK:
                 weakItems.put(key, new WeakReference<>(a));
@@ -45,7 +45,7 @@ public class ItemsWeakContainer {
      */
     public static synchronized void gc(boolean includeSoftRefs) {
         if (includeSoftRefs) {
-            for (Integer key : softItems.keySet()) {
+            for (String key : softItems.keySet()) {
                 Reference ref = softItems.get(key);
                 if (ref != null)
                     softItems.put(key, new WeakReference<>(ref.get()));
@@ -56,7 +56,7 @@ public class ItemsWeakContainer {
         clearWeakLinksContainer();
         clearSoftLinksContainer();
         if (includeSoftRefs) {
-            for (Integer key : softItems.keySet()) {
+            for (String key : softItems.keySet()) {
                 Reference ref = softItems.get(key);
                 if (ref != null)
                     softItems.put(key, new SoftReference<>(ref.get()));
@@ -65,7 +65,7 @@ public class ItemsWeakContainer {
 
     }
 
-    public static synchronized <T> T get(int a) {
+    public static synchronized <T> T get(String a) {
         Object o = weakItems.get(a) != null ? weakItems.get(a).get() : null;
         if (o == null) {
             weakItems.remove(a);
@@ -82,7 +82,7 @@ public class ItemsWeakContainer {
 
     private static synchronized void clearWeakLinksContainer() {
         if (weakItems.size() < CLEAN_COUNT) return;
-        for (Integer key : weakItems.keySet()) {
+        for (String key : weakItems.keySet()) {
             if (weakItems.get(key) == null || weakItems.get(key).get() == null)
                 weakItems.remove(key);
         }
@@ -90,7 +90,7 @@ public class ItemsWeakContainer {
 
     private static synchronized void clearSoftLinksContainer() {
         if (softItems.size() < CLEAN_COUNT) return;
-        for (Integer key : softItems.keySet()) {
+        for (String key : softItems.keySet()) {
             if (softItems.get(key) == null || softItems.get(key).get() == null)
                 softItems.remove(key);
         }

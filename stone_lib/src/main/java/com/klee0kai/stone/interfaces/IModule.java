@@ -4,4 +4,6 @@ public interface IModule {
 
     void init(Object ob);
 
+    void setPrefix(String prefix);
+
 }

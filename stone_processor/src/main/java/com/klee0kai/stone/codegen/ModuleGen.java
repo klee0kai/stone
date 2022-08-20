@@ -41,17 +41,21 @@ public class ModuleGen {
                 .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
                 .build();
         ClassName itemsWeakContainerClass = ClassName.get(ItemsWeakContainer.class);
-        String orClassFieldName = "originalClass";
+        String orClassFactoryFieldName = "factory";
+        String prefixFieldName = "prefix";
         String iModuleInit = "init";
+        String iModuleSetPrefix = "setPrefix";
 
         for (ClassDetail cl : classes) {
             TypeSpec.Builder moduleClBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
                     .superclass(cl.classType)
                     .addSuperinterface(ClassName.get(IModule.class))
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addField(
-                            FieldSpec.builder(cl.classType, orClassFieldName, Modifier.PRIVATE)
-                                    .build())
+                    .addField(FieldSpec.builder(cl.classType, orClassFactoryFieldName, Modifier.PRIVATE)
+                            .build())
+                    .addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PRIVATE)
+                            .initializer("$S", "1")
+                            .build())
                     .addAnnotation(codeGenAnnot);
 
 
@@ -59,8 +63,20 @@ public class ModuleGen {
                     .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                     .addAnnotation(Override.class)
                     .addParameter(Object.class, "or")
-                    .addStatement("if (or instanceof $T) this.$L = ($T) or", cl.classType, orClassFieldName, cl.classType)
+                    .beginControlFlow("if (or instanceof $T) ", cl.classType)
+                    .addStatement("this.$L = ($T) or", orClassFactoryFieldName, cl.classType)
+                    .beginControlFlow("if (or instanceof $T)", IModule.class)
+                    .addStatement("(($T)or).$L($T.valueOf($T.parseInt($L)+1))", IModule.class, iModuleSetPrefix, String.class, Integer.class, prefixFieldName)
+                    .endControlFlow()
+                    .endControlFlow()
                     .returns(void.class)
+                    .build());
+
+            moduleClBuilder.addMethod(MethodSpec.methodBuilder(iModuleSetPrefix)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(String.class, "prefix")
+                    .addStatement("this.$L = prefix", prefixFieldName)
                     .build());
 
             for (MethodDetail m : cl.methods) {
@@ -73,11 +89,11 @@ public class ModuleGen {
                         .addAnnotation(Override.class)
                         .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                         .returns(m.returnType)
-                        .addStatement("$T cache = $T.get($L)", m.returnType, itemsWeakContainerClass, incrementRefId)
+                        .addStatement("$T cache = $T.get($L+$L)", m.returnType, itemsWeakContainerClass, prefixFieldName, incrementRefId)
                         .addStatement("if (cache != null) return cache")
-                        .addStatement("if ($L == null) return null", orClassFieldName)
-                        .addStatement("return $T.putRef($L,$L,$L.$L())", itemsWeakContainerClass,
-                                incrementRefId++, m.singletonAnn.cacheType, orClassFieldName, m.methodName)
+                        .addStatement("if ($L == null) return null", orClassFactoryFieldName)
+                        .addStatement("return $T.putRef($L + $L,$L,$L.$L())", itemsWeakContainerClass,
+                                prefixFieldName, incrementRefId++, m.singletonAnn.cacheType, orClassFactoryFieldName, m.methodName)
                         .build());
 
             }
