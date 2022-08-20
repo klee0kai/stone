@@ -1,4 +1,4 @@
 package org.example.presenter;
 
-public class StoneExtPresenter {
+public class StoneExtPresenter extends StonePresenter{
 }

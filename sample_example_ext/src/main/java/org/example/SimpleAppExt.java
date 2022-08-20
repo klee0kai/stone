@@ -9,7 +9,8 @@ public class SimpleAppExt extends SimpleApp {
     @Override
     public void init() {
         super.init();
-        DI.init(new DomainExtModule(), new PresenterExtModule());
+        DIExt.init(new DomainExtModule(), new PresenterExtModule());
+        DIExt.relateTo(DI);
     }
 
     @Override

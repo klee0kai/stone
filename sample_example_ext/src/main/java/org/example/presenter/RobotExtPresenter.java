@@ -1,4 +1,4 @@
 package org.example.presenter;
 
-public class RobotExtPresenter {
+public class RobotExtPresenter extends RobotPresenter {
 }

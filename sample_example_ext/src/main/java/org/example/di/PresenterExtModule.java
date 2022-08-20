@@ -2,25 +2,27 @@ package org.example.di;
 
 import com.klee0kai.stone.annotations.Module;
 import com.klee0kai.stone.annotations.Singletone;
-import org.example.presenter.RobotPresenter;
-import org.example.presenter.StonePresenter;
-import org.example.presenter.UserPresenter;
+import org.example.presenter.*;
 
 @Module
-public class PresenterExtModule extends PresenterModule{
+public class PresenterExtModule extends PresenterModule {
+
+    @Override
     @Singletone(cache = Singletone.CacheType.WEAK)
-    public UserPresenter userPresenter() {
-        return new UserPresenter();
+    public UserExtPresenter userPresenter() {
+        return new UserExtPresenter();
     }
 
+    @Override
     @Singletone(cache = Singletone.CacheType.WEAK)
-    public RobotPresenter robotPresenter() {
-        return new RobotPresenter();
+    public RobotExtPresenter robotPresenter() {
+        return new RobotExtPresenter();
     }
 
+    @Override
     @Singletone(cache = Singletone.CacheType.WEAK)
-    public StonePresenter stonePresenter() {
-        return new StonePresenter();
+    public StoneExtPresenter stonePresenter() {
+        return new StoneExtPresenter();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.klee0kai.stone.codegen;
 
 import com.klee0kai.stone.AnnotationProcessor;
+import com.klee0kai.stone.annotations.Component;
 import com.klee0kai.stone.container.ItemsWeakContainer;
 import com.klee0kai.stone.interfaces.IComponent;
 import com.klee0kai.stone.model.ClassDetail;
@@ -15,6 +16,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ComponentGen {
 
@@ -39,8 +41,9 @@ public class ComponentGen {
                 .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
                 .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
                 .build();
-        ClassName itemsWeakContainerClass = ClassName.get(ItemsWeakContainer.class);
-        String orClassFieldName = "originalClass";
+        String prefixFieldName = "prefix";
+        String recursiveFieldName = "recursiveBlock";
+        String relatedFieldName = "related";
         String iModuleInit = "init";
         String iModulePrefix = "prefix";
         String iModuleRelateTo = "relateTo";
@@ -50,7 +53,18 @@ public class ComponentGen {
                     .addAnnotation(codeGenAnnot)
                     .addSuperinterface(cl.classType)
                     .addSuperinterface(IComponent.class)
-                    .addModifiers(Modifier.PUBLIC);
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+
+            compBuilder.addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PRIVATE)
+                    .initializer("$S", "")
+                    .build());
+            compBuilder.addField(FieldSpec.builder(boolean.class, recursiveFieldName, Modifier.PRIVATE)
+                    .initializer("false").build());
+            compBuilder.addField(FieldSpec.builder(
+                            ParameterizedTypeName.get(LinkedList.class, IComponent.class), relatedFieldName, Modifier.PRIVATE)
+                    .initializer("new $T<$T>()", LinkedList.class, IComponent.class)
+                    .build());
+
 
             for (MethodDetail m : cl.methods) {
                 compBuilder.addField(
@@ -70,18 +84,24 @@ public class ComponentGen {
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(Object[].class, "modules")
                     .varargs(true)
+                    .addStatement("if ($L) return", recursiveFieldName)
+                    .addStatement("$L = true", recursiveFieldName)
                     .beginControlFlow("if (modules != null) for (Object m :modules)");
             for (MethodDetail m : cl.methods)
                 initMethodBuilder.addStatement("if ($L!=null) $L.init(m)", m.methodName, m.methodName);
             initMethodBuilder
-                    .endControlFlow();
+                    .endControlFlow()
+                    .beginControlFlow("if ($L != null ) for ($T r: $L) ", relatedFieldName, IComponent.class, relatedFieldName)
+                    .addStatement("r.init(modules)")
+                    .endControlFlow()
+                    .addStatement("$L = false", recursiveFieldName);
             compBuilder.addMethod(initMethodBuilder.build());
 
             compBuilder.addMethod(MethodSpec.methodBuilder(iModulePrefix)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC)
                     .returns(String.class)
-                    .addStatement("return $S", "")
+                    .addStatement("return $L", prefixFieldName)
                     .build());
 
             compBuilder.addMethod(MethodSpec.methodBuilder(iModuleRelateTo)
@@ -89,6 +109,18 @@ public class ComponentGen {
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(IComponent[].class, "components")
                     .varargs(true)
+                    .addStatement("if ($L) return", recursiveFieldName)
+                    .addStatement("$L = true", recursiveFieldName)
+                    .beginControlFlow("if (components!=null) for ($T c :components)", IComponent.class)
+                    .beginControlFlow("if (this.$L.contains(c))", relatedFieldName)
+                    .addStatement("$L = false", recursiveFieldName)
+                    .addStatement("return")
+                    .endControlFlow()
+                    .addStatement("c.init($L)", cl.methods.stream().map(m -> m.methodName)
+                            .collect(Collectors.joining(",")))
+                    .addStatement("c.relateTo(this)")
+                    .endControlFlow()
+                    .addStatement("$L = false", recursiveFieldName)
                     .build());
 
 
