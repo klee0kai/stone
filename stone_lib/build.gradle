@@ -1,7 +1,8 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
-group 'com.klee0kai.stone'
+group 'com.github.klee0kai.stone'
 version '0.0.1'
 
