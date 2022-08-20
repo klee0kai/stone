@@ -42,6 +42,8 @@ public class ComponentGen {
         ClassName itemsWeakContainerClass = ClassName.get(ItemsWeakContainer.class);
         String orClassFieldName = "originalClass";
         String iModuleInit = "init";
+        String iModulePrefix = "prefix";
+        String iModuleRelateTo = "relateTo";
 
         for (ClassDetail cl : classes) {
             TypeSpec.Builder compBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
@@ -73,8 +75,22 @@ public class ComponentGen {
                 initMethodBuilder.addStatement("if ($L!=null) $L.init(m)", m.methodName, m.methodName);
             initMethodBuilder
                     .endControlFlow();
-
             compBuilder.addMethod(initMethodBuilder.build());
+
+            compBuilder.addMethod(MethodSpec.methodBuilder(iModulePrefix)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(String.class)
+                    .addStatement("return $S", "")
+                    .build());
+
+            compBuilder.addMethod(MethodSpec.methodBuilder(iModuleRelateTo)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(IComponent[].class, "components")
+                    .varargs(true)
+                    .build());
+
 
             for (MethodDetail m : cl.methods) {
                 if (Objects.equals(m.methodName, "<init>"))
