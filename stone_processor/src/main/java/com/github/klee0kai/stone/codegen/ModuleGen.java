@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.container.ItemsWeakContainer;
 import com.github.klee0kai.stone.interfaces.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -10,12 +9,13 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
-import javax.annotation.Generated;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 public class ModuleGen {
 
@@ -35,11 +35,11 @@ public class ModuleGen {
     }
 
     public void genCode() {
-        AnnotationSpec codeGenAnnot = AnnotationSpec.builder(Generated.class)
-                .addMember("value", "$S", ModuleGen.class.getCanonicalName())
-                .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
-                .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
-                .build();
+//        AnnotationSpec codeGenAnnot = AnnotationSpec.builder(Generated.class)
+//                .addMember("value", "$S", ModuleGen.class.getCanonicalName())
+//                .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
+//                .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
+//                .build();
         ClassName itemsWeakContainerClass = ClassName.get(ItemsWeakContainer.class);
         String orClassFactoryFieldName = "factory";
         String prefixFieldName = "prefix";
@@ -55,8 +55,8 @@ public class ModuleGen {
                             .build())
                     .addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PRIVATE)
                             .initializer("$S", "1")
-                            .build())
-                    .addAnnotation(codeGenAnnot);
+                            .build());
+//                    .addAnnotation(codeGenAnnot);
 
 
             moduleClBuilder.addMethod(MethodSpec.methodBuilder(iModuleInit)

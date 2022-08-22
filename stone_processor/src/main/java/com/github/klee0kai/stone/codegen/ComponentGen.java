@@ -1,22 +1,21 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
-import javax.annotation.Generated;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 public class ComponentGen {
 
@@ -36,17 +35,17 @@ public class ComponentGen {
     }
 
     public void genCode() {
-        AnnotationSpec codeGenAnnot = AnnotationSpec.builder(Generated.class)
-                .addMember("value", "$S", ModuleGen.class.getCanonicalName())
-                .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
-                .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
-                .build();
+//        AnnotationSpec codeGenAnnot = AnnotationSpec.builder(Generated.class)
+//                .addMember("value", "$S", ModuleGen.class.getCanonicalName())
+//                .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
+//                .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
+//                .build();
         String prefixFieldName = "prefix";
         String iModuleInit = "init";
 
         for (ClassDetail cl : classes) {
             TypeSpec.Builder compBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
-                    .addAnnotation(codeGenAnnot)
+//                    .addAnnotation(codeGenAnnot)
                     .addSuperinterface(cl.classType)
                     .addSuperinterface(IComponent.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)

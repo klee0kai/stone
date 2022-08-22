@@ -4,8 +4,8 @@ import com.github.klee0kai.stone.annotations.Component;
 import com.github.klee0kai.stone.annotations.Module;
 import com.github.klee0kai.stone.codegen.ComponentGen;
 import com.github.klee0kai.stone.codegen.ModuleGen;
-import com.google.auto.service.AutoService;
 import com.github.klee0kai.stone.model.ClassDetail;
+import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
@@ -14,9 +14,7 @@ import java.util.Set;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
-        "com.klee0kai.stone.annotations.Component",
-        "com.klee0kai.stone.annotations.Module",
-        "com.klee0kai.stone.annotations.Item"
+      "*"
 })
 public class AnnotationProcessor extends AbstractProcessor {
 

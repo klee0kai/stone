@@ -1,9 +1,9 @@
 package com.github.klee0kai.stone.model;
 
+import com.github.klee0kai.stone.annotations.Component;
 import com.github.klee0kai.stone.annotations.Module;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
-import com.github.klee0kai.stone.annotations.Component;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.Element;

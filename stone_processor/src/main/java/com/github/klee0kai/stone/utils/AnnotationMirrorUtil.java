@@ -3,7 +3,6 @@ package com.github.klee0kai.stone.utils;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 
 public class AnnotationMirrorUtil {
 

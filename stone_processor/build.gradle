@@ -1,7 +1,10 @@
 apply plugin: 'java-library'
 
 group 'com.github.klee0kai.stone'
-version '0.0.1'
+version '0.0.3'
+
+apply from: '../jitpack.gradle'
+
 
 dependencies {
     implementation project(':stone_lib')
@@ -24,4 +27,3 @@ dependencies {
 }
 
 
-apply from : '../jitpack.gradle'
