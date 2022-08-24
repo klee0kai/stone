@@ -1,7 +1,7 @@
 apply plugin: 'java-library'
 
 group 'com.github.klee0kai.stone'
-version '0.0.3'
+version '0.0.4'
 
 apply from: '../jitpack.gradle'
 
