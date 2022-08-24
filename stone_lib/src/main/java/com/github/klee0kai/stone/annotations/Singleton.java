@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 @Retention(value = RetentionPolicy.SOURCE)
 @Target(value = ElementType.METHOD)
 @Inherited
-public @interface Singletone {
+public @interface Singleton {
 
     enum CacheType {
         WEAK,

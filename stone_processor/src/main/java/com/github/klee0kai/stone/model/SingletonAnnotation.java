@@ -1,12 +1,12 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.annotations.Singletone;
+import com.github.klee0kai.stone.annotations.Singleton;
 
 public class SingletonAnnotation implements Cloneable {
 
-    public Singletone.CacheType cacheType = Singletone.CacheType.SOFT;
+    public Singleton.CacheType cacheType = Singleton.CacheType.SOFT;
 
-    public static SingletonAnnotation of(Singletone ann) {
+    public static SingletonAnnotation of(Singleton ann) {
         if (ann == null)
             return null;
         SingletonAnnotation sAnn = new SingletonAnnotation();

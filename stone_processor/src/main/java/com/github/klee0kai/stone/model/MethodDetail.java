@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.annotations.Singletone;
+import com.github.klee0kai.stone.annotations.Singleton;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.ExecutableElement;
@@ -23,7 +23,7 @@ public class MethodDetail implements Cloneable {
         MethodDetail methodDetail = new MethodDetail();
         methodDetail.methodName = element.getSimpleName().toString();
         methodDetail.returnType = TypeName.get(element.getReturnType());
-        methodDetail.singletonAnn = SingletonAnnotation.of(element.getAnnotation(Singletone.class));
+        methodDetail.singletonAnn = SingletonAnnotation.of(element.getAnnotation(Singleton.class));
         for (VariableElement v : element.getParameters()) {
             methodDetail.argTypes.add(TypeName.get(v.asType()));
         }
