@@ -24,6 +24,8 @@ public class ClassDetail implements Cloneable {
 
     public List<ClassName> superTypes = new LinkedList<>();
 
+    public boolean isInterfaceClass = false;
+
 
     public static ClassDetail of(TypeElement owner) {
         ClassDetail classDetail = new ClassDetail();
@@ -31,6 +33,7 @@ public class ClassDetail implements Cloneable {
         classDetail.classType = ClassNameUtils.typeOf(owner.getQualifiedName().toString());
         classDetail.componentAnn = ComponentAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class));
         classDetail.moduleAnn = ModuleAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class));
+        classDetail.isInterfaceClass = owner.getKind().isInterface();
         for (Element el : owner.getEnclosedElements()) {
             if (!(el instanceof ExecutableElement))
                 continue;

@@ -50,10 +50,8 @@ public class AnnotationProcessor extends AbstractProcessor {
             componentGen.addComponent(classDetail);
         }
 
-
         moduleGen.genCode();
         componentGen.genCode();
-
         return false;
     }
 }

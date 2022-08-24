@@ -6,6 +6,9 @@ import com.github.klee0kai.stone.annotations.Component;
 public interface AppComponentExt extends AppComponent {
 
     @Override
+    AppModule app();
+
+    @Override
     DomainExtModule domain();
 
     @Override

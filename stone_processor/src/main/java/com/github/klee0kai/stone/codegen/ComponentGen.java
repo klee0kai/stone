@@ -46,12 +46,15 @@ public class ComponentGen {
         for (ClassDetail cl : classes) {
             TypeSpec.Builder compBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
 //                    .addAnnotation(codeGenAnnot)
-                    .addSuperinterface(cl.classType)
                     .addSuperinterface(IComponent.class)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PROTECTED)
                             .initializer("$S", 1)
                             .build());
+
+            if (cl.isInterfaceClass)
+                compBuilder.addSuperinterface(cl.classType);
+            else compBuilder.superclass(cl.classType);
 
 
             for (MethodDetail m : cl.methods) {

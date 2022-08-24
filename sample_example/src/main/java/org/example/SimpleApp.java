@@ -12,11 +12,12 @@ public class SimpleApp {
     public static final AppComponent DI = Stone.createComponent(AppComponent.class);
 
     public static void init() {
-        DI.init(new DomainModule(), new PresenterModule());
+        DI.init(new SimpleApp(), new DomainModule(), new PresenterModule());
     }
 
 
     public static void doSomeWork() {
+        System.out.println("app context = " + DI.app().context());
         System.out.println("user presenter1 = " + DI.presenter().userPresenter());
         System.out.println("user presenter2 = " + DI.presenter().userPresenter());
         ItemsWeakContainer.gc(false);

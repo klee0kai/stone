@@ -48,7 +48,6 @@ public class ModuleGen {
 
         for (ClassDetail cl : classes) {
             TypeSpec.Builder moduleClBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
-                    .superclass(cl.classType)
                     .addSuperinterface(ClassName.get(IModule.class))
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addField(FieldSpec.builder(cl.classType, orClassFactoryFieldName, Modifier.PRIVATE)
@@ -57,9 +56,12 @@ public class ModuleGen {
                             .initializer("$S", "1")
                             .build());
 //                    .addAnnotation(codeGenAnnot);
+            if (cl.isInterfaceClass)
+                moduleClBuilder.addSuperinterface(cl.classType);
+            else moduleClBuilder.superclass(cl.classType);
 
 
-            moduleClBuilder.addMethod(MethodSpec.methodBuilder(iModuleInit)
+            MethodSpec.Builder initMethodBuilder = MethodSpec.methodBuilder(iModuleInit)
                     .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                     .addAnnotation(Override.class)
                     .addParameter(Object.class, "or")
@@ -69,8 +71,7 @@ public class ModuleGen {
                     .addStatement("(($T)or).$L($T.valueOf($T.parseInt($L)+1))", IModule.class, iModuleSetPrefix, String.class, Integer.class, prefixFieldName)
                     .endControlFlow()
                     .endControlFlow()
-                    .returns(void.class)
-                    .build());
+                    .returns(void.class);
 
             moduleClBuilder.addMethod(MethodSpec.methodBuilder(iModuleSetPrefix)
                     .addAnnotation(Override.class)
@@ -82,6 +83,20 @@ public class ModuleGen {
             for (MethodDetail m : cl.methods) {
                 if (Objects.equals(m.methodName, "<init>"))
                     continue;
+                incrementRefId++;
+                if (m.changeableAnn != null) {
+                    moduleClBuilder.addMethod(MethodSpec.methodBuilder(m.methodName)
+                            .addAnnotation(Override.class)
+                            .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                            .returns(m.returnType)
+                            .addStatement("return  $T.get($L+$L)", itemsWeakContainerClass, prefixFieldName, incrementRefId)
+                            .build());
+                    initMethodBuilder.addStatement("if (or instanceof $T) $T.putRef($L + $L,$L,or)", m.returnType,
+                            itemsWeakContainerClass, prefixFieldName, incrementRefId, m.changeableAnn.cacheType);
+
+                    continue;
+                }
+
                 if (m.singletonAnn == null)
                     m.singletonAnn = new SingletonAnnotation();
 
@@ -100,19 +115,19 @@ public class ModuleGen {
                     itemMethodBuilder.addParameter(t, "arg" + (argIndex++));
                 }
 
+
                 itemMethodBuilder
                         .addStatement("$T cache = $T.get($L+$L $L)", m.returnType, itemsWeakContainerClass, prefixFieldName, incrementRefId, argsSum)
                         .addStatement("if (cache != null) return cache")
                         .addStatement("if ($L == null) return null", orClassFactoryFieldName)
                         .addStatement("return $T.putRef($L + $L $L,$L,$L.$L($L))", itemsWeakContainerClass,
-                                prefixFieldName, incrementRefId++, argsSum, m.singletonAnn.cacheType, orClassFactoryFieldName, m.methodName, argsComma);
-
+                                prefixFieldName, incrementRefId, argsSum, m.singletonAnn.cacheType, orClassFactoryFieldName, m.methodName, argsComma);
                 moduleClBuilder.addMethod(itemMethodBuilder
                         .build());
 
             }
 
-
+            moduleClBuilder.addMethod(initMethodBuilder.build());
             CodeFileUtil.writeToJavaFile(cl.classType.packageName(), moduleClBuilder.build());
         }
     }
