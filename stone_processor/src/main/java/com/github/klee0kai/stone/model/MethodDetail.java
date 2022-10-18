@@ -6,8 +6,10 @@ import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class MethodDetail implements Cloneable {
 
@@ -33,8 +35,31 @@ public class MethodDetail implements Cloneable {
         return methodDetail;
     }
 
+    /**
+     * methods is same if they have same name and params
+     *
+     * @param methodDetail
+     * @return
+     */
+    public boolean isSameMethod(MethodDetail methodDetail) {
+        return methodDetail != null && Objects.equals(this.methodName, methodDetail.methodName) && Objects.equals(argTypes, methodDetail.argTypes);
+    }
+
     @Override
     public MethodDetail clone() throws CloneNotSupportedException {
         return (MethodDetail) super.clone();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MethodDetail that = (MethodDetail) o;
+        return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType) && Objects.equals(argTypes, that.argTypes) && Objects.equals(singletonAnn, that.singletonAnn) && Objects.equals(changeableAnn, that.changeableAnn);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(methodName, returnType, argTypes, singletonAnn, changeableAnn);
     }
 }

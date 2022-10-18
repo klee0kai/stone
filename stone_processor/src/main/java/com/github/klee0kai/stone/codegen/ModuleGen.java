@@ -49,7 +49,7 @@ public class ModuleGen {
         for (ClassDetail cl : classes) {
             TypeSpec.Builder moduleClBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
                     .addSuperinterface(ClassName.get(IModule.class))
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addModifiers(Modifier.PUBLIC)
                     .addField(FieldSpec.builder(cl.classType, orClassFactoryFieldName, Modifier.PRIVATE)
                             .build())
                     .addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PRIVATE)

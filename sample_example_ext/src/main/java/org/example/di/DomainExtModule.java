@@ -9,9 +9,13 @@ import org.example.module.InfinityStone;
 @Module
 public class DomainExtModule extends DomainModule {
 
-
     @Override
     public UserExtRepository userRepository() {
+        return new UserExtRepository();
+    }
+
+
+    public UserExtRepository rep1() {
         return new UserExtRepository();
     }
 
@@ -20,8 +24,4 @@ public class DomainExtModule extends DomainModule {
         return new RobotExtRepository();
     }
 
-    @Override
-    public StoneExtRepository stoneRepository(InfinityStone infinityStone) {
-        return new StoneExtRepository(infinityStone);
-    }
 }
