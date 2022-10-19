@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.interfaces.IComponent;
+import com.github.klee0kai.stone.interfaces.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
@@ -40,17 +41,14 @@ public class ComponentGen {
 //                .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
 //                .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
 //                .build();
-        String prefixFieldName = "prefix";
         String iModuleInit = "init";
+        String methodExtOf = "extOf";
 
         for (ClassDetail cl : classes) {
             TypeSpec.Builder compBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
 //                    .addAnnotation(codeGenAnnot)
                     .addSuperinterface(IComponent.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PROTECTED)
-                            .initializer("$S", 1)
-                            .build());
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             if (cl.isInterfaceClass)
                 compBuilder.addSuperinterface(cl.classType);
@@ -83,14 +81,18 @@ public class ComponentGen {
 
             compBuilder.addMethod(initMethodBuilder.build());
 
-            MethodSpec.Builder initByOtherDI = MethodSpec.methodBuilder(iModuleInit)
+            MethodSpec.Builder metBuilderExtOfOtherDI = MethodSpec.methodBuilder(methodExtOf)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(IComponent.class, "c")
-                    .addStatement("if (!(c instanceof $T)) return", cl.classType);
+                    .addParameter(IComponent.class, "c");
             for (MethodDetail m : cl.methods)
-                initByOtherDI.addStatement("$L.init((($T)c).$L())", m.methodName, cl.classType, m.methodName);
-            compBuilder.addMethod(initByOtherDI.build());
+                metBuilderExtOfOtherDI.addStatement("c.init($L)", m.methodName);
+            for (MethodDetail m : cl.methods) {
+                ClassDetail interfaceOrigin = cl.findInterfaceOverride(m);
+                if (interfaceOrigin != null)
+                    metBuilderExtOfOtherDI.addStatement("$L.extOf( ($T )  ( ( $T ) c).$L())", m.methodName, IModule.class, interfaceOrigin.classType, m.methodName);
+            }
+            compBuilder.addMethod(metBuilderExtOfOtherDI.build());
 
 
             for (MethodDetail m : cl.methods) {

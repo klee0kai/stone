@@ -8,9 +8,9 @@ public interface IComponent {
     void init(Object... modules);
 
     /**
-     * init by other DI
+     * this component extends of other
      */
-    void init(IComponent components);
+    void extOf(IComponent components);
 
 
 }

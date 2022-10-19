@@ -14,5 +14,7 @@ public interface AppComponentExt extends AppComponent {
     @Override
     PresenterExtModule presenter();
 
+    ProHelperModule helper();
+
 
 }

@@ -43,44 +43,60 @@ public class ModuleGen {
         ClassName itemsWeakContainerClass = ClassName.get(ItemsWeakContainer.class);
         String orClassFactoryFieldName = "factory";
         String prefixFieldName = "prefix";
-        String iModuleInit = "init";
-        String iModuleSetPrefix = "setPrefix";
+        String superDIModuleStoneFieldName = "superModuleStone";
+        String initMethodName = "init";
+        String extOfMethodName = "extOf";
 
         for (ClassDetail cl : classes) {
+            boolean hasSupperStoneModule = cl.superClass != null && cl.superClass.moduleAnn != null;
+
+
             TypeSpec.Builder moduleClBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
                     .addSuperinterface(ClassName.get(IModule.class))
                     .addModifiers(Modifier.PUBLIC)
                     .addField(FieldSpec.builder(cl.classType, orClassFactoryFieldName, Modifier.PRIVATE)
                             .build())
                     .addField(FieldSpec.builder(String.class, prefixFieldName, Modifier.PRIVATE)
-                            .initializer("$S", "1")
+                            .initializer("$S", cl.superClassesDeep(false))
                             .build());
 //                    .addAnnotation(codeGenAnnot);
             if (cl.isInterfaceClass)
                 moduleClBuilder.addSuperinterface(cl.classType);
             else moduleClBuilder.superclass(cl.classType);
 
+            if (hasSupperStoneModule)
+                moduleClBuilder.addField(
+                        FieldSpec.builder(ClassNameUtils.genClassNameMirror(cl.superClass.classType), superDIModuleStoneFieldName, Modifier.PRIVATE)
+                                .build());
 
-            MethodSpec.Builder initMethodBuilder = MethodSpec.methodBuilder(iModuleInit)
+
+            MethodSpec.Builder initMethodBuilder = MethodSpec.methodBuilder(initMethodName)
                     .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                     .addAnnotation(Override.class)
                     .addParameter(Object.class, "or")
                     .beginControlFlow("if (or instanceof $T) ", cl.classType)
                     .addStatement("this.$L = ($T) or", orClassFactoryFieldName, cl.classType)
-                    .beginControlFlow("if (or instanceof $T)", IModule.class)
-                    .addStatement("(($T)or).$L($T.valueOf($T.parseInt($L)+1))", IModule.class, iModuleSetPrefix, String.class, Integer.class, prefixFieldName)
-                    .endControlFlow()
                     .endControlFlow()
                     .returns(void.class);
 
-            moduleClBuilder.addMethod(MethodSpec.methodBuilder(iModuleSetPrefix)
-                    .addAnnotation(Override.class)
+            MethodSpec.Builder extOfMethodBuilder = MethodSpec.methodBuilder(extOfMethodName)
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(String.class, "prefix")
-                    .addStatement("this.$L = prefix", prefixFieldName)
-                    .build());
+                    .addAnnotation(Override.class)
+                    .addParameter(IModule.class, "superStoneModule")
+                    .returns(void.class);
 
-            for (MethodDetail m : cl.methods) {
+            if (hasSupperStoneModule)
+                extOfMethodBuilder.beginControlFlow("if (superStoneModule instanceof $T)", ClassNameUtils.genClassNameMirror(cl.superClass.classType))
+                        .addStatement("this.$L = ($T) superStoneModule", superDIModuleStoneFieldName, ClassNameUtils.genClassNameMirror(cl.superClass.classType))
+                        .endControlFlow()
+                        .beginControlFlow("else if (superStoneModule == null)")
+                        .addStatement("this.$L = null ", superDIModuleStoneFieldName)
+                        .endControlFlow();
+
+
+            moduleClBuilder.addMethod(extOfMethodBuilder.build());
+
+            for (MethodDetail m : cl.getAllMethods(false)) {
                 if (Objects.equals(m.methodName, "<init>"))
                     continue;
                 incrementRefId++;
@@ -93,7 +109,6 @@ public class ModuleGen {
                             .build());
                     initMethodBuilder.addStatement("if (or instanceof $T) $T.putRef($L + $L,$L,or)", m.returnType,
                             itemsWeakContainerClass, prefixFieldName, incrementRefId, m.changeableAnn.cacheType);
-
                     continue;
                 }
 
@@ -115,6 +130,10 @@ public class ModuleGen {
                     itemMethodBuilder.addParameter(t, "arg" + (argIndex++));
                 }
 
+                if (hasSupperStoneModule && !cl.haveMethod(m, false)) {
+                    // this module does override this component. We can use old
+                    itemMethodBuilder.addStatement("if ($L != null) return  $L.$L($L)", superDIModuleStoneFieldName, superDIModuleStoneFieldName, m.methodName, argsComma);
+                }
 
                 itemMethodBuilder
                         .addStatement("$T cache = $T.get($L+$L $L)", m.returnType, itemsWeakContainerClass, prefixFieldName, incrementRefId, argsSum)
