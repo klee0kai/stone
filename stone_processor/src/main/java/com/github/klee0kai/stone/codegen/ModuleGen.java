@@ -43,6 +43,7 @@ public class ModuleGen {
         String superDIModuleStoneFieldName = "superModuleStone";
         String initMethodName = "init";
         String extOfMethodName = "extOf";
+        String getFactoryMethodName = "getFactory";
 
         for (ClassDetail cl : classes) {
             boolean hasSupperStoneModule = cl.superClass != null && cl.superClass.moduleAnn != null;
@@ -149,6 +150,12 @@ public class ModuleGen {
             }
 
             moduleClBuilder.addMethod(initMethodBuilder.build());
+
+            moduleClBuilder.addMethod(MethodSpec.methodBuilder(getFactoryMethodName)
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(Object.class)
+                    .addStatement("return this.$L", orClassFactoryFieldName)
+                    .build());
 
 
             CodeFileUtil.writeToJavaFile(cl.classType.packageName(), moduleClBuilder.build());

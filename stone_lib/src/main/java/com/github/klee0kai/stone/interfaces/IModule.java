@@ -4,6 +4,7 @@ public interface IModule {
 
     /**
      * Init module
+     *
      * @param ob - binding object or factory of objects
      */
     void init(Object ob);
@@ -11,9 +12,16 @@ public interface IModule {
 
     /**
      * this module extents of other module
+     *
      * @param superStoneModule - super stone module which this module extending for
      */
     void extOf(IModule superStoneModule);
 
+    /**
+     * get component's factory
+     *
+     * @return
+     */
+    Object getFactory();
 
 }

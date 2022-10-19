@@ -9,6 +9,7 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.sun.org.apache.xml.internal.utils.ObjectVector;
 
@@ -43,6 +44,7 @@ public class ComponentGen {
 //                .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
 //                .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
 //                .build();
+        String superStoneComponentFieldName = "superStoneComponent";
         String initMethodName = "init";
         String extOfMethodName = "extOf";
         String removeScopeMethodName = "removeScope";
@@ -51,7 +53,10 @@ public class ComponentGen {
             TypeSpec.Builder compBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
 //                    .addAnnotation(codeGenAnnot)
                     .addSuperinterface(IComponent.class)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addField(FieldSpec.builder(IComponent.class, superStoneComponentFieldName, Modifier.PROTECTED)
+                            .initializer("null")
+                            .build());
 
             if (cl.isInterfaceClass)
                 compBuilder.addSuperinterface(cl.classType);
@@ -76,6 +81,7 @@ public class ComponentGen {
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(Object[].class, "modules")
                     .varargs(true)
+                    .addStatement("if ($L != null) $L.$L(modules)", superStoneComponentFieldName, superStoneComponentFieldName, initMethodName)
                     .beginControlFlow("if (modules != null) for (Object m :modules)");
             for (MethodDetail m : cl.methods)
                 initMethodBuilder.addStatement("if ($L != null ) $L.init(m)", m.methodName, m.methodName);
@@ -87,9 +93,10 @@ public class ComponentGen {
             MethodSpec.Builder metBuilderExtOfOtherDI = MethodSpec.methodBuilder(extOfMethodName)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(IComponent.class, "c");
+                    .addParameter(IComponent.class, "c")
+                    .addStatement("this.$L = c", superStoneComponentFieldName);
             for (MethodDetail m : cl.methods)
-                metBuilderExtOfOtherDI.addStatement("c.init($L)", m.methodName);
+                metBuilderExtOfOtherDI.addStatement("c.init($L.getFactory())", m.methodName);
             for (MethodDetail m : cl.methods) {
                 ClassDetail interfaceOrigin = cl.findInterfaceOverride(m);
                 if (interfaceOrigin != null)
