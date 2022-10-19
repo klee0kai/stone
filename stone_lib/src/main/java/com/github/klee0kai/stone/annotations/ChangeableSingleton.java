@@ -10,4 +10,6 @@ public @interface ChangeableSingleton {
 
     Singleton.CacheType cache() default Singleton.CacheType.SOFT;
 
+    String scope() default "";
+
 }

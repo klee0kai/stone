@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.annotations.Singleton;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
+import java.util.*;
 
 public class ItemsWeakContainer {
 
@@ -32,11 +32,25 @@ public class ItemsWeakContainer {
         }
     }
 
-    public static synchronized void remove(int a) {
-        weakItems.remove(a);
-        softItems.remove(a);
-        strongItems.remove(a);
+    public static synchronized void remove(String key) {
+        weakItems.remove(key);
+        softItems.remove(key);
+        strongItems.remove(key);
     }
+
+    public static synchronized void removeScope(String scope) {
+        scope = scope + ".";
+        for (Map<String, ? extends Object> map : Arrays.asList(weakItems, softItems, strongItems)) {
+            List<String> rmKeys = new LinkedList<>();
+            for (String key : map.keySet()) {
+                if (key.startsWith(scope))
+                    rmKeys.add(key);
+            }
+            for (String rmKey : rmKeys)
+                map.remove(rmKey);
+        }
+    }
+
 
     /**
      * run garbage collector for container

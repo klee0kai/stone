@@ -12,10 +12,7 @@ import com.squareup.javapoet.*;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ModuleGen {
 
@@ -101,19 +98,23 @@ public class ModuleGen {
                     continue;
                 incrementRefId++;
                 if (m.changeableAnn != null) {
+                    String scope = (m.changeableAnn.scope != null ? m.changeableAnn.scope : "") + ".";
                     moduleClBuilder.addMethod(MethodSpec.methodBuilder(m.methodName)
                             .addAnnotation(Override.class)
                             .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                             .returns(m.returnType)
-                            .addStatement("return  $T.get($L+$L)", itemsWeakContainerClass, prefixFieldName, incrementRefId)
+                            .addStatement("return  $T.get($S + $L+$L)", itemsWeakContainerClass, scope, prefixFieldName, incrementRefId)
                             .build());
-                    initMethodBuilder.addStatement("if (or instanceof $T) $T.putRef($L + $L,$L,or)", m.returnType,
-                            itemsWeakContainerClass, prefixFieldName, incrementRefId, m.changeableAnn.cacheType);
+                    initMethodBuilder.addStatement("if (or instanceof $T) $T.putRef($S + $L + $L,$L,or)", m.returnType,
+                            itemsWeakContainerClass, scope, prefixFieldName, incrementRefId, m.changeableAnn.cacheType);
                     continue;
                 }
 
+
                 if (m.singletonAnn == null)
                     m.singletonAnn = new SingletonAnnotation();
+                String scope = (m.singletonAnn.scope != null ? m.singletonAnn.scope : "") + ".";
+
 
                 int argIndex = 0;
                 StringBuilder argsSum = new StringBuilder();
@@ -136,17 +137,20 @@ public class ModuleGen {
                 }
 
                 itemMethodBuilder
-                        .addStatement("$T cache = $T.get($L+$L $L)", m.returnType, itemsWeakContainerClass, prefixFieldName, incrementRefId, argsSum)
+                        .addStatement("$T cache = $T.get($S + $L+$L+ \".\" $L)", m.returnType, itemsWeakContainerClass, scope, prefixFieldName, incrementRefId, argsSum)
                         .addStatement("if (cache != null) return cache")
                         .addStatement("if ($L == null) return null", orClassFactoryFieldName)
-                        .addStatement("return $T.putRef($L + $L $L,$L,$L.$L($L))", itemsWeakContainerClass,
-                                prefixFieldName, incrementRefId, argsSum, m.singletonAnn.cacheType, orClassFactoryFieldName, m.methodName, argsComma);
+                        .addStatement("return $T.putRef($S + $L + $L + \".\" $L,$L,$L.$L($L))", itemsWeakContainerClass,
+                                scope, prefixFieldName, incrementRefId, argsSum, m.singletonAnn.cacheType, orClassFactoryFieldName, m.methodName, argsComma);
+
+
                 moduleClBuilder.addMethod(itemMethodBuilder
                         .build());
-
             }
 
             moduleClBuilder.addMethod(initMethodBuilder.build());
+
+
             CodeFileUtil.writeToJavaFile(cl.classType.packageName(), moduleClBuilder.build());
         }
     }

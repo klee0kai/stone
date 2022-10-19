@@ -12,5 +12,10 @@ public interface IComponent {
      */
     void extOf(IComponent components);
 
-
+    /**
+     * remove components by scope
+     *
+     * @param scope
+     */
+    void removeScope(String scope);
 }

@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.container.ItemsWeakContainer;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.interfaces.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -9,6 +10,7 @@ import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import com.sun.org.apache.xml.internal.utils.ObjectVector;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -41,8 +43,9 @@ public class ComponentGen {
 //                .addMember("comments", "$S", AnnotationProcessor.PROJECT_URL)
 //                .addMember("date", "$S", new SimpleDateFormat().format(Calendar.getInstance().getTime()))
 //                .build();
-        String iModuleInit = "init";
-        String methodExtOf = "extOf";
+        String initMethodName = "init";
+        String extOfMethodName = "extOf";
+        String removeScopeMethodName = "removeScope";
 
         for (ClassDetail cl : classes) {
             TypeSpec.Builder compBuilder = TypeSpec.classBuilder(ClassNameUtils.genClassNameMirror(cl.classType))
@@ -68,7 +71,7 @@ public class ComponentGen {
                     .addStatement("super()")
                     .build());
 
-            MethodSpec.Builder initMethodBuilder = MethodSpec.methodBuilder(iModuleInit)
+            MethodSpec.Builder initMethodBuilder = MethodSpec.methodBuilder(initMethodName)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(Object[].class, "modules")
@@ -81,7 +84,7 @@ public class ComponentGen {
 
             compBuilder.addMethod(initMethodBuilder.build());
 
-            MethodSpec.Builder metBuilderExtOfOtherDI = MethodSpec.methodBuilder(methodExtOf)
+            MethodSpec.Builder metBuilderExtOfOtherDI = MethodSpec.methodBuilder(extOfMethodName)
                     .addAnnotation(Override.class)
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(IComponent.class, "c");
@@ -94,6 +97,13 @@ public class ComponentGen {
             }
             compBuilder.addMethod(metBuilderExtOfOtherDI.build());
 
+
+            compBuilder.addMethod(MethodSpec.methodBuilder(removeScopeMethodName)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(String.class, "scope")
+                    .addStatement("$T.removeScope(scope)", ItemsWeakContainer.class)
+                    .build());
 
             for (MethodDetail m : cl.methods) {
                 if (Objects.equals(m.methodName, "<init>"))

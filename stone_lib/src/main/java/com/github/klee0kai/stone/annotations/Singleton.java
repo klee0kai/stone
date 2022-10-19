@@ -16,4 +16,6 @@ public @interface Singleton {
 
     CacheType cache() default CacheType.SOFT;
 
+    String scope() default "";
+
 }

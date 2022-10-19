@@ -6,12 +6,14 @@ import com.github.klee0kai.stone.annotations.Singleton;
 public class ChangeableSingletonAnnotation implements Cloneable {
 
     public Singleton.CacheType cacheType = Singleton.CacheType.SOFT;
+    public String scope = "";
 
     public static ChangeableSingletonAnnotation of(ChangeableSingleton ann) {
         if (ann == null)
             return null;
         ChangeableSingletonAnnotation sAnn = new ChangeableSingletonAnnotation();
         sAnn.cacheType = ann.cache();
+        sAnn.scope = ann.scope();
         return sAnn;
     }
 

@@ -15,4 +15,5 @@ public interface IModule {
      */
     void extOf(IModule superStoneModule);
 
+
 }
