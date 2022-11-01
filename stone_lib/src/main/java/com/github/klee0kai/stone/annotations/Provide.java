@@ -6,10 +6,15 @@ import java.lang.annotation.*;
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.METHOD)
 @Inherited
-public @interface ChangeableSingleton {
+public @interface Provide {
 
-    Singleton.CacheType cache() default Singleton.CacheType.SOFT;
+    enum CacheType {
+        FACTORY,
+        WEAK,
+        SOFT,
+        STRONG
+    }
 
-    String scope() default "";
+    CacheType cache() default CacheType.SOFT;
 
 }

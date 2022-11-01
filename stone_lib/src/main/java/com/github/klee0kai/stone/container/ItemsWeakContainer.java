@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.container;
 
-import com.github.klee0kai.stone.annotations.Singleton;
+import com.github.klee0kai.stone.annotations.Provide;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -16,7 +16,7 @@ public class ItemsWeakContainer {
     private static final HashMap<String, Object> strongItems = new HashMap<>();
 
 
-    public static synchronized <T> T putRef(String key, Singleton.CacheType cacheType, T a) {
+    public static synchronized <T> T putRef(String key, Provide.CacheType cacheType, T a) {
         switch (cacheType) {
             case WEAK:
                 weakItems.put(key, new WeakReference<>(a));

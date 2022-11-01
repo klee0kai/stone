@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.METHOD)
 @Inherited
-public @interface Singleton {
+public @interface BindInstance {
 
     enum CacheType {
         WEAK,
@@ -14,8 +14,6 @@ public @interface Singleton {
         STRONG
     }
 
-    CacheType cache() default CacheType.SOFT;
-
-    String scope() default "";
+    BindInstance.CacheType cache() default BindInstance.CacheType.SOFT;
 
 }

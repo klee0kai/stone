@@ -17,5 +17,5 @@ public interface IComponent {
      *
      * @param scope
      */
-    void removeScope(String scope);
+    void removeScope(Object scope);
 }

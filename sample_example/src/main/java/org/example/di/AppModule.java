@@ -1,14 +1,14 @@
 package org.example.di;
 
-import com.github.klee0kai.stone.annotations.ChangeableSingleton;
+import com.github.klee0kai.stone.annotations.BindInstance;
 import com.github.klee0kai.stone.annotations.Module;
-import com.github.klee0kai.stone.annotations.Singleton;
+import com.github.klee0kai.stone.annotations.Provide;
 import org.example.SimpleApp;
 
 @Module
 public interface AppModule {
 
-    @ChangeableSingleton(cache = Singleton.CacheType.WEAK)
+    @BindInstance(cache = BindInstance.CacheType.WEAK)
     SimpleApp context();
 
 }
