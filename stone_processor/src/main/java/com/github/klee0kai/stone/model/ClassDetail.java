@@ -6,36 +6,39 @@ import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
 public class ClassDetail implements Cloneable {
 
-    public ClassName classType;
+    public ClassName className;
 
-    public ComponentAnnotation componentAnn;
-    public ModuleAnnotation moduleAnn;
+    public Set<Modifier> modifiers = Collections.emptySet();
+
+    public ElementKind elementKind;
 
     public List<MethodDetail> methods = new LinkedList<>();
 
-    public List<ClassName> superTypes = new LinkedList<>();
     public ClassDetail superClass = null;
     public List<ClassDetail> interfaces = new LinkedList<>();
 
-    public boolean isInterfaceClass = false;
+
+    // ------- annotations ---------
+    public ComponentAnnotation componentAnn;
+    public ModuleAnnotation moduleAnn;
 
 
     public static ClassDetail of(TypeElement owner) {
         ClassDetail classDetail = new ClassDetail();
-        List<? extends Element> children = owner.getEnclosedElements();
-        classDetail.classType = ClassNameUtils.typeOf(owner.getQualifiedName().toString());
+        classDetail.className = ClassNameUtils.typeOf(owner.getQualifiedName().toString());
+        classDetail.modifiers = owner.getModifiers();
+        classDetail.elementKind = owner.getKind();
+
         classDetail.componentAnn = ComponentAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class));
         classDetail.moduleAnn = ModuleAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class));
-        classDetail.isInterfaceClass = owner.getKind().isInterface();
+
 
         for (Element el : owner.getEnclosedElements()) {
             if (!(el instanceof ExecutableElement))
@@ -56,7 +59,7 @@ public class ClassDetail implements Cloneable {
     }
 
     public List<MethodDetail> getAllMethods(boolean includeObjectMethods) {
-        if (!includeObjectMethods && classType.equals(ClassName.OBJECT))
+        if (!includeObjectMethods && className.equals(ClassName.OBJECT))
             return Collections.emptyList();
         LinkedList<MethodDetail> allMethods = new LinkedList<>(this.methods);
         if (superClass != null)
@@ -70,6 +73,22 @@ public class ClassDetail implements Cloneable {
                     break;
             }
             if (!exist)
+                outMethods.add(m);
+        }
+        return outMethods;
+    }
+
+    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, String... exceptNames) {
+        LinkedList<MethodDetail> outMethods = new LinkedList<>();
+        for (MethodDetail m : getAllMethods(includeObjectMethods)) {
+            boolean ignore = false;
+            if (exceptNames != null)
+                for (String ex : exceptNames)
+                    if (Objects.equals(ex, m.methodName)) {
+                        ignore = true;
+                        break;
+                    }
+            if (!ignore)
                 outMethods.add(m);
         }
         return outMethods;
@@ -100,11 +119,19 @@ public class ClassDetail implements Cloneable {
     }
 
     public int superClassesDeep(boolean includeObject) {
-        if (!includeObject && classType.equals(ClassName.OBJECT))
+        if (!includeObject && className.equals(ClassName.OBJECT))
             return 0;
         if (superClass != null)
             return superClass.superClassesDeep(includeObject) + 1;
         return 0;
+    }
+
+    public boolean isAbstractClass() {
+        return modifiers.contains(Modifier.ABSTRACT);
+    }
+
+    public boolean isInterfaceClass() {
+        return elementKind.isInterface();
     }
 
     @Override
@@ -112,16 +139,5 @@ public class ClassDetail implements Cloneable {
         return (ClassDetail) super.clone();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ClassDetail that = (ClassDetail) o;
-        return isInterfaceClass == that.isInterfaceClass && Objects.equals(classType, that.classType) && Objects.equals(componentAnn, that.componentAnn) && Objects.equals(moduleAnn, that.moduleAnn) && Objects.equals(methods, that.methods) && Objects.equals(superTypes, that.superTypes);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(classType, componentAnn, moduleAnn, methods, superTypes, isInterfaceClass);
-    }
 }

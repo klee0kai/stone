@@ -7,7 +7,7 @@ public interface IModule {
      *
      * @param ob - binding object or factory of objects
      */
-    void init(Object ob);
+    boolean init(Object ob);
 
 
     /**

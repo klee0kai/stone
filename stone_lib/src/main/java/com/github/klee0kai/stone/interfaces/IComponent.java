@@ -3,7 +3,11 @@ package com.github.klee0kai.stone.interfaces;
 public interface IComponent {
 
     /**
-     * init modules
+     * init modules.
+     * @param modules can be:
+     *                - a factory instance
+     *                - a factory class
+     *                - An instance of bindable objects
      */
     void init(Object... modules);
 
@@ -12,10 +16,5 @@ public interface IComponent {
      */
     void extOf(IComponent components);
 
-    /**
-     * remove components by scope
-     *
-     * @param scope
-     */
-    void removeScope(Object scope);
+
 }

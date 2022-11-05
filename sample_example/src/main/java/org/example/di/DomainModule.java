@@ -3,26 +3,17 @@ package org.example.di;
 
 import com.github.klee0kai.stone.annotations.Module;
 import com.github.klee0kai.stone.annotations.Provide;
-import org.example.domain.RobotRepository;
-import org.example.domain.StoneRepository;
-import org.example.domain.UserRepository;
-import org.example.module.InfinityStone;
+import org.example.domain.StoneInteractor;
 
 @Module
-public class DomainModule {
+public abstract class DomainModule {
 
-    public UserRepository userRepository() {
-        return new UserRepository();
-    }
+    @Provide(cache = Provide.CacheType.WEAK)
+    abstract public StoneInteractor stoneInteractor();
 
-    @Provide
-    public RobotRepository robotRepository() {
-        return new RobotRepository();
-    }
-
-    @Provide(cache = Provide.CacheType.STRONG)
-    public StoneRepository stoneRepository(InfinityStone infinityStone) {
-        return new StoneRepository(infinityStone);
+    @Provide(cache = Provide.CacheType.WEAK)
+    public StoneInteractor stoneInteractor2(){
+        return new StoneInteractor();
     }
 
 }

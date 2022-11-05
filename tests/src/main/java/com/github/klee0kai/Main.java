@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone;
+package com.github.klee0kai;
 
 public class Main {
     public static void main(String[] args) {

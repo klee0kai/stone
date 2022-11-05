@@ -12,10 +12,24 @@ public class ClassNameUtils {
                 clFullName.substring(clFullName.lastIndexOf(".") + 1));
     }
 
-    public static ClassName genClassNameMirror(TypeName or) {
+    public static ClassName genFactoryNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "Stone");
+        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneFactory");
+    }
+
+
+    public static ClassName genModuleNameMirror(TypeName or) {
+        if (!(or instanceof ClassName)) return null;
+        ClassName origin = (ClassName) or;
+        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneModule");
+    }
+
+
+    public static ClassName genComponentNameMirror(TypeName or) {
+        if (!(or instanceof ClassName)) return null;
+        ClassName origin = (ClassName) or;
+        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneComponent");
     }
 
 }
