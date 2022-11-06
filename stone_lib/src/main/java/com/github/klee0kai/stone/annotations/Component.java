@@ -9,17 +9,4 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.TYPE)
 public @interface Component {
-
-    /**
-     * Qualifiers for providing components.
-     * Control building components and cached components.
-     * Can use as id class wrapper for component's constructor
-     *
-     * @return
-     */
-    Class[] qualifiers() default {};
-
-
-
-
 }

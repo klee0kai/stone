@@ -45,7 +45,7 @@ public class ModuleBuilder {
 
 
     // ---------------------- provide fields and method  ----------------------------------
-    public final HashMap<String, FieldSpec.Builder> cacheFields = new HashMap<>();
+    public final List<FieldSpec.Builder> cacheFields = new LinkedList<>();
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
@@ -57,12 +57,13 @@ public class ModuleBuilder {
                 .factoryField(factoryBuilder.orFactory.className, factoryBuilder.className)
                 .implementIModule();
 
+        int fieldId = 1;
         for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
             if (m.bindInstanceAnnotation != null) {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
-                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName, m.returnType, m.args, cacheType);
+                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
                 builder.allWeakFor(itemHolderCodeHelper);
             } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.FACTORY) {
@@ -70,7 +71,7 @@ public class ModuleBuilder {
             } else {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(
                         m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.SOFT);
-                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName, m.returnType, m.args, cacheType);
+                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
                 builder.allWeakFor(itemHolderCodeHelper);
             }
@@ -223,8 +224,8 @@ public class ModuleBuilder {
         MethodSpec.Builder allWeakMethod = iModuleMethodBuilders.get(allWeakMethodName);
         MethodSpec.Builder restoreFefMethod = iModuleMethodBuilders.get(restoreRefsMethodName);
         if (allWeakMethod != null && restoreFefMethod != null && fieldHelper.supportWeakRef()) {
-            allWeakMethod.addStatement(fieldHelper.codeToWeak());
-            restoreFefMethod.addStatement(fieldHelper.codeDefRef());
+            allWeakMethod.addCode(fieldHelper.statementToWeak());
+            restoreFefMethod.addCode(fieldHelper.statementDefRef());
         }
         return this;
     }
@@ -241,8 +242,7 @@ public class ModuleBuilder {
 
     public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper) {
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
-
-        cacheFields.put(name, itemHolderCodeHelper.cachedField());
+        cacheFields.add(itemHolderCodeHelper.cachedField());
 
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
@@ -280,7 +280,7 @@ public class ModuleBuilder {
 
     public ModuleBuilder provideCached(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<ParamDetails> args) {
         String getCachedMethodName = getCachedMethodName(name);
-        cacheFields.put(name, itemHolderCodeHelper.cachedField());
+        cacheFields.add(itemHolderCodeHelper.cachedField());
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
@@ -333,7 +333,7 @@ public class ModuleBuilder {
 
         for (FieldSpec.Builder fieldBuilder : fields.values())
             typeSpecBuilder.addField(fieldBuilder.build());
-        for (FieldSpec.Builder cacheFieldBuilder : cacheFields.values())
+        for (FieldSpec.Builder cacheFieldBuilder : cacheFields)
             typeSpecBuilder.addField(cacheFieldBuilder.build());
 
         for (MethodSpec.Builder iModuleMethod : iModuleMethodBuilders.values())

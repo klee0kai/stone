@@ -4,6 +4,8 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class MapItemHolder<Key, T> {
 
@@ -42,6 +44,11 @@ public abstract class MapItemHolder<Key, T> {
         return ob;
     }
 
+    public void remove(Key key) {
+        strongMap.remove(key);
+        refMap.remove(key);
+    }
+
     public void strong() {
         for (Key k : refMap.keySet())
             setStrong(k, get(k));
@@ -59,6 +66,18 @@ public abstract class MapItemHolder<Key, T> {
             setWeak(k, get(k));
         for (Key k : strongMap.keySet())
             setWeak(k, get(k));
+    }
+
+
+    public void clearNulls() {
+        Set<Key> keys = new HashSet<>();
+        keys.addAll(strongMap.keySet());
+        keys.addAll(refMap.keySet());
+
+        for (Key key : keys) {
+            if (get(key) == null)
+                remove(key);
+        }
     }
 
 

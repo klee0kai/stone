@@ -76,9 +76,30 @@ public interface ItemHolderCodeHelper {
             return singleItemHolderHelper;
         }
 
-        MapItemHolderHelper mapItemHolderHelper = new MapItemHolderHelper();
+        if (qualifiers.size() == 1) {
+            SimpleMapItemHolderHelper simpleMapItemHolderHelper = new SimpleMapItemHolderHelper();
+            simpleMapItemHolderHelper.fieldName = fieldName;
+            simpleMapItemHolderHelper.fieldType = fieldOrType;
+            simpleMapItemHolderHelper.keyParam = qualifiers.get(0);
+            switch (cacheType) {
+                case STRONG:
+                    simpleMapItemHolderHelper.fieldHolderType = strongMapClassName;
+                    simpleMapItemHolderHelper.setWeakRefSupport = true;
+                    break;
+                case SOFT:
+                    simpleMapItemHolderHelper.fieldHolderType = softMapClassName;
+                    simpleMapItemHolderHelper.setWeakRefSupport = true;
+                    break;
+                case WEAK:
+                    simpleMapItemHolderHelper.fieldHolderType = weakMapClassName;
+                    simpleMapItemHolderHelper.setWeakRefSupport = false;
+                    break;
+            }
+            return simpleMapItemHolderHelper;
+        }
+        SimpleMapItemHolderHelper simpleMapItemHolderHelper = new SimpleMapItemHolderHelper();
 
-        return mapItemHolderHelper;
+        return simpleMapItemHolderHelper;
     }
 
     FieldSpec.Builder cachedField();
@@ -98,9 +119,9 @@ public interface ItemHolderCodeHelper {
     CodeBlock codeSetCachedValue(CodeBlock value);
 
 
-    CodeBlock codeToWeak();
+    CodeBlock statementToWeak();
 
-    CodeBlock codeDefRef();
+    CodeBlock statementDefRef();
 
     boolean supportWeakRef();
 
@@ -137,18 +158,23 @@ public interface ItemHolderCodeHelper {
         }
 
         @Override
-        public CodeBlock codeToWeak() {
+        public CodeBlock statementToWeak() {
             if (!setWeakRefSupport)
                 return null;
-            return CodeBlock.of("$L.weak()", fieldName);
+            return CodeBlock.builder()
+                    .addStatement("$L.weak()", fieldName)
+                    .build();
         }
 
         @Override
-        public CodeBlock codeDefRef() {
+        public CodeBlock statementDefRef() {
             if (!setWeakRefSupport)
                 return null;
-            return CodeBlock.of("$L.defRef()", fieldName);
+            return CodeBlock.builder()
+                    .addStatement("$L.defRef()", fieldName)
+                    .build();
         }
+
 
         @Override
         public boolean supportWeakRef() {
@@ -157,37 +183,64 @@ public interface ItemHolderCodeHelper {
     }
 
 
-    class MapItemHolderHelper implements ItemHolderCodeHelper {
+    class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
+
+        public String fieldName;
+        public TypeName fieldType;
+        public ClassName fieldHolderType;
+        public ParamDetails keyParam;
+
+        public boolean setWeakRefSupport = false;
+
 
         @Override
         public FieldSpec.Builder cachedField() {
-            return null;
+            ParameterizedTypeName cacheType = ParameterizedTypeName.get(fieldHolderType, keyParam.type, fieldType);
+            return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new $T()", cacheType);
         }
 
         @Override
         public CodeBlock codeGetCachedValue() {
-            return null;
+            return CodeBlock.builder()
+                    .add("$L.get($L)", fieldName, keyParam.name)
+                    .build();
         }
 
         @Override
         public CodeBlock codeSetCachedValue(CodeBlock value) {
-            return null;
+            return CodeBlock.builder()
+                    .add("$L.set( $L , ", fieldName, keyParam.name)
+                    .add(value)
+                    .add(")")
+                    .build();
         }
 
         @Override
-        public CodeBlock codeToWeak() {
-            return null;
+        public CodeBlock statementToWeak() {
+            if (!setWeakRefSupport)
+                return null;
+            return CodeBlock.builder()
+                    .addStatement("$L.weak()", fieldName)
+                    .build();
         }
 
         @Override
-        public CodeBlock codeDefRef() {
-            return null;
+        public CodeBlock statementDefRef() {
+            if (!setWeakRefSupport)
+                return null;
+            return CodeBlock.builder()
+                    .addStatement("$L.defRef()", fieldName)
+                    .addStatement("$L.clearNulls()", fieldName)
+                    .build();
         }
 
         @Override
         public boolean supportWeakRef() {
-            return false;
+            return setWeakRefSupport;
         }
+
+
     }
 
 }
