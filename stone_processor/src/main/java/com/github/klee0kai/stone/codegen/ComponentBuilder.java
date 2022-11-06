@@ -17,10 +17,11 @@ public class ComponentBuilder {
 
     public ClassName className;
 
-
     public static String initMethodName = "init";
     public static String bindMethodName = "bind";
     public static String extOfMethodName = "extOf";
+
+    public static String gcMethodName = "gc";
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
@@ -31,10 +32,15 @@ public class ComponentBuilder {
     public final CodeBlock.Builder initModuleCode = CodeBlock.builder();
     public final CodeBlock.Builder bindModuleCode = CodeBlock.builder();
 
+    public final CodeBlock.Builder weakAllModuleCode = CodeBlock.builder();
+    public final CodeBlock.Builder restoreRefsModuleCode = CodeBlock.builder();
+
 
     // ---------------------- provide fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
+
+    private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
     private boolean collected = false;
 
@@ -59,6 +65,7 @@ public class ComponentBuilder {
         initMethod(true);
         bindMethod(true);
         extOfMethod(true);
+        gcMethod(true);
         return this;
     }
 
@@ -71,6 +78,12 @@ public class ComponentBuilder {
             builder.addAnnotation(Override.class);
 
         iComponentMethods.put(initMethodName, builder);
+
+        collectRuns.add(() -> {
+            builder.beginControlFlow("for (Object m : modules)")
+                    .addCode(initModuleCode.build())
+                    .endControlFlow();
+        });
         return this;
     }
 
@@ -84,6 +97,12 @@ public class ComponentBuilder {
             builder.addAnnotation(Override.class);
 
         iComponentMethods.put(bindMethodName, builder);
+
+        collectRuns.add(() -> {
+            builder.beginControlFlow("for (Object ob : objects)")
+                    .addCode(bindModuleCode.build())
+                    .endControlFlow();
+        });
         return this;
     }
 
@@ -97,6 +116,27 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder gcMethod(boolean override) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(gcMethodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(boolean.class, "includeSoftRefs");
+        if (override)
+            builder.addAnnotation(Override.class);
+
+        iComponentMethods.put(gcMethodName, builder);
+        collectRuns.add(() -> {
+            builder.beginControlFlow("if (includeSoftRefs)")
+                    .addCode(weakAllModuleCode.build())
+                    .addStatement("$T.gc()", System.class)
+                    .addCode(restoreRefsModuleCode.build())
+                    .endControlFlow()
+                    .beginControlFlow("else")
+                    .addStatement("$T.gc()", System.class)
+                    .endControlFlow();
+        });
+
+        return this;
+    }
 
     public ComponentBuilder provideModule(String name, TypeName typeName) {
         modulesFields.put(name, FieldSpec.builder(typeName, name, Modifier.PRIVATE)
@@ -110,6 +150,8 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
+        weakAllModuleCode.addStatement("this.$L.allWeak()", name);
+        restoreRefsModuleCode.addStatement("this.$L.restoreRefs()", name);
         return this;
     }
 
@@ -122,21 +164,10 @@ public class ComponentBuilder {
         if (collected)
             return this;
         collected = true;
-        MethodSpec.Builder initMethod = iComponentMethods.get(initMethodName);
-        if (initMethod != null) {
-            initMethod
-                    .beginControlFlow("for (Object m : modules)")
-                    .addCode(initModuleCode.build())
-                    .endControlFlow();
-        }
+        for (Runnable r : collectRuns)
+            r.run();
 
-        MethodSpec.Builder bindMethod = iComponentMethods.get(bindMethodName);
-        if (initMethod != null) {
-            bindMethod
-                    .beginControlFlow("for (Object ob : objects)")
-                    .addCode(bindModuleCode.build())
-                    .endControlFlow();
-        }
+        collectRuns.clear();
         return this;
     }
 

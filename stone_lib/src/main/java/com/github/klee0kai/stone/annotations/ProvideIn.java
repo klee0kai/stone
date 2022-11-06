@@ -3,6 +3,9 @@ package com.github.klee0kai.stone.annotations;
 
 import java.lang.annotation.*;
 
+/**
+ * Providing component outsize module.
+ */
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.TYPE)
 @Inherited

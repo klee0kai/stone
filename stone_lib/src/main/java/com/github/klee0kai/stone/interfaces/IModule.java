@@ -33,4 +33,14 @@ public interface IModule {
      */
     Object getFactory();
 
+    /**
+     * Switch soft refs to weak
+     */
+    void allWeak();
+
+    /**
+     * restore weak Refs
+     */
+    void restoreRefs();
+
 }

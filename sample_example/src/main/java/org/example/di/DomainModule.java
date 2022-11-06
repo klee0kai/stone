@@ -8,11 +8,11 @@ import org.example.domain.StoneInteractor;
 @Module
 public abstract class DomainModule {
 
-    @Provide(cache = Provide.CacheType.WEAK)
+    @Provide(cache = Provide.CacheType.SOFT)
     abstract public StoneInteractor stoneInteractor();
 
-    @Provide(cache = Provide.CacheType.WEAK)
-    public StoneInteractor stoneInteractor2(){
+    @Provide(cache = Provide.CacheType.SOFT)
+    public StoneInteractor stoneInteractor2() {
         return new StoneInteractor();
     }
 

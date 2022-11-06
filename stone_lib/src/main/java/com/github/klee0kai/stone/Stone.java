@@ -1,7 +1,5 @@
 package com.github.klee0kai.stone;
 
-import com.github.klee0kai.stone.container.ItemsWeakContainer;
-
 import java.lang.reflect.InvocationTargetException;
 
 public class Stone {
