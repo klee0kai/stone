@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.annotations.BindInstance;
-import com.github.klee0kai.stone.annotations.Provide;
+import com.github.klee0kai.stone.annotations.module.BindInstance;
+import com.github.klee0kai.stone.annotations.module.Provide;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.ElementKind;

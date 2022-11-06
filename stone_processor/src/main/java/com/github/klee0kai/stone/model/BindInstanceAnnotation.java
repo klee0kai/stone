@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.annotations.BindInstance;
+import com.github.klee0kai.stone.annotations.module.BindInstance;
 
 public class BindInstanceAnnotation implements Cloneable {
 

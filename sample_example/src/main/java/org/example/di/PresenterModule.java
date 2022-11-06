@@ -1,7 +1,7 @@
 package org.example.di;
 
-import com.github.klee0kai.stone.annotations.Module;
-import com.github.klee0kai.stone.annotations.Provide;
+import com.github.klee0kai.stone.annotations.module.Module;
+import com.github.klee0kai.stone.annotations.module.Provide;
 import org.example.presenter.StonePresenter;
 
 @Module

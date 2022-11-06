@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.utils;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
-import com.github.klee0kai.stone.annotations.Provide;
+import com.github.klee0kai.stone.annotations.module.Provide;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;

@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.annotations;
+package com.github.klee0kai.stone.annotations.component;
 
 
 import java.lang.annotation.ElementType;
@@ -6,7 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * protect injected components in class.
+ */
+
 @Retention(value = RetentionPolicy.CLASS)
-@Target(value = ElementType.TYPE)
-public @interface Module {
+@Target(value = ElementType.METHOD)
+public @interface ProtectInjected {
 }

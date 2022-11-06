@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.annotations.Provide;
+import com.github.klee0kai.stone.annotations.module.Provide;
 
 public class ProvideAnnotation implements Cloneable {
 

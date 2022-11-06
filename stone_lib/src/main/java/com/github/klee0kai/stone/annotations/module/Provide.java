@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.annotations;
+package com.github.klee0kai.stone.annotations.module;
 
 
 import java.lang.annotation.*;
@@ -6,14 +6,15 @@ import java.lang.annotation.*;
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.METHOD)
 @Inherited
-public @interface BindInstance {
+public @interface Provide {
 
     enum CacheType {
+        FACTORY,
         WEAK,
         SOFT,
         STRONG
     }
 
-    BindInstance.CacheType cache() default BindInstance.CacheType.SOFT;
+    CacheType cache() default CacheType.SOFT;
 
 }

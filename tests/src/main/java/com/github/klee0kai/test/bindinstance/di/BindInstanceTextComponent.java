@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.bindinstance.di;
 
 
-import com.github.klee0kai.stone.annotations.Component;
+import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.interfaces.IComponent;
 
 @Component

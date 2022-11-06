@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
-import com.github.klee0kai.stone.annotations.BindInstance;
-import com.github.klee0kai.stone.annotations.Provide;
+import com.github.klee0kai.stone.annotations.module.BindInstance;
+import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.holder.map.SoftMapItemHolder;
 import com.github.klee0kai.stone.holder.map.StrongMapItemHolder;
 import com.github.klee0kai.stone.holder.map.WeakMapItemHolder;

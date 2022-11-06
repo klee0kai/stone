@@ -1,5 +1,7 @@
-package com.github.klee0kai.stone.annotations;
+package com.github.klee0kai.stone.annotations.module;
 
+
+import com.github.klee0kai.stone.annotations.module.Provide;
 
 import java.lang.annotation.*;
 

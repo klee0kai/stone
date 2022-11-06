@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone;
 
-import com.github.klee0kai.stone.annotations.Component;
-import com.github.klee0kai.stone.annotations.Module;
+import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
@@ -11,7 +11,6 @@ import com.google.auto.service.AutoService;
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.LinkedList;
 import java.util.Set;
 
 @AutoService(Processor.class)

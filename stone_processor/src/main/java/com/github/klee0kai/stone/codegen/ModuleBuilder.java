@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.annotations.Provide;
+import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.interfaces.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
