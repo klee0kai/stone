@@ -5,10 +5,19 @@ public interface IModule {
     /**
      * Init module
      *
-     * @param ob - binding object or factory of objects
+     * @param ob can be:
+     *           - a factory instance
+     *           - a factory class
      */
     boolean init(Object ob);
 
+
+    /**
+     * bind instance objects
+     *
+     * @param object - An instance of bindable objects
+     */
+    boolean bind(Object object);
 
     /**
      * this module extents of other module

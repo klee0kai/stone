@@ -7,9 +7,15 @@ public interface IComponent {
      * @param modules can be:
      *                - a factory instance
      *                - a factory class
-     *                - An instance of bindable objects
+     *
      */
     void init(Object... modules);
+
+    /**
+     * bind instance objects
+     * @param objects - An instance of bindable objects
+     */
+    void bind(Object... objects);
 
     /**
      * this component extends of other

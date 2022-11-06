@@ -25,6 +25,8 @@ public class ModuleBuilder {
     private static String appliedLocalFieldName = "applied";
 
     public static String initMethodName = "init";
+
+    public static String bindMethodName = "bind";
     public static String extOfMethodName = "extOf";
     public static String getFactoryMethodName = "getFactory";
 
@@ -111,6 +113,7 @@ public class ModuleBuilder {
         boolean hasSupperStoneModule = orModuleCl.superClass != null && orModuleCl.superClass.moduleAnn != null;
         interfaces.add(ClassName.get(IModule.class));
         initMethod(true);
+        bindMethod(true);
         extOfMethod(hasSupperStoneModule ? ClassNameUtils.genModuleNameMirror(orModuleCl.superClass.className) : null, true);
         getFactoryMethod(true);
         return this;
@@ -119,6 +122,7 @@ public class ModuleBuilder {
     public ModuleBuilder initMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(initMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .returns(boolean.class)
                 .addParameter(Object.class, "or")
                 .addStatement("boolean $L = false", appliedLocalFieldName)
                 .beginControlFlow("if (or instanceof $T) ", orModuleCl.className)
@@ -147,11 +151,25 @@ public class ModuleBuilder {
 
                 .endControlFlow()
                 .endControlFlow()
-                .returns(boolean.class);
+                .addStatement("return $L", appliedLocalFieldName);
 
         if (override) builder.addAnnotation(Override.class);
 
         iModuleMethodBuilders.put(initMethodName, builder);
+        return this;
+    }
+
+
+    public ModuleBuilder bindMethod(boolean override) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addParameter(Object.class, "or")
+                .addStatement("boolean $L = false", appliedLocalFieldName)
+                .returns(boolean.class);
+
+        if (override) builder.addAnnotation(Override.class);
+
+        iModuleMethodBuilders.put(bindMethodName, builder);
         return this;
     }
 
@@ -199,7 +217,7 @@ public class ModuleBuilder {
 
     public ModuleBuilder bindInstanceStrong(String name, TypeName typeName) {
         String cacheFieldName = name + "Strong";
-        MethodSpec.Builder initMethodBuilder = iModuleMethodBuilders.get(initMethodName);
+        MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
         cacheFields.put(cacheFieldName, FieldSpec.builder(typeName, cacheFieldName, Modifier.PRIVATE).initializer("null"));
 
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
@@ -207,8 +225,8 @@ public class ModuleBuilder {
                 .returns(typeName)
                 .addStatement("return this.$L", cacheFieldName));
 
-        if (initMethodBuilder != null)
-            initMethodBuilder.beginControlFlow("if (or instanceof $T) ", typeName)
+        if (bindMethodBuilder != null)
+            bindMethodBuilder.beginControlFlow("  if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
                     .addStatement("this.$L = ($T) or", cacheFieldName, typeName)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow();
@@ -219,17 +237,17 @@ public class ModuleBuilder {
     public ModuleBuilder bindInstanceRef(String name, TypeName typeName, ClassName javaRef) {
         String cacheFieldName = name + "Ref";
         ParameterizedTypeName cacheType = ParameterizedTypeName.get(javaRef, typeName);
-        MethodSpec.Builder initMethodBuilder = iModuleMethodBuilders.get(initMethodName);
+        MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
 
         cacheFields.put(cacheFieldName, FieldSpec.builder(cacheType, cacheFieldName, Modifier.PRIVATE).initializer("null"));
 
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("return this.$L.get()", cacheFieldName));
+                .addStatement("return this.$L != null ? this.$L.get() : null", cacheFieldName, cacheFieldName));
 
-        if (initMethodBuilder != null)
-            initMethodBuilder.beginControlFlow("if (or instanceof $T) ", typeName)
+        if (bindMethodBuilder != null)
+            bindMethodBuilder.beginControlFlow("  if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
                     .addStatement("this.$L = new $T(($T) or)", cacheFieldName, cacheType, typeName)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow();
@@ -278,7 +296,7 @@ public class ModuleBuilder {
         provideMethodBuilders.add(MethodSpec.methodBuilder(getCachedMethodName)
                 .addModifiers(Modifier.PROTECTED, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("return this.$L.get()", cacheFieldName));
+                .addStatement("return this.$L != null ? this.$L.get() : null", cacheFieldName, cacheFieldName));
         return this;
     }
 
@@ -286,9 +304,9 @@ public class ModuleBuilder {
         if (collected)
             return this;
         collected = true;
-        MethodSpec.Builder initMethod = iModuleMethodBuilders.get(initMethodName);
-        if (initMethod != null)
-            initMethod.addStatement("return false");
+        MethodSpec.Builder bindMethod = iModuleMethodBuilders.get(bindMethodName);
+        if (bindMethod != null)
+            bindMethod.addStatement("return $L", appliedLocalFieldName);
         return this;
     }
 

@@ -8,7 +8,7 @@ public class Stone {
 
     public static <T> T createComponent(Class<T> component) {
         try {
-            Class<?> gennedClass = Class.forName(component.getCanonicalName() + "Stone");
+            Class<?> gennedClass = Class.forName(component.getCanonicalName() + "StoneComponent");
             return (T) gennedClass.getConstructors()[0].newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                  InvocationTargetException e) {
@@ -17,8 +17,5 @@ public class Stone {
     }
 
 
-    public static void gc(boolean includeSoftRefs) {
-        ItemsWeakContainer.gc(includeSoftRefs);
-    }
 
 }

@@ -19,6 +19,7 @@ public class ComponentBuilder {
 
 
     public static String initMethodName = "init";
+    public static String bindMethodName = "bind";
     public static String extOfMethodName = "extOf";
 
     public final Set<TypeName> interfaces = new HashSet<>();
@@ -28,6 +29,7 @@ public class ComponentBuilder {
     public final HashMap<String, MethodSpec.Builder> iComponentMethods = new HashMap<>();
 
     public final CodeBlock.Builder initModuleCode = CodeBlock.builder();
+    public final CodeBlock.Builder bindModuleCode = CodeBlock.builder();
 
 
     // ---------------------- provide fields and method  ----------------------------------
@@ -40,7 +42,7 @@ public class ComponentBuilder {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, ClassNameUtils.genComponentNameMirror(component.className));
         componentBuilder.implementIComponentMethods();
         for (MethodDetail m : component.getAllMethods(false, "<init>"))
-            componentBuilder.provideModule(m.methodName,  ClassNameUtils.genModuleNameMirror(m.returnType));
+            componentBuilder.provideModule(m.methodName, ClassNameUtils.genModuleNameMirror(m.returnType));
         return componentBuilder;
     }
 
@@ -55,6 +57,7 @@ public class ComponentBuilder {
     public ComponentBuilder implementIComponentMethods() {
         interfaces.add(ClassName.get(IComponent.class));
         initMethod(true);
+        bindMethod(true);
         extOfMethod(true);
         return this;
     }
@@ -68,6 +71,19 @@ public class ComponentBuilder {
             builder.addAnnotation(Override.class);
 
         iComponentMethods.put(initMethodName, builder);
+        return this;
+    }
+
+
+    public ComponentBuilder bindMethod(boolean override) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
+                .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
+                .addParameter(Object[].class, "objects")
+                .varargs(true);
+        if (override)
+            builder.addAnnotation(Override.class);
+
+        iComponentMethods.put(bindMethodName, builder);
         return this;
     }
 
@@ -93,6 +109,7 @@ public class ComponentBuilder {
         modulesMethods.put(name, builder);
 
         initModuleCode.addStatement("this.$L.init(m)", name);
+        bindModuleCode.addStatement("this.$L.bind(ob)", name);
         return this;
     }
 
@@ -110,6 +127,14 @@ public class ComponentBuilder {
             initMethod
                     .beginControlFlow("for (Object m : modules)")
                     .addCode(initModuleCode.build())
+                    .endControlFlow();
+        }
+
+        MethodSpec.Builder bindMethod = iComponentMethods.get(bindMethodName);
+        if (initMethod != null) {
+            bindMethod
+                    .beginControlFlow("for (Object ob : objects)")
+                    .addCode(bindModuleCode.build())
                     .endControlFlow();
         }
         return this;
