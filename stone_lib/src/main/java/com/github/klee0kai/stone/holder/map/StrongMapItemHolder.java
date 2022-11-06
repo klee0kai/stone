@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.holder;
+package com.github.klee0kai.stone.holder.map;
 
 public class StrongMapItemHolder<Key, T> extends MapItemHolder<Key, T> {
 

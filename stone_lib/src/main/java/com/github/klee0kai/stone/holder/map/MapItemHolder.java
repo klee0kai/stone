@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.holder;
+package com.github.klee0kai.stone.holder.map;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
