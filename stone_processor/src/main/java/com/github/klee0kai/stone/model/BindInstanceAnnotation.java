@@ -16,6 +16,7 @@ public class BindInstanceAnnotation implements Cloneable {
         return sAnn;
     }
 
+
     @Override
     public BindInstanceAnnotation clone() throws CloneNotSupportedException {
         return (BindInstanceAnnotation) super.clone();

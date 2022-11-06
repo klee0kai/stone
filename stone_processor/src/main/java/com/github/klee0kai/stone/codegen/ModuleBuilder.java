@@ -1,21 +1,18 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.holder.SingleItemHolder;
-import com.github.klee0kai.stone.holder.SoftItemHolder;
-import com.github.klee0kai.stone.holder.StrongItemHolder;
-import com.github.klee0kai.stone.holder.WeakItemHolder;
+import com.github.klee0kai.stone.annotations.Provide;
+import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.interfaces.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.ParamDetails;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.utils.ListUtils;
 import com.squareup.javapoet.*;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -38,12 +35,6 @@ public class ModuleBuilder {
     public static final String allWeakMethodName = "allWeak";
 
     public static final String restoreRefsMethodName = "restoreRefs";
-
-    public static final ClassName refClassName = ClassName.get(SingleItemHolder.class);
-
-    public static final ClassName strongRefClassName = ClassName.get(StrongItemHolder.class);
-    public static final ClassName softRefClassName = ClassName.get(SoftItemHolder.class);
-    public static final ClassName weakRefClassName = ClassName.get(WeakItemHolder.class);
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
@@ -69,40 +60,20 @@ public class ModuleBuilder {
         for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
-            if (m.bindInstanceAnnotation != null)
-                switch (m.bindInstanceAnnotation.cacheType) {
-                    case WEAK:
-                        builder.bindInstanceRef(m.methodName, m.returnType, weakRefClassName);
-                        break;
-                    case SOFT:
-                        builder.bindInstanceRef(m.methodName, m.returnType, softRefClassName)
-                                .allWeakFor(m.methodName);
-                        break;
-                    case STRONG:
-                        builder.bindInstanceRef(m.methodName, m.returnType, strongRefClassName)
-                                .allWeakFor(m.methodName);
-                        break;
-                }
-            else if (m.provideAnnotation != null) {
-                switch (m.provideAnnotation.cacheType) {
-                    case FACTORY:
-                        builder.provideFactory(m.methodName, m.returnType);
-                        break;
-                    case WEAK:
-                        builder.provideRefCached(m.methodName, m.returnType, weakRefClassName);
-                        break;
-                    case SOFT:
-                        builder.provideRefCached(m.methodName, m.returnType, softRefClassName)
-                                .allWeakFor(m.methodName);
-                        break;
-                    case STRONG:
-                        builder.provideRefCached(m.methodName, m.returnType, strongRefClassName)
-                                .allWeakFor(m.methodName);
-                        break;
-                }
-            } else
-                builder.provideRefCached(m.methodName, m.returnType, softRefClassName)
-                        .allWeakFor(m.methodName);
+            if (m.bindInstanceAnnotation != null) {
+                ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
+                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName, m.returnType, m.args, cacheType);
+                builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
+                builder.allWeakFor(itemHolderCodeHelper);
+            } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.FACTORY) {
+                builder.provideFactory(m.methodName, m.returnType, m.args);
+            } else {
+                ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(
+                        m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.SOFT);
+                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName, m.returnType, m.args, cacheType);
+                builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
+                builder.allWeakFor(itemHolderCodeHelper);
+            }
         }
         return builder;
     }
@@ -248,13 +219,12 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder allWeakFor(String fieldName) {
+    public ModuleBuilder allWeakFor(ItemHolderCodeHelper fieldHelper) {
         MethodSpec.Builder allWeakMethod = iModuleMethodBuilders.get(allWeakMethodName);
         MethodSpec.Builder restoreFefMethod = iModuleMethodBuilders.get(restoreRefsMethodName);
-        if (allWeakMethod != null && restoreFefMethod != null) {
-            allWeakMethod.addStatement("$L.weak()", fieldName);
-
-            restoreFefMethod.addStatement("$L.defRef()", fieldName);
+        if (allWeakMethod != null && restoreFefMethod != null && fieldHelper.supportWeakRef()) {
+            allWeakMethod.addStatement(fieldHelper.codeToWeak());
+            restoreFefMethod.addStatement(fieldHelper.codeDefRef());
         }
         return this;
     }
@@ -269,50 +239,72 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder bindInstanceRef(String name, TypeName typeName, ClassName javaRef) {
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(javaRef, typeName);
+    public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper) {
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
 
-        cacheFields.put(name, FieldSpec.builder(cacheType, name, Modifier.PRIVATE, Modifier.FINAL).initializer("new $T()", cacheType));
+        cacheFields.put(name, itemHolderCodeHelper.cachedField());
 
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("return $L != null ? $L.get() : null", name, name));
+                .addCode("return ")
+                .addCode(itemHolderCodeHelper.codeGetCachedValue())
+                .addStatement(""));
 
-        if (bindMethodBuilder != null)
+        if (bindMethodBuilder != null) {
             bindMethodBuilder.beginControlFlow("  if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
-                    .addStatement("$L.set(($T) or)", name, typeName)
+                    .addStatement(itemHolderCodeHelper.codeSetCachedValue(
+                            CodeBlock.of("($T) or", typeName)
+                    ))
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow();
+        }
         return this;
     }
 
-    public ModuleBuilder provideFactory(String name, TypeName typeName) {
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
+
+    public ModuleBuilder provideFactory(String name, TypeName typeName, List<ParamDetails> args) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("return  $L.$L()", factoryFieldName, name));
+                .addStatement("return  $L.$L($L)", factoryFieldName, name,
+                        String.join(",", ListUtils.format(args, (it) -> it.name)));
+
+        if (args != null) for (ParamDetails p : args)
+            builder.addParameter(p.type, p.name);
+
+        provideMethodBuilders.add(builder);
         return this;
     }
 
-
-    public ModuleBuilder provideRefCached(String name, TypeName typeName, ClassName javaRef) {
+    public ModuleBuilder provideCached(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<ParamDetails> args) {
         String getCachedMethodName = getCachedMethodName(name);
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(javaRef, typeName);
-
-        cacheFields.put(name, FieldSpec.builder(cacheType, name, Modifier.PRIVATE, Modifier.FINAL).initializer("new $T()", cacheType));
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
+        cacheFields.put(name, itemHolderCodeHelper.cachedField());
+        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("if ($L != null && $L.get() != null) return $L.get()", name, name, name)
-                .addStatement("return $L.set($L.$L())", name, factoryFieldName, name));
-        provideMethodBuilders.add(MethodSpec.methodBuilder(getCachedMethodName)
+                .addCode("if ( ").addCode(itemHolderCodeHelper.codeGetCachedValue()).addCode(" != null )\n")
+                .addCode("\t\treturn ").addStatement(itemHolderCodeHelper.codeGetCachedValue())
+                .addCode("return ").addCode(itemHolderCodeHelper.codeSetCachedValue(
+                        CodeBlock.of("$L.$L($L)", factoryFieldName, name,
+                                String.join(",", ListUtils.format(args, (it) -> it.name)))
+                )).addStatement("");
+
+        MethodSpec.Builder getCachedMethodBuilder = MethodSpec.methodBuilder(getCachedMethodName)
                 .addModifiers(Modifier.PROTECTED, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("return $L != null ? $L.get() : null", name, name));
+                .addCode("return ")
+                .addStatement(itemHolderCodeHelper.codeGetCachedValue());
+
+        if (args != null) for (ParamDetails p : args) {
+            provideMethodBuilder.addParameter(p.type, p.name);
+            getCachedMethodBuilder.addParameter(p.type, p.name);
+        }
+
+        provideMethodBuilders.add(provideMethodBuilder);
+        provideMethodBuilders.add(getCachedMethodBuilder);
         return this;
     }
 

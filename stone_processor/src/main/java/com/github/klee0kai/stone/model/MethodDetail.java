@@ -20,7 +20,7 @@ public class MethodDetail implements Cloneable {
 
     public ElementKind elementKind;
 
-    public List<ParamDetails> argTypes = new LinkedList<>();
+    public List<ParamDetails> args = new LinkedList<>();
 
     public ProvideAnnotation provideAnnotation;
     public BindInstanceAnnotation bindInstanceAnnotation;
@@ -35,7 +35,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.provideAnnotation = ProvideAnnotation.of(element.getAnnotation(Provide.class));
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
         for (VariableElement v : element.getParameters())
-            methodDetail.argTypes.add(ParamDetails.of(v));
+            methodDetail.args.add(ParamDetails.of(v));
         return methodDetail;
     }
 
@@ -50,7 +50,7 @@ public class MethodDetail implements Cloneable {
      * @return
      */
     public boolean isSameMethod(MethodDetail methodDetail) {
-        return methodDetail != null && Objects.equals(this.methodName, methodDetail.methodName) && Objects.equals(argTypes, methodDetail.argTypes);
+        return methodDetail != null && Objects.equals(this.methodName, methodDetail.methodName) && Objects.equals(args, methodDetail.args);
     }
 
     @Override
@@ -63,11 +63,11 @@ public class MethodDetail implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MethodDetail that = (MethodDetail) o;
-        return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType) && Objects.equals(argTypes, that.argTypes) && Objects.equals(provideAnnotation, that.provideAnnotation) && Objects.equals(bindInstanceAnnotation, that.bindInstanceAnnotation);
+        return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType) && Objects.equals(args, that.args) && Objects.equals(provideAnnotation, that.provideAnnotation) && Objects.equals(bindInstanceAnnotation, that.bindInstanceAnnotation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, returnType, argTypes, provideAnnotation, bindInstanceAnnotation);
+        return Objects.hash(methodName, returnType, args, provideAnnotation, bindInstanceAnnotation);
     }
 }

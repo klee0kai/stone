@@ -35,8 +35,8 @@ public class ModuleFactoryBuilder {
                 if (!m.isAbstract() && !module.isInterfaceClass())
                     continue;
                 if (m.bindInstanceAnnotation != null)
-                    builder.provideNullMethod(m.methodName, m.returnType, m.argTypes);
-                else builder.provideMethod(m.methodName, m.returnType, m.argTypes);
+                    builder.provideNullMethod(m.methodName, m.returnType, m.args);
+                else builder.provideMethod(m.methodName, m.returnType, m.args);
             }
         }
         return builder;

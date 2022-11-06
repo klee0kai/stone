@@ -5,11 +5,14 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
-public class MapItemHolder<Key, T> {
+public abstract class MapItemHolder<Key, T> {
 
     private final HashMap<Key, T> strongMap = new HashMap<>();
     private final HashMap<Key, Reference<T>> refMap = new HashMap<>();
 
+    abstract public T set(Key key, T ob);
+
+    abstract public void defRef();
 
     public T get(Key key) {
         if (strongMap.containsKey(key))
@@ -21,19 +24,22 @@ public class MapItemHolder<Key, T> {
         return null;
     }
 
-    public void setStrong(Key key, T ob) {
+    public T setStrong(Key key, T ob) {
         refMap.remove(key);
         strongMap.put(key, ob);
+        return ob;
     }
 
-    public void setSoft(Key key, T ob) {
+    public T setSoft(Key key, T ob) {
         strongMap.remove(key);
         refMap.put(key, new SoftReference<>(ob));
+        return ob;
     }
 
-    public void setWeak(Key key, T ob) {
+    public T setWeak(Key key, T ob) {
         strongMap.remove(key);
         refMap.put(key, new WeakReference<>(ob));
+        return ob;
     }
 
     public void strong() {
