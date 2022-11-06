@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.test.bindinstance;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.bindinstance.Application;
-import com.github.klee0kai.test.bindinstance.Context;
+import com.github.klee0kai.test.Application;
+import com.github.klee0kai.test.Context;
 import com.github.klee0kai.test.bindinstance.di.BindInstanceTextComponent;
 import org.junit.jupiter.api.Test;
 

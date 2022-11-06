@@ -1,5 +1,9 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.holder.SingleItemHolder;
+import com.github.klee0kai.stone.holder.SoftItemHolder;
+import com.github.klee0kai.stone.holder.StrongItemHolder;
+import com.github.klee0kai.stone.holder.WeakItemHolder;
 import com.github.klee0kai.stone.interfaces.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -21,23 +25,25 @@ public class ModuleBuilder {
 
     public ClassName className;
 
-    public static String factoryFieldName = "factory";
+    public static final String factoryFieldName = "factory";
 
-    private static String appliedLocalFieldName = "applied";
+    private static final String appliedLocalFieldName = "applied";
 
-    public static String initMethodName = "init";
+    public static final String initMethodName = "init";
 
-    public static String bindMethodName = "bind";
-    public static String extOfMethodName = "extOf";
-    public static String getFactoryMethodName = "getFactory";
+    public static final String bindMethodName = "bind";
+    public static final String extOfMethodName = "extOf";
+    public static final String getFactoryMethodName = "getFactory";
 
-    public static String allWeakMethodName = "allWeak";
+    public static final String allWeakMethodName = "allWeak";
 
-    public static String restoreRefsMethodName = "restoreRefs";
+    public static final String restoreRefsMethodName = "restoreRefs";
 
-    public static ClassName refClassName = ClassName.get(Reference.class);
-    public static ClassName softRefClassName = ClassName.get(SoftReference.class);
-    public static ClassName weakRefClassName = ClassName.get(WeakReference.class);
+    public static final ClassName refClassName = ClassName.get(SingleItemHolder.class);
+
+    public static final ClassName strongRefClassName = ClassName.get(StrongItemHolder.class);
+    public static final ClassName softRefClassName = ClassName.get(SoftItemHolder.class);
+    public static final ClassName weakRefClassName = ClassName.get(WeakItemHolder.class);
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
@@ -70,10 +76,11 @@ public class ModuleBuilder {
                         break;
                     case SOFT:
                         builder.bindInstanceRef(m.methodName, m.returnType, softRefClassName)
-                                .allWeakFor(m.methodName+"Ref", m.returnType, softRefClassName);
+                                .allWeakFor(m.methodName);
                         break;
                     case STRONG:
-                        builder.bindInstanceStrong(m.methodName, m.returnType);
+                        builder.bindInstanceRef(m.methodName, m.returnType, strongRefClassName)
+                                .allWeakFor(m.methodName);
                         break;
                 }
             else if (m.provideAnnotation != null) {
@@ -86,15 +93,16 @@ public class ModuleBuilder {
                         break;
                     case SOFT:
                         builder.provideRefCached(m.methodName, m.returnType, softRefClassName)
-                                .allWeakFor(m.methodName+"Ref", m.returnType, softRefClassName);
+                                .allWeakFor(m.methodName);
                         break;
                     case STRONG:
-                        builder.provideStrongCached(m.methodName, m.returnType);
+                        builder.provideRefCached(m.methodName, m.returnType, strongRefClassName)
+                                .allWeakFor(m.methodName);
                         break;
                 }
             } else
                 builder.provideRefCached(m.methodName, m.returnType, softRefClassName)
-                        .allWeakFor(m.methodName+"Ref", m.returnType, softRefClassName);
+                        .allWeakFor(m.methodName);
         }
         return builder;
     }
@@ -139,7 +147,7 @@ public class ModuleBuilder {
                 .addParameter(Object.class, "or")
                 .addStatement("boolean $L = false", appliedLocalFieldName)
                 .beginControlFlow("if (or instanceof $T) ", orModuleCl.className)
-                .addStatement("this.$L = ($T) or", factoryFieldName, orModuleCl.className)
+                .addStatement("$L = ($T) or", factoryFieldName, orModuleCl.className)
                 .addStatement("$L = true", appliedLocalFieldName)
                 .endControlFlow()
                 // get module factory by module class
@@ -210,10 +218,10 @@ public class ModuleBuilder {
                     FieldSpec.builder(superStoneModule, superDIModuleStoneFieldName, Modifier.PRIVATE));
 
             extOfMethodBuilder.beginControlFlow("if (superStoneModule instanceof $T)", superStoneModule)
-                    .addStatement("this.$L = ($T) superStoneModule", superDIModuleStoneFieldName, superStoneModule)
+                    .addStatement("$L = ($T) superStoneModule", superDIModuleStoneFieldName, superStoneModule)
                     .endControlFlow()
                     .beginControlFlow("else if (superStoneModule == null)")
-                    .addStatement("this.$L = null ", superDIModuleStoneFieldName)
+                    .addStatement("$L = null ", superDIModuleStoneFieldName)
                     .endControlFlow();
         }
         iModuleMethodBuilders.put(extOfMethodName, extOfMethodBuilder);
@@ -224,7 +232,7 @@ public class ModuleBuilder {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(getFactoryMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(Object.class)
-                .addStatement("return this.$L", factoryFieldName);
+                .addStatement("return $L", factoryFieldName);
         if (override) builder.addAnnotation(Override.class);
         iModuleMethodBuilders.put(getFactoryMethodName, builder);
         return this;
@@ -240,21 +248,13 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder allWeakFor(String fieldName, TypeName fieldType, ClassName javaRef) {
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(javaRef, fieldType);
-        ParameterizedTypeName weakType = ParameterizedTypeName.get(weakRefClassName, fieldType);
-
+    public ModuleBuilder allWeakFor(String fieldName) {
         MethodSpec.Builder allWeakMethod = iModuleMethodBuilders.get(allWeakMethodName);
         MethodSpec.Builder restoreFefMethod = iModuleMethodBuilders.get(restoreRefsMethodName);
         if (allWeakMethod != null && restoreFefMethod != null) {
-            allWeakMethod.addCode("$L = $L != null && $L.get() != null ?\n", fieldName, fieldName, fieldName)
-                    .addCode("\t\tnew $T($L.get()) :", weakType, fieldName)
-                    .addCode(" null ;\n");
+            allWeakMethod.addStatement("$L.weak()", fieldName);
 
-            restoreFefMethod.addCode("$L = $L != null && $L.get() != null ?\n", fieldName, fieldName, fieldName)
-                    .addCode("\t\tnew $T($L.get()) :", cacheType, fieldName)
-                    .addCode(" null ;\n");
-
+            restoreFefMethod.addStatement("$L.defRef()", fieldName);
         }
         return this;
     }
@@ -269,41 +269,20 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder bindInstanceStrong(String name, TypeName typeName) {
-        String cacheFieldName = name + "Strong";
-        MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
-        cacheFields.put(cacheFieldName, FieldSpec.builder(typeName, cacheFieldName, Modifier.PRIVATE).initializer("null"));
-
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
-                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
-                .returns(typeName)
-                .addStatement("return this.$L", cacheFieldName));
-
-        if (bindMethodBuilder != null)
-            bindMethodBuilder.beginControlFlow("  if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
-                    .addStatement("this.$L = ($T) or", cacheFieldName, typeName)
-                    .addStatement("$L = true", appliedLocalFieldName)
-                    .endControlFlow();
-
-        return this;
-    }
-
     public ModuleBuilder bindInstanceRef(String name, TypeName typeName, ClassName javaRef) {
-        String cacheFieldName = name + "Ref";
-        ParameterizedTypeName fieldCacheType = ParameterizedTypeName.get(refClassName, typeName);
         ParameterizedTypeName cacheType = ParameterizedTypeName.get(javaRef, typeName);
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
 
-        cacheFields.put(cacheFieldName, FieldSpec.builder(fieldCacheType, cacheFieldName, Modifier.PRIVATE).initializer("null"));
+        cacheFields.put(name, FieldSpec.builder(cacheType, name, Modifier.PRIVATE, Modifier.FINAL).initializer("new $T()", cacheType));
 
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("return this.$L != null ? this.$L.get() : null", cacheFieldName, cacheFieldName));
+                .addStatement("return $L != null ? $L.get() : null", name, name));
 
         if (bindMethodBuilder != null)
             bindMethodBuilder.beginControlFlow("  if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
-                    .addStatement("this.$L = new $T(($T) or)", cacheFieldName, cacheType, typeName)
+                    .addStatement("$L.set(($T) or)", name, typeName)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow();
         return this;
@@ -319,41 +298,21 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder provideStrongCached(String name, TypeName typeName) {
-        String getCachedMethodName = getCachedMethodName(name);
-        String cacheFieldName = name + "Strong";
-        cacheFields.put(cacheFieldName, FieldSpec.builder(typeName, cacheFieldName, Modifier.PRIVATE).initializer("null"));
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
-                .returns(typeName)
-                .addStatement("if ($L != null) return $L", cacheFieldName, cacheFieldName)
-                .addStatement("return  this.$L = $L.$L()", cacheFieldName, factoryFieldName, name));
-        provideMethodBuilders.add(MethodSpec.methodBuilder(getCachedMethodName)
-                .addModifiers(Modifier.PROTECTED, Modifier.SYNCHRONIZED)
-                .returns(typeName)
-                .addStatement("return this.$L", cacheFieldName));
-        return this;
-    }
-
     public ModuleBuilder provideRefCached(String name, TypeName typeName, ClassName javaRef) {
         String getCachedMethodName = getCachedMethodName(name);
-        String cacheFieldName = name + "Ref";
         ParameterizedTypeName cacheType = ParameterizedTypeName.get(javaRef, typeName);
-        ParameterizedTypeName fieldCacheType = ParameterizedTypeName.get(refClassName, typeName);
 
-        cacheFields.put(cacheFieldName, FieldSpec.builder(fieldCacheType, cacheFieldName, Modifier.PRIVATE).initializer("null"));
+        cacheFields.put(name, FieldSpec.builder(cacheType, name, Modifier.PRIVATE, Modifier.FINAL).initializer("new $T()", cacheType));
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("if ($L != null && $L.get() != null) return $L.get()", cacheFieldName, cacheFieldName, cacheFieldName)
-                .addStatement("this.$L = new $T($L.$L())", cacheFieldName, cacheType, factoryFieldName, name)
-                .addStatement("return this.$L.get()", cacheFieldName));
+                .addStatement("if ($L != null && $L.get() != null) return $L.get()", name, name, name)
+                .addStatement("return $L.set($L.$L())", name, factoryFieldName, name));
         provideMethodBuilders.add(MethodSpec.methodBuilder(getCachedMethodName)
                 .addModifiers(Modifier.PROTECTED, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addStatement("return this.$L != null ? this.$L.get() : null", cacheFieldName, cacheFieldName));
+                .addStatement("return $L != null ? $L.get() : null", name, name));
         return this;
     }
 

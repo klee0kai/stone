@@ -20,7 +20,7 @@ public class MethodDetail implements Cloneable {
 
     public ElementKind elementKind;
 
-    public List<TypeName> argTypes = new LinkedList<>();
+    public List<ParamDetails> argTypes = new LinkedList<>();
 
     public ProvideAnnotation provideAnnotation;
     public BindInstanceAnnotation bindInstanceAnnotation;
@@ -34,13 +34,12 @@ public class MethodDetail implements Cloneable {
         methodDetail.elementKind = element.getKind();
         methodDetail.provideAnnotation = ProvideAnnotation.of(element.getAnnotation(Provide.class));
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
-        for (VariableElement v : element.getParameters()) {
-            methodDetail.argTypes.add(TypeName.get(v.asType()));
-        }
+        for (VariableElement v : element.getParameters())
+            methodDetail.argTypes.add(ParamDetails.of(v));
         return methodDetail;
     }
 
-    public boolean isAbstract(){
+    public boolean isAbstract() {
         return modifiers.contains(Modifier.ABSTRACT);
     }
 

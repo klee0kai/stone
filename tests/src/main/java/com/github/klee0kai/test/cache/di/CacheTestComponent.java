@@ -5,6 +5,6 @@ import com.github.klee0kai.stone.annotations.Component;
 @Component
 public interface CacheTestComponent {
 
-    DataModule data();
+    CacheDataModule data();
 
 }

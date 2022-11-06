@@ -2,8 +2,10 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.ParamDetails;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.utils.ListUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -29,10 +31,13 @@ public class ModuleFactoryBuilder {
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
         if (builder.needBuild) {
             builder.className = ClassNameUtils.genFactoryNameMirror(module.className);
-            for (MethodDetail m : module.getAllMethods(false, "<init>"))
+            for (MethodDetail m : module.getAllMethods(false, "<init>")) {
+                if (!m.isAbstract() && !module.isInterfaceClass())
+                    continue;
                 if (m.bindInstanceAnnotation != null)
-                    builder.provideNullMethod(m.methodName, m.returnType);
-                else builder.provideMethod(m.methodName, m.returnType);
+                    builder.provideNullMethod(m.methodName, m.returnType, m.argTypes);
+                else builder.provideMethod(m.methodName, m.returnType, m.argTypes);
+            }
         }
         return builder;
     }
@@ -43,27 +48,37 @@ public class ModuleFactoryBuilder {
     }
 
 
-    public ModuleFactoryBuilder fabricMethode(String name, TypeName typeName) {
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
+    public ModuleFactoryBuilder provideMethod(String name, TypeName provideCl, List<ParamDetails> args) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
-                .returns(typeName)
-                .addStatement("return new $T()", typeName));
+                .addAnnotation(Override.class)
+                .returns(provideCl);
+
+        if (args == null || args.isEmpty()) {
+            builder.addStatement("return new $T()", provideCl);
+        } else {
+            for (ParamDetails p : args)
+                builder.addParameter(p.type, p.name);
+            builder.addStatement("return new $T($L)", provideCl,
+                    String.join(",", ListUtils.format(args, (it) -> it.name)));
+        }
+
+
+        provideMethodBuilders.add(builder);
         return this;
     }
 
-    public ModuleFactoryBuilder provideMethod(String name, TypeName provideCl) {
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
+    public ModuleFactoryBuilder provideNullMethod(String name, TypeName provideCl, List<ParamDetails> args) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
                 .returns(provideCl)
-                .addStatement("return new $T()", provideCl));
-        return this;
-    }
+                .addStatement("return null");
 
-    public ModuleFactoryBuilder provideNullMethod(String name, TypeName provideCl) {
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
-                .addModifiers(Modifier.PUBLIC)
-                .returns(provideCl)
-                .addStatement("return null"));
+        if (args != null) for (ParamDetails p : args)
+            builder.addParameter(p.type, p.name);
+
+        provideMethodBuilders.add(builder);
         return this;
     }
 

@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.bindinstance;
+package com.github.klee0kai.test;
 
 import java.util.UUID;
 

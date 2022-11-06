@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.cache;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.cache.data.StoneRepository;
+import com.github.klee0kai.test.data.StoneRepository;
 import com.github.klee0kai.test.cache.di.CacheTestComponent;
 import org.junit.jupiter.api.Test;
 

@@ -2,11 +2,11 @@ package com.github.klee0kai.test.cache.di;
 
 import com.github.klee0kai.stone.annotations.Module;
 import com.github.klee0kai.stone.annotations.Provide;
-import com.github.klee0kai.test.cache.data.StoneRepository;
+import com.github.klee0kai.test.data.StoneRepository;
 
 
 @Module
-public interface DataModule {
+public interface CacheDataModule {
 
     @Provide(cache = Provide.CacheType.FACTORY)
     StoneRepository provideFactory();
