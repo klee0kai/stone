@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.test.types;
 
-import com.github.klee0kai.stone.utils.ListUtils;
+import com.github.klee0kai.stone.types.ListUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

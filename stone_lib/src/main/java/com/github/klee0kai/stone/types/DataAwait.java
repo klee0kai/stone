@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.holder;
+package com.github.klee0kai.stone.types;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;

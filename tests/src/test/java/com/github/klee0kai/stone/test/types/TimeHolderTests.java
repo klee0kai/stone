@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.types;
 
-import com.github.klee0kai.stone.holder.TimeHolder;
-import com.github.klee0kai.stone.holder.TimeScheduler;
+import com.github.klee0kai.stone.types.TimeHolder;
+import com.github.klee0kai.stone.types.TimeScheduler;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNull;

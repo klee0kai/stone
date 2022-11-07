@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.holder.single;
+package com.github.klee0kai.stone.types.single;
 
 public class StrongItemHolder<T> extends SingleItemHolder<T>{
 

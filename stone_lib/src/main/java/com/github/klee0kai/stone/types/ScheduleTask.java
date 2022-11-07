@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.holder;
+package com.github.klee0kai.stone.types;
 
 public abstract class ScheduleTask {
 

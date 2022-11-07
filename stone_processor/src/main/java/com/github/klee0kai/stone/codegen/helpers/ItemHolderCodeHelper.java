@@ -2,12 +2,12 @@ package com.github.klee0kai.stone.codegen.helpers;
 
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.stone.holder.map.SoftMapItemHolder;
-import com.github.klee0kai.stone.holder.map.StrongMapItemHolder;
-import com.github.klee0kai.stone.holder.map.WeakMapItemHolder;
-import com.github.klee0kai.stone.holder.single.SoftItemHolder;
-import com.github.klee0kai.stone.holder.single.StrongItemHolder;
-import com.github.klee0kai.stone.holder.single.WeakItemHolder;
+import com.github.klee0kai.stone.types.map.SoftMapItemHolder;
+import com.github.klee0kai.stone.types.map.StrongMapItemHolder;
+import com.github.klee0kai.stone.types.map.WeakMapItemHolder;
+import com.github.klee0kai.stone.types.single.SoftItemHolder;
+import com.github.klee0kai.stone.types.single.StrongItemHolder;
+import com.github.klee0kai.stone.types.single.WeakItemHolder;
 import com.github.klee0kai.stone.model.ParamDetails;
 import com.squareup.javapoet.*;
 

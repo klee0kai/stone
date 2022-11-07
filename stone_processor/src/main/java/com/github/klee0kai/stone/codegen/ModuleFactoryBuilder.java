@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.ParamDetails;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
-import com.github.klee0kai.stone.utils.ListUtils;
+import com.github.klee0kai.stone.types.ListUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;

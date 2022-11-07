@@ -1,6 +1,4 @@
-package com.github.klee0kai.stone.holder;
-
-import com.github.klee0kai.stone.utils.ListUtils;
+package com.github.klee0kai.stone.types;
 
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;

@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.utils;
+package com.github.klee0kai.stone.types;
 
 import java.util.LinkedList;
 import java.util.List;

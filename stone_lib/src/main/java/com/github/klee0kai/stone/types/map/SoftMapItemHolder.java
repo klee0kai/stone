@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.holder.map;
+package com.github.klee0kai.stone.types.map;
 
 public class SoftMapItemHolder<Key, T> extends MapItemHolder<Key, T> {
 
