@@ -8,11 +8,13 @@ public class StoneApi {
 
     public String apiUrl = null;
 
+    public String token = null;
+
     public UUID uuid = UUID.randomUUID();
 
     public static StoneApi create(ProductType productType) {
         StoneApi stoneApi = new StoneApi();
-        switch (productType) {
+        if (productType != null) switch (productType) {
             case DEBUG -> {
                 stoneApi.apiUrl = "https://debug.org";
             }

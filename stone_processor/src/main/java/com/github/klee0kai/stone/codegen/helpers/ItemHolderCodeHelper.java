@@ -2,6 +2,8 @@ package com.github.klee0kai.stone.codegen.helpers;
 
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.types.ListUtils;
+import com.github.klee0kai.stone.types.MultiKeyMap;
 import com.github.klee0kai.stone.types.map.SoftMapItemHolder;
 import com.github.klee0kai.stone.types.map.StrongMapItemHolder;
 import com.github.klee0kai.stone.types.map.WeakMapItemHolder;
@@ -12,6 +14,7 @@ import com.github.klee0kai.stone.model.ParamDetails;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
+import java.util.LinkedList;
 import java.util.List;
 
 public interface ItemHolderCodeHelper {
@@ -20,6 +23,7 @@ public interface ItemHolderCodeHelper {
         STRONG, SOFT, WEAK
     }
 
+    ClassName multiKeyMapClassName = ClassName.get(MultiKeyMap.class);
     ClassName strongRefClassName = ClassName.get(StrongItemHolder.class);
     ClassName softRefClassName = ClassName.get(SoftItemHolder.class);
     ClassName weakRefClassName = ClassName.get(WeakItemHolder.class);
@@ -102,9 +106,25 @@ public interface ItemHolderCodeHelper {
             }
             return simpleMapItemHolderHelper;
         }
-        SimpleMapItemHolderHelper simpleMapItemHolderHelper = new SimpleMapItemHolderHelper();
-
-        return simpleMapItemHolderHelper;
+        MultiKeyMapItemHolderHelper multiKeyMapItemHolderHelper = new MultiKeyMapItemHolderHelper();
+        multiKeyMapItemHolderHelper.fieldName = fieldName;
+        multiKeyMapItemHolderHelper.fieldType = fieldOrType;
+        multiKeyMapItemHolderHelper.keyArgs = qualifiers;
+        switch (cacheType) {
+            case STRONG:
+                multiKeyMapItemHolderHelper.fieldHolderType = strongMapClassName;
+                multiKeyMapItemHolderHelper.setWeakRefSupport = true;
+                break;
+            case SOFT:
+                multiKeyMapItemHolderHelper.fieldHolderType = softMapClassName;
+                multiKeyMapItemHolderHelper.setWeakRefSupport = true;
+                break;
+            case WEAK:
+                multiKeyMapItemHolderHelper.fieldHolderType = weakMapClassName;
+                multiKeyMapItemHolderHelper.setWeakRefSupport = false;
+                break;
+        }
+        return multiKeyMapItemHolderHelper;
     }
 
     FieldSpec.Builder cachedField();
@@ -247,5 +267,71 @@ public interface ItemHolderCodeHelper {
 
 
     }
+
+
+    class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
+
+        public String fieldName;
+        public TypeName fieldType;
+        public ClassName fieldHolderType;
+
+        public List<ParamDetails> keyArgs;
+
+        public boolean setWeakRefSupport = false;
+
+
+        @Override
+        public FieldSpec.Builder cachedField() {
+            ParameterizedTypeName cacheType = ParameterizedTypeName.get(fieldHolderType, multiKeyMapClassName, fieldType);
+            return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new $T()", cacheType);
+        }
+
+        @Override
+        public CodeBlock codeGetCachedValue() {
+            ;
+            return CodeBlock.builder()
+                    .add("$L.get(new $T($L) )", fieldName, multiKeyMapClassName,
+                            String.join(",", ListUtils.format(keyArgs, (k) -> k.name)))
+                    .build();
+        }
+
+        @Override
+        public CodeBlock codeSetCachedValue(CodeBlock value) {
+            return CodeBlock.builder()
+                    .add("$L.set( new $T( $L ), ", fieldName, multiKeyMapClassName,
+                            String.join(",", ListUtils.format(keyArgs, (k) -> k.name)))
+                    .add(value)
+                    .add(")")
+                    .build();
+        }
+
+        @Override
+        public CodeBlock statementToWeak() {
+            if (!setWeakRefSupport)
+                return null;
+            return CodeBlock.builder()
+                    .addStatement("$L.weak()", fieldName)
+                    .build();
+        }
+
+        @Override
+        public CodeBlock statementDefRef() {
+            if (!setWeakRefSupport)
+                return null;
+            return CodeBlock.builder()
+                    .addStatement("$L.defRef()", fieldName)
+                    .addStatement("$L.clearNulls()", fieldName)
+                    .build();
+        }
+
+        @Override
+        public boolean supportWeakRef() {
+            return setWeakRefSupport;
+        }
+
+
+    }
+
 
 }

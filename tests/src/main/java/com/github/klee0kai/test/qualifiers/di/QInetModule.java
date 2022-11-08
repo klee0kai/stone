@@ -10,23 +10,52 @@ import com.github.klee0kai.test.qualifiers.ProductType;
 public class QInetModule {
 
     @Provide(cache = Provide.CacheType.FACTORY)
-    StoneApi stoneApiFactory(ProductType productType) {
+    public StoneApi stoneApiFactory(ProductType productType) {
         return StoneApi.create(productType);
     }
 
     @Provide(cache = Provide.CacheType.STRONG)
-    StoneApi stoneApiStrong(ProductType productType) {
+    public StoneApi stoneApiStrong(ProductType productType) {
         return StoneApi.create(productType);
     }
 
     @Provide(cache = Provide.CacheType.SOFT)
-    StoneApi stoneApiSoft(ProductType productType) {
+    public StoneApi stoneApiSoft(ProductType productType) {
         return StoneApi.create(productType);
     }
 
     @Provide(cache = Provide.CacheType.WEAK)
-    StoneApi stoneApiWeak(ProductType productType) {
+    public StoneApi stoneApiWeak(ProductType productType) {
         return StoneApi.create(productType);
+    }
+
+
+    @Provide(cache = Provide.CacheType.FACTORY)
+    public StoneApi userApiFactory(ProductType productType, String token) {
+        StoneApi api = StoneApi.create(productType);
+        api.token = token;
+        return api;
+    }
+
+    @Provide(cache = Provide.CacheType.STRONG)
+    public StoneApi userApiStrong(ProductType productType, String token) {
+        StoneApi api = StoneApi.create(productType);
+        api.token = token;
+        return api;
+    }
+
+    @Provide(cache = Provide.CacheType.SOFT)
+    public StoneApi userApiSoft(ProductType productType, String token) {
+        StoneApi api = StoneApi.create(productType);
+        api.token = token;
+        return api;
+    }
+
+    @Provide(cache = Provide.CacheType.WEAK)
+    public StoneApi userApiWeak(ProductType productType, String token) {
+        StoneApi api = StoneApi.create(productType);
+        api.token = token;
+        return api;
     }
 
 
