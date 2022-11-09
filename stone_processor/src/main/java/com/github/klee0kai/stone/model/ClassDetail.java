@@ -2,6 +2,8 @@ package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
+import com.github.klee0kai.stone.model.annotations.ComponentAnnotation;
+import com.github.klee0kai.stone.model.annotations.ModuleAnnotation;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
@@ -20,6 +22,7 @@ public class ClassDetail implements Cloneable {
     public ElementKind elementKind;
 
     public List<MethodDetail> methods = new LinkedList<>();
+    public List<FieldDetail> fields = new LinkedList<>();
 
     public ClassDetail superClass = null;
     public List<ClassDetail> interfaces = new LinkedList<>();
@@ -41,9 +44,10 @@ public class ClassDetail implements Cloneable {
 
 
         for (Element el : owner.getEnclosedElements()) {
-            if (!(el instanceof ExecutableElement))
-                continue;
-            classDetail.methods.add(MethodDetail.of((ExecutableElement) el));
+            if (el instanceof ExecutableElement)
+                classDetail.methods.add(MethodDetail.of((ExecutableElement) el));
+            else if (el instanceof VariableElement)
+                classDetail.fields.add(FieldDetail.of((VariableElement) el));
         }
         if (owner.getSuperclass() instanceof DeclaredType) {
             if (((DeclaredType) owner.getSuperclass()).asElement() instanceof TypeElement)

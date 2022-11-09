@@ -2,6 +2,8 @@ package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
+import com.github.klee0kai.stone.model.annotations.ProvideAnnotation;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.ElementKind;
@@ -20,7 +22,7 @@ public class MethodDetail implements Cloneable {
 
     public ElementKind elementKind;
 
-    public List<ParamDetails> args = new LinkedList<>();
+    public List<FieldDetail> args = new LinkedList<>();
 
     public ProvideAnnotation provideAnnotation;
     public BindInstanceAnnotation bindInstanceAnnotation;
@@ -35,7 +37,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.provideAnnotation = ProvideAnnotation.of(element.getAnnotation(Provide.class));
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
         for (VariableElement v : element.getParameters())
-            methodDetail.args.add(ParamDetails.of(v));
+            methodDetail.args.add(FieldDetail.of(v));
         return methodDetail;
     }
 

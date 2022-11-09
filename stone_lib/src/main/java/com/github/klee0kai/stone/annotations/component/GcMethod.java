@@ -13,14 +13,4 @@ import java.lang.annotation.*;
 @Inherited
 public @interface GcMethod {
 
-    /**
-     * collect soft cached components, which not use
-     */
-    boolean includeSoftRefs() default false;
-
-    /**
-     * collect strong cached components, which not use
-     */
-    boolean includeStrongRefs() default false;
-
 }

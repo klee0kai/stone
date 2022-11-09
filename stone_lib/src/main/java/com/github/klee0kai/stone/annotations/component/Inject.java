@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
  */
 
 @Retention(value = RetentionPolicy.CLASS)
-@Target(value = ElementType.METHOD)
+@Target(value = ElementType.FIELD)
 public @interface Inject {
 }

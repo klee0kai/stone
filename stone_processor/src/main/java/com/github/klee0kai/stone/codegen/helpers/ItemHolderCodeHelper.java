@@ -10,11 +10,10 @@ import com.github.klee0kai.stone.types.map.WeakMapItemHolder;
 import com.github.klee0kai.stone.types.single.SoftItemHolder;
 import com.github.klee0kai.stone.types.single.StrongItemHolder;
 import com.github.klee0kai.stone.types.single.WeakItemHolder;
-import com.github.klee0kai.stone.model.ParamDetails;
+import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
-import java.util.LinkedList;
 import java.util.List;
 
 public interface ItemHolderCodeHelper {
@@ -63,7 +62,7 @@ public interface ItemHolderCodeHelper {
         }
     }
 
-    static ItemHolderCodeHelper of(String fieldName, TypeName fieldOrType, List<ParamDetails> qualifiers, ItemCacheType cacheType) {
+    static ItemHolderCodeHelper of(String fieldName, TypeName fieldOrType, List<FieldDetail> qualifiers, ItemCacheType cacheType) {
         if (qualifiers == null || qualifiers.isEmpty()) {
             SingleItemHolderHelper singleItemHolderHelper = new SingleItemHolderHelper();
             singleItemHolderHelper.fieldName = fieldName;
@@ -213,7 +212,7 @@ public interface ItemHolderCodeHelper {
         public String fieldName;
         public TypeName fieldType;
         public ClassName fieldHolderType;
-        public ParamDetails keyParam;
+        public FieldDetail keyParam;
 
         public boolean setWeakRefSupport = false;
 
@@ -275,7 +274,7 @@ public interface ItemHolderCodeHelper {
         public TypeName fieldType;
         public ClassName fieldHolderType;
 
-        public List<ParamDetails> keyArgs;
+        public List<FieldDetail> keyArgs;
 
         public boolean setWeakRefSupport = false;
 

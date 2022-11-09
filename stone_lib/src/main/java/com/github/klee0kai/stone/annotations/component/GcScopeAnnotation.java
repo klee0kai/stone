@@ -12,5 +12,5 @@ import java.lang.annotation.Target;
 
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.ANNOTATION_TYPE)
-public @interface ScopeAnnotation {
+public @interface GcScopeAnnotation {
 }

@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.interfaces.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.model.ParamDetails;
+import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.github.klee0kai.stone.types.ListUtils;
@@ -263,7 +263,7 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder provideFactory(String name, TypeName typeName, List<ParamDetails> args) {
+    public ModuleBuilder provideFactory(String name, TypeName typeName, List<FieldDetail> args) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
@@ -271,14 +271,14 @@ public class ModuleBuilder {
                 .addStatement("return  $L.$L($L)", factoryFieldName, name,
                         String.join(",", ListUtils.format(args, (it) -> it.name)));
 
-        if (args != null) for (ParamDetails p : args)
+        if (args != null) for (FieldDetail p : args)
             builder.addParameter(p.type, p.name);
 
         provideMethodBuilders.add(builder);
         return this;
     }
 
-    public ModuleBuilder provideCached(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<ParamDetails> args) {
+    public ModuleBuilder provideCached(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<FieldDetail> args) {
         String getCachedMethodName = getCachedMethodName(name);
         cacheFields.add(itemHolderCodeHelper.cachedField());
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
@@ -298,7 +298,7 @@ public class ModuleBuilder {
                 .addCode("return ")
                 .addStatement(itemHolderCodeHelper.codeGetCachedValue());
 
-        if (args != null) for (ParamDetails p : args) {
+        if (args != null) for (FieldDetail p : args) {
             provideMethodBuilder.addParameter(p.type, p.name);
             getCachedMethodBuilder.addParameter(p.type, p.name);
         }

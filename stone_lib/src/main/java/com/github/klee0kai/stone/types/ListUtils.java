@@ -15,12 +15,28 @@ public class ListUtils {
 
     }
 
-    public static <Tin, Tout> List<Tout> format( List<Tin> list, IFormat<Tin, Tout> format) {
+
+    public interface IFilter<T> {
+        boolean filter(int inx, T ob);
+
+    }
+
+    public static <Tin, Tout> List<Tout> format(List<Tin> list, IFormat<Tin, Tout> format) {
         LinkedList<Tout> touts = new LinkedList<>();
         if (list != null) for (Tin it : list) {
             touts.add(format.format(it));
         }
         return touts;
+    }
+
+
+    public static <T> boolean contains(List<T> list, IFilter<T> filter) {
+        int idx = 0;
+        for (T it : list) {
+            if (filter.filter(idx++, it))
+                return true;
+        }
+        return false;
     }
 
     public static <T> void orderedAdd(List<T> list, T item, ICompare<T> compare) {

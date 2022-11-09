@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.model;
+package com.github.klee0kai.stone.model.annotations;
 
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 

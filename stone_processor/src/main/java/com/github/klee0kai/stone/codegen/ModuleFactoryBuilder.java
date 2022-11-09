@@ -2,7 +2,7 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.model.ParamDetails;
+import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.github.klee0kai.stone.types.ListUtils;
@@ -48,7 +48,7 @@ public class ModuleFactoryBuilder {
     }
 
 
-    public ModuleFactoryBuilder provideMethod(String name, TypeName provideCl, List<ParamDetails> args) {
+    public ModuleFactoryBuilder provideMethod(String name, TypeName provideCl, List<FieldDetail> args) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
@@ -57,7 +57,7 @@ public class ModuleFactoryBuilder {
         if (args == null || args.isEmpty()) {
             builder.addStatement("return new $T()", provideCl);
         } else {
-            for (ParamDetails p : args)
+            for (FieldDetail p : args)
                 builder.addParameter(p.type, p.name);
             builder.addStatement("return new $T($L)", provideCl,
                     String.join(",", ListUtils.format(args, (it) -> it.name)));
@@ -68,14 +68,14 @@ public class ModuleFactoryBuilder {
         return this;
     }
 
-    public ModuleFactoryBuilder provideNullMethod(String name, TypeName provideCl, List<ParamDetails> args) {
+    public ModuleFactoryBuilder provideNullMethod(String name, TypeName provideCl, List<FieldDetail> args) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .returns(provideCl)
                 .addStatement("return null");
 
-        if (args != null) for (ParamDetails p : args)
+        if (args != null) for (FieldDetail p : args)
             builder.addParameter(p.type, p.name);
 
         provideMethodBuilders.add(builder);

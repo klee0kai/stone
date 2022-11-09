@@ -1,8 +1,10 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
+import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
@@ -39,16 +41,16 @@ public class ComponentBuilder {
     // ---------------------- provide fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
+    public final List<MethodSpec.Builder> injectMethods = new LinkedList<>();
+
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
+    private final ComponentInjectGraph injectGraph = new ComponentInjectGraph();
 
-    private boolean collected = false;
 
     public static ComponentBuilder from(ClassDetail component) {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, ClassNameUtils.genComponentNameMirror(component.className));
         componentBuilder.implementIComponentMethods();
-        for (MethodDetail m : component.getAllMethods(false, "<init>"))
-            componentBuilder.provideModule(m.methodName, ClassNameUtils.genModuleNameMirror(m.returnType));
         return componentBuilder;
     }
 
@@ -138,13 +140,14 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder provideModule(String name, TypeName typeName) {
-        modulesFields.put(name, FieldSpec.builder(typeName, name, Modifier.PRIVATE)
-                .initializer("new $T()", typeName));
+    public ComponentBuilder provideModule(String name, ClassDetail module) {
+        ClassName moduleStoneMirror = ClassNameUtils.genModuleNameMirror(module.className);
+        modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE)
+                .initializer("new $T()", moduleStoneMirror));
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .returns(typeName)
+                .returns(moduleStoneMirror)
                 .addStatement("return this.$L", name);
         modulesMethods.put(name, builder);
 
@@ -152,6 +155,36 @@ public class ComponentBuilder {
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
         weakAllModuleCode.addStatement("this.$L.allWeak()", name);
         restoreRefsModuleCode.addStatement("this.$L.restoreRefs()", name);
+        injectGraph.addModule(name, module);
+        return this;
+    }
+
+    /**
+     * invoke after provideModule
+     *
+     * @param name
+     * @param injectClass
+     * @return
+     */
+    public ComponentBuilder provideInject(String name, ClassDetail injectClass) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(injectClass.className, "cl").build())
+                .returns(void.class);
+        for (FieldDetail ijField : injectClass.fields) {
+            if (!ijField.injectAnnotation)
+                continue;
+            CodeBlock codeBlock = injectGraph.codeProvideType(ijField.type);
+            if (codeBlock == null)
+                //todo throw errors
+                throw new RuntimeException("err inject " + ijField.name);
+            builder
+                    .addCode("cl.$L = ", ijField.name)
+                    .addStatement(codeBlock);
+        }
+
+        injectMethods.add(builder);
         return this;
     }
 
@@ -161,9 +194,6 @@ public class ComponentBuilder {
      * @return
      */
     public ComponentBuilder collect() {
-        if (collected)
-            return this;
-        collected = true;
         for (Runnable r : collectRuns)
             r.run();
 
@@ -193,6 +223,9 @@ public class ComponentBuilder {
             typeSpecBuilder.addMethod(method.build());
 
         for (MethodSpec.Builder method : modulesMethods.values())
+            typeSpecBuilder.addMethod(method.build());
+
+        for (MethodSpec.Builder method : injectMethods)
             typeSpecBuilder.addMethod(method.build());
 
         return typeSpecBuilder.build();

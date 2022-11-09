@@ -1,17 +1,23 @@
 package com.github.klee0kai.stone;
 
 import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.annotations.component.Inject;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
+import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.types.ListUtils;
+import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.TypeName;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.Set;
+import java.util.*;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({
@@ -34,6 +40,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
+        AllClassesHelper allClassesHelper = new AllClassesHelper();
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
             ClassDetail module = ClassDetail.of((TypeElement) ownerElement);
 
@@ -42,12 +49,38 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder);
             moduleBuilder.writeTo(env.getFiler());
+
+            allClassesHelper.addModule(module);
+        }
+        for (Element injectField : roundEnv.getElementsAnnotatedWith(Inject.class)) {
+            Element owner = injectField.getEnclosingElement();
+            ClassDetail cl = ClassDetail.of((TypeElement) owner);
+
+            allClassesHelper.addInjectClass(cl);
         }
 
+
+        //create components
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
             ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
 
             ComponentBuilder componentBuilder = ComponentBuilder.from(component);
+
+            // implement as module method
+            for (MethodDetail m : component.getAllMethods(false, "<init>"))
+                if (!m.returnType.isPrimitive() && !m.returnType.isBoxedPrimitive() && m.returnType != TypeName.VOID)
+                    componentBuilder.provideModule(m.methodName, allClassesHelper.findModule(m.returnType));
+
+
+            //  implement as inject method
+            for (MethodDetail m : component.getAllMethods(false, "<init>"))
+                if (m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1) {
+                    TypeName typeName = m.args.get(0).type;
+                    ClassDetail injCl = allClassesHelper.findInjectCls(typeName);
+                    if (injCl != null) componentBuilder.provideInject(m.methodName, injCl);
+                }
+
+
             componentBuilder.writeTo(env.getFiler());
         }
         return false;
