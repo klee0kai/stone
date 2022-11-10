@@ -36,6 +36,25 @@ public class ListUtils {
         return false;
     }
 
+    public static <T> T first(List<T> list, IFilter<T> filter) {
+        int idx = 0;
+        for (T it : list) {
+            if (filter.filter(idx++, it))
+                return it;
+        }
+        return null;
+    }
+
+    public static <T> List<T> filter(List<T> list, IFilter<T> filter) {
+        LinkedList<T> touts = new LinkedList<>();
+        int idx = 0;
+        for (T it : list) {
+            if (filter.filter(idx++, it))
+                touts.add(it);
+        }
+        return touts;
+    }
+
     public static <T> void orderedAdd(List<T> list, T item, ICompare<T> compare) {
         ListIterator<T> itr = list.listIterator();
         while (true) {

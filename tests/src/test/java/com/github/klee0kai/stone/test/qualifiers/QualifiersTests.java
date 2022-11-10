@@ -3,8 +3,10 @@ package com.github.klee0kai.stone.test.qualifiers;
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.data.StoneRepository;
 import com.github.klee0kai.test.net.StoneApi;
-import com.github.klee0kai.test.qualifiers.ProductType;
+import com.github.klee0kai.test.qualifiers.di.qualifiers.ProductType;
 import com.github.klee0kai.test.qualifiers.di.QTestComponent;
+import com.github.klee0kai.test.qualifiers.di.qualifiers.Token;
+import com.github.klee0kai.test.qualifiers.di.qualifiers.UserId;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,9 +20,9 @@ public class QualifiersTests {
     public void singleQualifiersTest() {
         QTestComponent DI = Stone.createComponent(QTestComponent.class);
 
-        StoneRepository stoneRepository1 = DI.data().stoneRepository("userId1");
-        StoneRepository stoneRepositoryNull = DI.data().stoneRepository(null);
-        StoneRepository stoneRepository2 = DI.data().stoneRepository("user2");
+        StoneRepository stoneRepository1 = DI.data().stoneRepository(new UserId("userId1"));
+        StoneRepository stoneRepositoryNull = DI.data().stoneRepository(new UserId(null));
+        StoneRepository stoneRepository2 = DI.data().stoneRepository(new UserId("user2"));
 
 
         //check created components
@@ -38,9 +40,9 @@ public class QualifiersTests {
         assertEquals(stoneRepository2.userId, "user2");
 
 
-        StoneRepository stoneRepository1_cached = DI.data().stoneRepository("userId1");
-        StoneRepository stoneRepositoryNull_cached = DI.data().stoneRepository(null);
-        StoneRepository stoneRepository2_cached = DI.data().stoneRepository("user2");
+        StoneRepository stoneRepository1_cached = DI.data().stoneRepository(new UserId("userId1"));
+        StoneRepository stoneRepositoryNull_cached = DI.data().stoneRepository(new UserId(null));
+        StoneRepository stoneRepository2_cached = DI.data().stoneRepository(new UserId("user2"));
 
         // check cached components
         assertEquals(stoneRepository1_cached.uuid, stoneRepository1.uuid);
@@ -106,14 +108,14 @@ public class QualifiersTests {
     public void multiQualifiersFactoryTest() {
         QTestComponent DI = Stone.createComponent(QTestComponent.class);
 
-        StoneApi debugApi = DI.inet().userApiFactory(ProductType.DEBUG, "token");
-        StoneApi demoApi = DI.inet().userApiFactory(ProductType.DEMO, "token");
-        StoneApi demo2Api = DI.inet().userApiFactory(ProductType.DEMO, "token");
-        StoneApi demo3Api = DI.inet().userApiFactory(ProductType.DEMO, "token1");
-        StoneApi releaseApi = DI.inet().userApiFactory(ProductType.RELEASE, null);
-        StoneApi nullApi = DI.inet().userApiFactory(null, "token");
-        StoneApi null2Api = DI.inet().userApiFactory(null, "token");
-        StoneApi null3Api = DI.inet().userApiFactory(null, "token2");
+        StoneApi debugApi = DI.inet().userApiFactory(ProductType.DEBUG, new Token("token"));
+        StoneApi demoApi = DI.inet().userApiFactory(ProductType.DEMO, new Token("token"));
+        StoneApi demo2Api = DI.inet().userApiFactory(ProductType.DEMO, new Token("token"));
+        StoneApi demo3Api = DI.inet().userApiFactory(ProductType.DEMO, new Token("token1"));
+        StoneApi releaseApi = DI.inet().userApiFactory(ProductType.RELEASE, new Token(null));
+        StoneApi nullApi = DI.inet().userApiFactory(null, new Token("token"));
+        StoneApi null2Api = DI.inet().userApiFactory(null, new Token("token"));
+        StoneApi null3Api = DI.inet().userApiFactory(null, new Token("token2"));
 
         // check product type arg
         assertEquals(debugApi.apiUrl, "https://debug.org");
@@ -127,7 +129,7 @@ public class QualifiersTests {
         assertEquals(null3Api.token, "token2");
 
         //check factory creating
-        List<StoneApi> apis = List.of(debugApi, demoApi, demo2Api, demo3Api, releaseApi, nullApi, null2Api,null3Api);
+        List<StoneApi> apis = List.of(debugApi, demoApi, demo2Api, demo3Api, releaseApi, nullApi, null2Api, null3Api);
         for (int i = 0; i < apis.size(); i++)
             for (int j = i + 1; j < apis.size(); j++)
                 assertNotEquals(apis.get(i), apis.get(j));
@@ -139,16 +141,16 @@ public class QualifiersTests {
     public void multiQualifiersCacheTest() {
         QTestComponent DI = Stone.createComponent(QTestComponent.class);
 
-        StoneApi debugApi = DI.inet().userApiStrong(ProductType.DEBUG, "token");
-        StoneApi demoApi = DI.inet().userApiStrong(ProductType.DEMO, "token");
-        StoneApi demo2Api = DI.inet().userApiStrong(ProductType.DEMO, "token");
-        StoneApi demo3Api = DI.inet().userApiStrong(ProductType.DEMO, "token1");
-        StoneApi releaseApi = DI.inet().userApiStrong(ProductType.RELEASE, null);
-        StoneApi nullApi = DI.inet().userApiStrong(null, "token");
-        StoneApi null2Api = DI.inet().userApiStrong(null, "token");
-        StoneApi null3Api = DI.inet().userApiStrong(null, "token2");
-        StoneApi null4Api = DI.inet().userApiStrong(null, null);
-        StoneApi null5Api = DI.inet().userApiStrong(null, null);
+        StoneApi debugApi = DI.inet().userApiStrong(ProductType.DEBUG,  new Token("token"));
+        StoneApi demoApi = DI.inet().userApiStrong(ProductType.DEMO,  new Token("token"));
+        StoneApi demo2Api = DI.inet().userApiStrong(ProductType.DEMO,  new Token("token"));
+        StoneApi demo3Api = DI.inet().userApiStrong(ProductType.DEMO,  new Token("token1"));
+        StoneApi releaseApi = DI.inet().userApiStrong(ProductType.RELEASE, new Token( null));
+        StoneApi nullApi = DI.inet().userApiStrong(null,  new Token("token"));
+        StoneApi null2Api = DI.inet().userApiStrong(null,  new Token("token"));
+        StoneApi null3Api = DI.inet().userApiStrong(null,  new Token("token2"));
+        StoneApi null4Api = DI.inet().userApiStrong(null,  new Token(null));
+        StoneApi null5Api = DI.inet().userApiStrong(null,  new Token(null));
 
         // check product type arg
         assertEquals(debugApi.apiUrl, "https://debug.org");
@@ -162,7 +164,7 @@ public class QualifiersTests {
         assertEquals(null3Api.token, "token2");
 
         //check different component creating
-        List<StoneApi> apis = List.of(debugApi, demoApi,  demo3Api, releaseApi, nullApi, null3Api);
+        List<StoneApi> apis = List.of(debugApi, demoApi, demo3Api, releaseApi, nullApi, null3Api);
         for (int i = 0; i < apis.size(); i++)
             for (int j = i + 1; j < apis.size(); j++)
                 assertNotEquals(apis.get(i), apis.get(j));

@@ -92,13 +92,13 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             //  implement as inject method
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
-                boolean injectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1;
+                boolean injectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() >= 1;
                 injectMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
                         && m.bindInstanceAnnotation == null;
                 if (injectMethod) {
                     TypeName typeName = m.args.get(0).type;
                     ClassDetail injCl = allClassesHelper.findInjectCls(typeName);
-                    if (injCl != null) componentBuilder.injectMethod(m.methodName, injCl);
+                    if (injCl != null) componentBuilder.injectMethod(m.methodName, injCl, m.args);
                 }
 
             }

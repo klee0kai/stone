@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.net;
 
-import com.github.klee0kai.test.qualifiers.ProductType;
+import com.github.klee0kai.test.qualifiers.di.qualifiers.ProductType;
 
 import java.util.UUID;
 

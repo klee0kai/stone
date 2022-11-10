@@ -5,6 +5,7 @@ import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.types.ListUtils;
 import com.github.klee0kai.stone.types.RefCollection;
 import com.github.klee0kai.stone.types.TimeHolder;
 import com.github.klee0kai.stone.types.TimeScheduler;
@@ -29,6 +30,8 @@ public class ComponentBuilder {
     public static String extOfMethodName = "extOf";
 
     public final Set<TypeName> interfaces = new HashSet<>();
+
+    public final Set<ClassName> qualifiers = new HashSet<>();
 
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
@@ -56,6 +59,7 @@ public class ComponentBuilder {
     public static ComponentBuilder from(ClassDetail component) {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, ClassNameUtils.genComponentNameMirror(component.className));
         componentBuilder.implementIComponentMethods();
+        componentBuilder.qualifiers.addAll(component.componentAnn.qualifiers);
         return componentBuilder;
     }
 
@@ -137,36 +141,39 @@ public class ComponentBuilder {
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
         weakAllModuleCode.addStatement("this.$L.allWeak(scopes)", name);
         restoreRefsModuleCode.addStatement("this.$L.restoreRefs(scopes)", name);
-        injectGraph.addModule(name, module);
+        injectGraph.addModule(MethodDetail.simpleName(name), module);
         return this;
     }
 
-    /**
-     * invoke after provideModule
-     *
-     * @param name
-     * @param injectClass
-     * @return
-     */
-    public ComponentBuilder injectMethod(String name, ClassDetail injectClass) {
+    public ComponentBuilder injectMethod(String name, ClassDetail injectClass, List<FieldDetail> args) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterSpec.builder(injectClass.className, "cl").build())
                 .returns(void.class);
-        for (FieldDetail ijField : injectClass.fields) {
-            if (!ijField.injectAnnotation)
-                continue;
-            CodeBlock codeBlock = injectGraph.codeProvideType(ijField.type);
-            if (codeBlock == null)
-                //todo throw errors
-                throw new RuntimeException("err inject " + ijField.name);
-            builder
-                    .addCode("cl.$L = ", ijField.name)
-                    .addStatement(codeBlock);
-        }
+        for (FieldDetail arg : args)
+            builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
+        FieldDetail clField = ListUtils.first(args, (inx, it) -> Objects.equals(it.type, injectClass.className));
+        if (clField==null)
+            //todo throw error
+            return this;
+
 
         injectMethods.add(builder);
+        collectRuns.add(() -> {
+            for (FieldDetail ijField : injectClass.fields) {
+                if (!ijField.injectAnnotation)
+                    continue;
+                List<FieldDetail> qFields = ListUtils.filter(args,
+                        (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
+
+                CodeBlock codeBlock = injectGraph.codeProvideType(ijField.type, qFields);
+                if (codeBlock == null)
+                    //todo throw errors
+                    throw new RuntimeException("err inject " + ijField.name);
+                builder.addCode("$L.$L = ", clField.name, ijField.name)
+                        .addStatement(codeBlock);
+            }
+        });
         return this;
     }
 
@@ -186,15 +193,16 @@ public class ComponentBuilder {
                 .addParameter(ParameterSpec.builder(injectClass.className, "cl").build())
                 .returns(void.class);
 
-        for (FieldDetail ijField : injectClass.fields) {
-            if (!ijField.injectAnnotation)
-                continue;
-            builder.addStatement("$L.add(new $T($L, cl.$L, $L))",
-                    refCollectionGlFieldName, TimeHolder.class,
-                    scheduleGlFieldName, ijField.name, timeMillis);
-        }
-
         protectInjectedMethods.add(builder);
+        collectRuns.add(() -> {
+            for (FieldDetail ijField : injectClass.fields) {
+                if (!ijField.injectAnnotation)
+                    continue;
+                builder.addStatement("$L.add(new $T($L, cl.$L, $L))",
+                        refCollectionGlFieldName, TimeHolder.class,
+                        scheduleGlFieldName, ijField.name, timeMillis);
+            }
+        });
         return this;
     }
 

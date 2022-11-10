@@ -9,4 +9,11 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.TYPE)
 public @interface Component {
+
+    /**
+     * Qualifiers, which using in inject methods
+     * @return
+     */
+    Class[] qualifiers() default {};
+
 }

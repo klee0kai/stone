@@ -34,6 +34,11 @@ public class MethodDetail implements Cloneable {
 
     public LinkedList<TypeName> gcScopeAnnotations = new LinkedList<>();
 
+    public static MethodDetail simpleName(String methodName) {
+        MethodDetail methodDetail = new MethodDetail();
+        methodDetail.methodName = methodName;
+        return methodDetail;
+    }
 
     public static MethodDetail of(ExecutableElement element) {
         MethodDetail methodDetail = new MethodDetail();
