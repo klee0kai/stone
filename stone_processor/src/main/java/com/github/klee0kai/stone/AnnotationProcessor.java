@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone;
 
 import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.annotations.component.Inject;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
@@ -9,8 +10,6 @@ import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.types.ListUtils;
-import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.TypeName;
 
@@ -26,6 +25,8 @@ import java.util.*;
 public class AnnotationProcessor extends AbstractProcessor {
 
     public static final String PROJECT_URL = "https://github.com/klee0kai/stone";
+    public static final AllClassesHelper allClassesHelper = new AllClassesHelper();
+
 
     public static ProcessingEnvironment env;
     public static Messager messager;
@@ -40,7 +41,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
-        AllClassesHelper allClassesHelper = new AllClassesHelper();
+        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(GcScopeAnnotation.class)) {
+            ClassDetail gcScopeAnn = ClassDetail.of((TypeElement) ownerElement);
+            allClassesHelper.addGcScopeAnnotation(gcScopeAnn);
+        }
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
             ClassDetail module = ClassDetail.of((TypeElement) ownerElement);
 
@@ -67,19 +71,30 @@ public class AnnotationProcessor extends AbstractProcessor {
             ComponentBuilder componentBuilder = ComponentBuilder.from(component);
 
             // implement as module method
-            for (MethodDetail m : component.getAllMethods(false, "<init>"))
-                if (!m.returnType.isPrimitive() && !m.returnType.isBoxedPrimitive() && m.returnType != TypeName.VOID)
-                    componentBuilder.provideModule(m.methodName, allClassesHelper.findModule(m.returnType));
+            for (MethodDetail m : component.getAllMethods(false, "<init>")) {
+                boolean provideModuleMethod = !m.returnType.isPrimitive() && !m.returnType.isBoxedPrimitive() && m.returnType != TypeName.VOID;
+                if (provideModuleMethod)
+                    componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findModule(m.returnType));
+            }
+
+            // gc methods
+            for (MethodDetail m : component.getAllMethods(false, "<init>")) {
+                boolean isGcMethod = !m.gcScopeAnnotations.isEmpty();
+                isGcMethod &= m.returnType == TypeName.VOID;
+                if (isGcMethod) componentBuilder.gcMethod(m.methodName, m.gcScopeAnnotations);
+            }
 
 
             //  implement as inject method
-            for (MethodDetail m : component.getAllMethods(false, "<init>"))
-                if (m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1) {
+            for (MethodDetail m : component.getAllMethods(false, "<init>")) {
+                boolean injectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1;
+                if (injectMethod) {
                     TypeName typeName = m.args.get(0).type;
                     ClassDetail injCl = allClassesHelper.findInjectCls(typeName);
-                    if (injCl != null) componentBuilder.provideInject(m.methodName, injCl);
+                    if (injCl != null) componentBuilder.injectMethod(m.methodName, injCl);
                 }
 
+            }
 
             componentBuilder.writeTo(env.getFiler());
         }

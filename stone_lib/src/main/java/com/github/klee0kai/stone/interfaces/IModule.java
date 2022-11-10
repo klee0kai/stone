@@ -1,5 +1,8 @@
 package com.github.klee0kai.stone.interfaces;
 
+import java.util.List;
+import java.util.Set;
+
 public interface IModule {
 
     /**
@@ -36,11 +39,11 @@ public interface IModule {
     /**
      * Switch soft refs to weak
      */
-    void allWeak();
+    void allWeak(Set<Class> scopes);
 
     /**
      * restore weak Refs
      */
-    void restoreRefs();
+    void restoreRefs(Set<Class> scopes);
 
 }

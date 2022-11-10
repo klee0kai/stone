@@ -1,15 +1,16 @@
 package com.github.klee0kai.stone.model;
 
+import com.github.klee0kai.stone.AnnotationProcessor;
+import com.github.klee0kai.stone.annotations.component.GcAllScope;
+import com.github.klee0kai.stone.annotations.component.ProtectInjected;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
 import com.github.klee0kai.stone.model.annotations.ProvideAnnotation;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import java.util.*;
 
 public class MethodDetail implements Cloneable {
@@ -27,6 +28,11 @@ public class MethodDetail implements Cloneable {
     public ProvideAnnotation provideAnnotation;
     public BindInstanceAnnotation bindInstanceAnnotation;
 
+    public boolean protectInjectedAnnotation = false;
+
+
+    public LinkedList<TypeName> gcScopeAnnotations = new LinkedList<>();
+
 
     public static MethodDetail of(ExecutableElement element) {
         MethodDetail methodDetail = new MethodDetail();
@@ -36,6 +42,15 @@ public class MethodDetail implements Cloneable {
         methodDetail.elementKind = element.getKind();
         methodDetail.provideAnnotation = ProvideAnnotation.of(element.getAnnotation(Provide.class));
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
+        methodDetail.protectInjectedAnnotation = element.getAnnotation(ProtectInjected.class) != null;
+        if (element.getAnnotation(GcAllScope.class) != null) {
+            methodDetail.gcScopeAnnotations.add(ClassName.get(GcAllScope.class));
+        }
+        for (AnnotationMirror ann : element.getAnnotationMirrors()) {
+            String clName = ann.getAnnotationType().toString();
+            ClassDetail annClDet = AnnotationProcessor.allClassesHelper.findGcScopeAnnotation(clName);
+            if (annClDet != null) methodDetail.gcScopeAnnotations.add(annClDet.className);
+        }
         for (VariableElement v : element.getParameters())
             methodDetail.args.add(FieldDetail.of(v));
         return methodDetail;

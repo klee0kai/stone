@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -42,6 +41,7 @@ public class ComponentBuilder {
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
     public final List<MethodSpec.Builder> injectMethods = new LinkedList<>();
+    public final List<MethodSpec.Builder> gcMethods = new LinkedList<>();
 
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
@@ -67,7 +67,6 @@ public class ComponentBuilder {
         initMethod(true);
         bindMethod(true);
         extOfMethod(true);
-        gcMethod(true);
         return this;
     }
 
@@ -118,29 +117,7 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder gcMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(gcMethodName)
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(boolean.class, "includeSoftRefs");
-        if (override)
-            builder.addAnnotation(Override.class);
-
-        iComponentMethods.put(gcMethodName, builder);
-        collectRuns.add(() -> {
-            builder.beginControlFlow("if (includeSoftRefs)")
-                    .addCode(weakAllModuleCode.build())
-                    .addStatement("$T.gc()", System.class)
-                    .addCode(restoreRefsModuleCode.build())
-                    .endControlFlow()
-                    .beginControlFlow("else")
-                    .addStatement("$T.gc()", System.class)
-                    .endControlFlow();
-        });
-
-        return this;
-    }
-
-    public ComponentBuilder provideModule(String name, ClassDetail module) {
+    public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
         ClassName moduleStoneMirror = ClassNameUtils.genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE)
                 .initializer("new $T()", moduleStoneMirror));
@@ -153,8 +130,8 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        weakAllModuleCode.addStatement("this.$L.allWeak()", name);
-        restoreRefsModuleCode.addStatement("this.$L.restoreRefs()", name);
+        weakAllModuleCode.addStatement("this.$L.allWeak(scopes)", name);
+        restoreRefsModuleCode.addStatement("this.$L.restoreRefs(scopes)", name);
         injectGraph.addModule(name, module);
         return this;
     }
@@ -166,7 +143,7 @@ public class ComponentBuilder {
      * @param injectClass
      * @return
      */
-    public ComponentBuilder provideInject(String name, ClassDetail injectClass) {
+    public ComponentBuilder injectMethod(String name, ClassDetail injectClass) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
@@ -185,6 +162,34 @@ public class ComponentBuilder {
         }
 
         injectMethods.add(builder);
+        return this;
+    }
+
+    public ComponentBuilder gcMethod(String name, List<TypeName> gcScopes) {
+        CodeBlock.Builder scopesCode = CodeBlock.builder();
+        int inx = 0;
+        for (TypeName sc : gcScopes)
+            if (inx++ <= 0) scopesCode.add("$T.class", sc);
+            else scopesCode.add(", $T.class", sc);
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addCode("$T scopes = new $T($T.asList(",
+                        ParameterizedTypeName.get(Set.class, Class.class),
+                        ParameterizedTypeName.get(HashSet.class, Class.class),
+                        Arrays.class)
+                .addCode(scopesCode.build())
+                .addStatement("))");
+
+
+        gcMethods.add(builder);
+        collectRuns.add(() -> {
+            builder.addCode(weakAllModuleCode.build())
+                    .addStatement("$T.gc()", System.class)
+                    .addCode(restoreRefsModuleCode.build());
+        });
         return this;
     }
 
@@ -227,7 +232,8 @@ public class ComponentBuilder {
 
         for (MethodSpec.Builder method : injectMethods)
             typeSpecBuilder.addMethod(method.build());
-
+        for (MethodSpec.Builder method : gcMethods)
+            typeSpecBuilder.addMethod(method.build());
         return typeSpecBuilder.build();
     }
 

@@ -1,8 +1,6 @@
 package com.github.klee0kai.stone.types;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class ListUtils {
 
@@ -29,7 +27,6 @@ public class ListUtils {
         return touts;
     }
 
-
     public static <T> boolean contains(List<T> list, IFilter<T> filter) {
         int idx = 0;
         for (T it : list) {
@@ -54,6 +51,13 @@ public class ListUtils {
                 return;
             }
         }
+    }
+
+    public static <T> Set<T> setOf(List<T> list, T... items) {
+        Set<T> set = new HashSet<>();
+        set.addAll(list);
+        set.addAll(Arrays.asList(items));
+        return set;
     }
 
 

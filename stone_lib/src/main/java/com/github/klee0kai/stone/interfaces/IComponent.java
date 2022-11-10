@@ -23,11 +23,4 @@ public interface IComponent {
     void extOf(IComponent components);
 
 
-    /**
-     * Run garbage collector
-     * @param includeSoftRefs true - collect also soft cached components, which not use.
-     */
-    void gc(boolean includeSoftRefs);
-
-
 }

@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.interfaces.IModule;
@@ -48,9 +49,10 @@ public class ModuleBuilder {
     public final List<FieldSpec.Builder> cacheFields = new LinkedList<>();
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
 
-    private final LinkedList<Runnable> collectRuns = new LinkedList<>();
+    public final HashMap<TypeName, CodeBlock.Builder> weakRefStatementBuilders = new HashMap<>();
+    public final HashMap<TypeName, CodeBlock.Builder> restoreRefStatementBuilders = new HashMap<>();
 
-    private boolean collected = false;
+    private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
     public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder) {
         ModuleBuilder builder = new ModuleBuilder(factoryBuilder.orFactory)
@@ -65,7 +67,7 @@ public class ModuleBuilder {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
-                builder.allWeakFor(itemHolderCodeHelper);
+                builder.allWeakFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
             } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.FACTORY) {
                 builder.provideFactory(m.methodName, m.returnType, m.args);
             } else {
@@ -73,7 +75,7 @@ public class ModuleBuilder {
                         m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.SOFT);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
-                builder.allWeakFor(itemHolderCodeHelper);
+                builder.allWeakFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
             }
         }
         return builder;
@@ -213,19 +215,34 @@ public class ModuleBuilder {
     public ModuleBuilder allWeakMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(allWeakMethodName)
                 .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
                 .returns(void.class);
         if (override) builder.addAnnotation(Override.class);
         iModuleMethodBuilders.put(allWeakMethodName, builder);
+
+        collectRuns.add(() -> {
+            builder.beginControlFlow("for ($T sc:scopes)", Class.class);
+            for (TypeName gcScope : weakRefStatementBuilders.keySet()) {
+                builder.beginControlFlow("if ($T.equals($T.class,sc))", Objects.class, gcScope)
+                        .addCode(weakRefStatementBuilders.get(gcScope).build())
+                        .endControlFlow();
+            }
+            builder.endControlFlow();
+        });
         return this;
     }
 
 
-    public ModuleBuilder allWeakFor(ItemHolderCodeHelper fieldHelper) {
-        MethodSpec.Builder allWeakMethod = iModuleMethodBuilders.get(allWeakMethodName);
-        MethodSpec.Builder restoreFefMethod = iModuleMethodBuilders.get(restoreRefsMethodName);
-        if (allWeakMethod != null && restoreFefMethod != null && fieldHelper.supportWeakRef()) {
-            allWeakMethod.addCode(fieldHelper.statementToWeak());
-            restoreFefMethod.addCode(fieldHelper.statementDefRef());
+    public ModuleBuilder allWeakFor(ItemHolderCodeHelper fieldHelper, Set<TypeName> scopes) {
+        if (!fieldHelper.supportWeakRef())
+            return this;
+
+        for (TypeName sc : scopes) {
+            weakRefStatementBuilders.putIfAbsent(sc, CodeBlock.builder());
+            weakRefStatementBuilders.get(sc).add(fieldHelper.statementToWeak());
+
+            restoreRefStatementBuilders.putIfAbsent(sc, CodeBlock.builder());
+            restoreRefStatementBuilders.get(sc).add(fieldHelper.statementDefRef());
         }
         return this;
     }
@@ -233,6 +250,7 @@ public class ModuleBuilder {
     public ModuleBuilder restoreRefsMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(restoreRefsMethodName)
                 .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
                 .returns(void.class);
         if (override) builder.addAnnotation(Override.class);
         iModuleMethodBuilders.put(restoreRefsMethodName, builder);
@@ -310,9 +328,6 @@ public class ModuleBuilder {
 
 
     public ModuleBuilder collect() {
-        if (collected)
-            return this;
-        collected = true;
         for (Runnable r : collectRuns)
             r.run();
         collectRuns.clear();

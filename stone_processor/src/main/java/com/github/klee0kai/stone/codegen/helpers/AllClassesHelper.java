@@ -7,6 +7,8 @@ import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.TypeElement;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class AllClassesHelper {
@@ -14,9 +16,14 @@ public class AllClassesHelper {
 
     private final Map<TypeName, ClassDetail> injectClasses = new HashMap<>();
     private final Map<TypeName, ClassDetail> modules = new HashMap<>();
+    private final Map<String, ClassDetail> gcScopeAnnotations = new HashMap<>();
 
     public void addModule(ClassDetail module) {
         modules.put(module.className, module);
+    }
+
+    public void addGcScopeAnnotation(ClassDetail classDetail) {
+        gcScopeAnnotations.put(classDetail.className.toString(), classDetail);
     }
 
     public void addInjectClass(ClassDetail injCl) {
@@ -34,4 +41,9 @@ public class AllClassesHelper {
     }
 
 
+
+
+    public ClassDetail findGcScopeAnnotation(String annTypeName){
+        return gcScopeAnnotations.getOrDefault(annTypeName,null);
+    }
 }
