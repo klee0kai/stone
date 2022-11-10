@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.codegen.helpers;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.types.ListUtils;
-import com.github.klee0kai.stone.types.MultiKeyMap;
+import com.github.klee0kai.stone.types.MultiKey;
 import com.github.klee0kai.stone.types.map.SoftMapItemHolder;
 import com.github.klee0kai.stone.types.map.StrongMapItemHolder;
 import com.github.klee0kai.stone.types.map.WeakMapItemHolder;
@@ -22,7 +22,7 @@ public interface ItemHolderCodeHelper {
         STRONG, SOFT, WEAK
     }
 
-    ClassName multiKeyMapClassName = ClassName.get(MultiKeyMap.class);
+    ClassName multiKeyMapClassName = ClassName.get(MultiKey.class);
     ClassName strongRefClassName = ClassName.get(StrongItemHolder.class);
     ClassName softRefClassName = ClassName.get(SoftItemHolder.class);
     ClassName weakRefClassName = ClassName.get(WeakItemHolder.class);

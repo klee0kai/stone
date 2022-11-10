@@ -1,10 +1,12 @@
 package com.github.klee0kai.stone.types.single;
 
+import com.github.klee0kai.stone.types.IRef;
+
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
-public abstract class SingleItemHolder<T> {
+public abstract class SingleItemHolder<T> implements IRef<T> {
 
     private T strongHolder = null;
     private Reference<T> refHolder = null;
@@ -14,6 +16,7 @@ public abstract class SingleItemHolder<T> {
 
     abstract public void defRef();
 
+    @Override
     public T get() {
         if (strongHolder != null)
             return strongHolder;

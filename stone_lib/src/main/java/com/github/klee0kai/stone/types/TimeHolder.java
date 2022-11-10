@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.types;
 
-public class TimeHolder<T> {
+public class TimeHolder<T> implements IRef<T> {
 
     private final TimeScheduler timer;
     private T ob = null;

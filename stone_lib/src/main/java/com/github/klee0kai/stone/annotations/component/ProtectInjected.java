@@ -13,4 +13,13 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.METHOD)
 public @interface ProtectInjected {
+
+    /**
+     * protect tim millis.
+     * Default protect 5 sec.
+     *
+     * @return
+     */
+    long timeMillis() default 5000L;
+
 }

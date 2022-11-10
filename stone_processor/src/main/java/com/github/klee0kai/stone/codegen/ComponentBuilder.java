@@ -4,6 +4,10 @@ import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.types.RefCollection;
+import com.github.klee0kai.stone.types.TimeHolder;
+import com.github.klee0kai.stone.types.TimeScheduler;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
@@ -18,11 +22,11 @@ public class ComponentBuilder {
 
     public ClassName className;
 
+    public static String refCollectionGlFieldName = "__refCollection";
+
     public static String initMethodName = "init";
     public static String bindMethodName = "bind";
     public static String extOfMethodName = "extOf";
-
-    public static String gcMethodName = "gc";
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
@@ -41,6 +45,7 @@ public class ComponentBuilder {
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
     public final List<MethodSpec.Builder> injectMethods = new LinkedList<>();
+    public final List<MethodSpec.Builder> protectInjectedMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> gcMethods = new LinkedList<>();
 
 
@@ -165,6 +170,34 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder protectInjected(String name, ClassDetail injectClass, long timeMillis) {
+        String scheduleGlFieldName = "__scheduler";
+        if (!fields.containsKey(scheduleGlFieldName))
+            fields.put(scheduleGlFieldName, FieldSpec.builder(TimeScheduler.class, scheduleGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new $T()", TimeScheduler.class));
+        if (!fields.containsKey(refCollectionGlFieldName))
+            fields.put(refCollectionGlFieldName, FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new $T()", RefCollection.class));
+
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(injectClass.className, "cl").build())
+                .returns(void.class);
+
+        for (FieldDetail ijField : injectClass.fields) {
+            if (!ijField.injectAnnotation)
+                continue;
+            builder.addStatement("$L.add(new $T($L, cl.$L, $L))",
+                    refCollectionGlFieldName, TimeHolder.class,
+                    scheduleGlFieldName, ijField.name, timeMillis);
+        }
+
+        protectInjectedMethods.add(builder);
+        return this;
+    }
+
     public ComponentBuilder gcMethod(String name, List<TypeName> gcScopes) {
         CodeBlock.Builder scopesCode = CodeBlock.builder();
         int inx = 0;
@@ -187,8 +220,10 @@ public class ComponentBuilder {
         gcMethods.add(builder);
         collectRuns.add(() -> {
             builder.addCode(weakAllModuleCode.build())
-                    .addStatement("$T.gc()", System.class)
-                    .addCode(restoreRefsModuleCode.build());
+                    .addStatement("$T.gc()", System.class);
+            if (fields.containsKey(refCollectionGlFieldName))
+                builder.addStatement("$L.clearNulls()", refCollectionGlFieldName);
+            builder.addCode(restoreRefsModuleCode.build());
         });
         return this;
     }
@@ -224,16 +259,16 @@ public class ComponentBuilder {
         for (FieldSpec.Builder field : modulesFields.values())
             typeSpecBuilder.addField(field.build());
 
-        for (MethodSpec.Builder method : iComponentMethods.values())
+        List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
+        methodBuilders.addAll(iComponentMethods.values());
+        methodBuilders.addAll(modulesMethods.values());
+        methodBuilders.addAll(injectMethods);
+        methodBuilders.addAll(protectInjectedMethods);
+        methodBuilders.addAll(gcMethods);
+
+        for (MethodSpec.Builder method : methodBuilders)
             typeSpecBuilder.addMethod(method.build());
 
-        for (MethodSpec.Builder method : modulesMethods.values())
-            typeSpecBuilder.addMethod(method.build());
-
-        for (MethodSpec.Builder method : injectMethods)
-            typeSpecBuilder.addMethod(method.build());
-        for (MethodSpec.Builder method : gcMethods)
-            typeSpecBuilder.addMethod(method.build());
         return typeSpecBuilder.build();
     }
 

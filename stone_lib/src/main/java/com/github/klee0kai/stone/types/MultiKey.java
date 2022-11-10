@@ -2,11 +2,11 @@ package com.github.klee0kai.stone.types;
 
 import java.util.*;
 
-public class MultiKeyMap {
+public class MultiKey {
 
     private final List<Object> subKeys = new LinkedList<>();
 
-    public MultiKeyMap(Object... subKeys){
+    public MultiKey(Object... subKeys){
         this.subKeys.addAll(Arrays.asList(subKeys));
     }
 
@@ -29,11 +29,11 @@ public class MultiKeyMap {
         //AbstractList equals check
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof MultiKeyMap)) {
+        } else if (!(obj instanceof MultiKey)) {
             return false;
         } else {
             ListIterator<Object> e1 = this.subKeys.listIterator();
-            ListIterator<?> e2 = ((MultiKeyMap)obj).subKeys.listIterator();
+            ListIterator<?> e2 = ((MultiKey)obj).subKeys.listIterator();
 
             while(true) {
                 if (e1.hasNext() && e2.hasNext()) {

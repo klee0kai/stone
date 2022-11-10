@@ -4,6 +4,7 @@ import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.test.inject.forest.Blood;
 import com.github.klee0kai.test.inject.forest.Earth;
+import com.github.klee0kai.test.inject.forest.History;
 
 import java.awt.*;
 
@@ -18,6 +19,9 @@ public abstract class UnitedModule {
 
     @Provide(cache = Provide.CacheType.SOFT)
     public abstract Earth earth();
+
+    @Provide(cache = Provide.CacheType.WEAK)
+    public abstract History history();
 
 
 }

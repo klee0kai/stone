@@ -73,6 +73,8 @@ public class AnnotationProcessor extends AbstractProcessor {
             // implement as module method
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
                 boolean provideModuleMethod = !m.returnType.isPrimitive() && !m.returnType.isBoxedPrimitive() && m.returnType != TypeName.VOID;
+                provideModuleMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
+                        && m.bindInstanceAnnotation == null;
                 if (provideModuleMethod)
                     componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findModule(m.returnType));
             }
@@ -81,6 +83,9 @@ public class AnnotationProcessor extends AbstractProcessor {
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
                 boolean isGcMethod = !m.gcScopeAnnotations.isEmpty();
                 isGcMethod &= m.returnType == TypeName.VOID;
+                isGcMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
+                        && m.bindInstanceAnnotation == null;
+
                 if (isGcMethod) componentBuilder.gcMethod(m.methodName, m.gcScopeAnnotations);
             }
 
@@ -88,12 +93,27 @@ public class AnnotationProcessor extends AbstractProcessor {
             //  implement as inject method
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
                 boolean injectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1;
+                injectMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
+                        && m.bindInstanceAnnotation == null;
                 if (injectMethod) {
                     TypeName typeName = m.args.get(0).type;
                     ClassDetail injCl = allClassesHelper.findInjectCls(typeName);
                     if (injCl != null) componentBuilder.injectMethod(m.methodName, injCl);
                 }
 
+            }
+
+            //  implement protect inject method
+            for (MethodDetail m : component.getAllMethods(false, "<init>")) {
+                boolean protectInjectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1
+                        && m.protectInjectedAnnotation != null;
+                protectInjectMethod &= m.provideAnnotation == null && m.bindInstanceAnnotation == null;
+                if (protectInjectMethod) {
+                    TypeName typeName = m.args.get(0).type;
+                    ClassDetail injCl = allClassesHelper.findInjectCls(typeName);
+                    if (injCl != null) componentBuilder.protectInjected(m.methodName, injCl,
+                            m.protectInjectedAnnotation.timeMillis);
+                }
             }
 
             componentBuilder.writeTo(env.getFiler());
