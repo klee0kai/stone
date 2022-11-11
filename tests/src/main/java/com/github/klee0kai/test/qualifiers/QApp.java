@@ -27,8 +27,8 @@ public class QApp {
     }
 
     public void startDemo1() {
-        DI.inject(this, ProductType.DEMO, new UserId("demo_user_id"), new Token("demo_token"));
-
+        //check independence to sequence
+        DI.inject(ProductType.DEMO, new UserId("demo_user_id"), new Token("demo_token"), this);
     }
 
     public void startRelease() {

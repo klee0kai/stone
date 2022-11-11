@@ -9,7 +9,9 @@ import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.types.ListUtils;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.TypeName;
 
@@ -96,8 +98,8 @@ public class AnnotationProcessor extends AbstractProcessor {
                 injectMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
                         && m.bindInstanceAnnotation == null;
                 if (injectMethod) {
-                    TypeName typeName = m.args.get(0).type;
-                    ClassDetail injCl = allClassesHelper.findInjectCls(typeName);
+                    FieldDetail injField = ListUtils.first(m.args, (inx, it) -> allClassesHelper.findInjectCls(it.type) != null);
+                    ClassDetail injCl = injField != null ? allClassesHelper.findInjectCls(injField.type) : null;
                     if (injCl != null) componentBuilder.injectMethod(m.methodName, injCl, m.args);
                 }
 

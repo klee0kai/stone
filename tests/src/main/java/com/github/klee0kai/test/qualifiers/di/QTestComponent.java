@@ -19,7 +19,7 @@ public interface QTestComponent {
 
     void inject(QApp qApp, ProductType debug);
 
-    void inject(QApp qApp, ProductType demo, UserId demo_user_id, Token demo_token);
+    void inject(ProductType demo, UserId demo_user_id, Token demo_token,QApp qApp);
 
     void inject(QApp qApp, Token release_token, ProductType release);
 }
