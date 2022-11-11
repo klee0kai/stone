@@ -1,14 +1,12 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.types.ListUtils;
-import com.github.klee0kai.stone.types.RefCollection;
-import com.github.klee0kai.stone.types.TimeHolder;
-import com.github.klee0kai.stone.types.TimeScheduler;
+import com.github.klee0kai.stone.types.*;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
@@ -17,17 +15,20 @@ import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.util.*;
 
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+
 public class ComponentBuilder {
 
     public final ClassDetail orComponentCl;
 
     public ClassName className;
 
-    public static String refCollectionGlFieldName = "__refCollection";
+    public static final String refCollectionGlFieldName = "__refCollection";
+    public static final String scheduleGlFieldName = "__scheduler";
 
-    public static String initMethodName = "init";
-    public static String bindMethodName = "bind";
-    public static String extOfMethodName = "extOf";
+    public static final String initMethodName = "init";
+    public static final String bindMethodName = "bind";
+    public static final String extOfMethodName = "extOf";
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
@@ -76,6 +77,17 @@ public class ComponentBuilder {
         initMethod(true);
         bindMethod(true);
         extOfMethod(true);
+        return this;
+    }
+
+
+    public ComponentBuilder timeHolderFields() {
+        if (!fields.containsKey(scheduleGlFieldName))
+            fields.put(scheduleGlFieldName, FieldSpec.builder(TimeScheduler.class, scheduleGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new $T()", TimeScheduler.class));
+        if (!fields.containsKey(refCollectionGlFieldName))
+            fields.put(refCollectionGlFieldName, FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                    .initializer("new $T()", RefCollection.class));
         return this;
     }
 
@@ -153,18 +165,21 @@ public class ComponentBuilder {
         for (FieldDetail arg : args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
         FieldDetail clField = ListUtils.first(args, (inx, it) -> Objects.equals(it.type, injectClass.className));
-        if (clField==null)
+        List<FieldDetail> qFields = ListUtils.filter(args,
+                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
+        FieldDetail lifeCycleOwner = ListUtils.first(args, (inx, it) -> allClassesHelper.isLifeCycleOwner(it.type));
+        if (clField == null)
             //todo throw error
             return this;
 
+        if (lifeCycleOwner != null)
+            timeHolderFields();
 
         injectMethods.add(builder);
         collectRuns.add(() -> {
             for (FieldDetail ijField : injectClass.fields) {
                 if (!ijField.injectAnnotation)
                     continue;
-                List<FieldDetail> qFields = ListUtils.filter(args,
-                        (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
 
                 CodeBlock codeBlock = injectGraph.codeProvideType(ijField.type, qFields);
                 if (codeBlock == null)
@@ -173,19 +188,27 @@ public class ComponentBuilder {
                 builder.addCode("$L.$L = ", clField.name, ijField.name)
                         .addStatement(codeBlock);
             }
+
+            //protect by lifecycle owner
+            if (lifeCycleOwner != null) {
+                builder.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
+
+                for (FieldDetail ijField : injectClass.fields) {
+                    if (!ijField.injectAnnotation)
+                        continue;
+                    builder.addStatement("$L.add(new $T($L, $L.$L, timeMillis))",
+                            refCollectionGlFieldName, TimeHolder.class,
+                            scheduleGlFieldName, clField.name, ijField.name);
+                }
+
+                builder.endControlFlow(")");
+            }
         });
         return this;
     }
 
     public ComponentBuilder protectInjected(String name, ClassDetail injectClass, long timeMillis) {
-        String scheduleGlFieldName = "__scheduler";
-        if (!fields.containsKey(scheduleGlFieldName))
-            fields.put(scheduleGlFieldName, FieldSpec.builder(TimeScheduler.class, scheduleGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
-                    .initializer("new $T()", TimeScheduler.class));
-        if (!fields.containsKey(refCollectionGlFieldName))
-            fields.put(refCollectionGlFieldName, FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
-                    .initializer("new $T()", RefCollection.class));
-
+        timeHolderFields();
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)

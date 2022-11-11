@@ -39,6 +39,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         super.init(env);
         AnnotationProcessor.env = env;
         messager = env.getMessager();
+        allClassesHelper.init(env.getElementUtils());
     }
 
     @Override

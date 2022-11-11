@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.model.annotations.ModuleAnnotation;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
@@ -128,6 +129,17 @@ public class ClassDetail implements Cloneable {
         if (superClass != null)
             return superClass.superClassesDeep(includeObject) + 1;
         return 0;
+    }
+
+    public boolean isExtOf(TypeName typeName) {
+        if (Objects.equals(typeName, this.className))
+            return true;
+        if (superClass != null && superClass.isExtOf(typeName))
+            return true;
+        if (interfaces != null) for (ClassDetail i : interfaces)
+            if (i.isExtOf(typeName))
+                return true;
+        return false;
     }
 
     public boolean isAbstractClass() {
