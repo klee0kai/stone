@@ -52,4 +52,22 @@ public class InjectTests {
         assertNotEquals(horse.knowledge.uuid, mowgli.knowledge.uuid);
 
     }
+
+
+    @Test
+    public void fieldsInjectTest() {
+        // create common component for all app
+        Forest forest = new Forest();
+        forest.create();
+
+        //use sub app components
+        Mowgli mowgli = new Mowgli();
+        mowgli.born();
+
+        assertNotNull(mowgli.knowledge);
+        assertNotNull(mowgli.knowledgeWeakRef.get());
+        assertNotNull(mowgli.knowledgeSoftRef.get());
+        assertNotNull(mowgli.knowledgePhantomProvide.get());
+        assertNotNull(mowgli.knowledgeLazyProvide.get());
+    }
 }

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
+import com.github.klee0kai.stone.codegen.helpers.IInjectFieldTypeHelper;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -181,12 +181,12 @@ public class ComponentBuilder {
                 if (!ijField.injectAnnotation)
                     continue;
 
-                CodeBlock codeBlock = injectGraph.codeProvideType(ijField.type, qFields);
+                IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(ijField.type);
+                CodeBlock codeBlock = injectGraph.codeProvideType(injectHelper.providingType(), qFields);
                 if (codeBlock == null)
                     //todo throw errors
                     throw new RuntimeException("err inject " + ijField.name);
-                builder.addCode("$L.$L = ", clField.name, ijField.name)
-                        .addStatement(codeBlock);
+                builder.addStatement(injectHelper.codeInjectField(clField.name, ijField.name, codeBlock));
             }
 
             //protect by lifecycle owner
