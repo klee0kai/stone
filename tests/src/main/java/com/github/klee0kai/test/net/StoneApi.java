@@ -15,15 +15,15 @@ public class StoneApi {
     public static StoneApi create(ProductType productType) {
         StoneApi stoneApi = new StoneApi();
         if (productType != null) switch (productType) {
-            case DEBUG -> {
+            case DEBUG:
                 stoneApi.apiUrl = "https://debug.org";
-            }
-            case DEMO -> {
+                break;
+            case DEMO:
                 stoneApi.apiUrl = "https://demo.org";
-            }
-            case RELEASE -> {
+                break;
+            case RELEASE:
                 stoneApi.apiUrl = "https://release.org";
-            }
+                break;
         }
         return stoneApi;
 
