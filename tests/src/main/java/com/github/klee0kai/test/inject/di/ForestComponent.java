@@ -3,12 +3,13 @@ package com.github.klee0kai.test.inject.di;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
+import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.test.inject.Horse;
 import com.github.klee0kai.test.inject.Mowgli;
 import com.github.klee0kai.test.inject.Snake;
 
 @Component
-public interface ForestComponent {
+public interface ForestComponent extends IComponent {
 
     UnitedModule united();
 

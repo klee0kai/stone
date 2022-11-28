@@ -6,5 +6,9 @@ public class Conscience {
 
     public UUID uuid = UUID.randomUUID();
 
+    public boolean isOldConscience() {
+        return false;
+    }
+
 
 }

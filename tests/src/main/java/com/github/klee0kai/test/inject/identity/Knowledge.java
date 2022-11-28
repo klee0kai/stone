@@ -7,4 +7,8 @@ public class Knowledge {
     public UUID uuid = UUID.randomUUID();
 
 
+    public boolean isOldKnowledge(){
+        return false;
+    }
+
 }

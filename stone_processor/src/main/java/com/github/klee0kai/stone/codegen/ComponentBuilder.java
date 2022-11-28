@@ -157,18 +157,21 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder injectMethod(String name, ClassDetail injectClass, List<FieldDetail> args) {
+    public ComponentBuilder injectMethod(String name, List<FieldDetail> args) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
         for (FieldDetail arg : args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-        FieldDetail clField = ListUtils.first(args, (inx, it) -> Objects.equals(it.type, injectClass.className));
         List<FieldDetail> qFields = ListUtils.filter(args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
         FieldDetail lifeCycleOwner = ListUtils.first(args, (inx, it) -> allClassesHelper.isLifeCycleOwner(it.type));
-        if (clField == null)
+
+        List<FieldDetail> clFields = ListUtils.filter(args, (inx, it) ->
+                (it.type instanceof ClassName) && !qualifiers.contains(it.type));
+
+        if (clFields.isEmpty())
             //todo throw error
             return this;
 
@@ -177,31 +180,39 @@ public class ComponentBuilder {
 
         injectMethods.add(builder);
         collectRuns.add(() -> {
-            for (FieldDetail ijField : injectClass.fields) {
-                if (!ijField.injectAnnotation)
-                    continue;
+            for (FieldDetail injectField : clFields) {
+                ClassDetail injectClass = allClassesHelper.findForType(injectField.type);
 
-                IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(ijField.type);
-                CodeBlock codeBlock = injectGraph.codeProvideType(injectHelper.providingType(), qFields);
-                if (codeBlock == null)
-                    //todo throw errors
-                    throw new RuntimeException("err inject " + ijField.name);
-                builder.addStatement(injectHelper.codeInjectField(clField.name, ijField.name, codeBlock));
+                for (FieldDetail ijField : injectClass.getAllFields()) {
+                    if (!ijField.injectAnnotation)
+                        continue;
+
+                    IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(ijField.type);
+                    CodeBlock codeBlock = injectGraph.codeProvideType(injectHelper.providingType(), qFields);
+                    if (codeBlock == null)
+                        //todo throw errors
+                        throw new RuntimeException("err inject " + ijField.name);
+                    builder.addStatement(injectHelper.codeInjectField(injectField.name, ijField.name, codeBlock));
+                }
             }
 
             //protect by lifecycle owner
-            if (lifeCycleOwner != null) {
-                builder.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
+            for (FieldDetail injectField : clFields) {
+                ClassDetail injectClass = allClassesHelper.findForType(injectField.type);
 
-                for (FieldDetail ijField : injectClass.fields) {
-                    if (!ijField.injectAnnotation)
-                        continue;
-                    builder.addStatement("$L.add(new $T($L, $L.$L, timeMillis))",
-                            refCollectionGlFieldName, TimeHolder.class,
-                            scheduleGlFieldName, clField.name, ijField.name);
+                if (lifeCycleOwner != null) {
+                    builder.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
+
+                    for (FieldDetail ijField : injectClass.fields) {
+                        if (!ijField.injectAnnotation)
+                            continue;
+                        builder.addStatement("$L.add(new $T($L, $L.$L, timeMillis))",
+                                refCollectionGlFieldName, TimeHolder.class,
+                                scheduleGlFieldName, injectField.name, ijField.name);
+                    }
+
+                    builder.endControlFlow(")");
                 }
-
-                builder.endControlFlow(")");
             }
         });
         return this;

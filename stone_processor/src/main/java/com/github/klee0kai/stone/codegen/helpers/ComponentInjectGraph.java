@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
+import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.InvokeCall;
@@ -17,8 +18,11 @@ public class ComponentInjectGraph {
 
     public void addModule(MethodDetail provideModuleMethod, ClassDetail module) {
         for (MethodDetail m : module.getAllMethods(false, "<init>")) {
-            provideTypeCodes.putIfAbsent(m.returnType, new LinkedList<>());
-            provideTypeCodes.get(m.returnType).add(new InvokeCall(provideModuleMethod, m));
+            ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
+            for (ClassDetail cl : rtClassDetails.getAllParents(false)) {
+                provideTypeCodes.putIfAbsent(cl.className, new LinkedList<>());
+                provideTypeCodes.get(cl.className).add(new InvokeCall(provideModuleMethod, m));
+            }
         }
     }
 

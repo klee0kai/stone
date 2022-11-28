@@ -12,7 +12,9 @@ import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.types.ListUtils;
+import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 import javax.annotation.processing.*;
@@ -56,14 +58,6 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder);
             moduleBuilder.writeTo(env.getFiler());
-
-            allClassesHelper.addModule(module);
-        }
-        for (Element injectField : roundEnv.getElementsAnnotatedWith(Inject.class)) {
-            Element owner = injectField.getEnclosingElement();
-            ClassDetail cl = ClassDetail.of((TypeElement) owner);
-
-            allClassesHelper.addInjectClass(cl);
         }
 
 
@@ -79,7 +73,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 provideModuleMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
                         && m.bindInstanceAnnotation == null;
                 if (provideModuleMethod)
-                    componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findModule(m.returnType));
+                    componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findForType(m.returnType));
             }
 
             // gc methods
@@ -98,12 +92,9 @@ public class AnnotationProcessor extends AbstractProcessor {
                 boolean injectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() >= 1;
                 injectMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
                         && m.bindInstanceAnnotation == null;
-                if (injectMethod) {
-                    FieldDetail injField = ListUtils.first(m.args, (inx, it) -> allClassesHelper.findInjectCls(it.type) != null);
-                    ClassDetail injCl = injField != null ? allClassesHelper.findInjectCls(injField.type) : null;
-                    if (injCl != null) componentBuilder.injectMethod(m.methodName, injCl, m.args);
-                }
-
+                TypeName typeName = injectMethod ? m.args.get(0).type : null;
+                injectMethod &= typeName != null && !allClassesHelper.iComponentClassDetails.haveMethod(m, true);
+                if (injectMethod) componentBuilder.injectMethod(m.methodName, m.args);
             }
 
             //  implement protect inject method
@@ -111,9 +102,10 @@ public class AnnotationProcessor extends AbstractProcessor {
                 boolean protectInjectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1
                         && m.protectInjectedAnnotation != null;
                 protectInjectMethod &= m.provideAnnotation == null && m.bindInstanceAnnotation == null;
+                TypeName typeName = protectInjectMethod ? m.args.get(0).type : null;
+                protectInjectMethod &= typeName != null && !allClassesHelper.iComponentClassDetails.haveMethod(m, true);
                 if (protectInjectMethod) {
-                    TypeName typeName = m.args.get(0).type;
-                    ClassDetail injCl = allClassesHelper.findInjectCls(typeName);
+                    ClassDetail injCl = allClassesHelper.findForType(typeName);
                     if (injCl != null) componentBuilder.protectInjected(m.methodName, injCl,
                             m.protectInjectedAnnotation.timeMillis);
                 }

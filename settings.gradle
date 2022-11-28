@@ -4,4 +4,5 @@ include 'stone_processor'
 include 'sample_example'
 include 'sample_example_ext'
 include 'tests'
+include 'tests_ext'
 

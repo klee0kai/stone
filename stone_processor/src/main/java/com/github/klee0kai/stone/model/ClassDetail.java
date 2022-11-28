@@ -69,6 +69,8 @@ public class ClassDetail implements Cloneable {
         LinkedList<MethodDetail> allMethods = new LinkedList<>(this.methods);
         if (superClass != null)
             allMethods.addAll(superClass.getAllMethods(includeObjectMethods));
+        if (interfaces != null) for (ClassDetail interf : interfaces)
+            allMethods.addAll(interf.getAllMethods(includeObjectMethods));
 
         LinkedList<MethodDetail> outMethods = new LinkedList<>();
         for (MethodDetail m : allMethods) {
@@ -81,6 +83,41 @@ public class ClassDetail implements Cloneable {
                 outMethods.add(m);
         }
         return outMethods;
+    }
+
+
+    public List<FieldDetail> getAllFields() {
+        if (className.equals(ClassName.OBJECT))
+            return Collections.emptyList();
+        LinkedList<FieldDetail> allFields = new LinkedList<>(this.fields);
+        if (superClass != null)
+            allFields.addAll(superClass.getAllFields());
+        if (interfaces != null) for (ClassDetail interf : interfaces)
+            allFields.addAll(interf.getAllFields());
+
+        LinkedList<FieldDetail> outFields = new LinkedList<>();
+        for (FieldDetail m : allFields) {
+            boolean exist = false;
+            for (FieldDetail exitMethod : outFields) {
+                if (exist |= (Objects.equals(exitMethod.name, m.name)))
+                    break;
+            }
+            if (!exist)
+                outFields.add(m);
+        }
+        return outFields;
+    }
+
+    public List<ClassDetail> getAllParents(boolean includeObject) {
+        if (!includeObject && className.equals(ClassName.OBJECT))
+            return Collections.emptyList();
+        List<ClassDetail> parents = new LinkedList<>();
+        parents.add(this);
+        if (superClass != null)
+            parents.addAll(superClass.getAllParents(includeObject));
+        if (interfaces != null) for (ClassDetail interf : interfaces)
+            parents.addAll(interf.getAllParents(includeObject));
+        return parents;
     }
 
     public List<MethodDetail> getAllMethods(boolean includeObjectMethods, String... exceptNames) {
