@@ -1,13 +1,14 @@
 package com.github.klee0kai.test.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.annotations.component.Inject;
 import com.github.klee0kai.test.data.StoneRepository;
 import com.github.klee0kai.test.net.StoneApi;
 import com.github.klee0kai.test.qualifiers.di.QTestComponent;
 import com.github.klee0kai.test.qualifiers.di.qualifiers.ProductType;
 import com.github.klee0kai.test.qualifiers.di.qualifiers.Token;
 import com.github.klee0kai.test.qualifiers.di.qualifiers.UserId;
+
+import javax.inject.Inject;
 
 public class QApp {
 

@@ -1,9 +1,8 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.annotations.component.Inject;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.squareup.javapoet.TypeName;
 
+import javax.inject.Inject;
 import javax.lang.model.element.VariableElement;
 import java.util.Objects;
 

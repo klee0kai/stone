@@ -1,6 +1,5 @@
 package com.github.klee0kai.test.lifecycle;
 
-import com.github.klee0kai.stone.annotations.component.Inject;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.github.klee0kai.test.lifecycle.base.APhone;
 import com.github.klee0kai.test.lifecycle.di.qualifiers.DataStorageSize;
@@ -9,6 +8,8 @@ import com.github.klee0kai.test.lifecycle.stone_util.LifecycleUtils;
 import com.github.klee0kai.test.lifecycle.structure.Battery;
 import com.github.klee0kai.test.lifecycle.structure.DataStorage;
 import com.github.klee0kai.test.lifecycle.structure.Ram;
+
+import javax.inject.Inject;
 
 public class GoodPhone extends APhone {
 

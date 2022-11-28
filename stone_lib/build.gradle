@@ -6,7 +6,15 @@ group 'com.github.klee0kai.stone'
 version '0.0.5'
 
 
-apply from : '../jitpack.gradle'
+apply from: '../jitpack.gradle'
+
+
+dependencies {
+
+    // https://mvnrepository.com/artifact/javax.inject/javax.inject
+    apiElements 'javax.inject:javax.inject:1'
+    implementation 'javax.inject:javax.inject:1'
+}
 
 
 
