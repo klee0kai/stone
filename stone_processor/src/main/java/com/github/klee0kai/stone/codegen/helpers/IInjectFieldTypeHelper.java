@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
+import com.github.klee0kai.stone.types.IRef;
 import com.github.klee0kai.stone.types.LazyProvide;
 import com.github.klee0kai.stone.types.PhantomProvide;
 import com.squareup.javapoet.ClassName;
@@ -7,11 +8,13 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
+import javax.inject.Provider;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 
 public interface IInjectFieldTypeHelper {
+
 
     TypeName providingType();
 
@@ -22,14 +25,21 @@ public interface IInjectFieldTypeHelper {
 
         if (fieldType instanceof ParameterizedTypeName) {
             ParameterizedTypeName typeName = (ParameterizedTypeName) fieldType;
+            if (!typeName.typeArguments.isEmpty()) {
+                if (Objects.equals(ClassName.get(WeakReference.class), typeName.rawType)
+                        || Objects.equals(ClassName.get(SoftReference.class), typeName.rawType)) {
+                    return new RefFieldHelper(typeName.rawType, typeName.typeArguments.get(0));
+                }
 
-            if (!typeName.typeArguments.isEmpty() && Objects.equals(ClassName.get(WeakReference.class), typeName.rawType)
-                    || Objects.equals(ClassName.get(SoftReference.class), typeName.rawType)) {
-                return new RefFieldHelper(typeName.rawType, typeName.typeArguments.get(0));
-            }
-            if (!typeName.typeArguments.isEmpty() && Objects.equals(ClassName.get(PhantomProvide.class), typeName.rawType)
-                    || Objects.equals(ClassName.get(LazyProvide.class), typeName.rawType)) {
-                return new ProvideFieldHelper(typeName.rawType, typeName.typeArguments.get(0));
+                ClassName phantomProvide = ClassName.get(PhantomProvide.class);
+                if (Objects.equals(phantomProvide, typeName.rawType)
+                        || Objects.equals(ClassName.get(IRef.class), typeName.rawType)
+                        || Objects.equals(ClassName.get(Provider.class), typeName.rawType))
+                    return new ProvideFieldHelper(phantomProvide, typeName.typeArguments.get(0));
+
+                if (Objects.equals(ClassName.get(LazyProvide.class), typeName.rawType)) {
+                    return new ProvideFieldHelper(typeName.rawType, typeName.typeArguments.get(0));
+                }
             }
         }
         return new SimpleFieldHelper(fieldType);

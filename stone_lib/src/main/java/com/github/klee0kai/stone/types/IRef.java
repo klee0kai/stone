@@ -1,6 +1,8 @@
 package com.github.klee0kai.stone.types;
 
-public interface IRef<T> {
+import javax.inject.Provider;
+
+public interface IRef<T> extends Provider<T> {
 
     T get();
 

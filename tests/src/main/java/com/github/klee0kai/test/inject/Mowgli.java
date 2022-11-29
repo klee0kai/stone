@@ -1,5 +1,6 @@
 package com.github.klee0kai.test.inject;
 
+import com.github.klee0kai.stone.types.IRef;
 import com.github.klee0kai.stone.types.LazyProvide;
 import com.github.klee0kai.stone.types.PhantomProvide;
 import com.github.klee0kai.test.inject.forest.Blood;
@@ -10,6 +11,7 @@ import com.github.klee0kai.test.inject.identity.Conscience;
 import com.github.klee0kai.test.inject.identity.Knowledge;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
@@ -36,6 +38,12 @@ public class Mowgli implements IAnimal {
 
     @Inject
     public LazyProvide<Knowledge> knowledgeLazyProvide;
+
+    @Inject
+    public IRef<Knowledge> knowledgeLazyProvide2;
+
+    @Inject
+    public Provider<Knowledge> knowledgeLazyProvide3;
 
     @Inject
     public PhantomProvide<Knowledge> knowledgePhantomProvide;

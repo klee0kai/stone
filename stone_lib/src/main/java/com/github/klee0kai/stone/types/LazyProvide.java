@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.types;
 
-public class LazyProvide<T> implements IRef<T> {
+public class LazyProvide<T> implements IRef<T>{
 
     private T value = null;
     private PhantomProvide.IProvide<T> call;

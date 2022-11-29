@@ -69,5 +69,7 @@ public class InjectTests {
         assertNotNull(mowgli.knowledgeSoftRef.get());
         assertNotNull(mowgli.knowledgePhantomProvide.get());
         assertNotNull(mowgli.knowledgeLazyProvide.get());
+        assertNotNull(mowgli.knowledgeLazyProvide2.get());
+        assertNotNull(mowgli.knowledgeLazyProvide3.get());
     }
 }
