@@ -7,7 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare scope for gc method.
+ * Declare scope for gc method.
+ * <p>
+ * The same behavior for {@link javax.inject.Scope}.
+ * Not Follow {@link javax.inject.Scope} documentation.
  */
 
 @Retention(value = RetentionPolicy.CLASS)

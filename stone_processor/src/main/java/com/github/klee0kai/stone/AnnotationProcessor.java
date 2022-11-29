@@ -13,6 +13,7 @@ import com.google.auto.service.AutoService;
 import com.squareup.javapoet.TypeName;
 
 import javax.annotation.processing.*;
+import javax.inject.Scope;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.util.*;
@@ -42,6 +43,10 @@ public class AnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(GcScopeAnnotation.class)) {
+            ClassDetail gcScopeAnn = ClassDetail.of((TypeElement) ownerElement);
+            allClassesHelper.addGcScopeAnnotation(gcScopeAnn);
+        }
+        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Scope.class)) {
             ClassDetail gcScopeAnn = ClassDetail.of((TypeElement) ownerElement);
             allClassesHelper.addGcScopeAnnotation(gcScopeAnn);
         }
