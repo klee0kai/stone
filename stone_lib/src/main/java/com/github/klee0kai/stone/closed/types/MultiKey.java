@@ -1,6 +1,10 @@
-package com.github.klee0kai.stone.types;
+package com.github.klee0kai.stone.closed.types;
 
 import java.util.*;
+
+/**
+ * Stone Private class
+ */
 
 public class MultiKey {
 

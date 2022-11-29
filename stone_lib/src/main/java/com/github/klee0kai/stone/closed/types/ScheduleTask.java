@@ -1,4 +1,8 @@
-package com.github.klee0kai.stone.types;
+package com.github.klee0kai.stone.closed.types;
+
+/**
+ * Stone Private class
+ */
 
 public abstract class ScheduleTask {
 

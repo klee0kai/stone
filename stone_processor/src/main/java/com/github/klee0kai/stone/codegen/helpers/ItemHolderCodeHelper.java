@@ -2,14 +2,14 @@ package com.github.klee0kai.stone.codegen.helpers;
 
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.stone.types.ListUtils;
-import com.github.klee0kai.stone.types.MultiKey;
-import com.github.klee0kai.stone.types.map.SoftMapItemHolder;
-import com.github.klee0kai.stone.types.map.StrongMapItemHolder;
-import com.github.klee0kai.stone.types.map.WeakMapItemHolder;
-import com.github.klee0kai.stone.types.single.SoftItemHolder;
-import com.github.klee0kai.stone.types.single.StrongItemHolder;
-import com.github.klee0kai.stone.types.single.WeakItemHolder;
+import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.MultiKey;
+import com.github.klee0kai.stone.closed.types.map.SoftMapItemHolder;
+import com.github.klee0kai.stone.closed.types.map.StrongMapItemHolder;
+import com.github.klee0kai.stone.closed.types.map.WeakMapItemHolder;
+import com.github.klee0kai.stone.closed.types.single.SoftItemHolder;
+import com.github.klee0kai.stone.closed.types.single.StrongItemHolder;
+import com.github.klee0kai.stone.closed.types.single.WeakItemHolder;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
 

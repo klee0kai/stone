@@ -1,5 +1,8 @@
-package com.github.klee0kai.stone.types.map;
+package com.github.klee0kai.stone.closed.types.map;
 
+/**
+ * Stone Private class
+ */
 public class SoftMapItemHolder<Key, T> extends MapItemHolder<Key, T> {
 
 

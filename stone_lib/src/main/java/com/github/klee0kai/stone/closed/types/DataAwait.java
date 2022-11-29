@@ -1,8 +1,11 @@
-package com.github.klee0kai.stone.types;
+package com.github.klee0kai.stone.closed.types;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Stone Private class
+ */
 public class DataAwait<T> {
 
     private final LinkedList<T> values = new LinkedList<>();

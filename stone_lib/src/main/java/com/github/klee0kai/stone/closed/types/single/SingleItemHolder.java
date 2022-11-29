@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.types.single;
+package com.github.klee0kai.stone.closed.types.single;
 
 import com.github.klee0kai.stone.types.IRef;
 
@@ -6,6 +6,9 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
+/**
+ * Stone Private class
+ */
 public abstract class SingleItemHolder<T> implements IRef<T> {
 
     private T strongHolder = null;

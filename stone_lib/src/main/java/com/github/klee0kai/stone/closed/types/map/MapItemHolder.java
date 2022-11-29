@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.types.map;
+package com.github.klee0kai.stone.closed.types.map;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Stone Private class
+ */
 public abstract class MapItemHolder<Key, T> {
 
     private final HashMap<Key, T> strongMap = new HashMap<>();

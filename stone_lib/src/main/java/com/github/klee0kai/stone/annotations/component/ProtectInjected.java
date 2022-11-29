@@ -8,8 +8,11 @@ import java.lang.annotation.Target;
 
 /**
  * protect injected components in class.
+ *
+ * @deprecated use {@link  SwitchCache}
  */
 
+@Deprecated()
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.METHOD)
 public @interface ProtectInjected {

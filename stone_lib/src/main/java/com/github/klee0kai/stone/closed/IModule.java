@@ -1,7 +1,11 @@
-package com.github.klee0kai.stone.interfaces;
+package com.github.klee0kai.stone.closed;
 
-import java.util.List;
 import java.util.Set;
+
+/**
+ * Stone Private class
+ */
+
 
 public interface IModule {
 

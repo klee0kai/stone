@@ -1,18 +1,12 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.interfaces.IComponent;
-import com.github.klee0kai.stone.interfaces.IModule;
+import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.model.FieldDetail;
-import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.types.ListUtils;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import java.util.*;
 

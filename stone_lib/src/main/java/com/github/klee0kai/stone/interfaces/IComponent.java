@@ -1,5 +1,10 @@
 package com.github.klee0kai.stone.interfaces;
 
+
+/**
+ * Each Stone component implement this interface.
+ * Could be use
+ */
 public interface IComponent {
 
     /**

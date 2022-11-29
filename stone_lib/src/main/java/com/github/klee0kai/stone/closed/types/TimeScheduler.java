@@ -1,9 +1,13 @@
-package com.github.klee0kai.stone.types;
+package com.github.klee0kai.stone.closed.types;
 
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+/**
+ * Stone Private class
+ */
 
 public class TimeScheduler {
 

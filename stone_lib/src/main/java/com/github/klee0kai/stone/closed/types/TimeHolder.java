@@ -1,5 +1,10 @@
-package com.github.klee0kai.stone.types;
+package com.github.klee0kai.stone.closed.types;
 
+import com.github.klee0kai.stone.types.IRef;
+
+/**
+ * Stone Private class
+ */
 public class TimeHolder<T> implements IRef<T> {
 
     private final TimeScheduler timer;

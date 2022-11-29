@@ -3,6 +3,10 @@ package com.github.klee0kai.stone.annotations.module;
 
 import java.lang.annotation.*;
 
+/**
+ * Provide method in module.
+ * Could be ignored, behavior by default.
+ */
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.METHOD)
 @Inherited

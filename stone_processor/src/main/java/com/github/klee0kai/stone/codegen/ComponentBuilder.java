@@ -1,5 +1,8 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.TimeHolder;
+import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
 import com.github.klee0kai.stone.codegen.helpers.IInjectFieldTypeHelper;
 import com.github.klee0kai.stone.interfaces.IComponent;

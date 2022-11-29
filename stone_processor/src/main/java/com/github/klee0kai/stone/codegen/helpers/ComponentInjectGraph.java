@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.InvokeCall;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 

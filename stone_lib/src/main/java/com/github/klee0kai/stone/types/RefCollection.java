@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.types;
 
+import com.github.klee0kai.stone.closed.types.ListUtils;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
