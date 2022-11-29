@@ -12,11 +12,11 @@ import java.lang.annotation.*;
 public @interface BindInstance {
 
     enum CacheType {
-        WEAK,
-        SOFT,
-        STRONG
+        Weak,
+        Soft,
+        Strong
     }
 
-    BindInstance.CacheType cache() default BindInstance.CacheType.SOFT;
+    BindInstance.CacheType cache() default BindInstance.CacheType.Soft;
 
 }

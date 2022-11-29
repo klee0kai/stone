@@ -10,10 +10,10 @@ import com.github.klee0kai.test.inject.identity.Knowledge;
 @Module
 public interface IdentityModule {
 
-    @Provide(cache = Provide.CacheType.FACTORY)
+    @Provide(cache = Provide.CacheType.Factory)
     public Knowledge knowledge();
 
-    @Provide(cache = Provide.CacheType.FACTORY)
+    @Provide(cache = Provide.CacheType.Factory)
     public Conscience conscience();
 
 }

@@ -8,7 +8,7 @@ import org.example.data.StoneRepository;
 @Module
 public interface DataModule {
 
-    @Provide(cache = Provide.CacheType.STRONG)
+    @Provide(cache = Provide.CacheType.Strong)
     public StoneRepository stoneRep();
 
 }

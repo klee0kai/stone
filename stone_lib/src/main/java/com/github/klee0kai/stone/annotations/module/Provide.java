@@ -13,12 +13,12 @@ import java.lang.annotation.*;
 public @interface Provide {
 
     enum CacheType {
-        FACTORY,
-        WEAK,
-        SOFT,
-        STRONG
+        Factory,
+        Weak,
+        Soft,
+        Strong
     }
 
-    CacheType cache() default CacheType.SOFT;
+    CacheType cache() default CacheType.Soft;
 
 }

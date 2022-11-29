@@ -68,11 +68,11 @@ public class ModuleBuilder {
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
                 builder.allWeakFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
-            } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.FACTORY) {
+            } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.Factory) {
                 builder.provideFactory(m.methodName, m.returnType, m.args);
             } else {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(
-                        m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.SOFT);
+                        m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.Soft);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
                 builder.allWeakFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));

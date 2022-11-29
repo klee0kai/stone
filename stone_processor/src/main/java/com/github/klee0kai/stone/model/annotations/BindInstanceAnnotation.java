@@ -4,7 +4,7 @@ import com.github.klee0kai.stone.annotations.module.BindInstance;
 
 public class BindInstanceAnnotation implements Cloneable {
 
-    public BindInstance.CacheType cacheType = BindInstance.CacheType.SOFT;
+    public BindInstance.CacheType cacheType = BindInstance.CacheType.Soft;
 
     public static BindInstanceAnnotation of(BindInstance ann) {
         if (ann == null)

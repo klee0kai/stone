@@ -11,7 +11,7 @@ import com.github.klee0kai.test_ext.inject.identity.OldKnowledge;
 public interface OldIdentityModule extends IdentityModule {
 
     @Override
-    @Provide(cache = Provide.CacheType.FACTORY)
+    @Provide(cache = Provide.CacheType.Factory)
     OldKnowledge knowledge();
 
 

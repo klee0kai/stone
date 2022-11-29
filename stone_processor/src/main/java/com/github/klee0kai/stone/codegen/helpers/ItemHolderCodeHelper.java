@@ -19,7 +19,7 @@ import java.util.List;
 public interface ItemHolderCodeHelper {
 
     enum ItemCacheType {
-        STRONG, SOFT, WEAK
+        Strong, Soft, Weak
     }
 
     ClassName multiKeyMapClassName = ClassName.get(MultiKey.class);
@@ -34,31 +34,31 @@ public interface ItemHolderCodeHelper {
 
     static ItemCacheType cacheTypeFrom(BindInstance.CacheType cacheType) {
         if (cacheType == null)
-            return ItemCacheType.SOFT;
+            return ItemCacheType.Soft;
         switch (cacheType) {
-            case WEAK:
-                return ItemCacheType.WEAK;
-            case SOFT:
-                return ItemCacheType.SOFT;
-            case STRONG:
-                return ItemCacheType.STRONG;
+            case Weak:
+                return ItemCacheType.Weak;
+            case Soft:
+                return ItemCacheType.Soft;
+            case Strong:
+                return ItemCacheType.Strong;
             default:
-                return ItemCacheType.SOFT;
+                return ItemCacheType.Soft;
         }
     }
 
     static ItemCacheType cacheTypeFrom(Provide.CacheType cacheType) {
         if (cacheType == null)
-            return ItemCacheType.SOFT;
+            return ItemCacheType.Soft;
         switch (cacheType) {
-            case WEAK:
-                return ItemCacheType.WEAK;
-            case SOFT:
-                return ItemCacheType.SOFT;
-            case STRONG:
-                return ItemCacheType.STRONG;
+            case Weak:
+                return ItemCacheType.Weak;
+            case Soft:
+                return ItemCacheType.Soft;
+            case Strong:
+                return ItemCacheType.Strong;
             default:
-                return ItemCacheType.SOFT;
+                return ItemCacheType.Soft;
         }
     }
 
@@ -68,15 +68,15 @@ public interface ItemHolderCodeHelper {
             singleItemHolderHelper.fieldName = fieldName;
             singleItemHolderHelper.fieldType = fieldOrType;
             switch (cacheType) {
-                case STRONG:
+                case Strong:
                     singleItemHolderHelper.fieldHolderType = strongRefClassName;
                     singleItemHolderHelper.setWeakRefSupport = true;
                     break;
-                case SOFT:
+                case Soft:
                     singleItemHolderHelper.fieldHolderType = softRefClassName;
                     singleItemHolderHelper.setWeakRefSupport = true;
                     break;
-                case WEAK:
+                case Weak:
                     singleItemHolderHelper.fieldHolderType = weakRefClassName;
                     singleItemHolderHelper.setWeakRefSupport = false;
                     break;
@@ -90,15 +90,15 @@ public interface ItemHolderCodeHelper {
             simpleMapItemHolderHelper.fieldType = fieldOrType;
             simpleMapItemHolderHelper.keyParam = qualifiers.get(0);
             switch (cacheType) {
-                case STRONG:
+                case Strong:
                     simpleMapItemHolderHelper.fieldHolderType = strongMapClassName;
                     simpleMapItemHolderHelper.setWeakRefSupport = true;
                     break;
-                case SOFT:
+                case Soft:
                     simpleMapItemHolderHelper.fieldHolderType = softMapClassName;
                     simpleMapItemHolderHelper.setWeakRefSupport = true;
                     break;
-                case WEAK:
+                case Weak:
                     simpleMapItemHolderHelper.fieldHolderType = weakMapClassName;
                     simpleMapItemHolderHelper.setWeakRefSupport = false;
                     break;
@@ -110,15 +110,15 @@ public interface ItemHolderCodeHelper {
         multiKeyMapItemHolderHelper.fieldType = fieldOrType;
         multiKeyMapItemHolderHelper.keyArgs = qualifiers;
         switch (cacheType) {
-            case STRONG:
+            case Strong:
                 multiKeyMapItemHolderHelper.fieldHolderType = strongMapClassName;
                 multiKeyMapItemHolderHelper.setWeakRefSupport = true;
                 break;
-            case SOFT:
+            case Soft:
                 multiKeyMapItemHolderHelper.fieldHolderType = softMapClassName;
                 multiKeyMapItemHolderHelper.setWeakRefSupport = true;
                 break;
-            case WEAK:
+            case Weak:
                 multiKeyMapItemHolderHelper.fieldHolderType = weakMapClassName;
                 multiKeyMapItemHolderHelper.setWeakRefSupport = false;
                 break;

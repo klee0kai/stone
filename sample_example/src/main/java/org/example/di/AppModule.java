@@ -7,7 +7,7 @@ import org.example.SimpleApp;
 @Module
 public interface AppModule {
 
-    @BindInstance(cache = BindInstance.CacheType.WEAK)
+    @BindInstance(cache = BindInstance.CacheType.Weak)
     SimpleApp context();
 
 }

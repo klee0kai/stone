@@ -8,18 +8,18 @@ import com.github.klee0kai.test.data.StoneRepository;
 @Module
 public interface CacheDataModule {
 
-    @Provide(cache = Provide.CacheType.FACTORY)
+    @Provide(cache = Provide.CacheType.Factory)
     StoneRepository provideFactory();
 
 
-    @Provide(cache = Provide.CacheType.STRONG)
+    @Provide(cache = Provide.CacheType.Strong)
     StoneRepository provideStrong();
 
-    @Provide(cache = Provide.CacheType.SOFT)
+    @Provide(cache = Provide.CacheType.Soft)
     StoneRepository provideSoft();
 
 
-    @Provide(cache = Provide.CacheType.WEAK)
+    @Provide(cache = Provide.CacheType.Weak)
     StoneRepository provideWeak();
 
 

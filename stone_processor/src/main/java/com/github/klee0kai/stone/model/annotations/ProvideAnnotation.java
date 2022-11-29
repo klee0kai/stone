@@ -4,7 +4,7 @@ import com.github.klee0kai.stone.annotations.module.Provide;
 
 public class ProvideAnnotation implements Cloneable {
 
-    public Provide.CacheType cacheType = Provide.CacheType.SOFT;
+    public Provide.CacheType cacheType = Provide.CacheType.Soft;
 
     public static ProvideAnnotation of(Provide ann) {
         if (ann == null)

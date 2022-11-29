@@ -8,7 +8,7 @@ import org.example.presenter.StonePresenter;
 public class PresenterModule {
 
 
-    @Provide(cache = Provide.CacheType.WEAK)
+    @Provide(cache = Provide.CacheType.Weak)
     public StonePresenter stonePresenter() {
         return new StonePresenter();
     }

@@ -12,15 +12,15 @@ import java.awt.*;
 @Module
 public abstract class UnitedModule {
 
-    @Provide(cache = Provide.CacheType.STRONG)
+    @Provide(cache = Provide.CacheType.Strong)
     public Blood blood() {
         return new Blood(Color.RED);
     }
 
-    @Provide(cache = Provide.CacheType.SOFT)
+    @Provide(cache = Provide.CacheType.Soft)
     public abstract Earth earth();
 
-    @Provide(cache = Provide.CacheType.WEAK)
+    @Provide(cache = Provide.CacheType.Weak)
     public abstract History history();
 
 
