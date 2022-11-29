@@ -3,8 +3,9 @@ package com.github.klee0kai.stone.test.inject;
 import com.github.klee0kai.test.inject.Forest;
 import com.github.klee0kai.test.inject.Horse;
 import com.github.klee0kai.test.inject.Mowgli;
-import com.github.klee0kai.test.inject.Snake;
+import com.github.klee0kai.test.inject.School;
 import com.github.klee0kai.test.inject.forest.History;
+import com.github.klee0kai.test.inject.identity.Knowledge;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;
@@ -70,7 +71,30 @@ public class ProtectInjectTests {
         }
         Forest.DI.gcAll();
         assertNull(historyWeakReference.get());
+    }
 
+    @Test
+    public void ignoreWrappersTest() {
+        // create common component for all app
+        Forest forest = new Forest();
+        forest.create();
+
+        //use sub app components
+        School school = new School();
+        school.build();
+
+        WeakReference<History> history = new WeakReference<>(school.historyLazyProvide.get());
+        WeakReference<Knowledge> knowledge1 = new WeakReference<>(school.knowledgePhantomProvide.get());
+        WeakReference<Knowledge> knowledge2 = new WeakReference<>(school.knowledgePhantomProvide2.get());
+        WeakReference<Knowledge> knowledge3 = new WeakReference<>(school.knowledgePhantomProvide3.get());
+
+        Forest.DI.protectInjected(school);
+        Forest.DI.gcAll();
+
+        assertNotNull(history.get());
+        assertNull(knowledge1.get());
+        assertNull(knowledge2.get());
+        assertNull(knowledge3.get());
 
     }
 }

@@ -6,6 +6,8 @@ import com.github.klee0kai.test.inject.Mowgli;
 import com.github.klee0kai.test.inject.Snake;
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -67,9 +69,48 @@ public class InjectTests {
         assertNotNull(mowgli.knowledge);
         assertNotNull(mowgli.knowledgeWeakRef.get());
         assertNotNull(mowgli.knowledgeSoftRef.get());
-        assertNotNull(mowgli.knowledgePhantomProvide.get());
         assertNotNull(mowgli.knowledgeLazyProvide.get());
-        assertNotNull(mowgli.knowledgeLazyProvide2.get());
-        assertNotNull(mowgli.knowledgeLazyProvide3.get());
+        assertNotNull(mowgli.knowledgePhantomProvide.get());
+        assertNotNull(mowgli.knowledgePhantomProvide2.get());
+        assertNotNull(mowgli.knowledgePhantomProvide3.get());
+    }
+
+    @Test
+    public void refWrapperTest() {
+        // create common component for all app
+        Forest forest = new Forest();
+        forest.create();
+
+        //use sub app components
+        Mowgli mowgli = new Mowgli();
+        mowgli.born();
+
+        assertEquals(
+                Objects.requireNonNull(mowgli.knowledgeWeakRef.get()).uuid,
+                Objects.requireNonNull(mowgli.knowledgeWeakRef.get()).uuid
+        );
+        assertEquals(
+                Objects.requireNonNull(mowgli.knowledgeSoftRef.get()).uuid,
+                Objects.requireNonNull(mowgli.knowledgeSoftRef.get()).uuid
+        );
+        assertEquals(
+                Objects.requireNonNull(mowgli.knowledgeLazyProvide.get()).uuid,
+                Objects.requireNonNull(mowgli.knowledgeLazyProvide.get()).uuid
+        );
+    }
+
+    @Test
+    public void genWrapperTest() {
+        // create common component for all app
+        Forest forest = new Forest();
+        forest.create();
+
+        //use sub app components
+        Mowgli mowgli = new Mowgli();
+        mowgli.born();
+
+        assertNotEquals(mowgli.knowledgePhantomProvide.get().uuid, mowgli.knowledgePhantomProvide.get().uuid);
+        assertNotEquals(mowgli.knowledgePhantomProvide2.get().uuid, mowgli.knowledgePhantomProvide2.get().uuid);
+        assertNotEquals(mowgli.knowledgePhantomProvide3.get().uuid, mowgli.knowledgePhantomProvide3.get().uuid);
     }
 }

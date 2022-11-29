@@ -40,10 +40,10 @@ public class Mowgli implements IAnimal {
     public LazyProvide<Knowledge> knowledgeLazyProvide;
 
     @Inject
-    public IRef<Knowledge> knowledgeLazyProvide2;
+    public IRef<Knowledge> knowledgePhantomProvide2;
 
     @Inject
-    public Provider<Knowledge> knowledgeLazyProvide3;
+    public Provider<Knowledge> knowledgePhantomProvide3;
 
     @Inject
     public PhantomProvide<Knowledge> knowledgePhantomProvide;

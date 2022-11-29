@@ -168,10 +168,10 @@ public class ComponentBuilder {
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
         FieldDetail lifeCycleOwner = ListUtils.first(args, (inx, it) -> allClassesHelper.isLifeCycleOwner(it.type));
 
-        List<FieldDetail> clFields = ListUtils.filter(args, (inx, it) ->
+        List<FieldDetail> injectableFields = ListUtils.filter(args, (inx, it) ->
                 (it.type instanceof ClassName) && !qualifiers.contains(it.type));
 
-        if (clFields.isEmpty())
+        if (injectableFields.isEmpty())
             //todo throw error
             return this;
 
@@ -180,35 +180,39 @@ public class ComponentBuilder {
 
         injectMethods.add(builder);
         collectRuns.add(() -> {
-            for (FieldDetail injectField : clFields) {
-                ClassDetail injectClass = allClassesHelper.findForType(injectField.type);
+            for (FieldDetail injectableField : injectableFields) {
+                ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
 
-                for (FieldDetail ijField : injectClass.getAllFields()) {
-                    if (!ijField.injectAnnotation)
+                for (FieldDetail injectField : injectableCl.getAllFields()) {
+                    if (!injectField.injectAnnotation)
                         continue;
 
-                    IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(ijField.type);
+                    IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(injectField.type);
                     CodeBlock codeBlock = injectGraph.codeProvideType(injectHelper.providingType(), qFields);
                     if (codeBlock == null)
                         //todo throw errors
-                        throw new RuntimeException("err inject " + ijField.name);
-                    builder.addStatement(injectHelper.codeInjectField(injectField.name, ijField.name, codeBlock));
+                        throw new RuntimeException("err inject " + injectField.name);
+                    builder.addStatement(injectHelper.codeInjectField(injectableField.name, injectField.name, codeBlock));
                 }
             }
 
             //protect by lifecycle owner
-            for (FieldDetail injectField : clFields) {
-                ClassDetail injectClass = allClassesHelper.findForType(injectField.type);
+            for (FieldDetail injectableField : injectableFields) {
+                ClassDetail injectableClass = allClassesHelper.findForType(injectableField.type);
 
                 if (lifeCycleOwner != null) {
                     builder.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
 
-                    for (FieldDetail ijField : injectClass.fields) {
-                        if (!ijField.injectAnnotation)
+                    for (FieldDetail injectField : injectableClass.fields) {
+                        if (!injectField.injectAnnotation)
                             continue;
-                        builder.addStatement("$L.add(new $T($L, $L.$L, timeMillis))",
-                                refCollectionGlFieldName, TimeHolder.class,
-                                scheduleGlFieldName, injectField.name, ijField.name);
+                        IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(injectField.type);
+                        if (injectHelper.isGenerateWrapper())
+                            //nothing to protect
+                            continue;
+                        builder.addCode("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
+                                .addCode(injectHelper.codeGetField(injectableField.name, injectField.name))
+                                .addStatement(", timeMillis))");
                     }
 
                     builder.endControlFlow(")");
@@ -218,23 +222,27 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder protectInjected(String name, ClassDetail injectClass, long timeMillis) {
+    public ComponentBuilder protectInjected(String name, ClassDetail injectableCl, long timeMillis) {
         timeHolderFields();
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterSpec.builder(injectClass.className, "cl").build())
+                .addParameter(ParameterSpec.builder(injectableCl.className, "cl").build())
                 .returns(void.class);
 
         protectInjectedMethods.add(builder);
         collectRuns.add(() -> {
-            for (FieldDetail ijField : injectClass.fields) {
-                if (!ijField.injectAnnotation)
+            for (FieldDetail injectField : injectableCl.fields) {
+                if (!injectField.injectAnnotation)
                     continue;
-                builder.addStatement("$L.add(new $T($L, cl.$L, $L))",
-                        refCollectionGlFieldName, TimeHolder.class,
-                        scheduleGlFieldName, ijField.name, timeMillis);
+                IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(injectField.type);
+                if (injectHelper.isGenerateWrapper())
+                    //nothing to protect
+                    continue;
+                builder.addCode("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
+                        .addCode(injectHelper.codeGetField("cl", injectField.name))
+                        .addStatement(", $L))", timeMillis);
             }
         });
         return this;
