@@ -1,5 +1,8 @@
 package com.github.klee0kai.stone.closed;
 
+import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.closed.types.TimeScheduler;
+
 import java.util.Set;
 
 /**
@@ -41,13 +44,8 @@ public interface IModule {
     Object getFactory();
 
     /**
-     * Switch soft refs to weak
+     * Switch cache type for scope
      */
-    void allWeak(Set<Class> scopes);
-
-    /**
-     * restore weak Refs
-     */
-    void restoreRefs(Set<Class> scopes);
+    void switchRef(Set<Class> scopes, SwitchCache.CacheType cacheType, TimeScheduler scheduler, long time);
 
 }

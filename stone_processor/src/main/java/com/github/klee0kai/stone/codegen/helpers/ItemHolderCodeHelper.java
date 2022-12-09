@@ -143,9 +143,8 @@ public interface ItemHolderCodeHelper {
     CodeBlock codeSetCachedValue(CodeBlock value);
 
 
-    CodeBlock statementToWeak();
+    CodeBlock statementSwitchRef(String cacheFieldName,String timeSchedulerFieldName, String timeFieldName);
 
-    CodeBlock statementDefRef();
 
     boolean supportWeakRef();
 
@@ -182,23 +181,13 @@ public interface ItemHolderCodeHelper {
         }
 
         @Override
-        public CodeBlock statementToWeak() {
+        public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
             if (!setWeakRefSupport)
                 return null;
             return CodeBlock.builder()
-                    .addStatement("$L.weak()", fieldName)
+                    .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
                     .build();
         }
-
-        @Override
-        public CodeBlock statementDefRef() {
-            if (!setWeakRefSupport)
-                return null;
-            return CodeBlock.builder()
-                    .addStatement("$L.defRef()", fieldName)
-                    .build();
-        }
-
 
         @Override
         public boolean supportWeakRef() {
@@ -241,21 +230,11 @@ public interface ItemHolderCodeHelper {
         }
 
         @Override
-        public CodeBlock statementToWeak() {
+        public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
             if (!setWeakRefSupport)
                 return null;
             return CodeBlock.builder()
-                    .addStatement("$L.weak()", fieldName)
-                    .build();
-        }
-
-        @Override
-        public CodeBlock statementDefRef() {
-            if (!setWeakRefSupport)
-                return null;
-            return CodeBlock.builder()
-                    .addStatement("$L.defRef()", fieldName)
-                    .addStatement("$L.clearNulls()", fieldName)
+                    .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
                     .build();
         }
 
@@ -306,21 +285,11 @@ public interface ItemHolderCodeHelper {
         }
 
         @Override
-        public CodeBlock statementToWeak() {
+        public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
             if (!setWeakRefSupport)
                 return null;
             return CodeBlock.builder()
-                    .addStatement("$L.weak()", fieldName)
-                    .build();
-        }
-
-        @Override
-        public CodeBlock statementDefRef() {
-            if (!setWeakRefSupport)
-                return null;
-            return CodeBlock.builder()
-                    .addStatement("$L.defRef()", fieldName)
-                    .addStatement("$L.clearNulls()", fieldName)
+                    .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
                     .build();
         }
 

@@ -3,11 +3,13 @@ package com.github.klee0kai.stone.model;
 import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
+import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
 import com.github.klee0kai.stone.model.annotations.ProtectInjectedAnnotation;
 import com.github.klee0kai.stone.model.annotations.ProvideAnnotation;
+import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
@@ -30,6 +32,7 @@ public class MethodDetail implements Cloneable {
     public BindInstanceAnnotation bindInstanceAnnotation;
 
     public ProtectInjectedAnnotation protectInjectedAnnotation;
+    public SwitchCacheAnnotation switchCacheAnnotation;
 
 
     public LinkedList<TypeName> gcScopeAnnotations = new LinkedList<>();
@@ -49,6 +52,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.provideAnnotation = ProvideAnnotation.of(element.getAnnotation(Provide.class));
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
         methodDetail.protectInjectedAnnotation = ProtectInjectedAnnotation.of(element.getAnnotation(ProtectInjected.class));
+        methodDetail.switchCacheAnnotation = SwitchCacheAnnotation.of(element.getAnnotation(SwitchCache.class));
         if (element.getAnnotation(GcAllScope.class) != null) {
             methodDetail.gcScopeAnnotations.add(ClassName.get(GcAllScope.class));
         }

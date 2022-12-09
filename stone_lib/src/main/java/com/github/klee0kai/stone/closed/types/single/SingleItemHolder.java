@@ -1,10 +1,14 @@
 package com.github.klee0kai.stone.closed.types.single;
 
+import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.closed.types.ScheduleTask;
+import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.types.IRef;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Stone Private class
@@ -13,6 +17,7 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
 
     private T strongHolder = null;
     private Reference<T> refHolder = null;
+    private final AtomicInteger shedTaskCount = new AtomicInteger(0);
 
 
     abstract public T set(T ob);
@@ -52,5 +57,41 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
         setWeak(get());
     }
 
+
+    public void reset() {
+        strongHolder = null;
+        refHolder = null;
+    }
+
+    public void switchCache(SwitchCache.CacheType cacheType, TimeScheduler scheduler, long time) {
+        switch (cacheType) {
+            case Default:
+                defRef();
+                break;
+            case Reset:
+                reset();
+                break;
+            case Weak:
+                weak();
+                break;
+            case Soft:
+                soft();
+                break;
+            case Strong:
+                strong();
+                break;
+        }
+
+        if (time > 0) {
+            shedTaskCount.incrementAndGet();
+            scheduler.schedule(new ScheduleTask(time) {
+                @Override
+                public void run() {
+                    if (shedTaskCount.decrementAndGet() <= 0)
+                        defRef();
+                }
+            });
+        }
+    }
 
 }

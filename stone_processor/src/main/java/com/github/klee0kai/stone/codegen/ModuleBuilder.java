@@ -1,7 +1,9 @@
 package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
+import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -33,9 +35,8 @@ public class ModuleBuilder {
     public static final String extOfMethodName = "extOf";
     public static final String getFactoryMethodName = "getFactory";
 
-    public static final String allWeakMethodName = "allWeak";
+    public static final String switchRefMethodName = "switchRef";
 
-    public static final String restoreRefsMethodName = "restoreRefs";
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
@@ -49,8 +50,7 @@ public class ModuleBuilder {
     public final List<FieldSpec.Builder> cacheFields = new LinkedList<>();
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
 
-    public final HashMap<TypeName, CodeBlock.Builder> weakRefStatementBuilders = new HashMap<>();
-    public final HashMap<TypeName, CodeBlock.Builder> restoreRefStatementBuilders = new HashMap<>();
+    public final HashMap<TypeName, CodeBlock.Builder> switchRefStatementBuilders = new HashMap<>();
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
@@ -67,7 +67,7 @@ public class ModuleBuilder {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
-                builder.allWeakFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
+                builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
             } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.Factory) {
                 builder.provideFactory(m.methodName, m.returnType, m.args);
             } else {
@@ -75,7 +75,7 @@ public class ModuleBuilder {
                         m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.Soft);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
-                builder.allWeakFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
+                builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
             }
         }
         return builder;
@@ -109,8 +109,7 @@ public class ModuleBuilder {
         bindMethod(true);
         extOfMethod(hasSupperStoneModule ? ClassNameUtils.genModuleNameMirror(orModuleCl.superClass.className) : null, true);
         getFactoryMethod(true);
-        allWeakMethod(true);
-        restoreRefsMethod(true);
+        switchRefMethod(true);
         return this;
     }
 
@@ -212,19 +211,22 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder allWeakMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(allWeakMethodName)
+    public ModuleBuilder switchRefMethod(boolean override) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(switchRefMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
+                .addParameter(ParameterSpec.builder(SwitchCache.CacheType.class, "cache").build())
+                .addParameter(ParameterSpec.builder(TimeScheduler.class, "scheduler").build())
+                .addParameter(ParameterSpec.builder(long.class, "time").build())
                 .returns(void.class);
         if (override) builder.addAnnotation(Override.class);
-        iModuleMethodBuilders.put(allWeakMethodName, builder);
+        iModuleMethodBuilders.put(switchRefMethodName, builder);
 
         collectRuns.add(() -> {
             builder.beginControlFlow("for ($T sc:scopes)", Class.class);
-            for (TypeName gcScope : weakRefStatementBuilders.keySet()) {
+            for (TypeName gcScope : switchRefStatementBuilders.keySet()) {
                 builder.beginControlFlow("if ($T.equals($T.class,sc))", Objects.class, gcScope)
-                        .addCode(weakRefStatementBuilders.get(gcScope).build())
+                        .addCode(switchRefStatementBuilders.get(gcScope).build())
                         .endControlFlow();
             }
             builder.endControlFlow();
@@ -233,30 +235,21 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder allWeakFor(ItemHolderCodeHelper fieldHelper, Set<TypeName> scopes) {
+    public ModuleBuilder switchRefFor(ItemHolderCodeHelper fieldHelper, Set<TypeName> scopes) {
         if (!fieldHelper.supportWeakRef())
             return this;
 
         for (TypeName sc : scopes) {
-            weakRefStatementBuilders.putIfAbsent(sc, CodeBlock.builder());
-            weakRefStatementBuilders.get(sc).add(fieldHelper.statementToWeak());
-
-            restoreRefStatementBuilders.putIfAbsent(sc, CodeBlock.builder());
-            restoreRefStatementBuilders.get(sc).add(fieldHelper.statementDefRef());
+            switchRefStatementBuilders.putIfAbsent(sc, CodeBlock.builder());
+            switchRefStatementBuilders.get(sc).add(
+                    fieldHelper.statementSwitchRef(
+                            "cache",
+                            "scheduler",
+                            "time"
+                    ));
         }
         return this;
     }
-
-    public ModuleBuilder restoreRefsMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(restoreRefsMethodName)
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
-                .returns(void.class);
-        if (override) builder.addAnnotation(Override.class);
-        iModuleMethodBuilders.put(restoreRefsMethodName, builder);
-        return this;
-    }
-
 
     public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper) {
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
@@ -270,7 +263,7 @@ public class ModuleBuilder {
                 .addStatement(""));
 
         if (bindMethodBuilder != null) {
-            bindMethodBuilder.beginControlFlow("  if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
+            bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
                     .addStatement(itemHolderCodeHelper.codeSetCachedValue(
                             CodeBlock.of("($T) or", typeName)
                     ))

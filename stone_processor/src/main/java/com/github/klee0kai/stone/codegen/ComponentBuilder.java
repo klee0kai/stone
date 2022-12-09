@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
@@ -154,8 +155,8 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        weakAllModuleCode.addStatement("this.$L.allWeak(scopes)", name);
-        restoreRefsModuleCode.addStatement("this.$L.restoreRefs(scopes)", name);
+        weakAllModuleCode.addStatement("this.$L.switchRef(scopes, $T.Weak , null, -1)", name, SwitchCache.CacheType.class);
+        restoreRefsModuleCode.addStatement("this.$L.switchRef(scopes, $T.Default, null, -1 )", name, SwitchCache.CacheType.class);
         injectGraph.addModule(MethodDetail.simpleName(name), module);
         return this;
     }
@@ -225,7 +226,7 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder protectInjected(String name, ClassDetail injectableCl, long timeMillis) {
+    public ComponentBuilder switchCacheInjected(String name, ClassDetail injectableCl, long timeMillis) {
         timeHolderFields();
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
