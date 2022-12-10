@@ -236,9 +236,6 @@ public class ModuleBuilder {
 
 
     public ModuleBuilder switchRefFor(ItemHolderCodeHelper fieldHelper, Set<TypeName> scopes) {
-        if (!fieldHelper.supportWeakRef())
-            return this;
-
         for (TypeName sc : scopes) {
             switchRefStatementBuilders.putIfAbsent(sc, CodeBlock.builder());
             switchRefStatementBuilders.get(sc).add(
@@ -291,6 +288,7 @@ public class ModuleBuilder {
 
     public ModuleBuilder provideCached(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<FieldDetail> args) {
         String getCachedMethodName = getCachedMethodName(name);
+        String setCacheTypeMethodName = getSwitchCacheMethodName(name);
         cacheFields.add(itemHolderCodeHelper.cachedField());
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
@@ -309,13 +307,25 @@ public class ModuleBuilder {
                 .addCode("return ")
                 .addStatement(itemHolderCodeHelper.codeGetCachedValue());
 
+        MethodSpec.Builder setCacheTypeMethodBuilder = MethodSpec.methodBuilder(setCacheTypeMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED);
+
         if (args != null) for (FieldDetail p : args) {
             provideMethodBuilder.addParameter(p.type, p.name);
             getCachedMethodBuilder.addParameter(p.type, p.name);
+            setCacheTypeMethodBuilder.addParameter(p.type, p.name);
         }
+
+        setCacheTypeMethodBuilder
+                .addParameter(ParameterSpec.builder(SwitchCache.CacheType.class, "cache").build())
+                .addParameter(ParameterSpec.builder(TimeScheduler.class, "scheduler").build())
+                .addParameter(ParameterSpec.builder(long.class, "time").build())
+                .addCode(itemHolderCodeHelper.statementSwitchRef("cache", "scheduler", "time"));
+
 
         provideMethodBuilders.add(provideMethodBuilder);
         provideMethodBuilders.add(getCachedMethodBuilder);
+        provideMethodBuilders.add(setCacheTypeMethodBuilder);
         return this;
     }
 
@@ -362,5 +372,9 @@ public class ModuleBuilder {
 
     private static String getCachedMethodName(String factoryMethodName) {
         return "__" + factoryMethodName + "_cache";
+    }
+
+    private static String getSwitchCacheMethodName(String factoryMethodName) {
+        return "__" + factoryMethodName + "_switchCache";
     }
 }

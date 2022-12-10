@@ -70,15 +70,12 @@ public interface ItemHolderCodeHelper {
             switch (cacheType) {
                 case Strong:
                     singleItemHolderHelper.fieldHolderType = strongRefClassName;
-                    singleItemHolderHelper.setWeakRefSupport = true;
                     break;
                 case Soft:
                     singleItemHolderHelper.fieldHolderType = softRefClassName;
-                    singleItemHolderHelper.setWeakRefSupport = true;
                     break;
                 case Weak:
                     singleItemHolderHelper.fieldHolderType = weakRefClassName;
-                    singleItemHolderHelper.setWeakRefSupport = false;
                     break;
             }
             return singleItemHolderHelper;
@@ -92,15 +89,12 @@ public interface ItemHolderCodeHelper {
             switch (cacheType) {
                 case Strong:
                     simpleMapItemHolderHelper.fieldHolderType = strongMapClassName;
-                    simpleMapItemHolderHelper.setWeakRefSupport = true;
                     break;
                 case Soft:
                     simpleMapItemHolderHelper.fieldHolderType = softMapClassName;
-                    simpleMapItemHolderHelper.setWeakRefSupport = true;
                     break;
                 case Weak:
                     simpleMapItemHolderHelper.fieldHolderType = weakMapClassName;
-                    simpleMapItemHolderHelper.setWeakRefSupport = false;
                     break;
             }
             return simpleMapItemHolderHelper;
@@ -112,15 +106,12 @@ public interface ItemHolderCodeHelper {
         switch (cacheType) {
             case Strong:
                 multiKeyMapItemHolderHelper.fieldHolderType = strongMapClassName;
-                multiKeyMapItemHolderHelper.setWeakRefSupport = true;
                 break;
             case Soft:
                 multiKeyMapItemHolderHelper.fieldHolderType = softMapClassName;
-                multiKeyMapItemHolderHelper.setWeakRefSupport = true;
                 break;
             case Weak:
                 multiKeyMapItemHolderHelper.fieldHolderType = weakMapClassName;
-                multiKeyMapItemHolderHelper.setWeakRefSupport = false;
                 break;
         }
         return multiKeyMapItemHolderHelper;
@@ -146,15 +137,12 @@ public interface ItemHolderCodeHelper {
     CodeBlock statementSwitchRef(String cacheFieldName,String timeSchedulerFieldName, String timeFieldName);
 
 
-    boolean supportWeakRef();
 
     class SingleItemHolderHelper implements ItemHolderCodeHelper {
 
         public String fieldName;
         public TypeName fieldType;
         public ClassName fieldHolderType;
-
-        public boolean setWeakRefSupport = false;
 
         @Override
         public FieldSpec.Builder cachedField() {
@@ -182,17 +170,11 @@ public interface ItemHolderCodeHelper {
 
         @Override
         public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
-            if (!setWeakRefSupport)
-                return null;
             return CodeBlock.builder()
                     .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
                     .build();
         }
 
-        @Override
-        public boolean supportWeakRef() {
-            return setWeakRefSupport;
-        }
     }
 
 
@@ -202,8 +184,6 @@ public interface ItemHolderCodeHelper {
         public TypeName fieldType;
         public ClassName fieldHolderType;
         public FieldDetail keyParam;
-
-        public boolean setWeakRefSupport = false;
 
 
         @Override
@@ -231,16 +211,9 @@ public interface ItemHolderCodeHelper {
 
         @Override
         public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
-            if (!setWeakRefSupport)
-                return null;
             return CodeBlock.builder()
                     .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
                     .build();
-        }
-
-        @Override
-        public boolean supportWeakRef() {
-            return setWeakRefSupport;
         }
 
 
@@ -255,7 +228,6 @@ public interface ItemHolderCodeHelper {
 
         public List<FieldDetail> keyArgs;
 
-        public boolean setWeakRefSupport = false;
 
 
         @Override
@@ -286,18 +258,10 @@ public interface ItemHolderCodeHelper {
 
         @Override
         public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
-            if (!setWeakRefSupport)
-                return null;
             return CodeBlock.builder()
                     .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
                     .build();
         }
-
-        @Override
-        public boolean supportWeakRef() {
-            return setWeakRefSupport;
-        }
-
 
     }
 
