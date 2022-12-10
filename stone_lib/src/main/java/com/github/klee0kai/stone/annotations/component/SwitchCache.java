@@ -45,7 +45,7 @@ public @interface SwitchCache {
      *
      * @return
      */
-    CacheType cache() default CacheType.Soft;
+    CacheType cache() default CacheType.Default;
 
     /**
      * Switch cache time duration.

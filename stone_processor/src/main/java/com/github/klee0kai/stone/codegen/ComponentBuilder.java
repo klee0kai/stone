@@ -6,10 +6,12 @@ import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
 import com.github.klee0kai.stone.codegen.helpers.IInjectFieldTypeHelper;
+import com.github.klee0kai.stone.codegen.helpers.ModuleFieldHelper;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
 import com.github.klee0kai.stone.types.*;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
@@ -45,9 +47,6 @@ public class ComponentBuilder {
     public final CodeBlock.Builder initModuleCode = CodeBlock.builder();
     public final CodeBlock.Builder bindModuleCode = CodeBlock.builder();
 
-    public final CodeBlock.Builder weakAllModuleCode = CodeBlock.builder();
-    public final CodeBlock.Builder restoreRefsModuleCode = CodeBlock.builder();
-
 
     // ---------------------- provide fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
@@ -55,10 +54,12 @@ public class ComponentBuilder {
     public final List<MethodSpec.Builder> injectMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> protectInjectedMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> gcMethods = new LinkedList<>();
+    public final List<MethodSpec.Builder> switchRefMethods = new LinkedList<>();
 
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
     private final ComponentInjectGraph injectGraph = new ComponentInjectGraph();
+    private final LinkedList<ModuleFieldHelper> moduleFieldHelpers = new LinkedList<>();
 
 
     public static ComponentBuilder from(ClassDetail component) {
@@ -155,9 +156,8 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        weakAllModuleCode.addStatement("this.$L.switchRef(scopes, $T.Weak , null, -1)", name, SwitchCache.CacheType.class);
-        restoreRefsModuleCode.addStatement("this.$L.switchRef(scopes, $T.Default, null, -1 )", name, SwitchCache.CacheType.class);
         injectGraph.addModule(MethodDetail.simpleName(name), module);
+        moduleFieldHelpers.add(new ModuleFieldHelper(name));
         return this;
     }
 
@@ -273,14 +273,58 @@ public class ComponentBuilder {
 
         gcMethods.add(builder);
         collectRuns.add(() -> {
-            builder.addCode(weakAllModuleCode.build())
-                    .addStatement("$T.gc()", System.class);
+            for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
+                builder.addCode(moduleFieldHelper.statementAllWeak("scopes"));
+
+            builder.addStatement("$T.gc()", System.class);
+
             if (fields.containsKey(refCollectionGlFieldName))
                 builder.addStatement("$L.clearNulls()", refCollectionGlFieldName);
-            builder.addCode(restoreRefsModuleCode.build());
+            for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
+                builder.addCode(moduleFieldHelper.statementAllDef("scopes"));
         });
         return this;
     }
+
+
+    public ComponentBuilder switchRefMethod(String name, SwitchCacheAnnotation switchCacheAnnotation, List<TypeName> gcScopes) {
+
+
+        CodeBlock.Builder scopesCode = CodeBlock.builder();
+        int inx = 0;
+        for (TypeName sc : gcScopes)
+            if (inx++ <= 0) scopesCode.add("$T.class", sc);
+            else scopesCode.add(", $T.class", sc);
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addCode("$T scopes = new $T($T.asList(",
+                        ParameterizedTypeName.get(Set.class, Class.class),
+                        ParameterizedTypeName.get(HashSet.class, Class.class),
+                        Arrays.class)
+                .addCode(scopesCode.build())
+                .addStatement("))");
+
+        builder.addStatement("$T cache = $T.$L", SwitchCache.CacheType.class, SwitchCache.CacheType.class, switchCacheAnnotation.cache.name());
+        builder.addStatement("$T time = $L", long.class, switchCacheAnnotation.timeMillis);
+        if (switchCacheAnnotation.timeMillis > 0) {
+            timeHolderFields();
+            builder.addStatement("$T scheduler = this.$L", TimeScheduler.class, scheduleGlFieldName);
+        } else {
+            builder.addStatement("$T scheduler = null", TimeScheduler.class);
+        }
+
+
+        switchRefMethods.add(builder);
+        collectRuns.add(() -> {
+            for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
+                builder.addCode(moduleFieldHelper.statementSwitchRefs("scopes", "cache", "scheduler", "time"));
+        });
+        return this;
+    }
+
 
     /**
      * Collect all params. prebuild
@@ -318,6 +362,7 @@ public class ComponentBuilder {
         methodBuilders.addAll(modulesMethods.values());
         methodBuilders.addAll(injectMethods);
         methodBuilders.addAll(protectInjectedMethods);
+        methodBuilders.addAll(switchRefMethods);
         methodBuilders.addAll(gcMethods);
 
         for (MethodSpec.Builder method : methodBuilders)
