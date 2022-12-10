@@ -1,9 +1,7 @@
 package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
-import com.github.klee0kai.stone.annotations.component.GcAllScope;
-import com.github.klee0kai.stone.annotations.component.ProtectInjected;
-import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
@@ -12,8 +10,10 @@ import com.github.klee0kai.stone.model.annotations.ProvideAnnotation;
 import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.lang.model.element.*;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class MethodDetail implements Cloneable {
@@ -53,9 +53,12 @@ public class MethodDetail implements Cloneable {
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
         methodDetail.protectInjectedAnnotation = ProtectInjectedAnnotation.of(element.getAnnotation(ProtectInjected.class));
         methodDetail.switchCacheAnnotation = SwitchCacheAnnotation.of(element.getAnnotation(SwitchCache.class));
-        if (element.getAnnotation(GcAllScope.class) != null) {
-            methodDetail.gcScopeAnnotations.add(ClassName.get(GcAllScope.class));
-        }
+
+        List<Class<? extends Annotation>> scClasses = Arrays.asList(GcAllScope.class, GcWeakScope.class, GcSoftScope.class, GcStrongScope.class);
+        for (Class<? extends Annotation> sc : scClasses)
+            if (element.getAnnotation(sc) != null)
+                methodDetail.gcScopeAnnotations.add(ClassName.get(sc));
+
         for (AnnotationMirror ann : element.getAnnotationMirrors()) {
             String clName = ann.getAnnotationType().toString();
             ClassDetail annClDet = AnnotationProcessor.allClassesHelper.findGcScopeAnnotation(clName);
