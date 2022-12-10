@@ -116,7 +116,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 protectInjectMethod &= typeName != null && !allClassesHelper.iComponentClassDetails.haveMethod(m, true);
                 if (protectInjectMethod) {
                     ClassDetail injCl = allClassesHelper.findForType(typeName);
-                    if (injCl != null) componentBuilder.switchCacheInjected(m.methodName, injCl,
+                    if (injCl != null) componentBuilder.protectInjected(m.methodName, injCl,
                             m.protectInjectedAnnotation.timeMillis);
                 }
             }

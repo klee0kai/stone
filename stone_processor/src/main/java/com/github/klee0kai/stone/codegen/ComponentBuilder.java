@@ -226,7 +226,7 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder switchCacheInjected(String name, ClassDetail injectableCl, long timeMillis) {
+    public ComponentBuilder protectInjected(String name, ClassDetail injectableCl, long timeMillis) {
         timeHolderFields();
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
