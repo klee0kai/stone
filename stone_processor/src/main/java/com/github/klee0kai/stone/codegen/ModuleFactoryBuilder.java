@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.closed.IModuleFactory;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -91,6 +92,7 @@ public class ModuleFactoryBuilder {
         if (orFactory.isInterfaceClass())
             typeSpecBuilder.addSuperinterface(orFactory.className);
         else typeSpecBuilder.superclass(orFactory.className);
+        typeSpecBuilder.addSuperinterface(IModuleFactory.class);
 
         for (MethodSpec.Builder provideMethod : provideMethodBuilders)
             typeSpecBuilder.addMethod(provideMethod.build());

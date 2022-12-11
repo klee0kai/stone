@@ -30,13 +30,6 @@ public interface IModule {
     boolean bind(Object object);
 
     /**
-     * this module extents of other module
-     *
-     * @param superStoneModule - super stone module which this module extending for
-     */
-    void extOf(IModule superStoneModule);
-
-    /**
      * get component's factory
      *
      * @return

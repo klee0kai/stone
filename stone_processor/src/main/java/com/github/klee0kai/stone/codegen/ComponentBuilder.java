@@ -12,10 +12,11 @@ import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
-import com.github.klee0kai.stone.types.*;
+import com.github.klee0kai.stone.types.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
+import jdk.internal.joptsimple.internal.Strings;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
@@ -139,6 +140,22 @@ public class ComponentBuilder {
                 .addParameter(IComponent.class, "c");
         if (override)
             builder.addAnnotation(Override.class);
+
+        for (ClassDetail par : orComponentCl.getAllParents(false)) {
+            if (Objects.equals(par.className, ClassName.get(IComponent.class)))
+                continue;
+            List<MethodDetail> provideModuleMethods = ListUtils.filter(par.getAllMethods(false),
+                    (i, it) -> it.returnType != TypeName.VOID && !it.returnType.isPrimitive());
+            if (provideModuleMethods.isEmpty())
+                continue;
+
+            List<String> provideFactories = ListUtils.format(provideModuleMethods, (it) -> it.methodName + "()");
+
+            builder.beginControlFlow("if (c instanceof $T)", par.className)
+                    .addStatement(" c.init( $L ) ", String.join(",", provideFactories))
+                    .endControlFlow();
+        }
+
         iComponentMethods.put(extOfMethodName, builder);
         return this;
     }

@@ -5,6 +5,7 @@ import com.github.klee0kai.test.inject.forest.Earth;
 import com.github.klee0kai.test.inject.forest.History;
 import com.github.klee0kai.test.inject.forest.IAnimal;
 import com.github.klee0kai.test.inject.identity.Conscience;
+import com.github.klee0kai.test.inject.identity.Ideology;
 import com.github.klee0kai.test.inject.identity.Knowledge;
 
 import javax.inject.Inject;
@@ -21,6 +22,8 @@ public class Horse implements IAnimal {
     public Conscience conscience;
     @Inject
     public Knowledge knowledge;
+    @Inject
+    public Ideology ideology;
 
     @Override
     public void born() {

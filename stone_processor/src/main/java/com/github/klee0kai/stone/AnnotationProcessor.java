@@ -6,6 +6,7 @@ import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
+import com.github.klee0kai.stone.codegen.ModuleInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -56,6 +57,10 @@ public class AnnotationProcessor extends AbstractProcessor {
             ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module);
             factoryBuilder.writeTo(env.getFiler());
 
+            ModuleInterfaceBuilder moduleInterfaceBuilder = ModuleInterfaceBuilder.from(factoryBuilder);
+            moduleInterfaceBuilder.writeTo(env.getFiler());
+
+
             ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder);
             moduleBuilder.writeTo(env.getFiler());
         }
@@ -88,11 +93,13 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             // implement switch cache type
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
-                boolean switchCacheMethod = m.returnType == TypeName.VOID && m.switchCacheAnnotation != null && !m.gcScopeAnnotations.isEmpty();;
+                boolean switchCacheMethod = m.returnType == TypeName.VOID && m.switchCacheAnnotation != null && !m.gcScopeAnnotations.isEmpty();
+                ;
                 switchCacheMethod &= (m.args == null || m.args.isEmpty());
                 switchCacheMethod &= m.provideAnnotation == null && m.bindInstanceAnnotation == null;
 
-                if (switchCacheMethod) componentBuilder.switchRefMethod(m.methodName,m.switchCacheAnnotation, m.gcScopeAnnotations);
+                if (switchCacheMethod)
+                    componentBuilder.switchRefMethod(m.methodName, m.switchCacheAnnotation, m.gcScopeAnnotations);
             }
 
 

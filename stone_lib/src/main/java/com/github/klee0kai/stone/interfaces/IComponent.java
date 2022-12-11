@@ -27,5 +27,4 @@ public interface IComponent {
      */
     void extOf(IComponent components);
 
-
 }

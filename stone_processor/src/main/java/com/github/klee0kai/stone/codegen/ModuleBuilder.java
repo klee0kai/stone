@@ -24,6 +24,7 @@ public class ModuleBuilder {
 
     public ClassName className;
 
+    public static final String overridedModuleFieldName = "overridedModule";
     public static final String factoryFieldName = "factory";
 
     private static final String appliedLocalFieldName = "applied";
@@ -31,7 +32,6 @@ public class ModuleBuilder {
     public static final String initMethodName = "init";
 
     public static final String bindMethodName = "bind";
-    public static final String extOfMethodName = "extOf";
     public static final String getFactoryMethodName = "getFactory";
 
     public static final String switchRefMethodName = "switchRef";
@@ -56,6 +56,7 @@ public class ModuleBuilder {
     public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder) {
         ModuleBuilder builder = new ModuleBuilder(factoryBuilder.orFactory)
                 .factoryField(factoryBuilder.orFactory.className, factoryBuilder.className)
+                .overridedField(ClassNameUtils.genInterfaceModuleNameMirror(factoryBuilder.orFactory.className))
                 .implementIModule();
 
         int fieldId = 1;
@@ -67,7 +68,7 @@ public class ModuleBuilder {
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
                 builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
-                switch (m.bindInstanceAnnotation.cacheType){
+                switch (m.bindInstanceAnnotation.cacheType) {
                     case Weak:
                         builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class)));
                         break;
@@ -86,7 +87,7 @@ public class ModuleBuilder {
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
                 builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
-                switch (cacheType){
+                switch (cacheType) {
                     case Weak:
                         builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class)));
                         break;
@@ -116,6 +117,13 @@ public class ModuleBuilder {
         return this;
     }
 
+    public ModuleBuilder overridedField(TypeName typeName) {
+        FieldSpec.Builder builder = FieldSpec.builder(typeName, overridedModuleFieldName, Modifier.PRIVATE)
+                .initializer("null");
+        fields.put(overridedModuleFieldName, builder);
+        return this;
+    }
+
 
     /**
      * Call first
@@ -124,28 +132,39 @@ public class ModuleBuilder {
      * @return
      */
     public ModuleBuilder implementIModule() {
-        boolean hasSupperStoneModule = orModuleCl.superClass != null && orModuleCl.superClass.moduleAnn != null;
         interfaces.add(ClassName.get(IModule.class));
-        initMethod(true);
-        bindMethod(true);
-        extOfMethod(hasSupperStoneModule ? ClassNameUtils.genModuleNameMirror(orModuleCl.superClass.className) : null, true);
-        getFactoryMethod(true);
-        switchRefMethod(true);
+        for (ClassDetail parentModule : orModuleCl.getAllParents(false)) {
+            if (parentModule.moduleAnn!=null)
+                interfaces.add(ClassNameUtils.genInterfaceModuleNameMirror(parentModule.className));
+        }
+
+        initMethod();
+        bindMethod();
+        getFactoryMethod();
+        switchRefMethod();
         return this;
     }
 
-    public ModuleBuilder initMethod(boolean override) {
+    public ModuleBuilder initMethod() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(initMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addAnnotation(Override.class)
                 .returns(boolean.class)
                 .addParameter(Object.class, "or")
                 .addStatement("boolean $L = false", appliedLocalFieldName)
-                .beginControlFlow("if (or instanceof $T) ", orModuleCl.className)
+                // check module class
+                .beginControlFlow("if ( (or instanceof $T) ) ", ClassNameUtils.genInterfaceModuleNameMirror(orModuleCl.className))
+                .addStatement("$L = ($T) or", overridedModuleFieldName, ClassNameUtils.genInterfaceModuleNameMirror(orModuleCl.className))
+                .addStatement("$L = ($T) (($T) or).getFactory() ", factoryFieldName, orModuleCl.className, IModule.class)
+                .addStatement("$L = true", appliedLocalFieldName)
+                .endControlFlow()
+                // check factory class
+                .beginControlFlow("else if (or instanceof $T) ", orModuleCl.className)
                 .addStatement("$L = ($T) or", factoryFieldName, orModuleCl.className)
                 .addStatement("$L = true", appliedLocalFieldName)
                 .endControlFlow()
                 // get module factory by module class
-                .beginControlFlow("if (or instanceof Class<?> && ((Class<?>) or).isInstance($T.class))", orModuleCl.className)
+                .beginControlFlow("else if (or instanceof Class<?> && ((Class<?>) or).isInstance($T.class))", orModuleCl.className)
                 .beginControlFlow("try")
                 .addComment("looking for generated factory for module class")
                 .addStatement("Class<?> gennedClass = Class.forName(((Class) or).getCanonicalName() + \"StoneFactory\")")
@@ -168,20 +187,17 @@ public class ModuleBuilder {
                 .endControlFlow()
                 .addStatement("return $L", appliedLocalFieldName);
 
-        if (override) builder.addAnnotation(Override.class);
-
         iModuleMethodBuilders.put(initMethodName, builder);
         return this;
     }
 
-    public ModuleBuilder bindMethod(boolean override) {
+    public ModuleBuilder bindMethod() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addAnnotation(Override.class)
                 .addParameter(Object.class, "or")
                 .addStatement("boolean $L = false", appliedLocalFieldName)
                 .returns(boolean.class);
-
-        if (override) builder.addAnnotation(Override.class);
 
         iModuleMethodBuilders.put(bindMethodName, builder);
 
@@ -192,55 +208,25 @@ public class ModuleBuilder {
     }
 
 
-    /**
-     * If superClass is module. We should implement extOf method.
-     *
-     * @param superStoneModule
-     * @return
-     */
-    public ModuleBuilder extOfMethod(TypeName superStoneModule, boolean override) {
-        MethodSpec.Builder extOfMethodBuilder = MethodSpec.methodBuilder(extOfMethodName)
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(IModule.class, "superStoneModule")
-                .returns(void.class);
-
-        if (override) extOfMethodBuilder.addAnnotation(Override.class);
-
-        if (superStoneModule != null) {
-            String superDIModuleStoneFieldName = "superStone";
-            fields.put(superDIModuleStoneFieldName,
-                    FieldSpec.builder(superStoneModule, superDIModuleStoneFieldName, Modifier.PRIVATE));
-
-            extOfMethodBuilder.beginControlFlow("if (superStoneModule instanceof $T)", superStoneModule)
-                    .addStatement("$L = ($T) superStoneModule", superDIModuleStoneFieldName, superStoneModule)
-                    .endControlFlow()
-                    .beginControlFlow("else if (superStoneModule == null)")
-                    .addStatement("$L = null ", superDIModuleStoneFieldName)
-                    .endControlFlow();
-        }
-        iModuleMethodBuilders.put(extOfMethodName, extOfMethodBuilder);
-        return this;
-    }
-
-    public ModuleBuilder getFactoryMethod(boolean override) {
+    public ModuleBuilder getFactoryMethod() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(getFactoryMethodName)
                 .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
                 .returns(Object.class)
                 .addStatement("return $L", factoryFieldName);
-        if (override) builder.addAnnotation(Override.class);
         iModuleMethodBuilders.put(getFactoryMethodName, builder);
         return this;
     }
 
-    public ModuleBuilder switchRefMethod(boolean override) {
+    public ModuleBuilder switchRefMethod() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(switchRefMethodName)
                 .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
                 .addParameter(ParameterSpec.builder(SwitchCache.CacheType.class, "cache").build())
                 .addParameter(ParameterSpec.builder(TimeScheduler.class, "scheduler").build())
                 .addParameter(ParameterSpec.builder(long.class, "time").build())
                 .returns(void.class);
-        if (override) builder.addAnnotation(Override.class);
         iModuleMethodBuilders.put(switchRefMethodName, builder);
 
         collectRuns.add(() -> {
@@ -270,9 +256,9 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper) {
-        MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
         cacheFields.add(itemHolderCodeHelper.cachedField());
 
+        //provide method
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
@@ -280,6 +266,8 @@ public class ModuleBuilder {
                 .addCode(itemHolderCodeHelper.codeGetCachedValue())
                 .addStatement(""));
 
+        //bind item code
+        MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
         if (bindMethodBuilder != null) {
             bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, typeName)
                     .addStatement(itemHolderCodeHelper.codeSetCachedValue(
@@ -288,47 +276,107 @@ public class ModuleBuilder {
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow();
         }
+
+        // get cached method
+        String getCachedMethodName = ModuleInterfaceBuilder.getCachedMethodName(name);
+        MethodSpec.Builder getCachedMethodBuilder = MethodSpec.methodBuilder(getCachedMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addAnnotation(Override.class)
+                .returns(typeName)
+                .addCode("return ")
+                .addStatement(itemHolderCodeHelper.codeGetCachedValue());
+        provideMethodBuilders.add(getCachedMethodBuilder);
+
+        // set cache type  method
+        String setCacheTypeMethodName = ModuleInterfaceBuilder.getSwitchCacheMethodName(name);
+        MethodSpec.Builder setCacheTypeMethodBuilder = MethodSpec.methodBuilder(setCacheTypeMethodName)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addParameter(ParameterSpec.builder(SwitchCache.CacheType.class, "cache").build())
+                .addParameter(ParameterSpec.builder(TimeScheduler.class, "scheduler").build())
+                .addParameter(ParameterSpec.builder(long.class, "time").build())
+                .addCode(itemHolderCodeHelper.statementSwitchRef("cache", "scheduler", "time"));
+        provideMethodBuilders.add(setCacheTypeMethodBuilder);
         return this;
     }
 
 
     public ModuleBuilder provideFactory(String name, TypeName typeName, List<FieldDetail> args) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
                 .addStatement("return  $L.$L($L)", factoryFieldName, name,
                         String.join(",", ListUtils.format(args, (it) -> it.name)));
 
-        if (args != null) for (FieldDetail p : args)
-            builder.addParameter(p.type, p.name);
 
-        provideMethodBuilders.add(builder);
+        // get cached method
+        MethodSpec.Builder getCachedMethodBuilder = MethodSpec.methodBuilder(ModuleInterfaceBuilder.getCachedMethodName(name))
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addAnnotation(Override.class)
+                .returns(typeName)
+                .addStatement("return null");
+
+        // set cache type  method
+        MethodSpec.Builder setCacheTypeMethodBuilder = MethodSpec.methodBuilder(ModuleInterfaceBuilder.getSwitchCacheMethodName(name))
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED);
+
+        if (args != null) for (FieldDetail p : args) {
+            provideMethodBuilder.addParameter(p.type, p.name);
+            getCachedMethodBuilder.addParameter(p.type, p.name);
+            setCacheTypeMethodBuilder.addParameter(p.type, p.name);
+        }
+        setCacheTypeMethodBuilder
+                .addParameter(ParameterSpec.builder(SwitchCache.CacheType.class, "cache").build())
+                .addParameter(ParameterSpec.builder(TimeScheduler.class, "scheduler").build())
+                .addParameter(ParameterSpec.builder(long.class, "time").build());
+
+
+        provideMethodBuilders.add(provideMethodBuilder);
+        provideMethodBuilders.add(getCachedMethodBuilder);
+        provideMethodBuilders.add(setCacheTypeMethodBuilder);
+
         return this;
     }
 
     public ModuleBuilder provideCached(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<FieldDetail> args) {
-        String getCachedMethodName = getCachedMethodName(name);
-        String setCacheTypeMethodName = getSwitchCacheMethodName(name);
+        String getCachedMethodName = ModuleInterfaceBuilder.getCachedMethodName(name);
+        String argsString = String.join(",", ListUtils.format(args, (it) -> it.name));
+
         cacheFields.add(itemHolderCodeHelper.cachedField());
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
+                // check cached from overrided module
+                .beginControlFlow("if ($L != null && $L.$L(  $L  ) != null ) ", overridedModuleFieldName, overridedModuleFieldName, getCachedMethodName, argsString)
+                .addStatement("return $L.$L( $L ) ", overridedModuleFieldName, getCachedMethodName, argsString)
+                .endControlFlow()
+                //  check cached
                 .addCode("if ( ").addCode(itemHolderCodeHelper.codeGetCachedValue()).addCode(" != null )\n")
                 .addCode("\t\treturn ").addStatement(itemHolderCodeHelper.codeGetCachedValue())
+                // return from overrided module
+                .beginControlFlow("if ($L != null) ", overridedModuleFieldName)
+                .addStatement("return $L.$L( $L ) ", overridedModuleFieldName, name, argsString)
+                .endControlFlow()
+                // gen new and return
                 .addCode("return ").addCode(itemHolderCodeHelper.codeSetCachedValue(
-                        CodeBlock.of("$L.$L($L)", factoryFieldName, name,
-                                String.join(",", ListUtils.format(args, (it) -> it.name)))
+                        CodeBlock.of("$L.$L($L)", factoryFieldName, name, argsString)
                 )).addStatement("");
 
+        // get cached method
         MethodSpec.Builder getCachedMethodBuilder = MethodSpec.methodBuilder(getCachedMethodName)
-                .addModifiers(Modifier.PROTECTED, Modifier.SYNCHRONIZED)
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addAnnotation(Override.class)
                 .returns(typeName)
                 .addCode("return ")
                 .addStatement(itemHolderCodeHelper.codeGetCachedValue());
 
+        // get cache type  method
+        String setCacheTypeMethodName = ModuleInterfaceBuilder.getSwitchCacheMethodName(name);
         MethodSpec.Builder setCacheTypeMethodBuilder = MethodSpec.methodBuilder(setCacheTypeMethodName)
+                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED);
 
         if (args != null) for (FieldDetail p : args) {
@@ -391,11 +439,4 @@ public class ModuleBuilder {
     }
 
 
-    private static String getCachedMethodName(String factoryMethodName) {
-        return "__" + factoryMethodName + "_cache";
-    }
-
-    private static String getSwitchCacheMethodName(String factoryMethodName) {
-        return "__" + factoryMethodName + "_switchCache";
-    }
 }
