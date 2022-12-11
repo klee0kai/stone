@@ -1,11 +1,12 @@
 package com.github.klee0kai.stone.test.cache;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.data.StoneRepository;
 import com.github.klee0kai.test.cache.di.CacheTestComponent;
+import com.github.klee0kai.test.data.StoneRepository;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class CacheTests {
 

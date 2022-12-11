@@ -16,7 +16,6 @@ import com.github.klee0kai.stone.types.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
-import jdk.internal.joptsimple.internal.Strings;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;

@@ -6,7 +6,10 @@ import com.squareup.javapoet.ClassName;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class ComponentAnnotation implements Cloneable {
 

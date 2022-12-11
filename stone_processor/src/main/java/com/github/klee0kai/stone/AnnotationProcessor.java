@@ -17,7 +17,7 @@ import javax.annotation.processing.*;
 import javax.inject.Scope;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.*;
+import java.util.Set;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({

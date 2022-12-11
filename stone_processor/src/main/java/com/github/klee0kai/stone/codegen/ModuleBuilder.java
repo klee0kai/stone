@@ -2,15 +2,15 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.closed.IModule;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
-import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
-import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.squareup.javapoet.*;
 
 import javax.annotation.processing.Filer;

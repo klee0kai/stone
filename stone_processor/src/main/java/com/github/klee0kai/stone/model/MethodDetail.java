@@ -10,7 +10,6 @@ import com.github.klee0kai.stone.model.annotations.ProvideAnnotation;
 import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-import org.checkerframework.checker.units.qual.A;
 
 import javax.lang.model.element.*;
 import java.lang.annotation.Annotation;

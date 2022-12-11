@@ -1,8 +1,6 @@
 package com.github.klee0kai.stone.test.gc;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.Application;
-import com.github.klee0kai.test.Context;
 import com.github.klee0kai.test.data.StoneRepository;
 import com.github.klee0kai.test.gc.di.GComponent;
 import org.junit.jupiter.api.Test;

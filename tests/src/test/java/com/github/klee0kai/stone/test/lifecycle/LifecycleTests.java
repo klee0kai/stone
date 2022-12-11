@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.test.lifecycle;
 
-import com.github.klee0kai.test.inject.Forest;
 import com.github.klee0kai.test.lifecycle.GoodPhone;
 import com.github.klee0kai.test.lifecycle.OnePhone;
 import com.github.klee0kai.test.lifecycle.di.qualifiers.DataStorageSize;

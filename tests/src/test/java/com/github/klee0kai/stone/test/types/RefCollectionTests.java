@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.test.types;
 
-import com.github.klee0kai.stone.types.RefCollection;
 import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
+import com.github.klee0kai.stone.types.RefCollection;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

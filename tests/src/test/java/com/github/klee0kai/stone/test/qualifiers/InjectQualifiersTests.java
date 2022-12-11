@@ -3,7 +3,8 @@ package com.github.klee0kai.stone.test.qualifiers;
 import com.github.klee0kai.test.qualifiers.QApp;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class InjectQualifiersTests {

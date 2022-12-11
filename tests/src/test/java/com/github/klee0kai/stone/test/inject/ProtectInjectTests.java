@@ -2,7 +2,6 @@ package com.github.klee0kai.stone.test.inject;
 
 import com.github.klee0kai.test.inject.Forest;
 import com.github.klee0kai.test.inject.Horse;
-import com.github.klee0kai.test.inject.Mowgli;
 import com.github.klee0kai.test.inject.School;
 import com.github.klee0kai.test.inject.forest.History;
 import com.github.klee0kai.test.inject.identity.Knowledge;
@@ -10,7 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class ProtectInjectTests {
