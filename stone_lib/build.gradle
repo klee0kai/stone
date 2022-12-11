@@ -3,7 +3,6 @@ plugins {
 }
 
 group 'com.github.klee0kai.stone'
-version '0.0.7'
 
 
 apply from: '../jitpack.gradle'

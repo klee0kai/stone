@@ -1,7 +1,6 @@
 apply plugin: 'java-library'
 
 group 'com.github.klee0kai.stone'
-version '0.0.7'
 
 apply from: '../jitpack.gradle'
 
@@ -11,12 +10,6 @@ dependencies {
 
     implementation "com.google.auto.service:auto-service:1.0.1"
     annotationProcessor "com.google.auto.service:auto-service:1.0.1"
-
-
-    //jsr250 and  jrs305
-//    implementation "javax.annotation:jsr250-api"
-//    implementation "javax.inject:javax.inject:1"
-//    implementation "javax.inject:javax.inject-tck:1"
 
     //    incap
     implementation "net.ltgt.gradle.incap:incap:0.3"
