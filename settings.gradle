@@ -1,3 +1,19 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'Stone'
 include 'stone_lib'
 include 'stone_processor'
@@ -5,4 +21,6 @@ include 'sample_example'
 include 'sample_example_ext'
 include 'tests'
 include 'tests_ext'
+
+include ':android_lib'
 

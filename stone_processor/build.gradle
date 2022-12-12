@@ -1,9 +1,21 @@
 apply plugin: 'java-library'
-
-group 'com.github.klee0kai.stone'
+apply plugin: 'java'
 
 apply from: '../jitpack.gradle'
 
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 dependencies {
     implementation project(':stone_lib')
@@ -20,3 +32,7 @@ dependencies {
 }
 
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

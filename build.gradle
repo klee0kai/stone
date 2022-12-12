@@ -1,16 +1,17 @@
 buildscript {
     repositories {
+        gradlePluginPortal()
         mavenCentral()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.2.2'
     }
 }
 
 allprojects {
+    group 'com.github.klee0kai.stone'
     version '0.0.9'
-
-    repositories {
-        mavenCentral()
-        google()
-    }
 }
 
 

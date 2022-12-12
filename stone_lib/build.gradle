@@ -2,11 +2,20 @@ plugins {
     id 'java'
 }
 
-group 'com.github.klee0kai.stone'
-
-
 apply from: '../jitpack.gradle'
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 dependencies {
 
@@ -16,4 +25,7 @@ dependencies {
 }
 
 
-
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

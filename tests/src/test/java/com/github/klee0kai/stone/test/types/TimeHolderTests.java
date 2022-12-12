@@ -10,7 +10,7 @@ public class TimeHolderTests {
 
 
     @Test
-    public void simpleTest() {
+    public void simpleTest() throws InterruptedException {
         TimeScheduler timer = new TimeScheduler();
 
         TimeHolder<String> holder1 = new TimeHolder<>(timer, "1", 100);
@@ -21,19 +21,12 @@ public class TimeHolderTests {
         TimeHolder<String> holder6 = new TimeHolder<>(timer, "5", 50);
 
 
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-
-        }
+        Thread.sleep(100);
 
         assertNull(holder6.get());
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
+        Thread.sleep(500);
 
-        }
         assertNull(holder1.get());
         assertNull(holder2.get());
         assertNull(holder3.get());

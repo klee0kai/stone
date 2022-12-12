@@ -41,7 +41,7 @@ public class ProtectInjectTests {
     }
 
     @Test
-    public void withProtectInjectTest() {
+    public void withProtectInjectTest() throws InterruptedException {
         // create common component for all app
         Forest forest = new Forest();
         forest.create();
@@ -65,10 +65,8 @@ public class ProtectInjectTests {
         assertNotNull(historyWeakReference.get());
 
         //after protect finished
-        try {
-            Thread.sleep(60);
-        } catch (InterruptedException e) {
-        }
+        Thread.sleep(60);
+
         Forest.DI.gcAll();
         assertNull(historyWeakReference.get());
     }

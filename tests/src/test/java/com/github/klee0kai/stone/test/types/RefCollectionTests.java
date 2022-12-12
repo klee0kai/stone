@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RefCollectionTests {
 
     @Test
-    public void clearNullTest() {
+    public void clearNullTest() throws InterruptedException {
         TimeScheduler timeScheduler = new TimeScheduler();
         RefCollection refCollection = new RefCollection();
 
@@ -27,29 +27,22 @@ public class RefCollectionTests {
 
         refCollection.clearNulls();
         assertEquals(4, refCollection.getAll().size());
-        assertEquals(Arrays.asList(10,12,1,3),refCollection.getAll());
+        assertEquals(Arrays.asList(10, 12, 1, 3), refCollection.getAll());
 
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-        }
+        Thread.sleep(50);
 
         assertEquals(3, refCollection.getAll().size());
-        assertEquals(Arrays.asList(12,1,3),refCollection.getAll());
+        assertEquals(Arrays.asList(12, 1, 3), refCollection.getAll());
 
-        try {
-            Thread.sleep(60);
-        } catch (InterruptedException e) {
-        }
+        Thread.sleep(60);
 
         assertEquals(0, refCollection.getAll().size());
 
     }
 
 
-
     @Test
-    public void clearNullTest2() {
+    public void clearNullTest2() throws InterruptedException {
         TimeScheduler timeScheduler = new TimeScheduler();
         RefCollection refCollection = new RefCollection();
 
@@ -63,30 +56,21 @@ public class RefCollectionTests {
 
         refCollection.clearNulls();
         assertEquals(4, refCollection.getAll().size());
-        assertEquals(Arrays.asList(10,12,1,3),refCollection.getAll());
+        assertEquals(Arrays.asList(10, 12, 1, 3), refCollection.getAll());
 
 
-        try {
-            Thread.sleep(20);
-        } catch (InterruptedException e) {
-        }
+        Thread.sleep(20);
 
         assertEquals(3, refCollection.getAll().size());
-        assertEquals(Arrays.asList(10,1,3),refCollection.getAll());
+        assertEquals(Arrays.asList(10, 1, 3), refCollection.getAll());
 
 
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-        }
+        Thread.sleep(50);
 
-        assertEquals(Arrays.asList(3),refCollection.getAll());
+        assertEquals(Arrays.asList(3), refCollection.getAll());
 
 
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-        }
+        Thread.sleep(50);
 
         assertEquals(0, refCollection.getAll().size());
 
