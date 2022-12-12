@@ -4,6 +4,7 @@ import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
 import com.github.klee0kai.stone.interfaces.IComponent;
+import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.github.klee0kai.test.inject.Horse;
 import com.github.klee0kai.test.inject.Mowgli;
 import com.github.klee0kai.test.inject.School;
@@ -16,7 +17,7 @@ public interface ForestComponent extends IComponent {
 
     IdentityModule identity();
 
-    void inject(Horse horse);
+    void inject(Horse horse, IStoneLifeCycleOwner iStoneLifeCycleOwner);
 
 
     void inject(Mowgli mowgli);

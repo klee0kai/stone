@@ -20,6 +20,8 @@ public class OldHorse extends Horse {
 
     @Override
     public void born() {
-        OldForest.DIPro.inject(this);
+        OldForest.DIPro.inject(this, listener -> {
+
+        });
     }
 }

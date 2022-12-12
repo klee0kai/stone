@@ -220,22 +220,28 @@ public class ComponentBuilder {
             for (FieldDetail injectableField : injectableFields) {
                 ClassDetail injectableClass = allClassesHelper.findForType(injectableField.type);
 
+                CodeBlock.Builder subscrCode = CodeBlock.builder();
+                boolean emptyCode = true;
                 if (lifeCycleOwner != null) {
-                    builder.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
 
-                    for (FieldDetail injectField : injectableClass.fields) {
+                    subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
+                    for (FieldDetail injectField : injectableClass.getAllFields()) {
                         if (!injectField.injectAnnotation)
                             continue;
                         IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(injectField.type);
                         if (injectHelper.isGenerateWrapper())
                             //nothing to protect
                             continue;
-                        builder.addCode("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
-                                .addCode(injectHelper.codeGetField(injectableField.name, injectField.name))
+
+                        emptyCode = false;
+                        subscrCode.add("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
+                                .add(injectHelper.codeGetField(injectableField.name, injectField.name))
                                 .addStatement(", timeMillis))");
                     }
+                    subscrCode.endControlFlow(")");
 
-                    builder.endControlFlow(")");
+                    if (!emptyCode)
+                        builder.addCode(subscrCode.build());
                 }
             }
         });

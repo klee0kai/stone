@@ -1,5 +1,7 @@
 package com.github.klee0kai.test.inject;
 
+import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleListener;
+import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.github.klee0kai.test.inject.forest.Blood;
 import com.github.klee0kai.test.inject.forest.Earth;
 import com.github.klee0kai.test.inject.forest.History;
@@ -27,6 +29,8 @@ public class Horse implements IAnimal {
 
     @Override
     public void born() {
-        Forest.DI.inject(this);
+        Forest.DI.inject(this, listener -> {
+
+        });
     }
 }
