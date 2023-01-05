@@ -68,6 +68,21 @@ public class MethodDetail implements Cloneable {
         return methodDetail;
     }
 
+    public static MethodDetail simpleGetMethod(String name, TypeName typeName) {
+        MethodDetail m = new MethodDetail();
+        m.methodName = name;
+        m.returnType = typeName;
+        return m;
+    }
+
+    public static MethodDetail simpleSetMethod(String name, TypeName typeName) {
+        MethodDetail m = new MethodDetail();
+        m.methodName = name;
+        m.args.add(FieldDetail.simple(name, typeName));
+        m.returnType = TypeName.VOID;
+        return m;
+    }
+
     public boolean isAbstract() {
         return modifiers.contains(Modifier.ABSTRACT);
     }
@@ -79,7 +94,18 @@ public class MethodDetail implements Cloneable {
      * @return
      */
     public boolean isSameMethod(MethodDetail methodDetail) {
-        return methodDetail != null && Objects.equals(this.methodName, methodDetail.methodName) && Objects.equals(args, methodDetail.args);
+        if (methodDetail == null
+                || !Objects.equals(this.methodName, methodDetail.methodName)
+                || ((args == null) != (methodDetail.args == null))
+                || args != null && args.size() != methodDetail.args.size()) {
+            return false;
+        }
+        if (args == null)
+            return true;
+        for (int i = 0; i < args.size(); i++)
+            if (!Objects.equals(args.get(i).type, methodDetail.args.get(i).type))
+                return false;
+        return true;
     }
 
     @Override
@@ -99,4 +125,6 @@ public class MethodDetail implements Cloneable {
     public int hashCode() {
         return Objects.hash(methodName, returnType, args, provideAnnotation, bindInstanceAnnotation);
     }
+
+
 }

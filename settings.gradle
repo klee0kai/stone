@@ -23,4 +23,5 @@ include 'tests'
 include 'tests_ext'
 
 include ':android_lib'
+include 'test_kotlin'
 

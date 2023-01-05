@@ -27,21 +27,23 @@ public interface IInjectFieldTypeHelper {
      * inject value code
      *
      * @param objName
-     * @param fieldName
+     * @param name            field name or setField value method name
      * @param provideCode
+     * @param isOverSetMethod inject over set field method
      * @return
      */
-    CodeBlock codeInjectField(String objName, String fieldName, CodeBlock provideCode);
+    CodeBlock codeInjectField(String objName, String name, CodeBlock provideCode, boolean isOverSetMethod);
 
 
     /**
      * get original value code
      *
      * @param objName
-     * @param fieldName
+     * @param name            field name or getField value method name
+     * @param isOverGetMethod get field value over get Method
      * @return
      */
-    CodeBlock codeGetField(String objName, String fieldName);
+    CodeBlock codeGetField(String objName, String name, boolean isOverGetMethod);
 
 
     /**
@@ -89,17 +91,30 @@ public interface IInjectFieldTypeHelper {
         }
 
         @Override
-        public CodeBlock codeInjectField(String objName, String fieldName, CodeBlock provideCode) {
-            return CodeBlock.builder().add("$L.$L = ", objName, fieldName)
-                    .add(provideCode)
-                    .build();
+        public CodeBlock codeInjectField(String objName, String name, CodeBlock provideCode, boolean isOverSetMethod) {
+            if (isOverSetMethod) {
+                return CodeBlock.builder().add("$L.$L( ", objName, name)
+                        .add(provideCode)
+                        .add(" )")
+                        .build();
+            } else {
+                return CodeBlock.builder().add("$L.$L = ", objName, name)
+                        .add(provideCode)
+                        .build();
+            }
         }
 
         @Override
-        public CodeBlock codeGetField(String objName, String fieldName) {
-            return CodeBlock.builder()
-                    .add("$L.$L", objName, fieldName)
-                    .build();
+        public CodeBlock codeGetField(String objName, String name, boolean isOverGetMethod) {
+            if (isOverGetMethod) {
+                return CodeBlock.builder()
+                        .add("$L.$L()", objName, name)
+                        .build();
+            } else {
+                return CodeBlock.builder()
+                        .add("$L.$L", objName, name)
+                        .build();
+            }
         }
 
         @Override
@@ -125,19 +140,32 @@ public interface IInjectFieldTypeHelper {
         }
 
         @Override
-        public CodeBlock codeInjectField(String objName, String fieldName, CodeBlock provideCode) {
+        public CodeBlock codeInjectField(String objName, String name, CodeBlock provideCode, boolean isOverSetMethod) {
             ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(refType, typeName);
-            return CodeBlock.builder().add("$L.$L = new $T(", objName, fieldName, parameterizedTypeName)
-                    .add(provideCode)
-                    .add(")")
-                    .build();
+            if (isOverSetMethod) {
+                return CodeBlock.builder().add("$L.$L( new $T(", objName, name, parameterizedTypeName)
+                        .add(provideCode)
+                        .add("))")
+                        .build();
+            } else {
+                return CodeBlock.builder().add("$L.$L = new $T(", objName, name, parameterizedTypeName)
+                        .add(provideCode)
+                        .add(")")
+                        .build();
+            }
         }
 
         @Override
-        public CodeBlock codeGetField(String objName, String fieldName) {
-            return CodeBlock.builder()
-                    .add("$L.$L.get()", objName, fieldName)
-                    .build();
+        public CodeBlock codeGetField(String objName, String name, boolean isOverGetMethod) {
+            if (isOverGetMethod) {
+                return CodeBlock.builder()
+                        .add("$L.$L().get()", objName, name)
+                        .build();
+            } else {
+                return CodeBlock.builder()
+                        .add("$L.$L.get()", objName, name)
+                        .build();
+            }
         }
 
         @Override
@@ -165,19 +193,32 @@ public interface IInjectFieldTypeHelper {
         }
 
         @Override
-        public CodeBlock codeInjectField(String objName, String fieldName, CodeBlock provideCode) {
+        public CodeBlock codeInjectField(String objName, String name, CodeBlock provideCode, boolean isOverSetMethod) {
             ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(refType, typeName);
-            return CodeBlock.builder().add("$L.$L = new $T( () -> { return ", objName, fieldName, parameterizedTypeName)
-                    .add(provideCode)
-                    .add("; })")
-                    .build();
+            if (isOverSetMethod) {
+                return CodeBlock.builder().add("$L.$L( new $T( () -> { return ", objName, name, parameterizedTypeName)
+                        .add(provideCode)
+                        .add("; }))")
+                        .build();
+            } else {
+                return CodeBlock.builder().add("$L.$L = new $T( () -> { return ", objName, name, parameterizedTypeName)
+                        .add(provideCode)
+                        .add("; })")
+                        .build();
+            }
         }
 
         @Override
-        public CodeBlock codeGetField(String objName, String fieldName) {
-            return CodeBlock.builder()
-                    .add("$L.$L.get()", objName, fieldName)
-                    .build();
+        public CodeBlock codeGetField(String objName, String name, boolean isOverGetMethod) {
+            if (isOverGetMethod) {
+                return CodeBlock.builder()
+                        .add("$L.$L().get()", objName, name)
+                        .build();
+            } else {
+                return CodeBlock.builder()
+                        .add("$L.$L.get()", objName, name)
+                        .build();
+            }
         }
 
         @Override

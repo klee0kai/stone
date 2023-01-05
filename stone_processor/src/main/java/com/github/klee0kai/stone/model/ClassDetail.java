@@ -136,25 +136,29 @@ public class ClassDetail implements Cloneable {
         return outMethods;
     }
 
-    public boolean haveMethod(MethodDetail methodDetail, boolean checkSuperclass) {
+    public MethodDetail findMethod(MethodDetail methodDetail, boolean checkSuperclass) {
         for (MethodDetail m : methods) {
             if (m.isSameMethod(methodDetail))
-                return true;
+                return m;
         }
-        if (checkSuperclass && superClass != null && superClass.haveMethod(methodDetail, true))
-            return true;
-        for (ClassDetail cl : interfaces) {
-            if (cl.haveMethod(methodDetail, true))
-                return true;
+        if (checkSuperclass) {
+            if (superClass != null) {
+                MethodDetail m = superClass.findMethod(methodDetail, true);
+                if (m != null) return m;
+            }
+            for (ClassDetail cl : interfaces) {
+                MethodDetail m = cl.findMethod(methodDetail, true);
+                if (m != null) return m;
+            }
         }
-        return false;
+        return null;
     }
 
     public ClassDetail findInterfaceOverride(MethodDetail m) {
-        if (superClass != null && superClass.haveMethod(m, true))
+        if (superClass != null && superClass.findMethod(m, true) != null)
             return superClass;
         for (ClassDetail cl : interfaces) {
-            if (cl.haveMethod(m, true))
+            if (cl.findMethod(m, true) != null)
                 return cl;
         }
         return null;
