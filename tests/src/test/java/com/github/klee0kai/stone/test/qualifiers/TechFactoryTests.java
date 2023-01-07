@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.test.qualifiers;
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
-import com.github.klee0kai.test.di.phone_factory.TechFactoryComponent;
+import com.github.klee0kai.test.di.techfactory.TechFactoryComponent;
 import com.github.klee0kai.test.tech.components.OperationSystem;
 import com.github.klee0kai.test.tech.components.Ram;
 import org.junit.jupiter.api.Test;
