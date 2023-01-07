@@ -4,9 +4,9 @@ import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.test.lifecycle.di.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.lifecycle.di.qualifiers.RamSize;
-import com.github.klee0kai.test.lifecycle.structure.Battery;
-import com.github.klee0kai.test.lifecycle.structure.DataStorage;
-import com.github.klee0kai.test.lifecycle.structure.Ram;
+import com.github.klee0kai.test.tech.components.Battery;
+import com.github.klee0kai.test.tech.components.DataStorage;
+import com.github.klee0kai.test.tech.components.Ram;
 
 
 @Module

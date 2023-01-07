@@ -5,10 +5,10 @@ import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
-import com.github.klee0kai.test.inject.Horse;
-import com.github.klee0kai.test.inject.Mowgli;
-import com.github.klee0kai.test.inject.School;
-import com.github.klee0kai.test.inject.Snake;
+import com.github.klee0kai.test.mowgli.animal.Horse;
+import com.github.klee0kai.test.mowgli.animal.Mowgli;
+import com.github.klee0kai.test.mowgli.School;
+import com.github.klee0kai.test.mowgli.animal.Snake;
 
 @Component
 public interface ForestComponent extends IComponent {

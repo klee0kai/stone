@@ -2,9 +2,9 @@ package com.github.klee0kai.test.inject.di;
 
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.inject.forest.Blood;
-import com.github.klee0kai.test.inject.forest.Earth;
-import com.github.klee0kai.test.inject.forest.History;
+import com.github.klee0kai.test.mowgli.body.Blood;
+import com.github.klee0kai.test.mowgli.world.Earth;
+import com.github.klee0kai.test.mowgli.world.History;
 
 import java.awt.*;
 

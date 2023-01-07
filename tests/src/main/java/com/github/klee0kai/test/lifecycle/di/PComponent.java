@@ -2,8 +2,8 @@ package com.github.klee0kai.test.lifecycle.di;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
-import com.github.klee0kai.test.lifecycle.GoodPhone;
-import com.github.klee0kai.test.lifecycle.OnePhone;
+import com.github.klee0kai.test.tech.phone.GoodPhone;
+import com.github.klee0kai.test.tech.phone.OnePhone;
 import com.github.klee0kai.test.lifecycle.di.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.lifecycle.di.qualifiers.RamSize;
 

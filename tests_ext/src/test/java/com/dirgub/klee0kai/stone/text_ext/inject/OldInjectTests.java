@@ -1,9 +1,9 @@
 
 package com.dirgub.klee0kai.stone.text_ext.inject;
 
-import com.github.klee0kai.test.inject.Horse;
+import com.github.klee0kai.test.mowgli.animal.Horse;
 import com.github.klee0kai.test_ext.inject.OldForest;
-import com.github.klee0kai.test_ext.inject.OldHorse;
+import com.github.klee0kai.test_ext.inject.mowgli.OldHorse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
