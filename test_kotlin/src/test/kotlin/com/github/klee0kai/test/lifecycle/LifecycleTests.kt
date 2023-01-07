@@ -1,57 +1,38 @@
 package com.github.klee0kai.test.lifecycle
 
-import com.github.klee0kai.test.lifecycle.di.qualifier.DataStorageSize
-import com.github.klee0kai.test.lifecycle.di.qualifier.RamSize
-import org.junit.jupiter.api.Assertions
+import com.github.klee0kai.test.tech.phone.OnePhone
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class LifecycleTests {
     @Test
-    @Throws(InterruptedException::class)
-    fun onePhoneTest() {
+    fun onePhoneInjectTest() {
+        //When
         val onePhone = OnePhone()
         onePhone.buy()
 
+        //Then
         assertNotNull(onePhone.battery)
         assertNotNull(onePhone.dataStorage)
         assertNotNull(onePhone.ram)
+    }
 
-        //check simple broke
-        var batteryRef = WeakReference(onePhone.battery)
-        var dataStorageRef = WeakReference(onePhone.dataStorage)
-        var ramRef = WeakReference(onePhone.ram)
+    @Test
+    fun onePhoneBrokeTest() {
+        //Given
+        val onePhone = OnePhone()
+        onePhone.buy()
+        val batteryRef = WeakReference(onePhone.battery)
+        val dataStorageRef = WeakReference(onePhone.dataStorage)
+        val ramRef = WeakReference(onePhone.ram)
 
+        //When
         onePhone.broke()
         System.gc()
         onePhone.repair()
 
-        assertNull(batteryRef.get())
-        assertNull(dataStorageRef.get())
-        assertNull(ramRef.get())
-
-        //check drown (little alive time)
-        batteryRef = WeakReference(onePhone.battery)
-        dataStorageRef = WeakReference(onePhone.dataStorage)
-        ramRef = WeakReference(onePhone.ram)
-
-        assertNotNull(batteryRef.get())
-        assertNotNull(dataStorageRef.get())
-        assertNotNull(ramRef.get())
-
-        onePhone.drown()
-        System.gc()
-        assertNotNull(batteryRef.get())
-        assertNotNull(dataStorageRef.get())
-        assertNotNull(ramRef.get())
-        assertNull(onePhone.battery)
-        assertNull(onePhone.dataStorage)
-        assertNull(onePhone.ram)
-
-
-        Thread.sleep(120)
-        System.gc()
+        //Then: Need new details for repair phone. Old components collected  by GC
         assertNull(batteryRef.get())
         assertNull(dataStorageRef.get())
         assertNull(ramRef.get())
@@ -59,28 +40,71 @@ class LifecycleTests {
 
     @Test
     @Throws(InterruptedException::class)
-    fun goodPhoneTest() {
-        val goodPhone = GoodPhone(DataStorageSize("120GB"), RamSize("8GB"))
-        goodPhone.buy()
+    fun onePhoneDropWatterTest() {
+        //Given
+        val onePhone = OnePhone()
+        onePhone.buy()
+        val batteryRef = WeakReference(onePhone.battery)
+        val dataStorageRef = WeakReference(onePhone.dataStorage)
+        val ramRef = WeakReference(onePhone.ram)
 
-        assertNotNull(goodPhone.battery)
-        assertNotNull(goodPhone.dataStorage)
-        assertNotNull(goodPhone.ram)
-        assertEquals("120GB", goodPhone.dataStorage!!.size)
-        assertEquals("8GB", goodPhone.ram!!.size)
-
-        val ramUuid = goodPhone.dataStorage!!.uuid
-        goodPhone.drown()
-        Thread.sleep(10)
+        //When
+        onePhone.dropToWatter()
         System.gc()
-        goodPhone.repair()
-        assertEquals(ramUuid, goodPhone.dataStorage!!.uuid)
 
+        //Then: Phone not link with his components
+        assertNull(onePhone.battery)
+        assertNull(onePhone.dataStorage)
+        assertNull(onePhone.ram)
 
-        goodPhone.drown()
+        //Then: Phone components is alive little time.
+        assertNotNull(batteryRef.get())
+        assertNotNull(dataStorageRef.get())
+        assertNotNull(ramRef.get())
+
+        //When: After little time
         Thread.sleep(120)
         System.gc()
-        goodPhone.repair()
-        assertNotEquals(ramUuid, goodPhone.dataStorage!!.uuid)
+
+        //Then: Phone can not be repaired, components lost
+        assertNull(batteryRef.get())
+        assertNull(dataStorageRef.get())
+        assertNull(ramRef.get())
+    }
+
+    @Test
+    @Throws(InterruptedException::class)
+    fun onePhoneDrownedRepairTest() {
+        //Given
+        val onePhone = OnePhone()
+        onePhone.buy()
+        val ramUuid = onePhone.dataStorage.uuid
+
+        //When
+        onePhone.dropToWatter()
+        Thread.sleep(10)
+        System.gc()
+        onePhone.repair()
+
+        //Then: Can be repair after little time
+        assertEquals(ramUuid, onePhone.dataStorage.uuid)
+    }
+
+    @Test
+    @Throws(InterruptedException::class)
+    fun onePhoneDeepDrownedRepairTest() {
+        //Given
+        val onePhone = OnePhone()
+        onePhone.buy()
+        val ramUuid = onePhone.dataStorage.uuid
+
+        //When
+        onePhone.dropToWatter()
+        Thread.sleep(120)
+        System.gc()
+        onePhone.repair()
+
+        //Then: Can not be repair without new details
+        assertNotEquals(ramUuid, onePhone.dataStorage.uuid)
     }
 }

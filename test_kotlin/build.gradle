@@ -18,6 +18,8 @@ compileTestKotlin {
 
 
 dependencies {
+    implementation project(":tests")
+
     implementation(project(":stone_lib"))
     kapt(project(":stone_processor"))
 
