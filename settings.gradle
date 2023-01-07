@@ -17,10 +17,9 @@ dependencyResolutionManagement {
 rootProject.name = 'Stone'
 include 'stone_lib'
 include 'stone_processor'
-include 'sample_example'
-include 'sample_example_ext'
+include 'android_lib'
+
 include 'tests'
 include 'tests_ext'
-
-include ':android_lib'
+include 'test_kotlin'
 

@@ -109,7 +109,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 injectMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
                         && m.bindInstanceAnnotation == null && m.switchCacheAnnotation == null;
                 TypeName typeName = injectMethod ? m.args.get(0).type : null;
-                injectMethod &= typeName != null && !allClassesHelper.iComponentClassDetails.haveMethod(m, true);
+                injectMethod &= typeName != null && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
                 if (injectMethod) componentBuilder.injectMethod(m.methodName, m.args);
             }
 
@@ -120,7 +120,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                         && m.protectInjectedAnnotation != null;
                 protectInjectMethod &= m.provideAnnotation == null && m.bindInstanceAnnotation == null && m.switchCacheAnnotation == null;
                 TypeName typeName = protectInjectMethod ? m.args.get(0).type : null;
-                protectInjectMethod &= typeName != null && !allClassesHelper.iComponentClassDetails.haveMethod(m, true);
+                protectInjectMethod &= typeName != null && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
                 if (protectInjectMethod) {
                     ClassDetail injCl = allClassesHelper.findForType(typeName);
                     if (injCl != null) componentBuilder.protectInjected(m.methodName, injCl,

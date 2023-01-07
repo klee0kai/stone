@@ -22,6 +22,13 @@ public class FieldDetail {
         return fieldDetail;
     }
 
+    public static FieldDetail simple(String name, TypeName typeName) {
+        FieldDetail fieldDetail = new FieldDetail();
+        fieldDetail.type = typeName;
+        fieldDetail.name = name;
+        return fieldDetail;
+    }
+
 
     @Override
     public boolean equals(Object o) {
