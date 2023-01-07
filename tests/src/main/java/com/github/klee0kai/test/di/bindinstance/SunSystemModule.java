@@ -3,13 +3,13 @@ package com.github.klee0kai.test.di.bindinstance;
 
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.test.mowgli.world.Earth;
-import com.github.klee0kai.test.mowgli.world.IPlanet;
-import com.github.klee0kai.test.mowgli.world.Saturn;
-import com.github.klee0kai.test.mowgli.world.Sun;
+import com.github.klee0kai.test.mowgli.galaxy.Earth;
+import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
+import com.github.klee0kai.test.mowgli.galaxy.Saturn;
+import com.github.klee0kai.test.mowgli.galaxy.Sun;
 
 @Module
-public interface WorldModule {
+public interface SunSystemModule {
 
     @BindInstance
     Sun sun();

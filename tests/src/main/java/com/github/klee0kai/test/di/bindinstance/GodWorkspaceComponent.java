@@ -6,6 +6,6 @@ import com.github.klee0kai.stone.interfaces.IComponent;
 @Component
 public interface GodWorkspaceComponent extends IComponent {
 
-    WorldModule world();
+    SunSystemModule sunSystem();
 
 }

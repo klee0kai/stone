@@ -2,15 +2,14 @@ package com.github.klee0kai.stone.test.bindinstance;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.bindinstance.GodWorkspaceComponent;
-import com.github.klee0kai.test.mowgli.world.Earth;
-import com.github.klee0kai.test.mowgli.world.Saturn;
-import com.github.klee0kai.test.mowgli.world.Sun;
+import com.github.klee0kai.test.mowgli.galaxy.Earth;
+import com.github.klee0kai.test.mowgli.galaxy.Saturn;
+import com.github.klee0kai.test.mowgli.galaxy.Sun;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class GodFirstDayTest {
+public class GodFirstWorkDayTest {
 
     @Test
     public void firstCreateSunTest() {
@@ -22,8 +21,8 @@ public class GodFirstDayTest {
         DI.bind(sun);
 
         //Then
-        assertEquals(sun.uuid, DI.world().sun().uuid);
-        assertNull(DI.world().earth());
+        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
+        assertNull(DI.sunSystem().earth());
     }
 
 
@@ -38,9 +37,9 @@ public class GodFirstDayTest {
         DI.bind(sun, earth);
 
         //Then
-        assertEquals(sun.uuid, DI.world().sun().uuid);
-        assertEquals(earth.uuid, DI.world().earth().uuid);
-        assertNull(DI.world().planet());
+        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
+        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
+        assertNull(DI.sunSystem().planet());
     }
 
 
@@ -53,13 +52,13 @@ public class GodFirstDayTest {
         Saturn saturn = new Saturn();
 
         //When
-        DI.bind(sun, earth,saturn);
+        DI.bind(sun, earth, saturn);
 
         //Then
-        assertEquals(sun.uuid, DI.world().sun().uuid);
-        assertEquals(earth.uuid, DI.world().earth().uuid);
-        assertEquals(saturn.uuid, DI.world().saturn().uuid);
-        assertNull(DI.world().planet());
+        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
+        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
+        assertEquals(saturn.uuid, DI.sunSystem().saturn().uuid);
+        assertNull(DI.sunSystem().planet());
     }
 
 
@@ -77,11 +76,12 @@ public class GodFirstDayTest {
         DI.bind(sun);
 
         //Then
-        assertEquals(sun.uuid, DI.world().sun().uuid);
-        assertEquals(earth.uuid, DI.world().earth().uuid);
-        assertEquals(saturn.uuid, DI.world().saturn().uuid);
-        assertNull(DI.world().planet());
+        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
+        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
+        assertEquals(saturn.uuid, DI.sunSystem().saturn().uuid);
+        assertNull(DI.sunSystem().planet());
     }
+
 
 
 }

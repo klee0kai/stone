@@ -2,7 +2,7 @@ package com.github.klee0kai.stone.test.inject;
 
 import com.github.klee0kai.test.mowgli.Forest;
 import com.github.klee0kai.test.mowgli.animal.Horse;
-import com.github.klee0kai.test.mowgli.world.History;
+import com.github.klee0kai.test.mowgli.community.History;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;

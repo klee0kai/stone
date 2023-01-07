@@ -4,8 +4,8 @@ import com.github.klee0kai.stone.types.IRef;
 import com.github.klee0kai.stone.types.LazyProvide;
 import com.github.klee0kai.stone.types.PhantomProvide;
 import com.github.klee0kai.test.mowgli.body.Blood;
-import com.github.klee0kai.test.mowgli.world.Earth;
-import com.github.klee0kai.test.mowgli.world.History;
+import com.github.klee0kai.test.mowgli.galaxy.Earth;
+import com.github.klee0kai.test.mowgli.community.History;
 import com.github.klee0kai.test.mowgli.identity.Conscience;
 import com.github.klee0kai.test.mowgli.identity.Knowledge;
 

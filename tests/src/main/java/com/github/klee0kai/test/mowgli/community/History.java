@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.mowgli.world;
+package com.github.klee0kai.test.mowgli.community;
 
 import java.util.UUID;
 
