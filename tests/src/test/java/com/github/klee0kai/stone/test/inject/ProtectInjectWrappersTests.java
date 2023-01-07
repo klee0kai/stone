@@ -2,8 +2,8 @@ package com.github.klee0kai.stone.test.inject;
 
 import com.github.klee0kai.test.mowgli.Forest;
 import com.github.klee0kai.test.mowgli.School;
-import com.github.klee0kai.test.mowgli.identity.Knowledge;
 import com.github.klee0kai.test.mowgli.community.History;
+import com.github.klee0kai.test.mowgli.identity.Knowledge;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;

@@ -3,11 +3,11 @@ package com.github.klee0kai.test.tech.phone;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleListener;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.github.klee0kai.test.tech.PhoneStore;
-import com.github.klee0kai.test.tech.phone.base.APhone;
-import com.github.klee0kai.test.tech.phone.base.APhoneLifecycle;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.Ram;
+import com.github.klee0kai.test.tech.phone.base.APhone;
+import com.github.klee0kai.test.tech.phone.base.APhoneLifecycle;
 
 import javax.inject.Inject;
 

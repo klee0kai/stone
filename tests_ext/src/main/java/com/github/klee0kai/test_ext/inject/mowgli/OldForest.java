@@ -1,8 +1,8 @@
-package com.github.klee0kai.test_ext.inject;
+package com.github.klee0kai.test_ext.inject.mowgli;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.mowgli.Forest;
-import com.github.klee0kai.test_ext.inject.di.OldForestComponent;
+import com.github.klee0kai.test_ext.inject.di.forest.OldForestComponent;
 
 public class OldForest extends Forest {
 

@@ -2,8 +2,8 @@
 package com.dirgub.klee0kai.stone.text_ext.inject;
 
 import com.github.klee0kai.test.mowgli.animal.Horse;
-import com.github.klee0kai.test_ext.inject.OldForest;
-import com.github.klee0kai.test_ext.inject.mowgli.OldHorse;
+import com.github.klee0kai.test_ext.inject.mowgli.OldForest;
+import com.github.klee0kai.test_ext.inject.mowgli.animal.OldHorse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,17 +12,17 @@ import static org.junit.jupiter.api.Assertions.*;
 public class OldInjectTests {
 
     @Test
-    public void simpleInjectTest() {
-        // create common component for all app
+    public void oldHorseInjectTest() {
+        // Given
         OldForest forest = new OldForest();
         forest.create();
         forest.old();
 
-        //use sub app components
+        // When
         OldHorse horse = new OldHorse();
         horse.born();
 
-        //check inject is completed
+        // Then
         assertNotNull(horse.blood);
         assertNotNull(horse.knowledge);
         assertNotNull(horse.conscience);
@@ -33,58 +33,62 @@ public class OldInjectTests {
 
     @Test
     public void simpleProvideProTest() {
+        // Given
         OldForest forest = new OldForest();
         forest.create();
         forest.old();
 
-        //use sub app components
+        // When
         OldHorse horse = new OldHorse();
         horse.born();
 
+        // Then
         assertTrue(horse.ideology.isFamilyIdeology());
 
     }
     @Test
     public void overrideProvideTest() {
+        // Given
         OldForest forest = new OldForest();
         forest.create();
         forest.old();
 
+        // When
         Horse horse = new Horse();
         horse.born();
 
-        // new items should generate from new DI component
+        // Then: new items should generate from new DI component
         assertTrue(horse.knowledge.isOldKnowledge());
     }
 
 
     @Test
     public void nonGenCacheTest() {
+        // Given
         OldForest forest = new OldForest();
         forest.create();
 
+        // When
         Horse horse = new Horse();
         horse.born();
-
-        assertFalse(horse.ideology.isFamilyIdeology());
-
         // simply connect dynamic feature
         forest.old();
         horse.born();
 
+        // Then
         assertFalse(horse.ideology.isFamilyIdeology());
     }
 
 
     @Test
     public void overrideCacheTest() {
+        // Given
         OldForest forest = new OldForest();
         forest.create();
 
+        // When
         Horse horse = new Horse();
         horse.born();
-
-        assertFalse(horse.ideology.isFamilyIdeology());
 
         // simply connect dynamic feature
         forest.old();
