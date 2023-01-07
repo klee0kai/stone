@@ -2,6 +2,7 @@ package com.github.klee0kai.test.tech.phone;
 
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.github.klee0kai.test.tech.PhoneStore;
+import com.github.klee0kai.test.tech.components.OperationSystem;
 import com.github.klee0kai.test.tech.phone.base.APhone;
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
@@ -27,10 +28,14 @@ public class GoodPhone extends APhone {
     @Inject
     public Ram ram;
 
+    @Inject
+    public OperationSystem os;
+
     public GoodPhone(DataStorageSize dataStorageSize, RamSize ramSize) {
         this.dataStorageSize = dataStorageSize;
         this.ramSize = ramSize;
     }
+
 
     public void buy() {
         onBuy();

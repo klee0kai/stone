@@ -10,9 +10,9 @@ import com.github.klee0kai.test.tech.phone.OnePhone;
 @Component(
         qualifiers = {DataStorageSize.class, RamSize.class}
 )
-public interface PComponent {
+public interface PhoneComponent {
 
-    Structure structure();
+    TechModule components();
 
     void inject(OnePhone onePhone);
 
