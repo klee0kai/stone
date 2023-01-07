@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.test.inject;
 
-import com.github.klee0kai.test.inject.Forest;
+import com.github.klee0kai.test.mowgli.Forest;
 import com.github.klee0kai.test.mowgli.animal.Horse;
 import com.github.klee0kai.test.mowgli.School;
 import com.github.klee0kai.test.mowgli.world.History;

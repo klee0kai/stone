@@ -9,7 +9,7 @@ import com.github.klee0kai.test.mowgli.identity.Knowledge;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import static com.github.klee0kai.test.inject.Forest.DI;
+import static com.github.klee0kai.test.mowgli.Forest.DI;
 
 public class School {
 

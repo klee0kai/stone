@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.lifecycle.di.qualifiers;
+package com.github.klee0kai.test.di.base_phone.qualifiers;
 
 import java.util.Objects;
 

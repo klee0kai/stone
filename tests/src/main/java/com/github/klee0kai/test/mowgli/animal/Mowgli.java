@@ -14,7 +14,7 @@ import javax.inject.Provider;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
-import static com.github.klee0kai.test.inject.Forest.DI;
+import static com.github.klee0kai.test.mowgli.Forest.DI;
 
 public class Mowgli implements IAnimal {
 

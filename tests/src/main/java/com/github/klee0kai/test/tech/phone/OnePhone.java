@@ -2,7 +2,7 @@ package com.github.klee0kai.test.tech.phone;
 
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleListener;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
-import com.github.klee0kai.test.lifecycle.PhoneStore;
+import com.github.klee0kai.test.tech.PhoneStore;
 import com.github.klee0kai.test.tech.phone.base.APhone;
 import com.github.klee0kai.test.tech.phone.base.APhoneLifecycle;
 import com.github.klee0kai.test.tech.components.Battery;

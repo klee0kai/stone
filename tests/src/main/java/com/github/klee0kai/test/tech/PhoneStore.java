@@ -1,7 +1,7 @@
-package com.github.klee0kai.test.lifecycle;
+package com.github.klee0kai.test.tech;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.lifecycle.di.PComponent;
+import com.github.klee0kai.test.di.base_phone.PComponent;
 
 public class PhoneStore {
 

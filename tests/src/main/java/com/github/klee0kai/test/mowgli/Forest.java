@@ -1,7 +1,7 @@
-package com.github.klee0kai.test.inject;
+package com.github.klee0kai.test.mowgli;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.inject.di.ForestComponent;
+import com.github.klee0kai.test.di.base_forest.ForestComponent;
 
 public class Forest {
 

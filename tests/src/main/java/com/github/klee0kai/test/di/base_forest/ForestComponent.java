@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.inject.di;
+package com.github.klee0kai.test.di.base_forest;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
