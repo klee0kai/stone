@@ -1,12 +1,9 @@
 package com.github.klee0kai.stone.test.lifecycle;
 
-import com.github.klee0kai.test.tech.phone.GoodPhone;
-import com.github.klee0kai.test.tech.phone.OnePhone;
-import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
-import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.Ram;
+import com.github.klee0kai.test.tech.phone.OnePhone;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;
@@ -17,86 +14,105 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class LifecycleTests {
 
-
     @Test
-    public void onePhoneTest() throws InterruptedException {
+    public void onePhoneInjectTest() {
+        //When
         OnePhone onePhone = new OnePhone();
         onePhone.buy();
 
+        //Then
         assertNotNull(onePhone.battery);
         assertNotNull(onePhone.dataStorage);
         assertNotNull(onePhone.ram);
+    }
 
-        //check simple broke
+    @Test
+    public void onePhoneBrokeTest() {
+        //Given
+        OnePhone onePhone = new OnePhone();
+        onePhone.buy();
         WeakReference<Battery> batteryRef = new WeakReference<>(onePhone.battery);
         WeakReference<DataStorage> dataStorageRef = new WeakReference<>(onePhone.dataStorage);
         WeakReference<Ram> ramRef = new WeakReference<>(onePhone.ram);
 
+        //When
         onePhone.broke();
         System.gc();
         onePhone.repair();
 
-
-        assertNull(batteryRef.get());
-        assertNull(dataStorageRef.get());
-        assertNull(ramRef.get());
-
-        //check drown (little alive time)
-        batteryRef = new WeakReference<>(onePhone.battery);
-        dataStorageRef = new WeakReference<>(onePhone.dataStorage);
-        ramRef = new WeakReference<>(onePhone.ram);
-
-        assertNotNull(batteryRef.get());
-        assertNotNull(dataStorageRef.get());
-        assertNotNull(ramRef.get());
-
-        onePhone.drown();
-        System.gc();
-
-        assertNotNull(batteryRef.get());
-        assertNotNull(dataStorageRef.get());
-        assertNotNull(ramRef.get());
-        assertNull(onePhone.battery);
-        assertNull(onePhone.dataStorage);
-        assertNull(onePhone.ram);
-
-        Thread.sleep(120);
-
-        System.gc();
-
+        //Then: Need new details for repair phone. Old components collected  by GC
         assertNull(batteryRef.get());
         assertNull(dataStorageRef.get());
         assertNull(ramRef.get());
     }
 
     @Test
-    public void goodPhoneTest() throws InterruptedException {
-        GoodPhone goodPhone = new GoodPhone(new DataStorageSize("120GB"), new RamSize("8GB"));
-        goodPhone.buy();
+    public void onePhoneDropWatterTest() throws InterruptedException {
+        //Given
+        OnePhone onePhone = new OnePhone();
+        onePhone.buy();
+        WeakReference<Battery> batteryRef = new WeakReference<>(onePhone.battery);
+        WeakReference<DataStorage> dataStorageRef = new WeakReference<>(onePhone.dataStorage);
+        WeakReference<Ram> ramRef = new WeakReference<>(onePhone.ram);
 
-
-        assertNotNull(goodPhone.battery);
-        assertNotNull(goodPhone.dataStorage);
-        assertNotNull(goodPhone.ram);
-
-        assertEquals("120GB", goodPhone.dataStorage.size);
-        assertEquals("8GB", goodPhone.ram.size);
-
-        UUID ramUuid = goodPhone.dataStorage.uuid;
-
-
-        goodPhone.drown();
-        Thread.sleep(10);
+        //When
+        onePhone.dropToWatter();
         System.gc();
-        goodPhone.repair();
-        assertEquals(ramUuid, goodPhone.dataStorage.uuid);
 
+        //Then: Phone not link with his components
+        assertNull(onePhone.battery);
+        assertNull(onePhone.dataStorage);
+        assertNull(onePhone.ram);
 
-        goodPhone.drown();
+        //Then: Phone components is alive little time.
+        assertNotNull(batteryRef.get());
+        assertNotNull(dataStorageRef.get());
+        assertNotNull(ramRef.get());
+
+        //When: After little time
         Thread.sleep(120);
         System.gc();
-        goodPhone.repair();
-        assertNotEquals(ramUuid, goodPhone.dataStorage.uuid);
 
+        //Then: Phone can not be repaired, components lost
+        assertNull(batteryRef.get());
+        assertNull(dataStorageRef.get());
+        assertNull(ramRef.get());
     }
+
+
+    @Test
+    public void onePhoneDrownedRepairTest() throws InterruptedException {
+        //Given
+        OnePhone onePhone = new OnePhone();
+        onePhone.buy();
+        UUID ramUuid = onePhone.dataStorage.uuid;
+
+        //When
+        onePhone.dropToWatter();
+        Thread.sleep(10);
+        System.gc();
+        onePhone.repair();
+
+        //Then: Can be repair after little time
+        assertEquals(ramUuid, onePhone.dataStorage.uuid);
+    }
+
+
+    @Test
+    public void onePhoneDeepDrownedRepairTest() throws InterruptedException {
+        //Given
+        OnePhone onePhone = new OnePhone();
+        onePhone.buy();
+        UUID ramUuid = onePhone.dataStorage.uuid;
+
+        //When
+        onePhone.dropToWatter();
+        Thread.sleep(120);
+        System.gc();
+        onePhone.repair();
+
+        //Then: Can not be repair without new details
+        assertNotEquals(ramUuid, onePhone.dataStorage.uuid);
+    }
+
 }

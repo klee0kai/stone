@@ -47,7 +47,7 @@ public class OnePhone extends APhone implements IStoneLifeCycleOwner {
     }
 
 
-    public void drown() {
+    public void dropToWatter() {
         onDrown();
         battery = null;
         dataStorage = null;
