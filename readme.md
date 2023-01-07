@@ -1,6 +1,6 @@
 # Stone
 
-![](https://github.com/klee0kai/stone/actions/workflows/deploy_master.yml/badge.svg)
+[![](https://github.com/klee0kai/stone/actions/workflows/deploy_master.yml/badge.svg)](https://github.com/klee0kai/stone/actions/workflows/deploy_master.yml)
 ![](https://img.shields.io/badge/license-GNU_GPLv3-blue.svg?style=flat-square)
 [![](https://jitpack.io/v/klee0kai/stone.svg)](https://jitpack.io/#klee0kai/stone)
 
