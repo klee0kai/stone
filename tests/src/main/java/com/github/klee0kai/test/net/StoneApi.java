@@ -4,6 +4,11 @@ import com.github.klee0kai.test.qualifiers.di.qualifiers.ProductType;
 
 import java.util.UUID;
 
+/**
+ * @deprecated Develop models centrally.
+ * Available forest, tech models
+ */
+@Deprecated
 public class StoneApi {
 
     public String apiUrl = null;
