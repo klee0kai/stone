@@ -6,33 +6,34 @@ import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope;
 import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope;
 
 @Component
-public interface GcGodComponent extends IComponent, IGcEarthComponent {
+public abstract class GcGodComponent extends GcEarthComponent implements IComponent {
 
-    GcSunSystemModule sunSystem();
+    public abstract GcSunSystemModule sunSystem();
 
-    GcEarthModule earth();
+    public abstract GcEarthModule earth();
 
     @GcAllScope
-    void gcAll();
+    public abstract void gcAll();
 
     @GcStrongScope
-    void gcStrong();
+    public abstract void gcStrong();
 
     @GcSoftScope
-    void gcSoft();
+    public abstract void gcSoft();
 
     @GcWeakScope
-    void gcWeak();
+    public abstract void gcWeak();
 
 
     @GcSunScope
-    void gcSun();
+    public abstract void gcSun();
 
     @GcPlanetScope
-    void gcPlanets();
+    public abstract void gcPlanets();
 
-    @GcSunScope
-    @GcPlanetScope
-    void gcSunAndPlanets();
+    public void gcSunAndPlanets() {
+        gcSun();
+        gcPlanets();
+    }
 
 }

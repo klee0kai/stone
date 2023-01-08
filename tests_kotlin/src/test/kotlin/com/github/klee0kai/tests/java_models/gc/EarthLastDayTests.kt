@@ -211,4 +211,66 @@ class EarthLastDayTests {
             assertNull(ref.get())
         }
     }
+
+    @Test
+    fun gcSoftMountainTest() {
+        //Given
+        val di = Stone.createComponent(GcGodComponent::class.java)
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
+
+        //When
+        di.gcSoftMountains()
+
+        //Then
+        for (ref in Arrays.asList(
+            mountainSoft, mountainWeak, mountainDef,
+            riverWeak
+        )) {
+            assertNull(ref.get())
+        }
+        for (ref in Arrays.asList(
+            mountainStrong,
+            riverStrong, riverSoft, riverDef
+        )) {
+            assertNotNull(ref.get())
+        }
+    }
+
+    @Test
+    fun gcStrongMountainTest() {
+        //Given
+        val di = Stone.createComponent(GcGodComponent::class.java)
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
+
+        //When
+        di.gcStrongMountains()
+
+        //Then
+        for (ref in Arrays.asList(
+            mountainStrong, mountainWeak,
+            riverWeak
+        )) {
+            assertNull(ref.get())
+        }
+        for (ref in Arrays.asList(
+            mountainSoft, mountainDef,
+            riverStrong, riverSoft, riverDef
+        )) {
+            assertNotNull(ref.get())
+        }
+    }
 }

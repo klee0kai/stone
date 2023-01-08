@@ -74,7 +74,9 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             // implement as module method
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
-                boolean provideModuleMethod = !m.returnType.isPrimitive() && !m.returnType.isBoxedPrimitive() && m.returnType != TypeName.VOID;
+                boolean provideModuleMethod = !m.returnType.isPrimitive()
+                        && !m.returnType.isBoxedPrimitive()
+                        && m.returnType != TypeName.VOID;
                 provideModuleMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
                         && m.bindInstanceAnnotation == null && m.switchCacheAnnotation == null;
                 if (provideModuleMethod)
@@ -85,16 +87,20 @@ public class AnnotationProcessor extends AbstractProcessor {
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
                 boolean isGcMethod = !m.gcScopeAnnotations.isEmpty();
                 isGcMethod &= m.returnType == TypeName.VOID;
-                isGcMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
-                        && m.bindInstanceAnnotation == null && m.switchCacheAnnotation == null;
+                isGcMethod &= m.protectInjectedAnnotation == null
+                        && m.provideAnnotation == null
+                        && m.bindInstanceAnnotation == null
+                        && m.switchCacheAnnotation == null;
 
                 if (isGcMethod) componentBuilder.gcMethod(m.methodName, m.gcScopeAnnotations);
             }
 
             // implement switch cache type
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
-                boolean switchCacheMethod = m.returnType == TypeName.VOID && m.switchCacheAnnotation != null && !m.gcScopeAnnotations.isEmpty();
-                ;
+                boolean switchCacheMethod = m.returnType == TypeName.VOID
+                        && m.switchCacheAnnotation != null
+                        && !m.gcScopeAnnotations.isEmpty();
+
                 switchCacheMethod &= (m.args == null || m.args.isEmpty());
                 switchCacheMethod &= m.provideAnnotation == null && m.bindInstanceAnnotation == null;
 
@@ -106,10 +112,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             //  implement as inject method
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
                 boolean injectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() >= 1;
-                injectMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
-                        && m.bindInstanceAnnotation == null && m.switchCacheAnnotation == null;
+                injectMethod &= m.protectInjectedAnnotation == null
+                        && m.provideAnnotation == null
+                        && m.bindInstanceAnnotation == null
+                        && m.switchCacheAnnotation == null;
                 TypeName typeName = injectMethod ? m.args.get(0).type : null;
-                injectMethod &= typeName != null && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
+                injectMethod &= typeName != null
+                        && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
                 if (injectMethod) componentBuilder.injectMethod(m.methodName, m.args);
             }
 
@@ -118,9 +127,12 @@ public class AnnotationProcessor extends AbstractProcessor {
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
                 boolean protectInjectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1
                         && m.protectInjectedAnnotation != null;
-                protectInjectMethod &= m.provideAnnotation == null && m.bindInstanceAnnotation == null && m.switchCacheAnnotation == null;
+                protectInjectMethod &= m.provideAnnotation == null
+                        && m.bindInstanceAnnotation == null
+                        && m.switchCacheAnnotation == null;
                 TypeName typeName = protectInjectMethod ? m.args.get(0).type : null;
-                protectInjectMethod &= typeName != null && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
+                protectInjectMethod &= typeName != null
+                        && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
                 if (protectInjectMethod) {
                     ClassDetail injCl = allClassesHelper.findForType(typeName);
                     if (injCl != null) componentBuilder.protectInjected(m.methodName, injCl,

@@ -88,14 +88,25 @@ public class ComponentBuilder {
 
     public ComponentBuilder timeHolderFields() {
         if (!fields.containsKey(scheduleGlFieldName))
-            fields.put(scheduleGlFieldName, FieldSpec.builder(TimeScheduler.class, scheduleGlFieldName, Modifier.PRIVATE, Modifier.FINAL).initializer("new $T()", TimeScheduler.class));
+            fields.put(
+                    scheduleGlFieldName,
+                    FieldSpec.builder(TimeScheduler.class, scheduleGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                            .initializer("new $T()", TimeScheduler.class)
+            );
         if (!fields.containsKey(refCollectionGlFieldName))
-            fields.put(refCollectionGlFieldName, FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL).initializer("new $T()", RefCollection.class));
+            fields.put(
+                    refCollectionGlFieldName,
+                    FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                            .initializer("new $T()", RefCollection.class)
+            );
         return this;
     }
 
     public ComponentBuilder initMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(initMethodName).addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC).addParameter(Object[].class, "modules").varargs(true);
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(initMethodName)
+                .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
+                .addParameter(Object[].class, "modules")
+                .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
         iComponentMethods.put(initMethodName, builder);
@@ -108,7 +119,10 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder bindMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName).addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC).addParameter(Object[].class, "objects").varargs(true);
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
+                .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
+                .addParameter(Object[].class, "objects")
+                .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
         iComponentMethods.put(bindMethodName, builder);
@@ -120,7 +134,9 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder extOfMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(extOfMethodName).addModifiers(Modifier.PUBLIC).addParameter(IComponent.class, "c");
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(extOfMethodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(IComponent.class, "c");
         if (override) builder.addAnnotation(Override.class);
 
         for (ClassDetail par : orComponentCl.getAllParents(false)) {
@@ -140,7 +156,11 @@ public class ComponentBuilder {
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
         ClassName moduleStoneMirror = ClassNameUtils.genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE).initializer("new $T()", moduleStoneMirror));
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name).addAnnotation(Override.class).addModifiers(Modifier.PUBLIC).returns(moduleStoneMirror).addStatement("return this.$L", name);
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(moduleStoneMirror)
+                .addStatement("return this.$L", name);
         modulesMethods.put(name, builder);
 
         initModuleCode.addStatement("this.$L.init(m)", name);
@@ -151,7 +171,10 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder injectMethod(String name, List<FieldDetail> args) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name).addAnnotation(Override.class).addModifiers(Modifier.PUBLIC).returns(void.class);
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class);
         for (FieldDetail arg : args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
         List<FieldDetail> qFields = ListUtils.filter(args, (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
@@ -232,7 +255,11 @@ public class ComponentBuilder {
     public ComponentBuilder protectInjected(String name, ClassDetail injectableCl, long timeMillis) {
         timeHolderFields();
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name).addAnnotation(Override.class).addModifiers(Modifier.PUBLIC).addParameter(ParameterSpec.builder(injectableCl.className, "cl").build()).returns(void.class);
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(injectableCl.className, "cl").build()
+                ).returns(void.class);
 
         protectInjectedMethods.add(builder);
         collectRuns.add(() -> {
@@ -265,7 +292,16 @@ public class ComponentBuilder {
             if (inx++ <= 0) scopesCode.add("$T.class", sc);
             else scopesCode.add(", $T.class", sc);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name).addAnnotation(Override.class).addModifiers(Modifier.PUBLIC).returns(void.class).addCode("$T scopes = new $T($T.asList(", ParameterizedTypeName.get(Set.class, Class.class), ParameterizedTypeName.get(HashSet.class, Class.class), Arrays.class).addCode(scopesCode.build()).addStatement("))");
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addCode("$T scopes = new $T($T.asList(",
+                        ParameterizedTypeName.get(Set.class, Class.class),
+                        ParameterizedTypeName.get(HashSet.class, Class.class),
+                        Arrays.class)
+                .addCode(scopesCode.build())
+                .addStatement("))");
 
 
         gcMethods.add(builder);
@@ -285,15 +321,21 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder switchRefMethod(String name, SwitchCacheAnnotation switchCacheAnnotation, List<TypeName> gcScopes) {
-
-
         CodeBlock.Builder scopesCode = CodeBlock.builder();
         int inx = 0;
         for (TypeName sc : gcScopes)
             if (inx++ <= 0) scopesCode.add("$T.class", sc);
             else scopesCode.add(", $T.class", sc);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name).addAnnotation(Override.class).addModifiers(Modifier.PUBLIC).returns(void.class).addCode("$T scopes = new $T($T.asList(", ParameterizedTypeName.get(Set.class, Class.class), ParameterizedTypeName.get(HashSet.class, Class.class), Arrays.class).addCode(scopesCode.build()).addStatement("))");
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(void.class)
+                .addCode("$T scopes = new $T($T.asList(",
+                        ParameterizedTypeName.get(Set.class, Class.class),
+                        ParameterizedTypeName.get(HashSet.class, Class.class),
+                        Arrays.class).addCode(scopesCode.build())
+                .addStatement("))");
 
         builder.addStatement("$T cache = $T.$L", SwitchCache.CacheType.class, SwitchCache.CacheType.class, switchCacheAnnotation.cache.name());
         builder.addStatement("$T time = $L", long.class, switchCacheAnnotation.timeMillis);
