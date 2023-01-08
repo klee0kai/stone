@@ -49,7 +49,7 @@ public class ModuleBuilder {
     public final List<FieldSpec.Builder> cacheFields = new LinkedList<>();
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
 
-    public final HashMap<TypeName, CodeBlock.Builder> switchRefStatementBuilders = new HashMap<>();
+    public final HashMap<Set<TypeName>, CodeBlock.Builder> switchRefStatementBuilders = new HashMap<>();
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
@@ -70,13 +70,21 @@ public class ModuleBuilder {
                 builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
                 switch (m.bindInstanceAnnotation.cacheType) {
                     case Weak:
-                        builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class)));
+                        builder.switchRefFor(
+                                itemHolderCodeHelper,
+                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class)));
                         break;
                     case Soft:
-                        builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class)));
+                        builder.switchRefFor(
+                                itemHolderCodeHelper,
+                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class))
+                        );
                         break;
                     case Strong:
-                        builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class)));
+                        builder.switchRefFor(
+                                itemHolderCodeHelper,
+                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class))
+                        );
                         break;
                 }
             } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.Factory) {
@@ -89,13 +97,22 @@ public class ModuleBuilder {
                 builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
                 switch (cacheType) {
                     case Weak:
-                        builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class)));
+                        builder.switchRefFor(
+                                itemHolderCodeHelper,
+                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class))
+                        );
                         break;
                     case Soft:
-                        builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class)));
+                        builder.switchRefFor(
+                                itemHolderCodeHelper,
+                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class))
+                        );
                         break;
                     case Strong:
-                        builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class)));
+                        builder.switchRefFor(
+                                itemHolderCodeHelper,
+                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class))
+                        );
                         break;
                 }
             }
@@ -134,7 +151,7 @@ public class ModuleBuilder {
     public ModuleBuilder implementIModule() {
         interfaces.add(ClassName.get(IModule.class));
         for (ClassDetail parentModule : orModuleCl.getAllParents(false)) {
-            if (parentModule.moduleAnn!=null)
+            if (parentModule.moduleAnn != null)
                 interfaces.add(ClassNameUtils.genInterfaceModuleNameMirror(parentModule.className));
         }
 
@@ -230,28 +247,33 @@ public class ModuleBuilder {
         iModuleMethodBuilders.put(switchRefMethodName, builder);
 
         collectRuns.add(() -> {
-            builder.beginControlFlow("for ($T sc:scopes)", Class.class);
-            for (TypeName gcScope : switchRefStatementBuilders.keySet()) {
-                builder.beginControlFlow("if ($T.equals($T.class,sc))", Objects.class, gcScope)
-                        .addCode(switchRefStatementBuilders.get(gcScope).build())
+            for (Set<TypeName> gcScopes : switchRefStatementBuilders.keySet()) {
+                CodeBlock.Builder codeScopesList = CodeBlock.builder()
+                        .add("$T.asList(", Arrays.class);
+                int i = 0;
+                for (TypeName sc : gcScopes) {
+                    if (i++ > 0) codeScopesList.add(", ");
+                    codeScopesList.add("$T.class", sc);
+                }
+                codeScopesList.add(")");
+
+                builder.beginControlFlow("if ($L.containsAll(scopes))", codeScopesList.build())
+                        .addCode(switchRefStatementBuilders.get(gcScopes).build())
                         .endControlFlow();
             }
-            builder.endControlFlow();
         });
         return this;
     }
 
 
     public ModuleBuilder switchRefFor(ItemHolderCodeHelper fieldHelper, Set<TypeName> scopes) {
-        for (TypeName sc : scopes) {
-            switchRefStatementBuilders.putIfAbsent(sc, CodeBlock.builder());
-            switchRefStatementBuilders.get(sc).add(
-                    fieldHelper.statementSwitchRef(
-                            "cache",
-                            "scheduler",
-                            "time"
-                    ));
-        }
+        switchRefStatementBuilders.putIfAbsent(scopes, CodeBlock.builder());
+        switchRefStatementBuilders.get(scopes).add(
+                fieldHelper.statementSwitchRef(
+                        "cache",
+                        "scheduler",
+                        "time"
+                ));
         return this;
     }
 

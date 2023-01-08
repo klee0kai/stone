@@ -219,4 +219,67 @@ public class EarthLastDayTests {
         }
     }
 
+
+    @Test
+    void gcSoftMountainTest() {
+        //Given
+        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
+        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
+        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
+        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultSoft());
+        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
+        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
+        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
+        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+
+        //When
+        di.gcSoftMountains();
+
+        //Then
+        for (Reference ref : Arrays.asList(
+                mountainSoft, mountainWeak, mountainDef,
+                riverWeak
+        )) {
+            assertNull(ref.get());
+        }
+        for (Reference ref : Arrays.asList(
+                mountainStrong,
+                riverStrong, riverSoft, riverDef
+        )) {
+            assertNotNull(ref.get());
+        }
+    }
+
+    @Test
+    void gcStrongMountainTest() {
+        //Given
+        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
+        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
+        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
+        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultSoft());
+        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
+        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
+        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
+        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+
+        //When
+        di.gcStrongMountains();
+
+        //Then
+        for (Reference ref : Arrays.asList(
+                mountainStrong, mountainWeak,
+                riverWeak
+        )) {
+            assertNull(ref.get());
+        }
+        for (Reference ref : Arrays.asList(
+                mountainSoft, mountainDef,
+                riverStrong, riverSoft, riverDef
+        )) {
+            assertNotNull(ref.get());
+        }
+    }
+
 }
