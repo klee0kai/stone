@@ -4,9 +4,9 @@ import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 
 public class LifecycleUtils {
 
-    public static IStoneLifeCycleOwner createFromPhone(APhone phone){
+    public static IStoneLifeCycleOwner createFromATech(ATech phone){
         return listener -> phone.subscribe(
-                new APhoneLifecycle() {
+                new ATechLifecycle() {
                     @Override
                     public void onBuy() {
 

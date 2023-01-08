@@ -6,12 +6,12 @@ import com.github.klee0kai.test.tech.PhoneStore;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.Ram;
-import com.github.klee0kai.test.tech.phone.base.APhone;
-import com.github.klee0kai.test.tech.phone.base.APhoneLifecycle;
+import com.github.klee0kai.test.tech.phone.base.ATech;
+import com.github.klee0kai.test.tech.phone.base.ATechLifecycle;
 
 import javax.inject.Inject;
 
-public class OnePhone extends APhone implements IStoneLifeCycleOwner {
+public class OnePhone extends ATech implements IStoneLifeCycleOwner {
 
     @Inject
     public Battery battery;
@@ -23,7 +23,7 @@ public class OnePhone extends APhone implements IStoneLifeCycleOwner {
 
     @Override
     public void subscribe(IStoneLifeCycleListener listener) {
-        super.subscribe(new APhoneLifecycle() {
+        super.subscribe(new ATechLifecycle() {
             @Override
             public void onBuy() {
 
