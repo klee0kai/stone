@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
-class ProtectInjectTests {
+class HorseProtectInjectTests {
     @Test
     fun withoutProtectInjectTest() {
         // Given

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class InjectTests {
+public class HorseInjectTests {
 
     @Test
     public void horseBornTest() {

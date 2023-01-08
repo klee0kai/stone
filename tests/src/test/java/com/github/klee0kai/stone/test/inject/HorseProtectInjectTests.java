@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
-public class ProtectInjectTests {
+public class HorseProtectInjectTests {
 
     @Test
     public void withoutProtectInjectTest() {

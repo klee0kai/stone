@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
-public class ProtectInjectWrappersTests {
+public class SchoolProtectInjectWrappersTests {
 
     @Test
     public void lazyWrapperProtectTest() {

@@ -7,7 +7,7 @@ import com.github.klee0kai.test.mowgli.animal.Snake
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class InjectTests {
+class HorseInjectTests {
     @Test
     fun horseBornTest() {
         //Given

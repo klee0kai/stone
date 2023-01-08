@@ -5,7 +5,7 @@ import com.github.klee0kai.test.mowgli.animal.Mowgli
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class InjectWrappersTests {
+class MowgliInjectWrappersTests {
     @Test
     fun supportWrappersTest() {
         //Given
