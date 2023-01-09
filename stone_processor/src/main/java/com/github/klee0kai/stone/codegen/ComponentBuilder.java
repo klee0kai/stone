@@ -4,10 +4,7 @@ import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
-import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
-import com.github.klee0kai.stone.codegen.helpers.IProvideTypeWrapperHelper;
-import com.github.klee0kai.stone.codegen.helpers.ModuleFieldHelper;
-import com.github.klee0kai.stone.codegen.helpers.SetFieldHelper;
+import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -143,12 +140,16 @@ public class ComponentBuilder {
 
         for (ClassDetail par : orComponentCl.getAllParents(false)) {
             if (Objects.equals(par.className, ClassName.get(IComponent.class))) continue;
-            List<MethodDetail> provideModuleMethods = ListUtils.filter(par.getAllMethods(false), (i, it) -> it.returnType != TypeName.VOID && !it.returnType.isPrimitive());
+            List<MethodDetail> provideModuleMethods = ListUtils.filter(par.getAllMethods(false),
+                    (i, m) -> ComponentMethods.isModuleProvideMethod(m)
+            );
             if (provideModuleMethods.isEmpty()) continue;
 
             List<String> provideFactories = ListUtils.format(provideModuleMethods, (it) -> it.methodName + "()");
 
-            builder.beginControlFlow("if (c instanceof $T)", par.className).addStatement(" c.init( $L ) ", String.join(",", provideFactories)).endControlFlow();
+            builder.beginControlFlow("if (c instanceof $T)", par.className)
+                    .addStatement(" c.init( $L ) ", String.join(",", provideFactories))
+                    .endControlFlow();
         }
 
         iComponentMethods.put(extOfMethodName, builder);
@@ -180,7 +181,9 @@ public class ComponentBuilder {
 
         for (FieldDetail arg : args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-        List<FieldDetail> qFields = ListUtils.filter(args, (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
+        List<FieldDetail> qFields = ListUtils.filter(args,
+                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+        );
 
         provideObjMethods.add(builder);
         collectRuns.add(() -> {
