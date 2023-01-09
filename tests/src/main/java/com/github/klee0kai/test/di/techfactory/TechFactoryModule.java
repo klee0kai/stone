@@ -4,6 +4,7 @@ import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
+import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsVersion;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
@@ -32,5 +33,8 @@ public interface TechFactoryModule {
 
     @Provide(cache = Provide.CacheType.Factory)
     OperationSystem phoneOs(PhoneOsType osType);
+
+    @Provide(cache = Provide.CacheType.Factory)
+    OperationSystem phoneOs(PhoneOsType phoneOsType, PhoneOsVersion version);
 
 }

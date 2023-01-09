@@ -72,15 +72,24 @@ public class AnnotationProcessor extends AbstractProcessor {
 
             ComponentBuilder componentBuilder = ComponentBuilder.from(component);
 
-            // implement as module method
+            // implement as module method, or provide obj method
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
-                boolean provideModuleMethod = !m.returnType.isPrimitive()
+                boolean isProvideMethod = !m.returnType.isPrimitive()
                         && !m.returnType.isBoxedPrimitive()
                         && m.returnType != TypeName.VOID;
-                provideModuleMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
+                isProvideMethod &= m.protectInjectedAnnotation == null && m.provideAnnotation == null
                         && m.bindInstanceAnnotation == null && m.switchCacheAnnotation == null;
-                if (provideModuleMethod)
+                ClassDetail providingClDetails = allClassesHelper.findForType(m.returnType);
+
+                boolean isProvideModuleMethod = isProvideMethod
+                        && providingClDetails != null
+                        && providingClDetails.moduleAnn != null
+                        && m.args.isEmpty();
+                if (isProvideModuleMethod) {
                     componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findForType(m.returnType));
+                } else if (isProvideMethod) {
+                    componentBuilder.provideObjMethod(m.methodName, m.returnType, m.args);
+                }
             }
 
             // gc methods

@@ -11,7 +11,7 @@ public class Ram {
     public final String size;
 
     public Ram() {
-        size = null;
+        size = "default";
     }
 
     public Ram(RamSize ramSize) {

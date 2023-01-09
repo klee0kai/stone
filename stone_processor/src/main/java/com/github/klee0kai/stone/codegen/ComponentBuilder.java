@@ -5,8 +5,9 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.ComponentInjectGraph;
-import com.github.klee0kai.stone.codegen.helpers.IInjectFieldTypeHelper;
+import com.github.klee0kai.stone.codegen.helpers.IProvideTypeWrapperHelper;
 import com.github.klee0kai.stone.codegen.helpers.ModuleFieldHelper;
+import com.github.klee0kai.stone.codegen.helpers.SetFieldHelper;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -51,6 +52,7 @@ public class ComponentBuilder {
     // ---------------------- provide fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
+    public final List<MethodSpec.Builder> provideObjMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> injectMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> protectInjectedMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> gcMethods = new LinkedList<>();
@@ -170,6 +172,32 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder provideObjMethod(String name, TypeName providingType, List<FieldDetail> args) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(providingType);
+
+        for (FieldDetail arg : args)
+            builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
+        List<FieldDetail> qFields = ListUtils.filter(args, (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type));
+
+        provideObjMethods.add(builder);
+        collectRuns.add(() -> {
+            IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(providingType);
+            CodeBlock codeBlock = injectGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
+            if (codeBlock == null)
+                //todo throw errors
+                throw new RuntimeException("err provide obj " + name + " " + providingType);
+
+            builder.addStatement(
+                    "return $L",
+                    provideTypeWrapperHelper.provideCode(codeBlock)
+            );
+        });
+        return this;
+    }
+
     public ComponentBuilder injectMethod(String name, List<FieldDetail> args) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
@@ -196,20 +224,20 @@ public class ComponentBuilder {
 
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
-                    String capitalizedName = injectField.name.substring(0, 1).toUpperCase(Locale.ROOT) + injectField.name.substring(1);
-                    MethodDetail setMethod = injectableCl.findMethod(MethodDetail.simpleSetMethod("set" + capitalizedName, injectField.type), true);
 
-                    IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(injectField.type);
-                    CodeBlock codeBlock = injectGraph.codeProvideType(injectHelper.providingType(), qFields);
+                    SetFieldHelper setFieldHelper = new SetFieldHelper(injectField);
+                    setFieldHelper.checkIsKotlinField(injectableCl);
+                    IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type);
+                    CodeBlock codeBlock = injectGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
                         //todo throw errors
                         throw new RuntimeException("err inject " + injectField.name);
 
-                    builder.addStatement(injectHelper.codeInjectField(
-                            injectableField.name,
-                            setMethod != null ? setMethod.methodName : injectField.name,
-                            codeBlock,
-                            setMethod != null)
+                    builder.addStatement(
+                            setFieldHelper.codeSetField(
+                                    injectableField.name,
+                                    provideTypeWrapperHelper.provideCode(codeBlock)
+                            )
                     );
                 }
             }
@@ -225,22 +253,17 @@ public class ComponentBuilder {
                     subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
-                        IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(injectField.type);
+                        IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type);
                         if (injectHelper.isGenerateWrapper())
                             //nothing to protect
                             continue;
 
-                        String capitalizedName = injectField.name.substring(0, 1).toUpperCase(Locale.ROOT) + injectField.name.substring(1);
-                        MethodDetail getMethod = injectableCl.findMethod(MethodDetail.simpleGetMethod("get" + capitalizedName, injectField.type), true);
-
+                        SetFieldHelper getFieldHelper = new SetFieldHelper(injectField);
+                        getFieldHelper.checkIsKotlinField(injectableCl);
 
                         emptyCode = false;
                         subscrCode.add("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
-                                .add(injectHelper.codeGetField(
-                                        injectableField.name,
-                                        getMethod != null ? getMethod.methodName : injectField.name,
-                                        getMethod != null)
-                                )
+                                .add(getFieldHelper.codeGetField(injectableField.name))
                                 .addStatement(", timeMillis))");
                     }
                     subscrCode.endControlFlow(")");
@@ -265,20 +288,16 @@ public class ComponentBuilder {
         collectRuns.add(() -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
-                IInjectFieldTypeHelper injectHelper = IInjectFieldTypeHelper.findHelper(injectField.type);
+                IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type);
                 if (injectHelper.isGenerateWrapper())
                     //nothing to protect
                     continue;
 
-                String capitalizedName = injectField.name.substring(0, 1).toUpperCase(Locale.ROOT) + injectField.name.substring(1);
-                MethodDetail getMethod = injectableCl.findMethod(MethodDetail.simpleGetMethod("get" + capitalizedName, injectField.type), true);
+                SetFieldHelper getFieldHelper = new SetFieldHelper(injectField);
+                getFieldHelper.checkIsKotlinField(injectableCl);
 
                 builder.addCode("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
-                        .addCode(injectHelper.codeGetField(
-                                "cl",
-                                getMethod != null ? getMethod.methodName : injectField.name,
-                                getMethod != null)
-                        )
+                        .addCode(getFieldHelper.codeGetField("cl"))
                         .addStatement(", $L))", timeMillis);
             }
         });
@@ -389,6 +408,7 @@ public class ComponentBuilder {
         List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
         methodBuilders.addAll(iComponentMethods.values());
         methodBuilders.addAll(modulesMethods.values());
+        methodBuilders.addAll(provideObjMethods);
         methodBuilders.addAll(injectMethods);
         methodBuilders.addAll(protectInjectedMethods);
         methodBuilders.addAll(switchRefMethods);
