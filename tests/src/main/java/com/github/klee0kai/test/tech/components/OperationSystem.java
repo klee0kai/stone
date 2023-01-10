@@ -14,7 +14,7 @@ public class OperationSystem {
 
     public OperationSystem(PhoneOsType phoneOsType) {
         this.phoneOsType = phoneOsType;
-        this.version = null;
+        this.version = new PhoneOsVersion("default");
     }
 
     public OperationSystem(PhoneOsType phoneOsType, PhoneOsVersion version) {
