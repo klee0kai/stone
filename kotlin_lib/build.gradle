@@ -3,10 +3,20 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "1.7.21"
 }
 
-test {
-    useJUnitPlatform()
+apply from: '../jitpack.gradle'
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
 
 compileKotlin {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8
@@ -18,13 +28,7 @@ compileTestKotlin {
 
 
 dependencies {
-    implementation project(":tests")
-
-    implementation(project(":kotlin_lib"))
-    kapt(project(":stone_processor"))
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    api(project(":stone_lib"))
 }
 
 

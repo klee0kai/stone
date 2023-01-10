@@ -18,6 +18,7 @@ rootProject.name = 'Stone'
 include 'stone_lib'
 include 'stone_processor'
 include 'android_lib'
+include 'kotlin_lib'
 
 include 'tests'
 include 'tests_ext'

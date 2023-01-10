@@ -1,6 +1,8 @@
 package com.github.klee0kai.stone.annotations.component;
 
 
+import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,5 +28,14 @@ public @interface Component {
      * @return
      */
     Class[] qualifiers() default {};
+
+
+    /**
+     * Provide custom wrappers helpers.
+     * Should annotate {@link WrappersCreator}
+     *
+     * @return
+     */
+    Class[] wrapperProviders() default {};
 
 }

@@ -11,6 +11,7 @@ import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.ClassName;
 
 import javax.annotation.processing.*;
 import javax.inject.Scope;
@@ -70,8 +71,13 @@ public class AnnotationProcessor extends AbstractProcessor {
         //create components
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
             ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
-
             ComponentBuilder componentBuilder = ComponentBuilder.from(component);
+
+
+            for (ClassName wrappedProvider : component.componentAnn.wrapperProviders) {
+                ClassDetail cl = allClassesHelper.findForType(wrappedProvider);
+                if (cl != null) componentBuilder.addProvideWrapperField(cl);
+            }
 
 
             for (MethodDetail m : component.getAllMethods(false, "<init>")) {
@@ -86,7 +92,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 } else if (isInjectMethod(m)) {
                     componentBuilder.injectMethod(m.methodName, m.args);
                 } else if (isProtectInjectedMethod(m)) {
-                    componentBuilder.protectInjected(
+                    componentBuilder.protectInjectedMethod(
                             m.methodName,
                             allClassesHelper.findForType(m.args.get(0).type),
                             m.protectInjectedAnnotation.timeMillis

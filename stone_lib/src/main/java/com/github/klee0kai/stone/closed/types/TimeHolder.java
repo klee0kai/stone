@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.closed.types;
 
-import com.github.klee0kai.stone.types.IRef;
+import com.github.klee0kai.stone.types.wrappers.IRef;
 
 /**
  * Stone Private class

@@ -2,8 +2,10 @@ package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
+import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.model.annotations.ComponentAnnotation;
 import com.github.klee0kai.stone.model.annotations.ModuleAnnotation;
+import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnnotation;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
@@ -32,6 +34,7 @@ public class ClassDetail implements Cloneable {
     // ------- annotations ---------
     public ComponentAnnotation componentAnn;
     public ModuleAnnotation moduleAnn;
+    public WrapperCreatorsAnnotation wrapperCreatorsAnn;
 
 
     public static ClassDetail of(TypeElement owner) {
@@ -42,6 +45,7 @@ public class ClassDetail implements Cloneable {
 
         classDetail.componentAnn = ComponentAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class));
         classDetail.moduleAnn = ModuleAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class));
+        classDetail.wrapperCreatorsAnn = WrapperCreatorsAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class));
 
 
         for (Element el : owner.getEnclosedElements()) {

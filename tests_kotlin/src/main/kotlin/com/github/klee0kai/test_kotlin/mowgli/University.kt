@@ -1,8 +1,8 @@
 package com.github.klee0kai.test_kotlin.mowgli
 
-import com.github.klee0kai.stone.types.IRef
-import com.github.klee0kai.stone.types.LazyProvide
-import com.github.klee0kai.stone.types.PhantomProvide
+import com.github.klee0kai.stone.types.wrappers.IRef
+import com.github.klee0kai.stone.types.wrappers.LazyProvide
+import com.github.klee0kai.stone.types.wrappers.PhantomProvide
 import com.github.klee0kai.test.mowgli.community.History
 import com.github.klee0kai.test.mowgli.identity.Knowledge
 import javax.inject.Inject
