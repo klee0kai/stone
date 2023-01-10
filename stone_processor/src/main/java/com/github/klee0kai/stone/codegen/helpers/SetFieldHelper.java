@@ -14,54 +14,12 @@ public class SetFieldHelper {
 
     /**
      * @param fieldDetail
+     * @param fieldOwner  class where field is declare
      */
-    public SetFieldHelper(FieldDetail fieldDetail) {
+    public SetFieldHelper(FieldDetail fieldDetail, ClassDetail fieldOwner) {
         this.fieldDetail = fieldDetail;
-    }
 
-    /**
-     * set value code
-     *
-     * @param fieldOwner class, where field is declared
-     * @param valueCode  set value code
-     * @return
-     */
-    public CodeBlock codeSetField(String fieldOwner, CodeBlock valueCode) {
-        if (isKotlinField()) {
-            return CodeBlock.of(
-                    "$L.$L( $L )",
-                    fieldOwner, kotlinSetMethod.methodName, valueCode
-            );
-        } else {
-            return CodeBlock.of(
-                    "$L.$L = $L",
-                    fieldOwner, fieldDetail.name, valueCode
-            );
-        }
-    }
-
-
-    /**
-     * get original value code
-     *
-     * @param fieldOwner class, where field is declared
-     * @return
-     */
-    public CodeBlock codeGetField(String fieldOwner) {
-        if (isKotlinField()) {
-            return CodeBlock.of("$L.$L()", fieldOwner, kotlinGetMethod.methodName);
-        } else {
-            return CodeBlock.of("$L.$L", fieldOwner, fieldDetail.name);
-        }
-    }
-
-    /**
-     * get* set* methods for check
-     *
-     * @param fieldOwner class, where field is declared
-     * @return
-     */
-    public boolean checkIsKotlinField(ClassDetail fieldOwner) {
+        // check kotlin field
         String capitalizedName = fieldDetail.name.substring(0, 1).toUpperCase(Locale.ROOT)
                 + fieldDetail.name.substring(1);
         MethodDetail getMethod = fieldOwner.findMethod(
@@ -75,8 +33,40 @@ public class SetFieldHelper {
 
         kotlinGetMethod = fieldOwner.findMethod(getMethod, true);
         kotlinSetMethod = fieldOwner.findMethod(setMethod, true);
-        return isKotlinField();
+    }
 
+    /**
+     * set value code
+     *
+     * @param valueCode set value code
+     * @return
+     */
+    public CodeBlock codeSetField(CodeBlock valueCode) {
+        if (isKotlinField()) {
+            return CodeBlock.of(
+                    "$L( $L )",
+                    kotlinSetMethod.methodName, valueCode
+            );
+        } else {
+            return CodeBlock.of(
+                    "$L = $L",
+                    fieldDetail.name, valueCode
+            );
+        }
+    }
+
+
+    /**
+     * get original value code
+     *
+     * @return
+     */
+    public CodeBlock codeGetField() {
+        if (isKotlinField()) {
+            return CodeBlock.of("$L()", kotlinGetMethod.methodName);
+        } else {
+            return CodeBlock.of("$L", fieldDetail.name);
+        }
     }
 
     private boolean isKotlinField() {

@@ -228,8 +228,7 @@ public class ComponentBuilder {
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
 
-                    SetFieldHelper setFieldHelper = new SetFieldHelper(injectField);
-                    setFieldHelper.checkIsKotlinField(injectableCl);
+                    SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type);
                     CodeBlock codeBlock = injectGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
@@ -237,10 +236,9 @@ public class ComponentBuilder {
                         throw new RuntimeException("err inject " + injectField.name);
 
                     builder.addStatement(
-                            setFieldHelper.codeSetField(
-                                    injectableField.name,
-                                    provideTypeWrapperHelper.provideCode(codeBlock)
-                            )
+                            "$L.$L",
+                            injectableField.name,
+                            setFieldHelper.codeSetField(provideTypeWrapperHelper.provideCode(codeBlock))
                     );
                 }
             }
@@ -261,13 +259,14 @@ public class ComponentBuilder {
                             //nothing to protect
                             continue;
 
-                        SetFieldHelper getFieldHelper = new SetFieldHelper(injectField);
-                        getFieldHelper.checkIsKotlinField(injectableCl);
+                        SetFieldHelper getFieldHelper = new SetFieldHelper(injectField, injectableCl);
 
                         emptyCode = false;
-                        subscrCode.add("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
-                                .add(getFieldHelper.codeGetField(injectableField.name))
-                                .addStatement(", timeMillis))");
+                        subscrCode.addStatement(
+                                "$L.add(new $T($L, $L.$L , timeMillis))",
+                                refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
+                                injectableField.name, getFieldHelper.codeGetField()
+                        );
                     }
                     subscrCode.endControlFlow(")");
 
@@ -284,8 +283,8 @@ public class ComponentBuilder {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterSpec.builder(injectableCl.className, "cl").build()
-                ).returns(void.class);
+                .addParameter(ParameterSpec.builder(injectableCl.className, "cl").build())
+                .returns(void.class);
 
         protectInjectedMethods.add(builder);
         collectRuns.add(() -> {
@@ -296,12 +295,14 @@ public class ComponentBuilder {
                     //nothing to protect
                     continue;
 
-                SetFieldHelper getFieldHelper = new SetFieldHelper(injectField);
-                getFieldHelper.checkIsKotlinField(injectableCl);
+                SetFieldHelper getFieldHelper = new SetFieldHelper(injectField, injectableCl);
 
-                builder.addCode("$L.add(new $T($L, ", refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName)
-                        .addCode(getFieldHelper.codeGetField("cl"))
-                        .addStatement(", $L))", timeMillis);
+                builder.addStatement(
+                        "$L.add(new $T($L, cl.$L , $L))",
+                        refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
+                        getFieldHelper.codeGetField(),
+                        timeMillis
+                );
             }
         });
         return this;
@@ -310,20 +311,22 @@ public class ComponentBuilder {
     public ComponentBuilder gcMethod(String name, List<TypeName> gcScopes) {
         CodeBlock.Builder scopesCode = CodeBlock.builder();
         int inx = 0;
-        for (TypeName sc : gcScopes)
-            if (inx++ <= 0) scopesCode.add("$T.class", sc);
-            else scopesCode.add(", $T.class", sc);
+        for (TypeName sc : gcScopes) {
+            if (inx++ > 0) scopesCode.add(", ");
+            scopesCode.add("$T.class", sc);
+        }
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class)
-                .addCode("$T scopes = new $T($T.asList(",
+                .addStatement(
+                        "$T scopes = new $T($T.asList( $L ))",
                         ParameterizedTypeName.get(Set.class, Class.class),
                         ParameterizedTypeName.get(HashSet.class, Class.class),
-                        Arrays.class)
-                .addCode(scopesCode.build())
-                .addStatement("))");
+                        Arrays.class,
+                        scopesCode.build()
+                );
 
 
         gcMethods.add(builder);
@@ -353,11 +356,13 @@ public class ComponentBuilder {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class)
-                .addCode("$T scopes = new $T($T.asList(",
+                .addStatement(
+                        "$T scopes = new $T($T.asList( $L ))",
                         ParameterizedTypeName.get(Set.class, Class.class),
                         ParameterizedTypeName.get(HashSet.class, Class.class),
-                        Arrays.class).addCode(scopesCode.build())
-                .addStatement("))");
+                        Arrays.class,
+                        scopesCode.build()
+                );
 
         builder.addStatement("$T cache = $T.$L", SwitchCache.CacheType.class, SwitchCache.CacheType.class, switchCacheAnnotation.cache.name());
         builder.addStatement("$T time = $L", long.class, switchCacheAnnotation.timeMillis);
@@ -372,7 +377,9 @@ public class ComponentBuilder {
         switchRefMethods.add(builder);
         collectRuns.add(() -> {
             for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
-                builder.addCode(moduleFieldHelper.statementSwitchRefs("scopes", "cache", "scheduler", "time"));
+                builder.addCode(moduleFieldHelper.statementSwitchRefs(
+                        "scopes", "cache", "scheduler", "time"
+                ));
         });
         return this;
     }
