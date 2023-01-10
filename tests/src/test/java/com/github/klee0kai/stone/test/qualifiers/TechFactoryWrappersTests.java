@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.types.IRef;
+import com.github.klee0kai.stone.types.wrappers.IRef;
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponent;
 import com.github.klee0kai.test.tech.components.Battery;
 import org.junit.jupiter.api.Test;

@@ -1,10 +1,9 @@
 package com.github.klee0kai.tests.java_models.qualifiers
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone.types.IRef
+import com.github.klee0kai.stone.types.wrappers.IRef
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponent
 import com.github.klee0kai.test.tech.components.Battery
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.lang.ref.Reference

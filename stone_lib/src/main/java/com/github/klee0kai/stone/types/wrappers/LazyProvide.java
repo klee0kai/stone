@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.types;
+package com.github.klee0kai.stone.types.wrappers;
 
 public class LazyProvide<T> implements IRef<T>{
 

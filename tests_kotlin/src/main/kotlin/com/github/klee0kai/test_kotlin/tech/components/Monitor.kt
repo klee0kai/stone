@@ -6,7 +6,7 @@ import java.util.*
 
 
 class Monitor @JvmOverloads constructor(
-    val size: MonitorSize,
+    val size: MonitorSize = MonitorSize("11"),
     val company: Company = Company("samsung")
 ) {
 

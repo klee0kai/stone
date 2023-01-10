@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.closed.types.single;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.closed.types.ScheduleTask;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
-import com.github.klee0kai.stone.types.IRef;
+import com.github.klee0kai.stone.types.wrappers.IRef;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;

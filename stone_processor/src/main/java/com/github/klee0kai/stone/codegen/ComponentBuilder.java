@@ -5,12 +5,13 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.*;
+import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
-import com.github.klee0kai.stone.types.RefCollection;
+import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
@@ -29,6 +30,7 @@ public class ComponentBuilder {
 
     public static final String refCollectionGlFieldName = "__refCollection";
     public static final String scheduleGlFieldName = "__scheduler";
+    public static final String provideWrappersGlFieldPrefixName = "__wrapperCreator";
 
     public static final String initMethodName = "init";
     public static final String bindMethodName = "bind";
@@ -40,6 +42,7 @@ public class ComponentBuilder {
 
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
+    public final LinkedList<WrapperCreatorField> wrapperCreatorFields = new LinkedList<>();
     public final HashMap<String, MethodSpec.Builder> iComponentMethods = new HashMap<>();
 
     public final CodeBlock.Builder initModuleCode = CodeBlock.builder();
@@ -98,6 +101,17 @@ public class ComponentBuilder {
                     FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
                             .initializer("new $T()", RefCollection.class)
             );
+        return this;
+    }
+
+    public ComponentBuilder addProvideWrapperField(ClassDetail provideWrappersCl) {
+        String name = provideWrappersGlFieldPrefixName + wrapperCreatorFields.size();
+        wrapperCreatorFields.add(new WrapperCreatorField(
+                name,
+                provideWrappersCl.wrapperCreatorsAnn.wrappers,
+                FieldSpec.builder(provideWrappersCl.className, name, Modifier.PRIVATE, Modifier.FINAL)
+                        .initializer("new $T()", provideWrappersCl.className)
+        ));
         return this;
     }
 
@@ -187,7 +201,7 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.add(() -> {
-            IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(providingType);
+            IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(providingType, wrapperCreatorFields);
             CodeBlock codeBlock = injectGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
             if (codeBlock == null)
                 //todo throw errors
@@ -229,7 +243,7 @@ public class ComponentBuilder {
                     if (!injectField.injectAnnotation) continue;
 
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type);
+                    IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                     CodeBlock codeBlock = injectGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
                         //todo throw errors
@@ -254,7 +268,7 @@ public class ComponentBuilder {
                     subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
-                        IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type);
+                        IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                         if (injectHelper.isGenerateWrapper())
                             //nothing to protect
                             continue;
@@ -277,7 +291,7 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder protectInjected(String name, ClassDetail injectableCl, long timeMillis) {
+    public ComponentBuilder protectInjectedMethod(String name, ClassDetail injectableCl, long timeMillis) {
         timeHolderFields();
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
@@ -290,7 +304,7 @@ public class ComponentBuilder {
         collectRuns.add(() -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
-                IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type);
+                IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                 if (injectHelper.isGenerateWrapper())
                     //nothing to protect
                     continue;
@@ -411,6 +425,9 @@ public class ComponentBuilder {
 
         for (FieldSpec.Builder field : fields.values())
             typeSpecBuilder.addField(field.build());
+
+        for (WrapperCreatorField field : wrapperCreatorFields)
+            typeSpecBuilder.addField(field.fieldBuilder.build());
 
         for (FieldSpec.Builder field : modulesFields.values())
             typeSpecBuilder.addField(field.build());
