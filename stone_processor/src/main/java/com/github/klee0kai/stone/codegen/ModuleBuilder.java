@@ -120,6 +120,9 @@ public class ModuleBuilder {
         return builder;
     }
 
+    public static String setBindInstanceCachedMethodName(String factoryMethodName) {
+        return "__" + factoryMethodName + "_set_bi_cache";
+    }
 
     public ModuleBuilder(ClassDetail orModuleCl) {
         this.orModuleCl = orModuleCl;
@@ -284,9 +287,7 @@ public class ModuleBuilder {
         provideMethodBuilders.add(MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(typeName)
-                .addCode("return ")
-                .addCode(itemHolderCodeHelper.codeGetCachedValue())
-                .addStatement(""));
+                .addStatement("return $L", itemHolderCodeHelper.codeGetCachedValue()));
 
         //bind item code
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
@@ -305,9 +306,17 @@ public class ModuleBuilder {
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .addAnnotation(Override.class)
                 .returns(typeName)
-                .addCode("return ")
-                .addStatement(itemHolderCodeHelper.codeGetCachedValue());
+                .addStatement("return $L", itemHolderCodeHelper.codeGetCachedValue());
+
         provideMethodBuilders.add(getCachedMethodBuilder);
+
+        // set cached method
+        String setCachedMethodName = setBindInstanceCachedMethodName(name);
+        MethodSpec.Builder setCachedMethodBuilder = MethodSpec.methodBuilder(setCachedMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addParameter(ParameterSpec.builder(typeName, "arg").build())
+                .addStatement(itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("arg")));
+        provideMethodBuilders.add(setCachedMethodBuilder);
 
         // set cache type  method
         String setCacheTypeMethodName = ModuleInterfaceBuilder.getSwitchCacheMethodName(name);
@@ -376,14 +385,14 @@ public class ModuleBuilder {
                 .addStatement("return $L.$L( $L ) ", overridedModuleFieldName, getCachedMethodName, argsString)
                 .endControlFlow()
                 //  check cached
-                .addCode("if ( ").addCode(itemHolderCodeHelper.codeGetCachedValue()).addCode(" != null )\n")
-                .addCode("\t\treturn ").addStatement(itemHolderCodeHelper.codeGetCachedValue())
+                .addCode("if ( $L != null )\n", itemHolderCodeHelper.codeGetCachedValue())
+                .addStatement("\t\treturn $L ", itemHolderCodeHelper.codeGetCachedValue())
                 // return from overrided module
                 .beginControlFlow("if ($L != null) ", overridedModuleFieldName)
                 .addStatement("return $L.$L( $L ) ", overridedModuleFieldName, name, argsString)
                 .endControlFlow()
                 // gen new and return
-                .addCode("return ").addCode(itemHolderCodeHelper.codeSetCachedValue(
+                .addCode("return $L", itemHolderCodeHelper.codeSetCachedValue(
                         CodeBlock.of("$L.$L($L)", factoryFieldName, name, argsString)
                 )).addStatement("");
 
