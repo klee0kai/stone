@@ -20,6 +20,18 @@ public class ComponentMethods {
         return isProvideMethod(m) && !isModuleProvideMethod(m);
     }
 
+    public static boolean isBindInstanceMethod(MethodDetail m) {
+        return m.bindInstanceAnnotation != null
+                && m.args.size() == 1
+                && !m.args.get(0).type.isPrimitive()
+                && !m.args.get(0).type.isBoxedPrimitive()
+                && m.returnType == TypeName.VOID
+                && m.protectInjectedAnnotation == null
+                && m.provideAnnotation == null
+                && m.switchCacheAnnotation == null
+                && m.gcScopeAnnotations.isEmpty();
+    }
+
     public static boolean isGcMethod(MethodDetail m) {
         return !m.gcScopeAnnotations.isEmpty()
                 && m.returnType == TypeName.VOID

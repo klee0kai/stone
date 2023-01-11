@@ -53,6 +53,7 @@ public class ComponentBuilder {
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
     public final List<MethodSpec.Builder> provideObjMethods = new LinkedList<>();
+    public final List<MethodSpec.Builder> bindInstanceMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> injectMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> protectInjectedMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> gcMethods = new LinkedList<>();
@@ -60,7 +61,7 @@ public class ComponentBuilder {
 
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
-    private final ComponentInjectGraph injectGraph = new ComponentInjectGraph();
+    private final ModulesGraph modulesGraph = new ModulesGraph();
     private final LinkedList<ModuleFieldHelper> moduleFieldHelpers = new LinkedList<>();
 
 
@@ -182,7 +183,7 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        injectGraph.addModule(MethodDetail.simpleName(name), module);
+        modulesGraph.addModule(MethodDetail.simpleName(name), module);
         moduleFieldHelpers.add(new ModuleFieldHelper(name));
         return this;
     }
@@ -202,7 +203,7 @@ public class ComponentBuilder {
         provideObjMethods.add(builder);
         collectRuns.add(() -> {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(providingType, wrapperCreatorFields);
-            CodeBlock codeBlock = injectGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
+            CodeBlock codeBlock = modulesGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
             if (codeBlock == null)
                 //todo throw errors
                 throw new RuntimeException("err provide obj " + name + " " + providingType);
@@ -211,6 +212,19 @@ public class ComponentBuilder {
                     "return $L",
                     provideTypeWrapperHelper.provideCode(codeBlock)
             );
+        });
+        return this;
+    }
+
+    public ComponentBuilder bindInstanceMethod(String name, TypeName bindType) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(bindType, "arg").build());
+
+        bindInstanceMethods.add(builder);
+        collectRuns.add(() -> {
+            builder.addCode(modulesGraph.codeSetBindInstancesStatement(bindType, CodeBlock.of("arg")));
         });
         return this;
     }
@@ -244,7 +258,7 @@ public class ComponentBuilder {
 
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                    CodeBlock codeBlock = injectGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
+                    CodeBlock codeBlock = modulesGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
                         //todo throw errors
                         throw new RuntimeException("err inject " + injectField.name);
@@ -436,6 +450,7 @@ public class ComponentBuilder {
         methodBuilders.addAll(iComponentMethods.values());
         methodBuilders.addAll(modulesMethods.values());
         methodBuilders.addAll(provideObjMethods);
+        methodBuilders.addAll(bindInstanceMethods);
         methodBuilders.addAll(injectMethods);
         methodBuilders.addAll(protectInjectedMethods);
         methodBuilders.addAll(switchRefMethods);
