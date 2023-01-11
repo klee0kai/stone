@@ -5,9 +5,9 @@ import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 import kotlin.reflect.KProperty
 
-operator fun <T> IRef<T>.getValue(t: T?, property: KProperty<*>): T = get()
+operator fun <T> IRef<T>.getValue(t: Any?, property: KProperty<*>): T = get()
 
-operator fun <T> SoftReference<T>.getValue(t: T?, property: KProperty<*>): T? = get()
+operator fun <T> SoftReference<T>.getValue(t: Any?, property: KProperty<*>): T? = get()
 
-operator fun <T> WeakReference<T>.getValue(t: T?, property: KProperty<*>): T? = get()
+operator fun <T> WeakReference<T>.getValue(t: Any?, property: KProperty<*>): T? = get()
 
