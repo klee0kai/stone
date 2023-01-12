@@ -3,13 +3,9 @@ package com.github.klee0kai.stone.codegen.helpers;
 import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
-import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.model.FieldDetail;
-import com.github.klee0kai.stone.model.InvokeCall;
-import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.*;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
-import com.sun.tools.javac.util.Pair;
 
 import java.util.*;
 
@@ -58,8 +54,8 @@ public class ModulesGraph {
     public CodeBlock codeSetBindInstancesStatement(TypeName typeName, CodeBlock valueCode) {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         for (Pair<MethodDetail, ClassDetail> m : modules) {
-            MethodDetail method = m.fst;
-            ClassDetail module = m.snd;
+            MethodDetail method = m.first;
+            ClassDetail module = m.second;
             for (MethodDetail bindInstMethod : module.getAllMethods(true, "<init>")) {
                 if (bindInstMethod.bindInstanceAnnotation != null && Objects.equals(bindInstMethod.returnType, typeName)) {
                     String setBICacheMethodName = ModuleBuilder.setBindInstanceCachedMethodName(bindInstMethod.methodName);
