@@ -83,6 +83,13 @@ public class MethodDetail implements Cloneable {
         return m;
     }
 
+    public static MethodDetail constructorMethod(List<FieldDetail> args) {
+        MethodDetail m = new MethodDetail();
+        m.methodName = "<init>";
+        m.args = args;
+        return m;
+    }
+
     public boolean isAbstract() {
         return modifiers.contains(Modifier.ABSTRACT);
     }
