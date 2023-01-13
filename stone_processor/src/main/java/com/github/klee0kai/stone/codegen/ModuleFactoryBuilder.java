@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.closed.IModuleFactory;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -16,6 +17,8 @@ import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
 public class ModuleFactoryBuilder {
 
@@ -35,9 +38,13 @@ public class ModuleFactoryBuilder {
             for (MethodDetail m : module.getAllMethods(false, "<init>")) {
                 if (!m.isAbstract() && !module.isInterfaceClass())
                     continue;
-                if (m.bindInstanceAnnotation != null)
+                ClassDetail providingClass = allClassesHelper.findForType(m.returnType);
+                boolean hasConstructor = providingClass.findMethod(MethodDetail.constructorMethod(m.args), false) != null;
+                if (m.bindInstanceAnnotation != null || !hasConstructor) {
                     builder.provideNullMethod(m.methodName, m.returnType, m.args);
-                else builder.provideMethod(m.methodName, m.returnType, m.args);
+                } else {
+                    builder.provideMethod(m.methodName, m.returnType, m.args);
+                }
             }
         }
         return builder;
