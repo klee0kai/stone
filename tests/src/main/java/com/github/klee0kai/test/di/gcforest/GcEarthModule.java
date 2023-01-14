@@ -32,6 +32,9 @@ public abstract class GcEarthModule {
     @Provide
     abstract public Mountain mountainDefaultSoft();
 
+    @GcMountainScope
+    abstract public Mountain mountainDefault2Soft();
+
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Strong)
     abstract public River riverStrong();
