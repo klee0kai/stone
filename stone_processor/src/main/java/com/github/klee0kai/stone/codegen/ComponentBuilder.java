@@ -216,16 +216,39 @@ public class ComponentBuilder {
         return this;
     }
 
+
     public ComponentBuilder bindInstanceMethod(String name, TypeName bindType) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterSpec.builder(bindType, "arg").build());
+                .addParameter(ParameterSpec.builder(bindType, "arg").build())
+                .addCode(modulesGraph.codeSetBindInstancesStatement(bindType, CodeBlock.of("arg")));
+        bindInstanceMethods.add(builder);
+        return this;
+    }
+
+
+    public ComponentBuilder bindInstanceAndProvideMethod(String name, TypeName bindType) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(bindType, "arg").build())
+                .returns(bindType);
+
+        CodeBlock codeBlock = modulesGraph.codeProvideType(bindType, null);
+        if (codeBlock != null) {
+            // bind object declared in module
+            builder.beginControlFlow("if (arg != null )")
+                    .addCode(modulesGraph.codeSetBindInstancesStatement(bindType, CodeBlock.of("arg")))
+                    .endControlFlow()
+                    .addStatement("return $L", codeBlock);
+        } else {
+            //TODO bind object not declared in module
+            // check, should be provided over modulesGraph
+
+        }
 
         bindInstanceMethods.add(builder);
-        collectRuns.add(() -> {
-            builder.addCode(modulesGraph.codeSetBindInstancesStatement(bindType, CodeBlock.of("arg")));
-        });
         return this;
     }
 

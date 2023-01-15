@@ -16,8 +16,15 @@ public interface GodWorkspaceComponent extends IComponent {
     void bindPlanet(IPlanet planet);
 
     @BindInstance
+    IPlanet planet(IPlanet planet);
+
+    @BindInstance
     void bindSun(Sun sun);
 
     @BindInstance
     void bindEarth(Earth earth);
+
+
+    IPlanet providePlanet();
+
 }

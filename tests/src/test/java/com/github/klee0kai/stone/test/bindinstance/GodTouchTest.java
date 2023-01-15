@@ -66,4 +66,20 @@ public class GodTouchTest {
     }
 
 
+    @Test
+    public void planetIsPlanetTest() {
+        //Given
+        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
+        Earth earth = new Earth();
+
+        //When
+        DI.planet(earth);
+        DI.planet(null);
+
+        //Then
+        assertEquals(earth, DI.planet(null));
+        assertEquals(earth, DI.providePlanet());
+    }
+
+
 }

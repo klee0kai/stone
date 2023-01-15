@@ -4,6 +4,8 @@ import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.squareup.javapoet.TypeName;
 
+import java.util.Objects;
+
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
 public class ComponentMethods {
@@ -18,6 +20,18 @@ public class ComponentMethods {
 
     public static boolean isObjectProvideMethod(MethodDetail m) {
         return isProvideMethod(m) && !isModuleProvideMethod(m);
+    }
+
+    public static boolean isBindInstanceAndProvideMethod(MethodDetail m) {
+        return m.bindInstanceAnnotation != null
+                && m.args.size() == 1
+                && !m.args.get(0).type.isPrimitive()
+                && !m.args.get(0).type.isBoxedPrimitive()
+                && Objects.equals(m.returnType, m.args.get(0).type)
+                && m.protectInjectedAnnotation == null
+                && m.provideAnnotation == null
+                && m.switchCacheAnnotation == null
+                && m.gcScopeAnnotations.isEmpty();
     }
 
     public static boolean isBindInstanceMethod(MethodDetail m) {

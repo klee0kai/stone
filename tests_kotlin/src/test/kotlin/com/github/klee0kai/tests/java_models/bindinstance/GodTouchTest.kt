@@ -5,7 +5,6 @@ import com.github.klee0kai.test.di.bindinstance.GodWorkspaceComponent
 import com.github.klee0kai.test.mowgli.galaxy.Earth
 import com.github.klee0kai.test.mowgli.galaxy.Saturn
 import com.github.klee0kai.test.mowgli.galaxy.Sun
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -60,5 +59,20 @@ class GodTouchTest {
         assertEquals(earth.uuid, DI.sunSystem().earth().uuid)
         assertEquals(saturn, DI.sunSystem().planet())
         assertNull(DI.sunSystem().saturn())
+    }
+
+    @Test
+    fun planetIsPlanetTest() {
+        //Given
+        val DI = Stone.createComponent(GodWorkspaceComponent::class.java)
+        val earth = Earth()
+
+        //When
+        DI.planet(earth)
+        DI.planet(null)
+
+        //Then
+        assertEquals(earth, DI.planet(null))
+        assertEquals(earth, DI.providePlanet())
     }
 }
