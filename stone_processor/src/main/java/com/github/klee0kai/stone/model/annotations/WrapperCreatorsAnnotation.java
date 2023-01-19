@@ -1,6 +1,9 @@
 package com.github.klee0kai.stone.model.annotations;
 
+import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -31,13 +34,22 @@ public class WrapperCreatorsAnnotation implements Cloneable {
         if (__wrValue != null) {
             List<Object> qualifiers = __wrValue.getValue() instanceof List ? (List<Object>) __wrValue.getValue() : null;
             for (int i = 0; qualifiers != null && i < qualifiers.size(); i++) {
-                if (qualifiers.get(i)==null)
+                if (qualifiers.get(i) == null)
                     continue;
                 wrapperCreatorsAnn.wrappers.add(ClassNameUtils.typeOf(qualifiers.get(i).toString()));
             }
         }
 
         return wrapperCreatorsAnn;
+    }
+
+
+    public static WrapperCreatorsAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+        AnnotationSpec spec = ListUtils.first(annotationSpecs,
+                (inx, ob) -> Objects.equals(ob.type, ClassName.get(WrappersCreator.class)));
+        if (spec == null)
+            return null;
+        return new WrapperCreatorsAnnotation();
     }
 
     @Override

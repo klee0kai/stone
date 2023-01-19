@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.closed.IModuleFactory;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -13,7 +12,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.util.LinkedList;
 import java.util.List;
@@ -107,10 +105,12 @@ public class ModuleFactoryBuilder {
         return typeSpecBuilder.build();
     }
 
-    public void writeTo(Filer filer) {
+    public TypeSpec buildAndWrite() {
         TypeSpec typeSpec = build();
-        if (typeSpec != null)
+        if (typeSpec != null) {
             CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        }
+        return typeSpec;
     }
 
 

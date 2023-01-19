@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
@@ -16,7 +17,6 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.util.*;
 
@@ -31,13 +31,14 @@ public class ComponentBuilder {
     public static final String refCollectionGlFieldName = "__refCollection";
     public static final String scheduleGlFieldName = "__scheduler";
     public static final String provideWrappersGlFieldPrefixName = "__wrapperCreator";
+    public static final String hiddenModuleFieldName = "__hiddenModule";
 
+    public static final String hiddenModuleMethodName = "hidden";
     public static final String initMethodName = "init";
     public static final String bindMethodName = "bind";
     public static final String extOfMethodName = "extOf";
 
     public final Set<TypeName> interfaces = new HashSet<>();
-
     public final Set<ClassName> qualifiers = new HashSet<>();
 
     // ---------------------- common fields and method  ----------------------------------
@@ -61,6 +62,7 @@ public class ComponentBuilder {
 
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
+    private ModuleHiddenBuilder moduleHiddenBuilder = null;
     private final ModulesGraph modulesGraph = new ModulesGraph();
     private final LinkedList<ModuleFieldHelper> moduleFieldHelpers = new LinkedList<>();
 
@@ -188,6 +190,27 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder provideHiddenModuleMethod() {
+        String name = hiddenModuleFieldName;
+
+        ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
+        moduleHiddenBuilder = new ModuleHiddenBuilder(tpName);
+        moduleHiddenBuilder.implementIModule();
+        modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PROTECTED)
+                .initializer(CodeBlock.of("new $T()", tpName)));
+        modulesMethods.put(hiddenModuleMethodName,
+                MethodSpec.methodBuilder(hiddenModuleMethodName)
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(tpName)
+                        .addStatement("return this.$L", name)
+        );
+
+        initModuleCode.addStatement("this.$L.init(m)", name);
+        bindModuleCode.addStatement("this.$L.bind(ob)", name);
+        moduleFieldHelpers.add(new ModuleFieldHelper(name));
+        return this;
+    }
+
     public ComponentBuilder provideObjMethod(String name, TypeName providingType, List<FieldDetail> args) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
@@ -204,10 +227,11 @@ public class ComponentBuilder {
         collectRuns.add(() -> {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(providingType, wrapperCreatorFields);
             CodeBlock codeBlock = modulesGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
-            if (codeBlock == null)
+            if (codeBlock == null) {
                 //todo throw errors
-                throw new RuntimeException("err provide obj " + name + " " + providingType);
-
+                return;
+//                throw new RuntimeException("err provide obj " + name + " " + providingType);
+            }
             builder.addStatement(
                     "return $L",
                     provideTypeWrapperHelper.provideCode(codeBlock)
@@ -228,26 +252,28 @@ public class ComponentBuilder {
     }
 
 
-    public ComponentBuilder bindInstanceAndProvideMethod(String name, TypeName bindType) {
+    public ComponentBuilder bindInstanceAndProvideMethod(String name, TypeName bindType, BindInstance.CacheType cacheType) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(bindType, "arg").build())
                 .returns(bindType);
 
-        CodeBlock codeBlock = modulesGraph.codeProvideType(bindType, null);
-        if (codeBlock != null) {
+        if (modulesGraph.codeProvideType(bindType, null) == null) {
+            //  bind object not declared in module
+            getOrCreateHiddenModuleBuilder()
+                    .bindInstance(name, bindType, cacheType);
+        }
+
+        collectRuns.add(() -> {
+            CodeBlock codeBlock = modulesGraph.codeProvideType(bindType, null);
             // bind object declared in module
             builder.beginControlFlow("if (arg != null )")
                     .addCode(modulesGraph.codeSetBindInstancesStatement(bindType, CodeBlock.of("arg")))
                     .endControlFlow()
                     .addStatement("return $L", codeBlock);
-        } else {
-            //TODO bind object not declared in module
-            // check, should be provided over modulesGraph
 
-        }
-
+        });
         bindInstanceMethods.add(builder);
         return this;
     }
@@ -485,9 +511,29 @@ public class ComponentBuilder {
         return typeSpecBuilder.build();
     }
 
-    public void writeTo(Filer filer) {
+    public TypeSpec buildAndWrite() {
+        if (moduleHiddenBuilder != null) {
+            TypeSpec typeSpec = moduleHiddenBuilder.buildAndWrite();
+            modulesGraph.addModule(
+                    MethodDetail.simpleName(hiddenModuleMethodName),
+                    ClassDetail.of(moduleHiddenBuilder.className.packageName(), typeSpec)
+            );
+        }
+
         TypeSpec typeSpec = build();
-        if (typeSpec != null) CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        if (typeSpec != null) {
+            CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        }
+
+        return typeSpec;
+    }
+
+
+    private ModuleHiddenBuilder getOrCreateHiddenModuleBuilder() {
+        if (moduleHiddenBuilder == null) provideHiddenModuleMethod();
+
+
+        return moduleHiddenBuilder;
     }
 
 }

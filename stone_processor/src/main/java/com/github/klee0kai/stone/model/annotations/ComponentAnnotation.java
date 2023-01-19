@@ -1,6 +1,9 @@
 package com.github.klee0kai.stone.model.annotations;
 
+import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -55,6 +58,14 @@ public class ComponentAnnotation implements Cloneable {
         return componentAnnotation;
     }
 
+
+    public static ComponentAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+        AnnotationSpec spec = ListUtils.first(annotationSpecs,
+                (inx, ob) -> Objects.equals(ob.type, ClassName.get(Component.class)));
+        if (spec == null)
+            return null;
+        return new ComponentAnnotation();
+    }
 
     @Override
     public ComponentAnnotation clone() throws CloneNotSupportedException {

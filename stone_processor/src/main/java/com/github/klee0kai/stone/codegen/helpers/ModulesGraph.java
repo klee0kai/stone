@@ -18,8 +18,10 @@ public class ModulesGraph {
     public void addModule(MethodDetail provideModuleMethod, ClassDetail module) {
         modules.add(new Pair<>(provideModuleMethod, module));
         for (MethodDetail m : module.getAllMethods(false, "<init>")) {
+            if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID || m.returnType.isBoxedPrimitive())
+                continue;
             ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
-            for (ClassDetail cl : rtClassDetails.getAllParents(false)) {
+            if (rtClassDetails != null) for (ClassDetail cl : rtClassDetails.getAllParents(false)) {
                 provideTypeCodes.putIfAbsent(cl.className, new LinkedList<>());
                 provideTypeCodes.get(cl.className).add(new InvokeCall(provideModuleMethod, m));
             }

@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.*;
+import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.ListUtils;
@@ -13,28 +14,23 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class ModuleBuilder {
 
+    public static final String overridedModuleFieldName = "overridedModule";
+    public static final String factoryFieldName = "factory";
+    private static final String appliedLocalFieldName = "applied";
+    public static final String initMethodName = "init";
+    public static final String bindMethodName = "bind";
+    public static final String getFactoryMethodName = "getFactory";
+    public static final String switchRefMethodName = "switchRef";
+
     public final ClassDetail orModuleCl;
 
     public ClassName className;
-
-    public static final String overridedModuleFieldName = "overridedModule";
-    public static final String factoryFieldName = "factory";
-
-    private static final String appliedLocalFieldName = "applied";
-
-    public static final String initMethodName = "init";
-
-    public static final String bindMethodName = "bind";
-    public static final String getFactoryMethodName = "getFactory";
-
-    public static final String switchRefMethodName = "switchRef";
 
 
     public final Set<TypeName> interfaces = new HashSet<>();
@@ -214,6 +210,7 @@ public class ModuleBuilder {
     public ModuleBuilder bindMethod() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addAnnotation(BindInstance.class)
                 .addAnnotation(Override.class)
                 .addParameter(Object.class, "or")
                 .addStatement("boolean $L = false", appliedLocalFieldName)
@@ -437,8 +434,10 @@ public class ModuleBuilder {
         return this;
     }
 
-    public TypeSpec build() {
-        collect();
+    public TypeSpec build(boolean collectAll) {
+        if (collectAll) {
+            collect();
+        }
 
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
         typeSpecBuilder.addModifiers(Modifier.PUBLIC);
@@ -463,10 +462,12 @@ public class ModuleBuilder {
         return typeSpecBuilder.build();
     }
 
-    public void writeTo(Filer filer) {
-        TypeSpec typeSpec = build();
-        if (typeSpec != null)
+    public TypeSpec buildAndWrite() {
+        TypeSpec typeSpec = build(true);
+        if (typeSpec != null) {
             CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        }
+        return typeSpec;
     }
 
 

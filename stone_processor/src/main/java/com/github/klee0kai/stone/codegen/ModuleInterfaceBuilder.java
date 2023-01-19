@@ -10,22 +10,16 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.util.*;
+
+import static com.github.klee0kai.stone.codegen.ModuleBuilder.*;
 
 public class ModuleInterfaceBuilder {
 
     public final ClassDetail orModuleCl;
 
     public ClassName className;
-
-    public static final String initMethodName = "init";
-
-    public static final String bindMethodName = "bind";
-    public static final String getFactoryMethodName = "getFactory";
-
-    public static final String switchRefMethodName = "switchRef";
 
 
     public final Set<TypeName> interfaces = new HashSet<>();
@@ -162,10 +156,12 @@ public class ModuleInterfaceBuilder {
         return typeSpecBuilder.build();
     }
 
-    public void writeTo(Filer filer) {
+    public TypeSpec buildAndWrite() {
         TypeSpec typeSpec = build();
-        if (typeSpec != null)
+        if (typeSpec != null) {
             CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        }
+        return typeSpec;
     }
 
 

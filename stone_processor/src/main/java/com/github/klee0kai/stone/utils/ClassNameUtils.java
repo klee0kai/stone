@@ -25,6 +25,7 @@ public class ClassNameUtils {
         return ClassName.get(origin.packageName(), origin.simpleName() + "StoneModule");
     }
 
+
     public static ClassName genInterfaceModuleNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
@@ -36,6 +37,12 @@ public class ClassNameUtils {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
         return ClassName.get(origin.packageName(), origin.simpleName() + "StoneComponent");
+    }
+
+    public static ClassName genHiddenModuleNameMirror(TypeName or) {
+        if (!(or instanceof ClassName)) return null;
+        ClassName origin = (ClassName) or;
+        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneHiddenModule");
     }
 
 }
