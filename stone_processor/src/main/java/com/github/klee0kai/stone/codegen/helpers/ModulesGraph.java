@@ -21,10 +21,8 @@ public class ModulesGraph {
             if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID || m.returnType.isBoxedPrimitive())
                 continue;
             ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
-            if (rtClassDetails != null) for (ClassDetail cl : rtClassDetails.getAllParents(false)) {
-                provideTypeCodes.putIfAbsent(cl.className, new LinkedList<>());
-                provideTypeCodes.get(cl.className).add(new InvokeCall(provideModuleMethod, m));
-            }
+            provideTypeCodes.putIfAbsent(rtClassDetails.className, new LinkedList<>());
+            provideTypeCodes.get(rtClassDetails.className).add(new InvokeCall(provideModuleMethod, m));
         }
     }
 
