@@ -17,6 +17,8 @@ import javax.annotation.processing.*;
 import javax.inject.Scope;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.*;
@@ -55,17 +57,23 @@ public class AnnotationProcessor extends AbstractProcessor {
         }
 
 
+        List<ClassName> allQualifiers = new LinkedList<>();
+        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
+            ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
+            allQualifiers.addAll(component.componentAnn.qualifiers);
+        }
+
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
             ClassDetail module = ClassDetail.of((TypeElement) ownerElement);
 
-            ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module);
+            ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
             factoryBuilder.buildAndWrite();
 
-            ModuleInterfaceBuilder moduleInterfaceBuilder = ModuleInterfaceBuilder.from(factoryBuilder);
+            ModuleInterfaceBuilder moduleInterfaceBuilder = ModuleInterfaceBuilder.from(factoryBuilder, allQualifiers);
             moduleInterfaceBuilder.buildAndWrite();
 
 
-            ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder);
+            ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
             moduleBuilder.buildAndWrite();
         }
 

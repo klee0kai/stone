@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.di.bindinstance;
+package com.github.klee0kai.test.di.bindinstance.singlemethod;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
@@ -10,6 +10,8 @@ import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
 
 @Component
 public interface PlanetComponent extends IComponent {
+
+    SunModule sunModule();
 
     @BindInstance
     IPlanet planet(IPlanet planet);

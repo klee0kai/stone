@@ -1,7 +1,7 @@
-package com.github.klee0kai.tests.java_models.bindinstance
+package com.github.klee0kai.tests.java_models.bindinstance.simple
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.di.bindinstance.GodWorkspaceComponent
+import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent
 import com.github.klee0kai.test.mowgli.galaxy.Earth
 import com.github.klee0kai.test.mowgli.galaxy.Saturn
 import com.github.klee0kai.test.mowgli.galaxy.Sun

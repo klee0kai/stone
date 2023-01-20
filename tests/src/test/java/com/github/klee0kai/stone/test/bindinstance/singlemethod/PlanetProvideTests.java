@@ -1,7 +1,7 @@
-package com.github.klee0kai.stone.test.bindinstance;
+package com.github.klee0kai.stone.test.bindinstance.singlemethod;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.PlanetComponent;
+import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;
 import org.junit.jupiter.api.Test;
 

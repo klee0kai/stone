@@ -195,6 +195,7 @@ public class ComponentBuilder {
 
         ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
         moduleHiddenBuilder = new ModuleHiddenBuilder(tpName);
+        moduleHiddenBuilder.qualifiers.addAll(qualifiers);
         moduleHiddenBuilder.implementIModule();
         modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PROTECTED)
                 .initializer(CodeBlock.of("new $T()", tpName)));

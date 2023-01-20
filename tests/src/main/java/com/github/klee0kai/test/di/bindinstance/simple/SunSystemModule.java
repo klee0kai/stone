@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.di.bindinstance;
+package com.github.klee0kai.test.di.bindinstance.simple;
 
 
 import com.github.klee0kai.stone.annotations.module.BindInstance;
@@ -19,7 +19,6 @@ public interface SunSystemModule {
 
     @BindInstance
     Earth earth();
-
 
     @BindInstance
     Saturn saturn();

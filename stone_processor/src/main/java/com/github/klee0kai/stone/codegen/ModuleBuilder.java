@@ -34,6 +34,7 @@ public class ModuleBuilder {
 
 
     public final Set<TypeName> interfaces = new HashSet<>();
+    public final Set<ClassName> qualifiers = new HashSet<>();
 
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
@@ -49,11 +50,12 @@ public class ModuleBuilder {
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
-    public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder) {
+    public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
         ModuleBuilder builder = new ModuleBuilder(factoryBuilder.orFactory)
                 .factoryField(factoryBuilder.orFactory.className, factoryBuilder.className)
                 .overridedField(ClassNameUtils.genInterfaceModuleNameMirror(factoryBuilder.orFactory.className))
                 .implementIModule();
+        builder.qualifiers.addAll(allQualifiers);
 
         int fieldId = 1;
         for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false)) {
@@ -61,8 +63,11 @@ public class ModuleBuilder {
                 continue;
             if (m.bindInstanceAnnotation != null) {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
-                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
-                builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
+                List<FieldDetail> qFields = ListUtils.filter(m.args,
+                        (inx, it) -> (it.type instanceof ClassName) && allQualifiers.contains(it.type)
+                );
+                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, qFields, cacheType);
+                builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
                 builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
                 switch (m.bindInstanceAnnotation.cacheType) {
                     case Weak:
@@ -277,14 +282,27 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper) {
+    public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<FieldDetail> args) {
         cacheFields.add(itemHolderCodeHelper.cachedField());
+        FieldDetail setValueArg = ListUtils.first(args, (inx, ob) -> Objects.equals(ob.type, typeName));
+
 
         //provide method
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
+        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
-                .returns(typeName)
-                .addStatement("return $L", itemHolderCodeHelper.codeGetCachedValue()));
+                .addAnnotation(Override.class)
+                .returns(typeName);
+        if (args != null) for (FieldDetail p : args) {
+            provideMethodBuilder.addParameter(p.type, p.name);
+        }
+        if (setValueArg != null) {
+            provideMethodBuilder.beginControlFlow("if ($L != null)", setValueArg.name)
+                    .addStatement(itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("$L", setValueArg.name)))
+                    .endControlFlow();
+        }
+        provideMethodBuilder.addStatement("return $L", itemHolderCodeHelper.codeGetCachedValue());
+        provideMethodBuilders.add(provideMethodBuilder);
+
 
         //bind item code
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);

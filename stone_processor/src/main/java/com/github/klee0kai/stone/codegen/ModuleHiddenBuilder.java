@@ -25,6 +25,7 @@ public class ModuleHiddenBuilder {
     public ClassName className;
 
     public final Set<TypeName> interfaces = new HashSet<>();
+    public final Set<ClassName> qualifiers = new HashSet<>();
 
 
     // ---------------------- common fields and method  ----------------------------------

@@ -32,7 +32,7 @@ public class ListUtils {
 
     public static <T> boolean contains(List<T> list, IFilter<T> filter) {
         int idx = 0;
-        for (T it : list) {
+        if (list != null) for (T it : list) {
             if (filter.filter(idx++, it))
                 return true;
         }
@@ -41,7 +41,7 @@ public class ListUtils {
 
     public static <T> T first(List<T> list, IFilter<T> filter) {
         int idx = 0;
-        for (T it : list) {
+        if (list != null) for (T it : list) {
             if (filter.filter(idx++, it))
                 return it;
         }
@@ -51,7 +51,7 @@ public class ListUtils {
     public static <T> List<T> filter(List<T> list, IFilter<T> filter) {
         LinkedList<T> touts = new LinkedList<>();
         int idx = 0;
-        for (T it : list) {
+        if (list != null) for (T it : list) {
             if (filter.filter(idx++, it))
                 touts.add(it);
         }
