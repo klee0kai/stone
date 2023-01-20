@@ -21,7 +21,7 @@ class SevenPlanetTests {
 
         //When
         val moonSky = MoonSky()
-        moonSky.injectFrom(component)
+        component.inject(moonSky);
 
         //Then
         assertEquals(earth, moonSky.earth)

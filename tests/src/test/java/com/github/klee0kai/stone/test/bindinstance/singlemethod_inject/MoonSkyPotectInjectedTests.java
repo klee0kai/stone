@@ -39,6 +39,7 @@ public class MoonSkyPotectInjectedTests {
     @Test
     public void withProtectInjectedTest() throws InterruptedException {
         //Given
+        System.gc();
         StarSkyComponent component = Stone.createComponent(StarSkyComponent.class);
         WeakReference<Mercury> mercury = new WeakReference<>(new Mercury());
         WeakReference<Sun> star = new WeakReference<>(new Sun());
@@ -56,8 +57,8 @@ public class MoonSkyPotectInjectedTests {
         assertNotNull(star.get());
 
         //Then after protect finished
-        Thread.sleep(60);
-        component.gcAll();
+        Thread.sleep(50);
+        System.gc();
         assertNull(mercury.get());
         assertNull(star.get());
     }

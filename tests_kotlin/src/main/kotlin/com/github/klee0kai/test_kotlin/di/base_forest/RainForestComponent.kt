@@ -25,9 +25,9 @@ interface RainForestComponent : IComponent {
     fun inject(gorilla: Gorilla)
     fun inject(cougar: Cougar)
 
-    @ProtectInjected(timeMillis = 50)
+    @ProtectInjected(timeMillis = 10)
     fun protectInjected(gorrila: Gorilla)
 
-    @ProtectInjected(timeMillis = 50)
+    @ProtectInjected(timeMillis = 10)
     fun protectInjected(gorrila: University)
 }

@@ -25,7 +25,7 @@ class MoonSkyTests {
 
         //When
         val moonSky = MoonSky()
-        moonSky.injectFrom(component)
+        component.inject(moonSky);
 
         //Then
         assertEquals(sun, moonSky.sun)

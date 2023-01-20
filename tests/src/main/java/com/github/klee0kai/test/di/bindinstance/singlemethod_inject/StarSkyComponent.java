@@ -8,7 +8,6 @@ import com.github.klee0kai.test.mowgli.MoonSky;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;
 import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
 import com.github.klee0kai.test.mowgli.galaxy.Mercury;
-import com.github.klee0kai.test.mowgli.galaxy.Saturn;
 
 @Component
 public interface StarSkyComponent {
@@ -29,6 +28,6 @@ public interface StarSkyComponent {
 
     void inject(MoonSky moonSky);
 
-    @ProtectInjected(timeMillis = 30)
+    @ProtectInjected(timeMillis = 10)
     void protectInjected(MoonSky moonSky);
 }
