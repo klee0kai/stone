@@ -18,8 +18,8 @@ class MoonSkyTests {
         val star = Sun()
         val earth = Earth()
         val planet = Mercury()
-        component.startModule().sun(sun)
-        component.startModule().star(star)
+        component.starModule().sun(sun)
+        component.starModule().star(star)
         component.earth(earth)
         component.planet(planet)
 

@@ -20,14 +20,14 @@ public class MoonSkyTests {
         Sun star = new Sun();
         Earth earth = new Earth();
         Mercury planet = new Mercury();
-        component.startModule().sun(sun);
-        component.startModule().star(star);
+        component.starModule().sun(sun);
+        component.starModule().star(star);
         component.earth(earth);
         component.planet(planet);
 
         //When
         MoonSky moonSky = new MoonSky();
-        moonSky.injectFrom(component);
+        component.inject(moonSky);
 
         //Then
         assertEquals(sun, moonSky.sun);

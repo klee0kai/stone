@@ -18,12 +18,12 @@ public class SevenPlanetTests {
         Earth earth = new Earth();
         Mercury mercury = new Mercury();
         Earth planet = new Earth();
-        component.bind(earth,mercury);
+        component.bind(earth, mercury);
         component.bindPlanet(planet);
 
         //When
         MoonSky moonSky = new MoonSky();
-        moonSky.injectFrom(component);
+        component.inject(moonSky);
 
         //Then
         assertEquals(earth, moonSky.earth);

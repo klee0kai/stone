@@ -25,12 +25,4 @@ public class MoonSky {
     public Earth earth;
 
 
-    public void injectFrom(StarSkyComponent component) {
-        component.inject(this);
-    }
-
-
-    public void injectFrom(SevenPlanetComponent component) {
-        component.inject(this);
-    }
 }
