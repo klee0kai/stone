@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.annotations.component.*;
+import com.github.klee0kai.stone.annotations.component.GcAllScope;
+import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.closed.IModule;
@@ -68,26 +69,12 @@ public class ModuleBuilder {
                 );
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, qFields, cacheType);
                 builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
-                builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
-                switch (m.bindInstanceAnnotation.cacheType) {
-                    case Weak:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class)));
-                        break;
-                    case Soft:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class))
-                        );
-                        break;
-                    case Strong:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class))
-                        );
-                        break;
-                }
+                builder.switchRefFor(itemHolderCodeHelper,
+                        ListUtils.setOf(
+                                m.gcScopeAnnotations,
+                                ClassName.get(GcAllScope.class),
+                                cacheType.getGcScopeClassName()
+                        ));
             } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.Factory) {
                 builder.provideFactory(m.methodName, m.returnType, m.args);
             } else {
@@ -95,27 +82,12 @@ public class ModuleBuilder {
                         m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.Soft);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
-                builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
-                switch (cacheType) {
-                    case Weak:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class))
-                        );
-                        break;
-                    case Soft:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class))
-                        );
-                        break;
-                    case Strong:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class))
-                        );
-                        break;
-                }
+                builder.switchRefFor(itemHolderCodeHelper,
+                        ListUtils.setOf(
+                                m.gcScopeAnnotations,
+                                ClassName.get(GcAllScope.class),
+                                cacheType.getGcScopeClassName()
+                        ));
             }
         }
         return builder;

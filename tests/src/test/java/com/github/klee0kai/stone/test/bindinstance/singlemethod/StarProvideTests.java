@@ -57,4 +57,25 @@ public class StarProvideTests {
     }
 
 
+
+    @Test
+    public void separateSunBindingTest() {
+        //Given
+        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
+        Sun sun1 = new Sun();
+        Sun sun2 = new Sun();
+        Sun sun3 = new Sun();
+
+        //When
+        DI.sunModule().sunStrong(sun1);
+        DI.sunModule().sunSoft(sun2);
+        DI.sunModule().sun(sun3);
+
+        //Then
+        assertEquals(sun1, DI.sunModule().sunStrong(null));
+        assertEquals(sun2, DI.sunModule().sunSoft(null));
+        assertEquals(sun3, DI.sunModule().sun(null));
+    }
+
+
 }

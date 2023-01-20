@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
@@ -11,6 +10,7 @@ import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
 import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
 import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
@@ -253,7 +253,7 @@ public class ComponentBuilder {
     }
 
 
-    public ComponentBuilder bindInstanceAndProvideMethod(String name, TypeName bindType, BindInstance.CacheType cacheType) {
+    public ComponentBuilder bindInstanceAndProvideMethod(String name, TypeName bindType, BindInstanceAnnotation ann, List<TypeName> scopes) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
@@ -263,7 +263,7 @@ public class ComponentBuilder {
         if (modulesGraph.codeProvideType(bindType, null) == null) {
             //  bind object not declared in module
             getOrCreateHiddenModuleBuilder()
-                    .bindInstance(name, bindType, cacheType);
+                    .bindInstanceAndSwitchRef(name, bindType, ann, scopes);
         }
 
         collectRuns.add(() -> {

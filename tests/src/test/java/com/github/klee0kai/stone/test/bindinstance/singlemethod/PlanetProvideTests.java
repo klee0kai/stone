@@ -2,6 +2,7 @@ package com.github.klee0kai.stone.test.bindinstance.singlemethod;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;
+import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;
 import org.junit.jupiter.api.Test;
 
@@ -59,5 +60,24 @@ public class PlanetProvideTests {
         assertNull(DI.providePlanet());
     }
 
+
+    @Test
+    public void separateBindEarthTest() {
+        //Given
+        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
+        Earth earth1 = new Earth();
+        Earth earth2 = new Earth();
+        Earth earth3 = new Earth();
+
+        //When
+        DI.earthStrong(earth1);
+        DI.earthSoft(earth2);
+        DI.earth(earth3);
+
+        //Then
+        assertEquals(earth1, DI.earthStrong(null));
+        assertEquals(earth2, DI.earthSoft(null));
+        assertEquals(earth3, DI.earth(null));
+    }
 
 }

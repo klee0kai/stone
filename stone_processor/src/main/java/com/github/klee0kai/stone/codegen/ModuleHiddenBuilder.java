@@ -1,10 +1,13 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.closed.IModule;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
+import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
@@ -44,12 +47,6 @@ public class ModuleHiddenBuilder {
 
     public ModuleHiddenBuilder(ClassName className) {
         this.className = className;
-    }
-
-    public ModuleHiddenBuilder bindInstance(String methodName, TypeName typeName, BindInstance.CacheType anCacheType) {
-        ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(anCacheType);
-        ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(methodName + provideMethodBuilders.size(), typeName, null, cacheType);
-        return bindInstance(methodName, typeName, itemHolderCodeHelper);
     }
 
     public ModuleHiddenBuilder implementIModule() {
@@ -131,6 +128,35 @@ public class ModuleHiddenBuilder {
                         .endControlFlow();
             }
         });
+        return this;
+    }
+
+    public ModuleHiddenBuilder switchRefFor(ItemHolderCodeHelper fieldHelper, Set<TypeName> scopes) {
+        switchRefStatementBuilders.putIfAbsent(scopes, CodeBlock.builder());
+        switchRefStatementBuilders.get(scopes).add(
+                fieldHelper.statementSwitchRef(
+                        "cache",
+                        "scheduler",
+                        "time"
+                ));
+        return this;
+    }
+
+    public ModuleHiddenBuilder bindInstanceAndSwitchRef(
+            String methodName,
+            TypeName typeName,
+            BindInstanceAnnotation bindInstanceAnnotation,
+            List<TypeName> scopes
+    ) {
+        ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(bindInstanceAnnotation.cacheType);
+        ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(methodName + provideMethodBuilders.size(), typeName, null, cacheType);
+        bindInstance(methodName, typeName, itemHolderCodeHelper);
+
+        switchRefFor(itemHolderCodeHelper, ListUtils.setOf(
+                scopes,
+                ClassName.get(GcAllScope.class),
+                cacheType.getGcScopeClassName()
+        ));
         return this;
     }
 

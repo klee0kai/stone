@@ -30,8 +30,7 @@ public class ComponentMethods {
                 && Objects.equals(m.returnType, m.args.get(0).type)
                 && m.protectInjectedAnnotation == null
                 && m.provideAnnotation == null
-                && m.switchCacheAnnotation == null
-                && m.gcScopeAnnotations.isEmpty();
+                && m.switchCacheAnnotation == null;
     }
 
     public static boolean isBindInstanceMethod(MethodDetail m) {
