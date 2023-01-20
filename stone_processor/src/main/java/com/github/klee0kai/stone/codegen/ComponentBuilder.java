@@ -6,6 +6,7 @@ import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
+import com.github.klee0kai.stone.exceptions.InjectNotProvided;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -157,7 +158,7 @@ public class ComponentBuilder {
 
         for (ClassDetail par : orComponentCl.getAllParents(false)) {
             if (Objects.equals(par.className, ClassName.get(IComponent.class))) continue;
-            List<MethodDetail> provideModuleMethods = ListUtils.filter(par.getAllMethods(false),
+            List<MethodDetail> provideModuleMethods = ListUtils.filter(par.getAllMethods(false, false),
                     (i, m) -> ComponentMethods.isModuleProvideMethod(m)
             );
             if (provideModuleMethods.isEmpty()) continue;
@@ -311,7 +312,7 @@ public class ComponentBuilder {
                     CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
                         //todo throw errors
-                        throw new RuntimeException("err inject " + injectField.name);
+                        throw new InjectNotProvided(injectableCl.className, injectField.name);
 
                     builder.addStatement(
                             "$L.$L",

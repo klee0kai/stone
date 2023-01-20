@@ -59,7 +59,7 @@ public class ModuleBuilder {
         builder.qualifiers.addAll(allQualifiers);
 
         int fieldId = 1;
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false)) {
+        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
             if (m.bindInstanceAnnotation != null) {

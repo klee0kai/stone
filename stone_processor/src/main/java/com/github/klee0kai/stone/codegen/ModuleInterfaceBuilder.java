@@ -36,7 +36,7 @@ public class ModuleInterfaceBuilder {
         ModuleInterfaceBuilder builder = new ModuleInterfaceBuilder(factoryBuilder.orFactory)
                 .implementIModule();
         builder.qualifiers.addAll(allQualifiers);
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false)) {
+        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
             if (m.bindInstanceAnnotation != null) {

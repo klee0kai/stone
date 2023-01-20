@@ -17,7 +17,7 @@ public class ModulesGraph {
 
     public void addModule(MethodDetail provideModuleMethod, ClassDetail module) {
         modules.add(new Pair<>(provideModuleMethod, module));
-        for (MethodDetail m : module.getAllMethods(false, "<init>")) {
+        for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
             if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID || m.returnType.isBoxedPrimitive())
                 continue;
             ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
@@ -76,7 +76,7 @@ public class ModulesGraph {
         for (Pair<MethodDetail, ClassDetail> m : modules) {
             MethodDetail method = m.first;
             ClassDetail module = m.second;
-            List<MethodDetail> bindInstanceMethods = ListUtils.filter(module.getAllMethods(true, "<init>"),
+            List<MethodDetail> bindInstanceMethods = ListUtils.filter(module.getAllMethods(true, false, "<init>"),
                     (inx, bindInstMethod) -> bindInstMethod.bindInstanceAnnotation != null && Objects.equals(bindInstMethod.returnType, typeName)
             );
             if (bindInstanceMethods.isEmpty())

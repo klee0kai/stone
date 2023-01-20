@@ -90,7 +90,7 @@ public class AnnotationProcessor extends AbstractProcessor {
             }
 
 
-            for (MethodDetail m : component.getAllMethods(false, "<init>")) {
+            for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
                 if (isModuleProvideMethod(m)) {
                     componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findForType(m.returnType));
                 } else if (isObjectProvideMethod(m)) {

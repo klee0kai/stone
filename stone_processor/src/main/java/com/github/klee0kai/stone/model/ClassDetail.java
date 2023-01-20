@@ -94,14 +94,14 @@ public class ClassDetail implements Cloneable {
         return classDetail;
     }
 
-    public List<MethodDetail> getAllMethods(boolean includeObjectMethods) {
+    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles) {
         if (!includeObjectMethods && className.equals(ClassName.OBJECT))
             return Collections.emptyList();
         LinkedList<MethodDetail> allMethods = new LinkedList<>(this.methods);
         if (superClass != null)
-            allMethods.addAll(superClass.getAllMethods(includeObjectMethods));
+            allMethods.addAll(superClass.getAllMethods(includeObjectMethods, false));
         if (interfaces != null) for (ClassDetail interf : interfaces)
-            allMethods.addAll(interf.getAllMethods(includeObjectMethods));
+            allMethods.addAll(interf.getAllMethods(includeObjectMethods, false));
 
         LinkedList<MethodDetail> outMethods = new LinkedList<>();
         for (MethodDetail m : allMethods) {
@@ -110,7 +110,7 @@ public class ClassDetail implements Cloneable {
                 if (exist |= exitMethod.isSameMethod(m))
                     break;
             }
-            if (!exist)
+            if (!exist || allowDoubles)
                 outMethods.add(m);
         }
         return outMethods;
@@ -151,9 +151,9 @@ public class ClassDetail implements Cloneable {
         return parents;
     }
 
-    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, String... exceptNames) {
+    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles, String... exceptNames) {
         LinkedList<MethodDetail> outMethods = new LinkedList<>();
-        for (MethodDetail m : getAllMethods(includeObjectMethods)) {
+        for (MethodDetail m : getAllMethods(includeObjectMethods, allowDoubles)) {
             boolean ignore = false;
             if (exceptNames != null)
                 for (String ex : exceptNames)

@@ -37,7 +37,7 @@ public class ModuleFactoryBuilder {
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
         if (builder.needBuild) {
             builder.className = ClassNameUtils.genFactoryNameMirror(module.className);
-            for (MethodDetail m : module.getAllMethods(false, "<init>")) {
+            for (MethodDetail m : module.getAllMethods(false, false, "<init>")) {
                 if (!m.isAbstract() && !module.isInterfaceClass())
                     continue;
                 ClassDetail providingClass = allClassesHelper.findForType(m.returnType);
