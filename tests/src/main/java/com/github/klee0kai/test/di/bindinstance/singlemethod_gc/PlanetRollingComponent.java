@@ -23,7 +23,7 @@ public interface PlanetRollingComponent extends IComponent {
     Earth earthSoft(Earth earth);
 
     @GcPlanetScope
-    @BindInstance
+    @BindInstance(cache = BindInstance.CacheType.Weak)
     IPlanet planet(IPlanet planet);
 
     @GcPlanetScope
