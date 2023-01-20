@@ -227,7 +227,7 @@ public class ComponentBuilder {
         provideObjMethods.add(builder);
         collectRuns.add(() -> {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(providingType, wrapperCreatorFields);
-            CodeBlock codeBlock = modulesGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
+            CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
             if (codeBlock == null) {
                 //todo throw errors
                 return;
@@ -247,7 +247,7 @@ public class ComponentBuilder {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(bindType, "arg").build())
-                .addCode(modulesGraph.codeSetBindInstancesStatement(bindType, CodeBlock.of("arg")));
+                .addCode(modulesGraph.codeSetBindInstancesStatement(name, bindType, CodeBlock.of("arg")));
         bindInstanceMethods.add(builder);
         return this;
     }
@@ -260,17 +260,17 @@ public class ComponentBuilder {
                 .addParameter(ParameterSpec.builder(bindType, "arg").build())
                 .returns(bindType);
 
-        if (modulesGraph.codeProvideType(bindType, null) == null) {
+        if (modulesGraph.codeProvideType(name, bindType, null) == null) {
             //  bind object not declared in module
             getOrCreateHiddenModuleBuilder()
                     .bindInstanceAndSwitchRef(name, bindType, ann, scopes);
         }
 
         collectRuns.add(() -> {
-            CodeBlock codeBlock = modulesGraph.codeProvideType(bindType, null);
+            CodeBlock codeBlock = modulesGraph.codeProvideType(name, bindType, null);
             // bind object declared in module
             builder.beginControlFlow("if (arg != null )")
-                    .addCode(modulesGraph.codeSetBindInstancesStatement(bindType, CodeBlock.of("arg")))
+                    .addCode(modulesGraph.codeSetBindInstancesStatement(name, bindType, CodeBlock.of("arg")))
                     .endControlFlow()
                     .addStatement("return $L", codeBlock);
 
@@ -308,7 +308,7 @@ public class ComponentBuilder {
 
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                    CodeBlock codeBlock = modulesGraph.codeProvideType(provideTypeWrapperHelper.providingType(), qFields);
+                    CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
                         //todo throw errors
                         throw new RuntimeException("err inject " + injectField.name);
