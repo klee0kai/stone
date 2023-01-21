@@ -1,9 +1,7 @@
 package com.github.klee0kai.stone.closed.types;
 
 import java.util.LinkedList;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Stone Private class
@@ -11,14 +9,10 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeScheduler {
 
-    private final ThreadPoolExecutor secThread = new ThreadPoolExecutor(0, 1, 0,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingDeque<>(), runnable -> {
-        Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
-        thread.setName("stone time scheduler");
-        return thread;
-    });
+    private static final int MAX_VALUE_AWAIT_TIME = 30;
+    private static final int MIN_AWAIT_TIME = 3;
+
+    private final ThreadPoolExecutor secThread = Threads.singleThreadExecutor("stone time scheduler");
 
     private final DataAwait<ScheduleTask> timeTaskAwait = new DataAwait<>();
 
@@ -27,26 +21,31 @@ public class TimeScheduler {
         if (secThread.getQueue().isEmpty())
             secThread.submit(() -> {
                 LinkedList<ScheduleTask> timers = new LinkedList<>();
-                {
-                    ScheduleTask task = timeTaskAwait.await(100);
-                    if (task != null) timers.add(task);
-                }
+
+                //get first task
+                ScheduleTask task = timeTaskAwait.await(MAX_VALUE_AWAIT_TIME);
+                if (task != null) timers.add(task);
 
                 while (timers.size() > 0) {
-                    ScheduleTask curTimer = timers.get(0);
                     long now = System.currentTimeMillis();
-                    if (now >= curTimer.scheduledExecutionTime()) {
-                        curTimer.run();
+                    while (!timers.isEmpty() && now >= timers.get(0).scheduledExecutionTime()) {
+                        timers.get(0).run();
                         timers.removeFirst();
-                        continue;
                     }
-                    long awaitTime = curTimer.scheduledExecutionTime() - now;
-                    ScheduleTask task = timeTaskAwait.await(awaitTime);
+
+                    long awaitTime = !timers.isEmpty() ?
+                            Math.max(timers.get(0).scheduledExecutionTime() - now, MIN_AWAIT_TIME)
+                            : MAX_VALUE_AWAIT_TIME;
+
+                    task = timeTaskAwait.await(awaitTime);
                     if (task != null)
-                        ListUtils.orderedAdd(timers, task, (ob1, ob2) -> (int) (ob1.scheduledExecutionTime() - ob2.scheduledExecutionTime()));
+                        ListUtils.orderedAdd(timers, task, (ob1, ob2) ->
+                                (int) (ob1.scheduledExecutionTime() - ob2.scheduledExecutionTime())
+                        );
                 }
 
             });
     }
+
 
 }

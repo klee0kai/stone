@@ -28,6 +28,6 @@ public interface StarSkyComponent {
 
     void inject(MoonSky moonSky);
 
-    @ProtectInjected(timeMillis = 10)
+    @ProtectInjected(timeMillis = 50)
     void protectInjected(MoonSky moonSky);
 }

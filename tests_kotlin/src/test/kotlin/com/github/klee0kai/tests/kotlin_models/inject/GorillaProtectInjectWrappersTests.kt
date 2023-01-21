@@ -47,7 +47,7 @@ class GorillaProtectInjectWrappersTests {
         assertNotNull(historyWeakReference.get())
 
         //after protect finished
-        Thread.sleep(50)
+        Thread.sleep(100)
         System.gc()
         assertNull(historyWeakReference.get())
     }

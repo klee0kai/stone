@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class MoonSkyPotectInjectedTests {
+public class MoonSkyProtectInjectedTests {
 
     @Test
     public void withoutProtectInjectedTest() {
@@ -57,7 +57,7 @@ public class MoonSkyPotectInjectedTests {
         assertNotNull(star.get());
 
         //Then after protect finished
-        Thread.sleep(50);
+        Thread.sleep(100);
         System.gc();
         assertNull(mercury.get());
         assertNull(star.get());
