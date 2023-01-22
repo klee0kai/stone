@@ -17,6 +17,8 @@ import javax.annotation.processing.*;
 import javax.inject.Scope;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.*;
@@ -53,18 +55,26 @@ public class AnnotationProcessor extends AbstractProcessor {
             ClassDetail gcScopeAnn = ClassDetail.of((TypeElement) ownerElement);
             allClassesHelper.addGcScopeAnnotation(gcScopeAnn);
         }
+
+
+        List<ClassName> allQualifiers = new LinkedList<>();
+        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
+            ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
+            allQualifiers.addAll(component.componentAnn.qualifiers);
+        }
+
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
             ClassDetail module = ClassDetail.of((TypeElement) ownerElement);
 
-            ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module);
-            factoryBuilder.writeTo(env.getFiler());
+            ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
+            factoryBuilder.buildAndWrite();
 
-            ModuleInterfaceBuilder moduleInterfaceBuilder = ModuleInterfaceBuilder.from(factoryBuilder);
-            moduleInterfaceBuilder.writeTo(env.getFiler());
+            ModuleInterfaceBuilder moduleInterfaceBuilder = ModuleInterfaceBuilder.from(factoryBuilder, allQualifiers);
+            moduleInterfaceBuilder.buildAndWrite();
 
 
-            ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder);
-            moduleBuilder.writeTo(env.getFiler());
+            ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
+            moduleBuilder.buildAndWrite();
         }
 
 
@@ -80,11 +90,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             }
 
 
-            for (MethodDetail m : component.getAllMethods(false, "<init>")) {
+            for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
                 if (isModuleProvideMethod(m)) {
                     componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findForType(m.returnType));
                 } else if (isObjectProvideMethod(m)) {
                     componentBuilder.provideObjMethod(m.methodName, m.returnType, m.args);
+                } else if (isBindInstanceAndProvideMethod(m)) {
+                    componentBuilder.bindInstanceAndProvideMethod(m.methodName, m.args.get(0).type, m.bindInstanceAnnotation, m.gcScopeAnnotations);
                 } else if (isBindInstanceMethod(m)) {
                     componentBuilder.bindInstanceMethod(m.methodName, m.args.get(0).type);
                 } else if (isGcMethod(m)) {
@@ -102,7 +114,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 }
             }
 
-            componentBuilder.writeTo(env.getFiler());
+            componentBuilder.buildAndWrite();
         }
         return false;
     }

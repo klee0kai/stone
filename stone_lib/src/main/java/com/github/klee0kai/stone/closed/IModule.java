@@ -8,8 +8,6 @@ import java.util.Set;
 /**
  * Stone Private class
  */
-
-
 public interface IModule {
 
     /**

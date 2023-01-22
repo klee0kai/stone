@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.closed.IModuleFactory;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -13,10 +12,11 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
@@ -29,13 +29,15 @@ public class ModuleFactoryBuilder {
     public boolean needBuild = false;
 
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
+    public final Set<ClassName> qualifiers = new HashSet<>();
 
-    public static ModuleFactoryBuilder fromModule(ClassDetail module) {
+    public static ModuleFactoryBuilder fromModule(ClassDetail module, List<ClassName> allQualifiers) {
         ModuleFactoryBuilder builder = new ModuleFactoryBuilder(module);
+        builder.qualifiers.addAll(allQualifiers);
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
         if (builder.needBuild) {
             builder.className = ClassNameUtils.genFactoryNameMirror(module.className);
-            for (MethodDetail m : module.getAllMethods(false, "<init>")) {
+            for (MethodDetail m : module.getAllMethods(false, false, "<init>")) {
                 if (!m.isAbstract() && !module.isInterfaceClass())
                     continue;
                 ClassDetail providingClass = allClassesHelper.findForType(m.returnType);
@@ -107,10 +109,12 @@ public class ModuleFactoryBuilder {
         return typeSpecBuilder.build();
     }
 
-    public void writeTo(Filer filer) {
+    public TypeSpec buildAndWrite() {
         TypeSpec typeSpec = build();
-        if (typeSpec != null)
+        if (typeSpec != null) {
             CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        }
+        return typeSpec;
     }
 
 

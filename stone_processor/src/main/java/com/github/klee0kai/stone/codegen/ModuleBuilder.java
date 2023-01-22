@@ -1,6 +1,8 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.annotations.component.*;
+import com.github.klee0kai.stone.annotations.component.GcAllScope;
+import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.ListUtils;
@@ -13,31 +15,27 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class ModuleBuilder {
 
+    public static final String overridedModuleFieldName = "overridedModule";
+    public static final String factoryFieldName = "factory";
+    private static final String appliedLocalFieldName = "applied";
+    public static final String initMethodName = "init";
+    public static final String bindMethodName = "bind";
+    public static final String getFactoryMethodName = "getFactory";
+    public static final String switchRefMethodName = "switchRef";
+
     public final ClassDetail orModuleCl;
 
     public ClassName className;
 
-    public static final String overridedModuleFieldName = "overridedModule";
-    public static final String factoryFieldName = "factory";
-
-    private static final String appliedLocalFieldName = "applied";
-
-    public static final String initMethodName = "init";
-
-    public static final String bindMethodName = "bind";
-    public static final String getFactoryMethodName = "getFactory";
-
-    public static final String switchRefMethodName = "switchRef";
-
 
     public final Set<TypeName> interfaces = new HashSet<>();
+    public final Set<ClassName> qualifiers = new HashSet<>();
 
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
@@ -53,40 +51,30 @@ public class ModuleBuilder {
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
-    public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder) {
+    public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
         ModuleBuilder builder = new ModuleBuilder(factoryBuilder.orFactory)
                 .factoryField(factoryBuilder.orFactory.className, factoryBuilder.className)
                 .overridedField(ClassNameUtils.genInterfaceModuleNameMirror(factoryBuilder.orFactory.className))
                 .implementIModule();
+        builder.qualifiers.addAll(allQualifiers);
 
         int fieldId = 1;
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false)) {
+        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
             if (m.bindInstanceAnnotation != null) {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
-                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
-                builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper);
-                builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
-                switch (m.bindInstanceAnnotation.cacheType) {
-                    case Weak:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class)));
-                        break;
-                    case Soft:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class))
-                        );
-                        break;
-                    case Strong:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class))
-                        );
-                        break;
-                }
+                List<FieldDetail> qFields = ListUtils.filter(m.args,
+                        (inx, it) -> (it.type instanceof ClassName) && allQualifiers.contains(it.type)
+                );
+                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, qFields, cacheType);
+                builder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
+                builder.switchRefFor(itemHolderCodeHelper,
+                        ListUtils.setOf(
+                                m.gcScopeAnnotations,
+                                ClassName.get(GcAllScope.class),
+                                cacheType.getGcScopeClassName()
+                        ));
             } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.Factory) {
                 builder.provideFactory(m.methodName, m.returnType, m.args);
             } else {
@@ -94,27 +82,12 @@ public class ModuleBuilder {
                         m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.Soft);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + fieldId++, m.returnType, m.args, cacheType);
                 builder.provideCached(m.methodName, m.returnType, itemHolderCodeHelper, m.args);
-                builder.switchRefFor(itemHolderCodeHelper, ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcAllScope.class)));
-                switch (cacheType) {
-                    case Weak:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcWeakScope.class))
-                        );
-                        break;
-                    case Soft:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcSoftScope.class))
-                        );
-                        break;
-                    case Strong:
-                        builder.switchRefFor(
-                                itemHolderCodeHelper,
-                                ListUtils.setOf(m.gcScopeAnnotations, ClassName.get(GcStrongScope.class))
-                        );
-                        break;
-                }
+                builder.switchRefFor(itemHolderCodeHelper,
+                        ListUtils.setOf(
+                                m.gcScopeAnnotations,
+                                ClassName.get(GcAllScope.class),
+                                cacheType.getGcScopeClassName()
+                        ));
             }
         }
         return builder;
@@ -214,6 +187,7 @@ public class ModuleBuilder {
     public ModuleBuilder bindMethod() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
+                .addAnnotation(BindInstance.class)
                 .addAnnotation(Override.class)
                 .addParameter(Object.class, "or")
                 .addStatement("boolean $L = false", appliedLocalFieldName)
@@ -280,14 +254,27 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper) {
+    public ModuleBuilder bindInstance(String name, TypeName typeName, ItemHolderCodeHelper itemHolderCodeHelper, List<FieldDetail> args) {
         cacheFields.add(itemHolderCodeHelper.cachedField());
+        FieldDetail setValueArg = ListUtils.first(args, (inx, ob) -> Objects.equals(ob.type, typeName));
+
 
         //provide method
-        provideMethodBuilders.add(MethodSpec.methodBuilder(name)
+        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
-                .returns(typeName)
-                .addStatement("return $L", itemHolderCodeHelper.codeGetCachedValue()));
+                .addAnnotation(Override.class)
+                .returns(typeName);
+        if (args != null) for (FieldDetail p : args) {
+            provideMethodBuilder.addParameter(p.type, p.name);
+        }
+        if (setValueArg != null) {
+            provideMethodBuilder.beginControlFlow("if ($L != null)", setValueArg.name)
+                    .addStatement(itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("$L", setValueArg.name)))
+                    .endControlFlow();
+        }
+        provideMethodBuilder.addStatement("return $L", itemHolderCodeHelper.codeGetCachedValue());
+        provideMethodBuilders.add(provideMethodBuilder);
+
 
         //bind item code
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
@@ -437,8 +424,10 @@ public class ModuleBuilder {
         return this;
     }
 
-    public TypeSpec build() {
-        collect();
+    public TypeSpec build(boolean collectAll) {
+        if (collectAll) {
+            collect();
+        }
 
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
         typeSpecBuilder.addModifiers(Modifier.PUBLIC);
@@ -463,10 +452,12 @@ public class ModuleBuilder {
         return typeSpecBuilder.build();
     }
 
-    public void writeTo(Filer filer) {
-        TypeSpec typeSpec = build();
-        if (typeSpec != null)
+    public TypeSpec buildAndWrite() {
+        TypeSpec typeSpec = build(true);
+        if (typeSpec != null) {
             CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        }
+        return typeSpec;
     }
 
 

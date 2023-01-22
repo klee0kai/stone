@@ -17,54 +17,86 @@ public class ModulesGraph {
 
     public void addModule(MethodDetail provideModuleMethod, ClassDetail module) {
         modules.add(new Pair<>(provideModuleMethod, module));
-        for (MethodDetail m : module.getAllMethods(false, "<init>")) {
+        for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
+            if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID || m.returnType.isBoxedPrimitive())
+                continue;
             ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
-            for (ClassDetail cl : rtClassDetails.getAllParents(false)) {
-                provideTypeCodes.putIfAbsent(cl.className, new LinkedList<>());
-                provideTypeCodes.get(cl.className).add(new InvokeCall(provideModuleMethod, m));
-            }
+            provideTypeCodes.putIfAbsent(rtClassDetails.className, new LinkedList<>());
+            provideTypeCodes.get(rtClassDetails.className).add(new InvokeCall(provideModuleMethod, m));
         }
     }
 
-    public CodeBlock codeProvideType(TypeName typeName, List<FieldDetail> qualifiers) {
+    /**
+     * @param provideMethodName matching providing method name or null
+     * @param typeName          providing type
+     * @param qualifiers        qualifiers
+     * @return
+     */
+    public CodeBlock codeProvideType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
         List<InvokeCall> invokeCalls = provideTypeCodes.getOrDefault(typeName, null);
         if (invokeCalls == null || invokeCalls.isEmpty())
             return null;
         Set<TypeName> qualifiersTypes = new HashSet<>(ListUtils.format(qualifiers, (it) -> it.type));
-        int bestUsedTypeCount = 0;
-        InvokeCall bestInvokeCall = null;
+        int maxUsedQualifiersCount = -1;
+        LinkedList<InvokeCall> bestInvokeCallVariants = new LinkedList<>();
         for (InvokeCall invokeCall : invokeCalls) {
-            if (bestInvokeCall == null) {
-                bestInvokeCall = invokeCall;
-                bestUsedTypeCount = invokeCall.argTypes(qualifiersTypes).size();
-            } else {
-                int usedTypes = invokeCall.argTypes(qualifiersTypes).size();
-                if (bestUsedTypeCount < usedTypes) {
-                    bestUsedTypeCount = usedTypes;
-                    bestInvokeCall = invokeCall;
-                }
-
+            int usedQualifiers = invokeCall.argTypes(qualifiersTypes).size();
+            if (maxUsedQualifiersCount < usedQualifiers) {
+                bestInvokeCallVariants.clear();
+                bestInvokeCallVariants.add(invokeCall);
+                maxUsedQualifiersCount = usedQualifiers;
+            }
+            if (maxUsedQualifiersCount == usedQualifiers) {
+                bestInvokeCallVariants.add(invokeCall);
             }
         }
+        if (bestInvokeCallVariants.isEmpty()) {
+            return null;
+        }
+        if (bestInvokeCallVariants.size() == 1) {
+            return bestInvokeCallVariants.get(0).invokeCode(qualifiers);
+        }
+        InvokeCall nameMatchingInvokeCall = provideMethodName != null ? ListUtils.first(bestInvokeCallVariants, (inx, ob) -> {
+            int len = ob.invokeSequence.size();
+            return Objects.equals(provideMethodName, ob.invokeSequence.get(len - 1).methodName);
+        }) : null;
 
-
-        return bestInvokeCall != null ? bestInvokeCall.invokeCode(qualifiers) : null;
+        return (nameMatchingInvokeCall != null ? nameMatchingInvokeCall : bestInvokeCallVariants.get(0))
+                .invokeCode(qualifiers);
     }
 
-    public CodeBlock codeSetBindInstancesStatement(TypeName typeName, CodeBlock valueCode) {
+    /**
+     * @param provideMethodName matching providing method name or null
+     * @param typeName
+     * @param valueCode
+     * @return
+     */
+    public CodeBlock codeSetBindInstancesStatement(String provideMethodName, TypeName typeName, CodeBlock valueCode) {
         CodeBlock.Builder codeBuilder = CodeBlock.builder();
         for (Pair<MethodDetail, ClassDetail> m : modules) {
             MethodDetail method = m.first;
             ClassDetail module = m.second;
-            for (MethodDetail bindInstMethod : module.getAllMethods(true, "<init>")) {
-                if (bindInstMethod.bindInstanceAnnotation != null && Objects.equals(bindInstMethod.returnType, typeName)) {
-                    String setBICacheMethodName = ModuleBuilder.setBindInstanceCachedMethodName(bindInstMethod.methodName);
-                    codeBuilder.addStatement(
-                            "$L().$L( $L )",
-                            method.methodName, setBICacheMethodName, valueCode
-                    );
-                }
+            List<MethodDetail> bindInstanceMethods = ListUtils.filter(module.getAllMethods(true, false, "<init>"),
+                    (inx, bindInstMethod) -> bindInstMethod.bindInstanceAnnotation != null && Objects.equals(bindInstMethod.returnType, typeName)
+            );
+            if (bindInstanceMethods.isEmpty())
+                continue;
+            if (bindInstanceMethods.size() == 1 || provideMethodName == null) {
+                String setBICacheMethodName = ModuleBuilder.setBindInstanceCachedMethodName(bindInstanceMethods.get(0).methodName);
+                codeBuilder.addStatement(
+                        "$L().$L( $L )",
+                        method.methodName, setBICacheMethodName, valueCode
+                );
+                continue;
             }
+
+            MethodDetail matchedMethod = ListUtils.first(bindInstanceMethods, (inx, m1) -> Objects.equals(provideMethodName, m1.methodName));
+            matchedMethod = matchedMethod != null ? matchedMethod : bindInstanceMethods.get(0);
+            String setBICacheMethodName = ModuleBuilder.setBindInstanceCachedMethodName(matchedMethod.methodName);
+            codeBuilder.addStatement(
+                    "$L().$L( $L )",
+                    method.methodName, setBICacheMethodName, valueCode
+            );
         }
 
         return codeBuilder.build();

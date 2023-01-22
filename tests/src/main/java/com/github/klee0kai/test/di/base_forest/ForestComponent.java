@@ -30,14 +30,14 @@ public interface ForestComponent extends IComponent {
     @GcAllScope
     void gcAll();
 
-    @ProtectInjected(timeMillis = 50)
+    @ProtectInjected(timeMillis = 30)
     void protectInjected(Horse horse);
 
 
-    @ProtectInjected(timeMillis = 50)
+    @ProtectInjected(timeMillis = 30)
     void protectInjected(Mowgli horse);
 
-    @ProtectInjected(timeMillis = 50)
+    @ProtectInjected(timeMillis = 30)
     void protectInjected(School school);
 
 }

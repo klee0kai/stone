@@ -12,13 +12,13 @@ import com.github.klee0kai.test.mowgli.identity.Knowledge;
 public interface IdentityModule {
 
     @Provide(cache = Provide.CacheType.Factory)
-    public Knowledge knowledge();
+    Knowledge knowledge();
 
     @Provide(cache = Provide.CacheType.Factory)
-    public Conscience conscience();
+    Conscience conscience();
 
 
     @Provide(cache = Provide.CacheType.Soft)
-    public Ideology ideology();
+    Ideology ideology();
 
 }

@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class HorseProtectInjectTests {
 
+
     @Test
     public void withoutProtectInjectTest() {
         // Given
@@ -24,7 +25,7 @@ public class HorseProtectInjectTests {
         horse.born();
         WeakReference<History> historyWeakReference = new WeakReference<>(horse.history);
         horse = null;
-        Forest.DI.gcAll();
+        System.gc();
 
         //Then: without protect all not uses should be garbage collected
         assertNull(historyWeakReference.get());
@@ -34,6 +35,7 @@ public class HorseProtectInjectTests {
     @Test
     public void withProtectInjectTest() throws InterruptedException {
         // Given
+        System.gc();
         Forest forest = new Forest();
         forest.create();
 
@@ -49,7 +51,7 @@ public class HorseProtectInjectTests {
         assertNotNull(historyWeakReference.get());
 
         //after protect finished
-        Thread.sleep(60);
+        Thread.sleep(50);
         Forest.DI.gcAll();
         assertNull(historyWeakReference.get());
     }

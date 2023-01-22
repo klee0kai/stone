@@ -2,6 +2,7 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.closed.IModule;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -10,9 +11,10 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import java.util.*;
+
+import static com.github.klee0kai.stone.codegen.ModuleBuilder.*;
 
 public class ModuleInterfaceBuilder {
 
@@ -20,30 +22,28 @@ public class ModuleInterfaceBuilder {
 
     public ClassName className;
 
-    public static final String initMethodName = "init";
-
-    public static final String bindMethodName = "bind";
-    public static final String getFactoryMethodName = "getFactory";
-
-    public static final String switchRefMethodName = "switchRef";
-
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
+    public Set<ClassName> qualifiers = new HashSet<>();
     public final HashMap<String, MethodSpec.Builder> iModuleMethodBuilders = new HashMap<>();
-
 
     // ---------------------- provide fields and method  ----------------------------------
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
 
 
-    public static ModuleInterfaceBuilder from(ModuleFactoryBuilder factoryBuilder) {
+    public static ModuleInterfaceBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
         ModuleInterfaceBuilder builder = new ModuleInterfaceBuilder(factoryBuilder.orFactory)
                 .implementIModule();
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false)) {
+        builder.qualifiers.addAll(allQualifiers);
+        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
-            builder.provideMethod(m.methodName, m.returnType, m.args);
+            if (m.bindInstanceAnnotation != null) {
+                builder.bindInstanceMethod(m.methodName, m.returnType, m.args);
+            } else {
+                builder.provideMethod(m.methodName, m.returnType, m.args);
+            }
         }
         return builder;
     }
@@ -111,6 +111,44 @@ public class ModuleInterfaceBuilder {
         return this;
     }
 
+    public ModuleInterfaceBuilder bindInstanceMethod(String name, TypeName typeName, List<FieldDetail> args) {
+        String getCachedMethodName = getCachedMethodName(name);
+        String setCacheTypeMethodName = getSwitchCacheMethodName(name);
+
+        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
+                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .returns(typeName);
+
+        MethodSpec.Builder getCachedMethodBuilder = MethodSpec.methodBuilder(getCachedMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .returns(typeName);
+
+        MethodSpec.Builder setCacheTypeMethodBuilder = MethodSpec.methodBuilder(setCacheTypeMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+
+        if (args != null) for (FieldDetail p : args) {
+            provideMethodBuilder.addParameter(p.type, p.name);
+        }
+
+        List<FieldDetail> qFields = ListUtils.filter(args,
+                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+        );
+        for (FieldDetail q : qFields) {
+            getCachedMethodBuilder.addParameter(q.type, q.name);
+            setCacheTypeMethodBuilder.addParameter(q.type, q.name);
+        }
+
+        setCacheTypeMethodBuilder
+                .addParameter(ParameterSpec.builder(SwitchCache.CacheType.class, "cache").build())
+                .addParameter(ParameterSpec.builder(TimeScheduler.class, "scheduler").build())
+                .addParameter(ParameterSpec.builder(long.class, "time").build());
+
+
+        provideMethodBuilders.add(provideMethodBuilder);
+        provideMethodBuilders.add(getCachedMethodBuilder);
+        provideMethodBuilders.add(setCacheTypeMethodBuilder);
+        return this;
+    }
 
     public ModuleInterfaceBuilder provideMethod(String name, TypeName typeName, List<FieldDetail> args) {
         String getCachedMethodName = getCachedMethodName(name);
@@ -162,10 +200,12 @@ public class ModuleInterfaceBuilder {
         return typeSpecBuilder.build();
     }
 
-    public void writeTo(Filer filer) {
+    public TypeSpec buildAndWrite() {
         TypeSpec typeSpec = build();
-        if (typeSpec != null)
+        if (typeSpec != null) {
             CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
+        }
+        return typeSpec;
     }
 
 

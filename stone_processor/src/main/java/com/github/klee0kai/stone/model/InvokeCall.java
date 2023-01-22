@@ -8,11 +8,12 @@ import java.util.*;
 
 public class InvokeCall {
 
-    private final List<MethodDetail> invokeSequence = new LinkedList<>();
+    public final List<MethodDetail> invokeSequence = new LinkedList<>();
 
     public InvokeCall(MethodDetail... callSequence) {
         this.invokeSequence.addAll(Arrays.asList(callSequence));
     }
+
 
     public Set<TypeName> argTypes() {
         Set<TypeName> argsTypes = new HashSet<>();

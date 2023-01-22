@@ -1,5 +1,8 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
+import com.github.klee0kai.stone.annotations.component.GcSoftScope;
+import com.github.klee0kai.stone.annotations.component.GcStrongScope;
+import com.github.klee0kai.stone.annotations.component.GcWeakScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.closed.types.ListUtils;
@@ -19,7 +22,20 @@ import java.util.List;
 public interface ItemHolderCodeHelper {
 
     enum ItemCacheType {
-        Strong, Soft, Weak
+        Strong, Soft, Weak;
+
+
+        public ClassName getGcScopeClassName() {
+            switch (this) {
+                case Weak:
+                    return ClassName.get(GcWeakScope.class);
+                case Strong:
+                    return ClassName.get(GcStrongScope.class);
+                case Soft:
+                default:
+                    return ClassName.get(GcSoftScope.class);
+            }
+        }
     }
 
     ClassName multiKeyMapClassName = ClassName.get(MultiKey.class);
@@ -62,7 +78,12 @@ public interface ItemHolderCodeHelper {
         }
     }
 
-    static ItemHolderCodeHelper of(String fieldName, TypeName fieldOrType, List<FieldDetail> qualifiers, ItemCacheType cacheType) {
+    static ItemHolderCodeHelper of(
+            String fieldName,
+            TypeName fieldOrType,
+            List<FieldDetail> qualifiers,
+            ItemCacheType cacheType
+    ) {
         if (qualifiers == null || qualifiers.isEmpty()) {
             SingleItemHolderHelper singleItemHolderHelper = new SingleItemHolderHelper();
             singleItemHolderHelper.fieldName = fieldName;
@@ -134,8 +155,7 @@ public interface ItemHolderCodeHelper {
     CodeBlock codeSetCachedValue(CodeBlock value);
 
 
-    CodeBlock statementSwitchRef(String cacheFieldName,String timeSchedulerFieldName, String timeFieldName);
-
+    CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName);
 
 
     class SingleItemHolderHelper implements ItemHolderCodeHelper {
@@ -227,7 +247,6 @@ public interface ItemHolderCodeHelper {
         public ClassName fieldHolderType;
 
         public List<FieldDetail> keyArgs;
-
 
 
         @Override

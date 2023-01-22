@@ -1,7 +1,7 @@
-package com.github.klee0kai.stone.test.bindinstance;
+package com.github.klee0kai.stone.test.bindinstance.simple;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.GodWorkspaceComponent;
+import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;
 import com.github.klee0kai.test.mowgli.galaxy.Saturn;
 import com.github.klee0kai.test.mowgli.galaxy.Sun;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class GodFirstWorkDayTest {
+public class GodTouchTest {
 
     @Test
     public void firstCreateSunTest() {
@@ -19,7 +19,7 @@ public class GodFirstWorkDayTest {
         Sun sun = new Sun();
 
         //When
-        DI.bind(sun);
+        DI.bindSun(sun);
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
@@ -35,30 +35,12 @@ public class GodFirstWorkDayTest {
         Earth earth = new Earth();
 
         //When
-        DI.bind(sun, earth);
+        DI.bindSun(sun);
+        DI.bindEarth(earth);
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
         assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertNull(DI.sunSystem().planet());
-    }
-
-
-    @Test
-    public void createSunEarthSaturnTest() {
-        //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
-        Earth earth = new Earth();
-        Saturn saturn = new Saturn();
-
-        //When
-        DI.bind(sun, earth, saturn);
-
-        //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertEquals(saturn.uuid, DI.sunSystem().saturn().uuid);
         assertNull(DI.sunSystem().planet());
     }
 
@@ -72,17 +54,32 @@ public class GodFirstWorkDayTest {
         Saturn saturn = new Saturn();
 
         //When
-        DI.bind(saturn);
-        DI.bind(earth);
-        DI.bind(sun);
+        DI.bindEarth(earth);
+        DI.bindSun(sun);
+        DI.bindPlanet(saturn);
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
         assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertEquals(saturn.uuid, DI.sunSystem().saturn().uuid);
-        assertNull(DI.sunSystem().planet());
+        assertEquals(saturn, DI.sunSystem().planet());
+        assertNull(DI.sunSystem().saturn());
     }
 
+
+    @Test
+    public void planetIsPlanetTest() {
+        //Given
+        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
+        Earth earth = new Earth();
+
+        //When
+        DI.planet(earth);
+        DI.planet(null);
+
+        //Then
+        assertEquals(earth, DI.planet(null));
+        assertEquals(earth, DI.providePlanet());
+    }
 
 
 }

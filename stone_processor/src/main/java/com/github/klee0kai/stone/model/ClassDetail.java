@@ -8,13 +8,14 @@ import com.github.klee0kai.stone.model.annotations.ModuleAnnotation;
 import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnnotation;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.*;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
+
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
 public class ClassDetail implements Cloneable {
 
@@ -22,7 +23,7 @@ public class ClassDetail implements Cloneable {
 
     public Set<Modifier> modifiers = Collections.emptySet();
 
-    public ElementKind elementKind;
+    public TypeKindDetails kind;
 
     public List<MethodDetail> methods = new LinkedList<>();
     public List<FieldDetail> fields = new LinkedList<>();
@@ -41,7 +42,7 @@ public class ClassDetail implements Cloneable {
         ClassDetail classDetail = new ClassDetail();
         classDetail.className = ClassNameUtils.typeOf(owner.getQualifiedName().toString());
         classDetail.modifiers = owner.getModifiers();
-        classDetail.elementKind = owner.getKind();
+        classDetail.kind = TypeKindDetails.of(owner.getKind());
 
         classDetail.componentAnn = ComponentAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class));
         classDetail.moduleAnn = ModuleAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class));
@@ -67,14 +68,40 @@ public class ClassDetail implements Cloneable {
         return classDetail;
     }
 
-    public List<MethodDetail> getAllMethods(boolean includeObjectMethods) {
+    /**
+     * Annotations not supported
+     */
+    public static ClassDetail of(String packageName, TypeSpec owner) {
+        ClassDetail classDetail = new ClassDetail();
+        classDetail.className = ClassName.get(packageName, owner.name);
+        classDetail.modifiers = owner.modifiers;
+        classDetail.kind = TypeKindDetails.of(owner.kind);
+
+        classDetail.componentAnn = ComponentAnnotation.findFrom(owner.annotations);
+        classDetail.moduleAnn = ModuleAnnotation.findFrom(owner.annotations);
+        classDetail.wrapperCreatorsAnn = WrapperCreatorsAnnotation.findFrom(owner.annotations);
+
+        for (MethodSpec m : owner.methodSpecs)
+            classDetail.methods.add(MethodDetail.of(m));
+
+        for (FieldSpec f : owner.fieldSpecs)
+            classDetail.fields.add(FieldDetail.of(f));
+
+        classDetail.superClass = allClassesHelper.findForType(owner.superclass);
+        for (TypeName t : owner.superinterfaces)
+            classDetail.interfaces.add(allClassesHelper.findForType(t));
+
+        return classDetail;
+    }
+
+    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles) {
         if (!includeObjectMethods && className.equals(ClassName.OBJECT))
             return Collections.emptyList();
         LinkedList<MethodDetail> allMethods = new LinkedList<>(this.methods);
         if (superClass != null)
-            allMethods.addAll(superClass.getAllMethods(includeObjectMethods));
+            allMethods.addAll(superClass.getAllMethods(includeObjectMethods, false));
         if (interfaces != null) for (ClassDetail interf : interfaces)
-            allMethods.addAll(interf.getAllMethods(includeObjectMethods));
+            allMethods.addAll(interf.getAllMethods(includeObjectMethods, false));
 
         LinkedList<MethodDetail> outMethods = new LinkedList<>();
         for (MethodDetail m : allMethods) {
@@ -83,7 +110,7 @@ public class ClassDetail implements Cloneable {
                 if (exist |= exitMethod.isSameMethod(m))
                     break;
             }
-            if (!exist)
+            if (!exist || allowDoubles)
                 outMethods.add(m);
         }
         return outMethods;
@@ -124,9 +151,9 @@ public class ClassDetail implements Cloneable {
         return parents;
     }
 
-    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, String... exceptNames) {
+    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles, String... exceptNames) {
         LinkedList<MethodDetail> outMethods = new LinkedList<>();
-        for (MethodDetail m : getAllMethods(includeObjectMethods)) {
+        for (MethodDetail m : getAllMethods(includeObjectMethods, allowDoubles)) {
             boolean ignore = false;
             if (exceptNames != null)
                 for (String ex : exceptNames)
@@ -192,7 +219,7 @@ public class ClassDetail implements Cloneable {
     }
 
     public boolean isInterfaceClass() {
-        return elementKind.isInterface();
+        return kind == TypeKindDetails.INTERFACE;
     }
 
     @Override

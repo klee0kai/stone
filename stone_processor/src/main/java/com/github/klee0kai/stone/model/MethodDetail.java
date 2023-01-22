@@ -4,11 +4,13 @@ import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
 import com.github.klee0kai.stone.model.annotations.ProtectInjectedAnnotation;
 import com.github.klee0kai.stone.model.annotations.ProvideAnnotation;
 import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.*;
@@ -65,6 +67,21 @@ public class MethodDetail implements Cloneable {
         }
         for (VariableElement v : element.getParameters())
             methodDetail.args.add(FieldDetail.of(v));
+        return methodDetail;
+    }
+
+    public static MethodDetail of(MethodSpec methodSpec) {
+        MethodDetail methodDetail = new MethodDetail();
+        methodDetail.methodName = methodSpec.name;
+        methodDetail.returnType = methodSpec.returnType;
+        methodDetail.modifiers = methodSpec.modifiers;
+        methodDetail.args = ListUtils.format(methodSpec.parameters, FieldDetail::of);
+
+        methodDetail.provideAnnotation = ProvideAnnotation.findFrom(methodSpec.annotations);
+        methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.findFrom(methodSpec.annotations);
+        methodDetail.protectInjectedAnnotation = ProtectInjectedAnnotation.findFrom(methodSpec.annotations);
+        methodDetail.switchCacheAnnotation = SwitchCacheAnnotation.findFrom(methodSpec.annotations);
+
         return methodDetail;
     }
 
