@@ -1,8 +1,8 @@
-name: Deploy Master Branch
+name: Collect Release Changes
 
 on:
+  workflow_dispatch:
   push:
-    workflow_dispatch:
     branches:
       - 'release/**'
       - 'releases/**'
@@ -13,15 +13,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
       - name: set up Python 3
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
       - name: Download CI Tools
-        run: git clone git@github.com:klee0kai/ci_tools.git
+        uses: actions/checkout@v3
+        with:
+          repository: klee0kai/ci_tools
+          path: 'ci_tools'
+          ref: 'master'
+
+      - name: Install CI Tools Requirements
+        run:  pip install -r ./ci_tools/requirements.txt
+
       - name: Collect changes
+        env:
+          SECRETS_GH_API_TOKEN: ${{ env.SECRETS_GH_API_TOKEN }}
         run: |
-          python ci_tools/ci_tools.py --summary -f changes.md release_diff
+          python ./ci_tools/ci_tools.py -d --summary -w changes.md release_diff
 
       - name: Upload changes artifacts
         uses: actions/upload-artifact@v3

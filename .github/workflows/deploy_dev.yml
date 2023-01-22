@@ -1,4 +1,4 @@
-name: Deploy Master Branch
+name: Deploy Dev Branch
 
 on:
   push:
