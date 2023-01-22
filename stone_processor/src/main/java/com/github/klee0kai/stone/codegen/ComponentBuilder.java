@@ -6,7 +6,7 @@ import com.github.klee0kai.stone.closed.types.TimeHolder;
 import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.exceptions.InjectNotProvided;
+import com.github.klee0kai.stone.exceptions.ObjectNotProvided;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -230,9 +230,11 @@ public class ComponentBuilder {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(providingType, wrapperCreatorFields);
             CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
             if (codeBlock == null) {
-                //todo throw errors
-                return;
-//                throw new RuntimeException("err provide obj " + name + " " + providingType);
+                throw new ObjectNotProvided(
+                        provideTypeWrapperHelper.providingType(),
+                        className,
+                        name
+                );
             }
             builder.addStatement(
                     "return $L",
@@ -311,8 +313,11 @@ public class ComponentBuilder {
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                     CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
-                        //todo throw errors
-                        throw new InjectNotProvided(injectableCl.className, injectField.name);
+                        throw new ObjectNotProvided(
+                                provideTypeWrapperHelper.providingType(),
+                                injectableCl.className,
+                                injectField.name
+                        );
 
                     builder.addStatement(
                             "$L.$L",

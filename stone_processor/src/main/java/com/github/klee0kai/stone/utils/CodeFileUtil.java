@@ -21,7 +21,7 @@ public class CodeFileUtil {
                             .build();
             javaFile.writeTo(AnnotationProcessor.env.getFiler());
         } catch (IOException e) {
-//            throw new RuntimeException(e);
+            //ignore
         }
     }
 

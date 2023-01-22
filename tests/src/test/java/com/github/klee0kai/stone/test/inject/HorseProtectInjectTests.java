@@ -52,7 +52,7 @@ public class HorseProtectInjectTests {
 
         //after protect finished
         Thread.sleep(50);
-        System.gc();
+        Forest.DI.gcAll();
         assertNull(historyWeakReference.get());
     }
 

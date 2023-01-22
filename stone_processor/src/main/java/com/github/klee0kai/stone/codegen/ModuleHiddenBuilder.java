@@ -201,7 +201,6 @@ public class ModuleHiddenBuilder {
         // set cache type  method
         String setCacheTypeMethodName = ModuleInterfaceBuilder.getSwitchCacheMethodName(name);
         MethodSpec.Builder setCacheTypeMethodBuilder = MethodSpec.methodBuilder(setCacheTypeMethodName)
-//                .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .addParameter(ParameterSpec.builder(SwitchCache.CacheType.class, "cache").build())
                 .addParameter(ParameterSpec.builder(TimeScheduler.class, "scheduler").build())

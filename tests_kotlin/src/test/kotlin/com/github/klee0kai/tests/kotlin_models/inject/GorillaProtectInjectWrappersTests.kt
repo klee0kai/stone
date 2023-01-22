@@ -48,7 +48,7 @@ class GorillaProtectInjectWrappersTests {
 
         //after protect finished
         Thread.sleep(100)
-        System.gc()
+        RainForest.DI.gcAll()
         assertNull(historyWeakReference.get())
     }
 
