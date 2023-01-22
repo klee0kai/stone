@@ -1,0 +1,31 @@
+name: Deploy Master Branch
+
+on:
+  push:
+    workflow_dispatch:
+    branches:
+      - 'release/**'
+      - 'releases/**'
+
+jobs:
+  tests:
+    name: Collect Release Changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: set up Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Download CI Tools
+        run: git clone git@github.com:klee0kai/ci_tools.git
+      - name: Collect changes
+        run: |
+          python ci_tools/ci_tools.py --summary -f changes.md release_diff
+
+      - name: Upload changes artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: changes
+          path: |
+            ./changes.md

@@ -6,6 +6,7 @@ on:
       - 'release/**'
       - 'releases/**'
       - 'master'
+      - 'dev'
 
 jobs:
   tests:
