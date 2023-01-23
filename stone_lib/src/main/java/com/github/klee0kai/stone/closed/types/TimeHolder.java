@@ -2,27 +2,30 @@ package com.github.klee0kai.stone.closed.types;
 
 import com.github.klee0kai.stone.types.wrappers.IRef;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+
 /**
  * Stone Private class
  */
 public class TimeHolder<T> implements IRef<T> {
 
     private final TimeScheduler timer;
-    private T ob = null;
+    private Reference<T> ref = null;
     private ScheduleTask scheduleTask = null;
 
     public TimeHolder(TimeScheduler timer) {
         this.timer = timer;
     }
 
-    public TimeHolder(TimeScheduler timer, T ob, long holdTime) {
+    public TimeHolder(TimeScheduler timer, T ref, long holdTime) {
         this.timer = timer;
-        hold(ob, holdTime);
+        hold(ref, holdTime);
     }
 
     public synchronized T hold(T ob, long holdTime) {
         clearRef();
-        this.ob = ob;
+        this.ref = new SoftReference<>(ob);
         timer.schedule(scheduleTask = new ScheduleTask(holdTime) {
             @Override
             public void run() {
@@ -33,11 +36,11 @@ public class TimeHolder<T> implements IRef<T> {
     }
 
     public synchronized T get() {
-        return ob;
+        return ref != null ? ref.get() : null;
     }
 
     private synchronized void clearRef() {
-        ob = null;
+        ref = null;
         if (scheduleTask != null) scheduleTask.cancel();
     }
 
