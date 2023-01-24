@@ -157,23 +157,31 @@ public class ModuleBuilder {
                 .addStatement("$L = true", appliedLocalFieldName)
                 .endControlFlow()
                 // get module factory by module class
-                .beginControlFlow("else if (or instanceof Class<?> && ((Class<?>) or).isInstance($T.class))", orModuleCl.className)
+                .beginControlFlow("else if (or instanceof Class<?> &&  $T.class.isAssignableFrom((Class<?>) or))", orModuleCl.className)
                 .beginControlFlow("try")
                 .addComment("looking for generated factory for module class")
                 .addStatement("Class<?> gennedClass = Class.forName(((Class) or).getCanonicalName() + \"StoneFactory\")")
                 .addStatement("$L = ($T) gennedClass.getConstructors()[0].newInstance()", factoryFieldName, orModuleCl.className)
                 .addStatement("$L = true", appliedLocalFieldName)
                 .endControlFlow()
-                .beginControlFlow("catch ( $T | $T | $T | $T e)", ClassNotFoundException.class,
-                        InstantiationException.class, IllegalAccessException.class, InvocationTargetException.class)
+                .beginControlFlow("catch ( $T | $T | $T | $T | $T e)",
+                        ArrayIndexOutOfBoundsException.class,
+                        ClassNotFoundException.class,
+                        InstantiationException.class,
+                        IllegalAccessException.class,
+                        InvocationTargetException.class)
 
                 .beginControlFlow("try")
                 .addComment("we don't got stone factory. We suppose class have constructor")
                 .addStatement("$L = ($T) ((Class<?>) or).getConstructors()[0].newInstance()", factoryFieldName, orModuleCl.className)
                 .addStatement("$L = true", appliedLocalFieldName)
                 .endControlFlow()
-                .beginControlFlow("catch ($T | $T | $T ex)",
-                        InstantiationException.class, IllegalAccessException.class, InvocationTargetException.class)
+                .beginControlFlow("catch ($T | $T | $T | $T ex)",
+                        ArrayIndexOutOfBoundsException.class,
+                        InstantiationException.class,
+                        IllegalAccessException.class,
+                        InvocationTargetException.class
+                )
                 .endControlFlow()
 
                 .endControlFlow()
