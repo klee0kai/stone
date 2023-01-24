@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.test.inject;
 
-import com.github.klee0kai.test.mowgli.Forest;
+import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.test.di.base_forest.ForestComponent;
 import com.github.klee0kai.test.mowgli.animal.Horse;
 import com.github.klee0kai.test.mowgli.community.History;
 import org.junit.jupiter.api.Test;
@@ -17,12 +18,14 @@ public class HorseProtectInjectTests {
     @Test
     public void withoutProtectInjectTest() {
         // Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Horse horse = new Horse();
+
 
         //When
-        Horse horse = new Horse();
-        horse.born();
+        DI.inject(horse, listener -> {
+
+        });
         WeakReference<History> historyWeakReference = new WeakReference<>(horse.history);
         horse = null;
         System.gc();
@@ -35,24 +38,24 @@ public class HorseProtectInjectTests {
     @Test
     public void withProtectInjectTest() throws InterruptedException {
         // Given
-        System.gc();
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Horse horse = new Horse();
 
         //When
-        Horse horse = new Horse();
-        horse.born();
+        DI.inject(horse, listener -> {
+
+        });
         WeakReference<History> historyWeakReference = new WeakReference<>(horse.history);
-        Forest.DI.protectInjected(horse);
+        DI.protectInjected(horse);
         horse = null;
-        Forest.DI.gcAll();
+        DI.gcAll();
 
         //Then
         assertNotNull(historyWeakReference.get());
 
         //after protect finished
         Thread.sleep(50);
-        Forest.DI.gcAll();
+        DI.gcAll();
         assertNull(historyWeakReference.get());
     }
 

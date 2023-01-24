@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.test.inject;
 
-import com.github.klee0kai.test.mowgli.Forest;
+import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.test.di.base_forest.ForestComponent;
 import com.github.klee0kai.test.mowgli.animal.Mowgli;
 import org.junit.jupiter.api.Test;
 
@@ -13,12 +14,12 @@ public class MowgliInjectWrappersTests {
     @Test
     public void supportWrappersTest() {
         //Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Mowgli mowgli = new Mowgli();
+
 
         //When
-        Mowgli mowgli = new Mowgli();
-        mowgli.born();
+        DI.inject(mowgli);
 
         //Then
         assertNotNull(mowgli.knowledge);
@@ -33,12 +34,12 @@ public class MowgliInjectWrappersTests {
     @Test
     public void refWrapperTest() {
         //Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Mowgli mowgli = new Mowgli();
 
         //When
-        Mowgli mowgli = new Mowgli();
-        mowgli.born();
+        DI.inject(mowgli);
+
 
         //Then
         assertEquals(
@@ -58,12 +59,12 @@ public class MowgliInjectWrappersTests {
     @Test
     public void genWrapperTest() {
         //Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Mowgli mowgli = new Mowgli();
 
         //When
-        Mowgli mowgli = new Mowgli();
-        mowgli.born();
+        DI.inject(mowgli);
+
 
         //Then
         assertNotEquals(

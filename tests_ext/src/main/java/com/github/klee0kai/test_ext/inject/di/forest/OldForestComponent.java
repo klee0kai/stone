@@ -17,5 +17,7 @@ public interface OldForestComponent extends ForestComponent {
 
     void inject(OldHorse horse, IStoneLifeCycleOwner iStoneLifeCycleOwner);
 
+    void inject(OldHorse horse);
+
 
 }

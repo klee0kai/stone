@@ -1,8 +1,8 @@
 package com.github.klee0kai.tests.kotlin_models.inject
 
-import com.github.klee0kai.test_kotlin.mowgli.RainForest
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponent
 import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -11,12 +11,11 @@ class GorillaInjectWrappersTests {
     @Test
     fun supportWrappersTest() {
         //Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val gorilla = Gorilla()
 
         //When
-        val gorilla = Gorilla()
-        gorilla.born()
+        DI.inject(gorilla)
 
         //Then
         assertNotNull(gorilla.knowledge)
@@ -32,12 +31,11 @@ class GorillaInjectWrappersTests {
     @Test
     fun refWrapperTest() {
         //Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val gorilla = Gorilla()
 
         //When
-        val gorilla = Gorilla()
-        gorilla.born()
+        DI.inject(gorilla)
 
 
         //Then
@@ -58,12 +56,11 @@ class GorillaInjectWrappersTests {
     @Test
     fun genWrapperTest() {
         //Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        var gorilla = Gorilla()
 
         //When
-        val gorilla = Gorilla()
-        gorilla.born()
+        DI.inject(gorilla)
 
         //Then
         assertNotEquals(

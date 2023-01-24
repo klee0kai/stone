@@ -1,6 +1,7 @@
 package com.github.klee0kai.tests.java_models.inject
 
-import com.github.klee0kai.test.mowgli.Forest
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.test.di.base_forest.ForestComponent
 import com.github.klee0kai.test.mowgli.animal.Mowgli
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -9,12 +10,12 @@ class MowgliInjectWrappersTests {
     @Test
     fun supportWrappersTest() {
         //Given
-        val forest = Forest()
-        forest.create()
+        val DI = Stone.createComponent(ForestComponent::class.java)
+        val mowgli = Mowgli()
+
 
         //When
-        val mowgli = Mowgli()
-        mowgli.born()
+        DI.inject(mowgli)
 
         //Then
         assertNotNull(mowgli.knowledge)
@@ -29,12 +30,12 @@ class MowgliInjectWrappersTests {
     @Test
     fun refWrapperTest() {
         //Given
-        val forest = Forest()
-        forest.create()
+        val DI = Stone.createComponent(ForestComponent::class.java)
+        val mowgli = Mowgli()
 
         //When
-        val mowgli = Mowgli()
-        mowgli.born()
+        DI.inject(mowgli)
+
 
         //Then
         assertEquals(
@@ -54,12 +55,12 @@ class MowgliInjectWrappersTests {
     @Test
     fun genWrapperTest() {
         //Given
-        val forest = Forest()
-        forest.create()
+        val DI = Stone.createComponent(ForestComponent::class.java)
+        val mowgli = Mowgli()
 
         //When
-        val mowgli = Mowgli()
-        mowgli.born()
+        DI.inject(mowgli)
+
 
         //Then
         assertNotEquals(

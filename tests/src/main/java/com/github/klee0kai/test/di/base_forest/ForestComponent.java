@@ -19,6 +19,8 @@ public interface ForestComponent extends IComponent {
 
     void inject(Horse horse, IStoneLifeCycleOwner iStoneLifeCycleOwner);
 
+    void inject(Horse horse);
+
 
     void inject(Mowgli mowgli);
 

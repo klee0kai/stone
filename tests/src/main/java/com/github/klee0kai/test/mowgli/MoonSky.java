@@ -1,7 +1,5 @@
 package com.github.klee0kai.test.mowgli;
 
-import com.github.klee0kai.test.di.bindinstance.simple_inject.SevenPlanetComponent;
-import com.github.klee0kai.test.di.bindinstance.singlemethod_inject.StarSkyComponent;
 import com.github.klee0kai.test.mowgli.galaxy.*;
 
 import javax.inject.Inject;

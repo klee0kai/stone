@@ -2,7 +2,6 @@ package com.github.klee0kai.test_ext.inject.mowgli.animal;
 
 import com.github.klee0kai.test.mowgli.animal.Horse;
 import com.github.klee0kai.test.mowgli.identity.Ideology;
-import com.github.klee0kai.test_ext.inject.mowgli.OldForest;
 import com.github.klee0kai.test_ext.inject.mowgli.diseases.Osteoarthritis;
 import com.github.klee0kai.test_ext.inject.mowgli.identity.OldKnowledge;
 
@@ -19,10 +18,4 @@ public class OldHorse extends Horse {
     @Inject
     public Ideology ideology;
 
-    @Override
-    public void born() {
-        OldForest.DIPro.inject(this, listener -> {
-
-        });
-    }
 }
