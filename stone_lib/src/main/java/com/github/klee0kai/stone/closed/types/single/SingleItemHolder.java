@@ -22,6 +22,8 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
 
     abstract public T set(T ob);
 
+    abstract public void setIfNull(T ob);
+
     abstract public void defRef();
 
     @Override

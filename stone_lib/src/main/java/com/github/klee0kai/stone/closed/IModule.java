@@ -21,6 +21,12 @@ public interface IModule {
 
 
     /**
+     * Init caches from module prototype.
+     * using in extOf method
+     */
+    void initCachesFrom(IModule module);
+
+    /**
      * bind instance objects
      *
      * @param object - An instance of bindable objects

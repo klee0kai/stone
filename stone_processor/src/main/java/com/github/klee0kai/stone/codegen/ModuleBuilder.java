@@ -25,6 +25,7 @@ public class ModuleBuilder {
     public static final String factoryFieldName = "factory";
     private static final String appliedLocalFieldName = "applied";
     public static final String initMethodName = "init";
+    public static final String initCachesFromMethodName = "initCachesFrom";
     public static final String bindMethodName = "bind";
     public static final String getFactoryMethodName = "getFactory";
     public static final String switchRefMethodName = "switchRef";
@@ -132,6 +133,7 @@ public class ModuleBuilder {
         }
 
         initMethod();
+        initCachesFromModule();
         bindMethod();
         getFactoryMethod();
         switchRefMethod();
@@ -181,6 +183,20 @@ public class ModuleBuilder {
                 .addStatement("return $L", appliedLocalFieldName);
 
         iModuleMethodBuilders.put(initMethodName, builder);
+        return this;
+    }
+
+
+    public ModuleBuilder initCachesFromModule() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(initCachesFromMethodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addParameter(IModule.class, "module");
+
+        for (ClassDetail cl : orModuleCl.getAllParents(false)) {
+            //TODO check module type. Set field values
+        }
+        iModuleMethodBuilders.put(initCachesFromMethodName, builder);
         return this;
     }
 
@@ -263,7 +279,20 @@ public class ModuleBuilder {
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .addAnnotation(Override.class)
-                .returns(typeName);
+                .returns(typeName)
+                // check cached from Overridden module
+                .beginControlFlow(
+                        "if ($L != null && $L.$L(  $L  ) != null ) ",
+                        overridedModuleFieldName, overridedModuleFieldName, name,
+                        String.join(",", ListUtils.format(args, (it) -> it.name))
+                )
+                .addStatement(
+                        "return $L.$L( $L ) ",
+                        overridedModuleFieldName, name,
+                        String.join(",", ListUtils.format(args, (it) -> it.name))
+                )
+                .endControlFlow();
+
         if (args != null) for (FieldDetail p : args) {
             provideMethodBuilder.addParameter(p.type, p.name);
         }

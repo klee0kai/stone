@@ -53,6 +53,7 @@ public class ModuleHiddenBuilder {
         interfaces.add(ClassName.get(IModule.class));
 
         initMethod();
+        initCachesFromModule();
         bindMethod();
         getFactoryMethod();
         switchRefMethod();
@@ -69,6 +70,17 @@ public class ModuleHiddenBuilder {
                 .addStatement("return false");
 
         iModuleMethodBuilders.put(initMethodName, builder);
+        return this;
+    }
+
+    public ModuleHiddenBuilder initCachesFromModule() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(initCachesFromMethodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addParameter(IModule.class, "module");
+        //todo add body
+
+        iModuleMethodBuilders.put(initCachesFromMethodName, builder);
         return this;
     }
 
