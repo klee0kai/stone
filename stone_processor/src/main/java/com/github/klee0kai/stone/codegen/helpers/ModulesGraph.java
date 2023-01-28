@@ -92,7 +92,8 @@ public class ModulesGraph {
 
 
     public CodeBlock codeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers, CodeBlock actionParams) {
-        InvokeCall invokeCall = provideTypeInvokeCall(cacheControlTypeCodes, provideMethodName, typeName, qualifiers);
+        String cacheControlMethodName =  ModuleCacheControlInterfaceBuilder.cacheControlMethodName(provideMethodName);
+        InvokeCall invokeCall = provideTypeInvokeCall(cacheControlTypeCodes, cacheControlMethodName, typeName, qualifiers);
         if (invokeCall == null || invokeCall.invokeSequence.isEmpty()) {
             return null;
         }

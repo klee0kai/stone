@@ -244,39 +244,14 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder bindInstanceMethod(MethodDetail m) {
-        FieldDetail setValueArg = ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType));
         List<FieldDetail> qFields = ListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
-
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC);
-        if (m.args != null) for (FieldDetail p : m.args) {
-            builder.addParameter(p.type, p.name);
-        }
-        collectRuns.add(() -> {
-
-            if (setValueArg != null) {
-                builder.addStatement(
-                        modulesGraph.codeControlCacheForType(m.methodName, m.returnType, qFields,
-                                CodeBlock.of(
-                                        "$T.setIfNullValueAction( $L )",
-                                        CacheAction.class, setValueArg.name
-                                ))
-                );
-            }
-        });
-        bindInstanceMethods.add(builder);
-        return this;
-    }
+        boolean isProvideMethod = !(m.returnType.isPrimitive() || m.returnType.isBoxedPrimitive() || Objects.equals(m.returnType, TypeName.VOID));
+        FieldDetail setValueArg = isProvideMethod ? ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType))
+                : ListUtils.first(m.args, (inx, it) -> (it.type instanceof ClassName) && !qualifiers.contains(it.type));
 
 
-    public ComponentBuilder bindInstanceAndProvideMethod(MethodDetail m) {
-        FieldDetail setValueArg = ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType));
-        List<FieldDetail> qFields = ListUtils.filter(m.args,
-                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
-        );
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
@@ -286,7 +261,7 @@ public class ComponentBuilder {
             builder.addParameter(p.type, p.name);
         }
 
-        if (modulesGraph.codeProvideType(m.methodName, m.returnType, qFields) == null) {
+        if (isProvideMethod && modulesGraph.codeProvideType(m.methodName, m.returnType, qFields) == null) {
             //  bind object not declared in module
             ModuleBuilder moduleBuilder = getOrCreateHiddenModuleBuilder();
             ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
@@ -303,18 +278,21 @@ public class ComponentBuilder {
         }
 
         collectRuns.add(() -> {
-            CodeBlock codeBlock = modulesGraph.codeProvideType(m.methodName, m.returnType, qFields);
             // bind object declared in module
             if (setValueArg != null) {
                 builder.addStatement(
-                        modulesGraph.codeControlCacheForType(m.methodName, m.returnType, qFields,
+                        modulesGraph.codeControlCacheForType(m.methodName, setValueArg.type, qFields,
                                 CodeBlock.of(
                                         "$T.setIfNullValueAction( $L )",
                                         CacheAction.class, setValueArg.name
                                 ))
                 );
             }
-            builder.addStatement("return $L", codeBlock);
+
+            if (isProvideMethod) {
+                CodeBlock provideCode = modulesGraph.codeProvideType(m.methodName, m.returnType, qFields);
+                builder.addStatement("return $L", provideCode);
+            }
 
         });
         bindInstanceMethods.add(builder);

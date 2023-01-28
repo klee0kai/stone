@@ -95,9 +95,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                     componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findForType(m.returnType));
                 } else if (isObjectProvideMethod(m)) {
                     componentBuilder.provideObjMethod(m.methodName, m.returnType, m.args);
-                } else if (isBindInstanceAndProvideMethod(m)) {
-                    componentBuilder.bindInstanceAndProvideMethod(m);
-                } else if (isBindInstanceMethod(m)) {
+                } else if (isBindInstanceAndProvideMethod(m) || isBindInstanceMethod(m)) {
                     componentBuilder.bindInstanceMethod(m);
                 } else if (isGcMethod(m)) {
                     componentBuilder.gcMethod(m.methodName, m.gcScopeAnnotations);
