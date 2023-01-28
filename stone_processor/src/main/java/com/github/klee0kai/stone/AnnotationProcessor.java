@@ -5,8 +5,8 @@ import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
+import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
-import com.github.klee0kai.stone.codegen.ModuleInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -69,8 +69,8 @@ public class AnnotationProcessor extends AbstractProcessor {
             ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
             factoryBuilder.buildAndWrite();
 
-            ModuleInterfaceBuilder moduleInterfaceBuilder = ModuleInterfaceBuilder.from(factoryBuilder, allQualifiers);
-            moduleInterfaceBuilder.buildAndWrite();
+            ModuleCacheControlInterfaceBuilder moduleCacheControlInterfaceBuilder = ModuleCacheControlInterfaceBuilder.from(factoryBuilder, allQualifiers);
+            moduleCacheControlInterfaceBuilder.buildAndWrite();
 
 
             ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
@@ -96,9 +96,9 @@ public class AnnotationProcessor extends AbstractProcessor {
                 } else if (isObjectProvideMethod(m)) {
                     componentBuilder.provideObjMethod(m.methodName, m.returnType, m.args);
                 } else if (isBindInstanceAndProvideMethod(m)) {
-                    componentBuilder.bindInstanceAndProvideMethod(m.methodName, m.args.get(0).type, m.bindInstanceAnnotation, m.gcScopeAnnotations);
+                    componentBuilder.bindInstanceAndProvideMethod(m);
                 } else if (isBindInstanceMethod(m)) {
-                    componentBuilder.bindInstanceMethod(m.methodName, m.args.get(0).type);
+                    componentBuilder.bindInstanceMethod(m);
                 } else if (isGcMethod(m)) {
                     componentBuilder.gcMethod(m.methodName, m.gcScopeAnnotations);
                 } else if (isSwitchCacheMethod(m)) {

@@ -28,16 +28,16 @@ public abstract class WestModule {
     public abstract Cave cave();
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave(Cave.CaveType type, int deep);
+    public abstract Cave cave(Cave.CaveType type, Integer deep);
 
     @Provide(cache = Provide.CacheType.Soft)
     public abstract Cave cave(Cave.CaveType type);
 
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave(Cave.CaveType type, int deep, int space);
+    public abstract Cave cave(Cave.CaveType type, Integer deep, Integer space);
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave(int deep, Cave.CaveType type);
+    public abstract Cave cave(Integer deep, Cave.CaveType type);
 
 }

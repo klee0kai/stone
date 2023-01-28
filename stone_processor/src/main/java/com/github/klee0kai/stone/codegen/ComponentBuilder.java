@@ -1,9 +1,8 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
-import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.TimeHolder;
-import com.github.klee0kai.stone.closed.types.TimeScheduler;
+import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvided;
@@ -11,7 +10,6 @@ import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
 import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
 import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
@@ -63,7 +61,7 @@ public class ComponentBuilder {
 
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
-    private ModuleHiddenBuilder moduleHiddenBuilder = null;
+    private ModuleBuilder moduleHiddenBuilder = null;
     private final ModulesGraph modulesGraph = new ModulesGraph();
     private final LinkedList<ModuleFieldHelper> moduleFieldHelpers = new LinkedList<>();
 
@@ -186,7 +184,7 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        modulesGraph.addModule(MethodDetail.simpleName(name), module);
+        modulesGraph.addModule(MethodDetail.simpleName(name), module, qualifiers);
         moduleFieldHelpers.add(new ModuleFieldHelper(name));
         return this;
     }
@@ -195,7 +193,7 @@ public class ComponentBuilder {
         String name = hiddenModuleFieldName;
 
         ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
-        moduleHiddenBuilder = new ModuleHiddenBuilder(tpName);
+        moduleHiddenBuilder = new ModuleBuilder(null, tpName);
         moduleHiddenBuilder.qualifiers.addAll(qualifiers);
         moduleHiddenBuilder.implementIModule();
         modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PROTECTED)
@@ -245,37 +243,78 @@ public class ComponentBuilder {
     }
 
 
-    public ComponentBuilder bindInstanceMethod(String name, TypeName bindType) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+    public ComponentBuilder bindInstanceMethod(MethodDetail m) {
+        FieldDetail setValueArg = ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType));
+        List<FieldDetail> qFields = ListUtils.filter(m.args,
+                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+        );
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterSpec.builder(bindType, "arg").build())
-                .addCode(modulesGraph.codeSetBindInstancesStatement(name, bindType, CodeBlock.of("arg")));
+                .addModifiers(Modifier.PUBLIC);
+        if (m.args != null) for (FieldDetail p : m.args) {
+            builder.addParameter(p.type, p.name);
+        }
+        collectRuns.add(() -> {
+
+            if (setValueArg != null) {
+                builder.addStatement(
+                        modulesGraph.codeControlCacheForType(m.methodName, m.returnType, qFields,
+                                CodeBlock.of(
+                                        "$T.setIfNullValueAction( $L )",
+                                        CacheAction.class, setValueArg.name
+                                ))
+                );
+            }
+        });
         bindInstanceMethods.add(builder);
         return this;
     }
 
 
-    public ComponentBuilder bindInstanceAndProvideMethod(String name, TypeName bindType, BindInstanceAnnotation ann, List<TypeName> scopes) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+    public ComponentBuilder bindInstanceAndProvideMethod(MethodDetail m) {
+        FieldDetail setValueArg = ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType));
+        List<FieldDetail> qFields = ListUtils.filter(m.args,
+                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+        );
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(ParameterSpec.builder(bindType, "arg").build())
-                .returns(bindType);
+                .returns(m.returnType);
+        if (m.args != null) for (FieldDetail p : m.args) {
+            builder.addParameter(p.type, p.name);
+        }
 
-        if (modulesGraph.codeProvideType(name, bindType, null) == null) {
+        if (modulesGraph.codeProvideType(m.methodName, m.returnType, qFields) == null) {
             //  bind object not declared in module
-            getOrCreateHiddenModuleBuilder()
-                    .bindInstanceAndSwitchRef(name, bindType, ann, scopes);
+            ModuleBuilder moduleBuilder = getOrCreateHiddenModuleBuilder();
+            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
+            //TODO support qualifiers
+            ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
+            moduleBuilder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper, m.args)
+                    .cacheControl(m.methodName, m.returnType, itemHolderCodeHelper, m.args)
+                    .switchRefFor(itemHolderCodeHelper,
+                            ListUtils.setOf(
+                                    m.gcScopeAnnotations,
+                                    ClassName.get(GcAllScope.class),
+                                    cacheType.getGcScopeClassName()
+                            ));
         }
 
         collectRuns.add(() -> {
-            CodeBlock codeBlock = modulesGraph.codeProvideType(name, bindType, null);
+            CodeBlock codeBlock = modulesGraph.codeProvideType(m.methodName, m.returnType, qFields);
             // bind object declared in module
-            builder.beginControlFlow("if (arg != null )")
-                    .addCode(modulesGraph.codeSetBindInstancesStatement(name, bindType, CodeBlock.of("arg")))
-                    .endControlFlow()
-                    .addStatement("return $L", codeBlock);
+            if (setValueArg != null) {
+                builder.addStatement(
+                        modulesGraph.codeControlCacheForType(m.methodName, m.returnType, qFields,
+                                CodeBlock.of(
+                                        "$T.setIfNullValueAction( $L )",
+                                        CacheAction.class, setValueArg.name
+                                ))
+                );
+            }
+            builder.addStatement("return $L", codeBlock);
 
         });
         bindInstanceMethods.add(builder);
@@ -410,20 +449,24 @@ public class ComponentBuilder {
                         ParameterizedTypeName.get(HashSet.class, Class.class),
                         Arrays.class,
                         scopesCode.build()
-                );
+                )
+                .addStatement("$T toWeak = $T.toWeak()", SwitchCacheParam.class, SwitchCacheParam.class)
+                .addStatement("$T toDef = $T.toDef()", SwitchCacheParam.class, SwitchCacheParam.class);
 
 
         gcMethods.add(builder);
         collectRuns.add(() -> {
-            for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
-                builder.addCode(moduleFieldHelper.statementAllWeak("scopes"));
+            for (String module : modulesFields.keySet()) {
+                builder.addStatement("this.$L.switchRef(scopes, toWeak)", module);
+            }
 
             builder.addStatement("$T.gc()", System.class);
 
             if (fields.containsKey(refCollectionGlFieldName))
                 builder.addStatement("$L.clearNulls()", refCollectionGlFieldName);
-            for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
-                builder.addCode(moduleFieldHelper.statementAllDef("scopes"));
+            for (String module : modulesFields.keySet()) {
+                builder.addStatement("this.$L.switchRef(scopes, toDef)", module);
+            }
         });
         return this;
     }
@@ -448,21 +491,28 @@ public class ComponentBuilder {
                         scopesCode.build()
                 );
 
-        builder.addStatement("$T cache = $T.$L", SwitchCache.CacheType.class, SwitchCache.CacheType.class, switchCacheAnnotation.cache.name());
-        builder.addStatement("$T time = $L", long.class, switchCacheAnnotation.timeMillis);
+
+        CodeBlock.Builder schedulerInitCode = CodeBlock.builder();
         if (switchCacheAnnotation.timeMillis > 0) {
             timeHolderFields();
-            builder.addStatement("$T scheduler = this.$L", TimeScheduler.class, scheduleGlFieldName);
+            schedulerInitCode.add("this.$L", scheduleGlFieldName);
         } else {
-            builder.addStatement("$T scheduler = null", TimeScheduler.class);
+            schedulerInitCode.add("null");
         }
+        builder.addStatement(
+                "$T switchCacheParams = new $T( $T.$L , $L, $L )",
+                SwitchCacheParam.class, SwitchCacheParam.class,
+                SwitchCache.CacheType.class, switchCacheAnnotation.cache.name(),
+                switchCacheAnnotation.timeMillis,
+                schedulerInitCode.build()
+        );
 
 
         switchRefMethods.add(builder);
         collectRuns.add(() -> {
             for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
                 builder.addCode(moduleFieldHelper.statementSwitchRefs(
-                        "scopes", "cache", "scheduler", "time"
+                        "scopes", "switchCacheParams"
                 ));
         });
         return this;
@@ -523,7 +573,8 @@ public class ComponentBuilder {
             TypeSpec typeSpec = moduleHiddenBuilder.buildAndWrite();
             modulesGraph.addModule(
                     MethodDetail.simpleName(hiddenModuleMethodName),
-                    ClassDetail.of(moduleHiddenBuilder.className.packageName(), typeSpec)
+                    ClassDetail.of(moduleHiddenBuilder.className.packageName(), typeSpec),
+                    qualifiers
             );
         }
 
@@ -536,7 +587,7 @@ public class ComponentBuilder {
     }
 
 
-    private ModuleHiddenBuilder getOrCreateHiddenModuleBuilder() {
+    private ModuleBuilder getOrCreateHiddenModuleBuilder() {
         if (moduleHiddenBuilder == null) provideHiddenModuleMethod();
 
 

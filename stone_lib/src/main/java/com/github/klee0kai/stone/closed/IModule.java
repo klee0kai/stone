@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.closed;
 
-import com.github.klee0kai.stone.annotations.component.SwitchCache;
-import com.github.klee0kai.stone.closed.types.TimeScheduler;
+import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 
 import java.util.Set;
 
@@ -43,6 +42,6 @@ public interface IModule {
     /**
      * Switch cache type for scope
      */
-    void switchRef(Set<Class> scopes, SwitchCache.CacheType cacheType, TimeScheduler scheduler, long time);
+    void switchRef(Set<Class> scopes, SwitchCacheParam param);
 
 }

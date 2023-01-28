@@ -1,8 +1,7 @@
 package com.github.klee0kai.stone.closed.types.map;
 
-import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.closed.types.ScheduleTask;
-import com.github.klee0kai.stone.closed.types.TimeScheduler;
+import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -23,6 +22,8 @@ public abstract class MapItemHolder<Key, T> {
 
 
     abstract public T set(Key key, T ob);
+
+    abstract public void setIfNull(Key key, T ob);
 
     abstract public void defRef();
 
@@ -96,8 +97,8 @@ public abstract class MapItemHolder<Key, T> {
     }
 
 
-    public void switchCache(SwitchCache.CacheType cacheType, TimeScheduler scheduler, long time) {
-        switch (cacheType) {
+    public void switchCache(SwitchCacheParam params) {
+        switch (params.cache) {
             case Default:
                 defRef();
                 break;
@@ -115,9 +116,9 @@ public abstract class MapItemHolder<Key, T> {
                 break;
         }
 
-        if (time > 0) {
+        if (params.time > 0) {
             shedTaskCount.incrementAndGet();
-            scheduler.schedule(new ScheduleTask(time) {
+            params.scheduler.schedule(new ScheduleTask(params.time) {
                 @Override
                 public void run() {
                     if (shedTaskCount.decrementAndGet() <= 0)

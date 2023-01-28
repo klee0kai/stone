@@ -140,22 +140,14 @@ public interface ItemHolderCodeHelper {
 
     FieldSpec.Builder cachedField();
 
-    /**
-     * not close as Statement
-     *
-     * @return
-     */
     CodeBlock codeGetCachedValue();
 
-    /**
-     * not close as Statement
-     *
-     * @return
-     */
     CodeBlock codeSetCachedValue(CodeBlock value);
 
 
-    CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName);
+    CodeBlock codeSetCachedIfNullValue(CodeBlock value);
+
+    CodeBlock statementSwitchRef(CodeBlock paramsCode);
 
 
     class SingleItemHolderHelper implements ItemHolderCodeHelper {
@@ -181,17 +173,18 @@ public interface ItemHolderCodeHelper {
 
         @Override
         public CodeBlock codeSetCachedValue(CodeBlock value) {
-            return CodeBlock.builder()
-                    .add("$L.set(", fieldName)
-                    .add(value)
-                    .add(")")
-                    .build();
+            return CodeBlock.of("$L.set( $L )", fieldName, value);
         }
 
         @Override
-        public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
+        public CodeBlock codeSetCachedIfNullValue(CodeBlock value) {
+            return CodeBlock.of("$L.setIfNull( $L )", fieldName, value);
+        }
+
+        @Override
+        public CodeBlock statementSwitchRef(CodeBlock paramsCode) {
             return CodeBlock.builder()
-                    .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
+                    .addStatement("$L.switchCache($L)", fieldName, paramsCode)
                     .build();
         }
 
@@ -222,17 +215,24 @@ public interface ItemHolderCodeHelper {
 
         @Override
         public CodeBlock codeSetCachedValue(CodeBlock value) {
-            return CodeBlock.builder()
-                    .add("$L.set( $L , ", fieldName, keyParam.name)
-                    .add(value)
-                    .add(")")
-                    .build();
+            return CodeBlock.of(
+                    "$L.set( $L , $L )",
+                    fieldName, keyParam.name, value
+            );
         }
 
         @Override
-        public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
+        public CodeBlock codeSetCachedIfNullValue(CodeBlock value) {
+            return CodeBlock.of(
+                    "$L.setIfNull( $L , $L )",
+                    fieldName, keyParam.name, value
+            );
+        }
+
+        @Override
+        public CodeBlock statementSwitchRef(CodeBlock paramsCode) {
             return CodeBlock.builder()
-                    .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
+                    .addStatement("$L.switchCache($L)", fieldName, paramsCode)
                     .build();
         }
 
@@ -258,7 +258,6 @@ public interface ItemHolderCodeHelper {
 
         @Override
         public CodeBlock codeGetCachedValue() {
-            ;
             return CodeBlock.builder()
                     .add("$L.get(new $T($L) )", fieldName, multiKeyMapClassName,
                             String.join(",", ListUtils.format(keyArgs, (k) -> k.name)))
@@ -267,18 +266,26 @@ public interface ItemHolderCodeHelper {
 
         @Override
         public CodeBlock codeSetCachedValue(CodeBlock value) {
-            return CodeBlock.builder()
-                    .add("$L.set( new $T( $L ), ", fieldName, multiKeyMapClassName,
-                            String.join(",", ListUtils.format(keyArgs, (k) -> k.name)))
-                    .add(value)
-                    .add(")")
-                    .build();
+            return CodeBlock.of(
+                    "$L.set( new $T( $L ), $L )", fieldName, multiKeyMapClassName,
+                    String.join(",", ListUtils.format(keyArgs, (k) -> k.name)),
+                    value
+            );
         }
 
         @Override
-        public CodeBlock statementSwitchRef(String cacheFieldName, String timeSchedulerFieldName, String timeFieldName) {
+        public CodeBlock codeSetCachedIfNullValue(CodeBlock value) {
+            return CodeBlock.of(
+                    "$L.setIfNull( new $T( $L ), $L )", fieldName, multiKeyMapClassName,
+                    String.join(",", ListUtils.format(keyArgs, (k) -> k.name)),
+                    value
+            );
+        }
+
+        @Override
+        public CodeBlock statementSwitchRef(CodeBlock paramsCode) {
             return CodeBlock.builder()
-                    .addStatement("$L.switchCache($L,$L,$L)", fieldName, cacheFieldName, timeSchedulerFieldName, timeFieldName)
+                    .addStatement("$L.switchCache($L)", fieldName, paramsCode)
                     .build();
         }
 

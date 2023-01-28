@@ -24,9 +24,9 @@ public class ModuleFieldHelper {
                 .build();
     }
 
-    public CodeBlock statementSwitchRefs(String scopesField, String cacheTypeField, String scheduleField, String timeField) {
+    public CodeBlock statementSwitchRefs(String scopesField, String switchCacheParams) {
         return CodeBlock.builder()
-                .addStatement("this.$L.switchRef($L, $L, $L , $L )", moduleFieldName, scopesField, cacheTypeField, scheduleField, timeField)
+                .addStatement("this.$L.switchRef($L, $L)", moduleFieldName, scopesField, switchCacheParams)
                 .build();
     }
 
