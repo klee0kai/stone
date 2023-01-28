@@ -2,6 +2,7 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
@@ -154,17 +155,25 @@ public class ComponentBuilder {
                 .addParameter(IComponent.class, "c");
         if (override) builder.addAnnotation(Override.class);
 
-        for (ClassDetail par : orComponentCl.getAllParents(false)) {
-            if (Objects.equals(par.className, ClassName.get(IComponent.class))) continue;
-            List<MethodDetail> provideModuleMethods = ListUtils.filter(par.getAllMethods(false, false),
+        for (ClassDetail proto : orComponentCl.getAllParents(false)) {
+            if (Objects.equals(proto.className, ClassName.get(IComponent.class))) continue;
+            List<MethodDetail> provideModuleMethods = ListUtils.filter(proto.getAllMethods(false, false),
                     (i, m) -> ComponentMethods.isModuleProvideMethod(m)
             );
             if (provideModuleMethods.isEmpty()) continue;
 
             List<String> provideFactories = ListUtils.format(provideModuleMethods, (it) -> it.methodName + "()");
 
-            builder.beginControlFlow("if (c instanceof $T)", par.className)
-                    .addStatement(" c.init( $L ) ", String.join(",", provideFactories))
+            builder.beginControlFlow("if (c instanceof $T)", proto.className)
+                    .addStatement("$T protoComponent = ($T) c", proto.className, proto.className);
+            for (MethodDetail provideModule : provideModuleMethods) {
+                builder.addStatement(
+                        "$L().initCachesFrom( ($T) protoComponent.$L() )",
+                        provideModule.methodName, IModule.class, provideModule.methodName
+                );
+            }
+
+            builder.addStatement("c.init( $L ) ", String.join(",", provideFactories))
                     .endControlFlow();
         }
 
@@ -251,8 +260,6 @@ public class ComponentBuilder {
         FieldDetail setValueArg = isProvideMethod ? ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType))
                 : ListUtils.first(m.args, (inx, it) -> (it.type instanceof ClassName) && !qualifiers.contains(it.type));
 
-
-
         MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
@@ -265,10 +272,9 @@ public class ComponentBuilder {
             //  bind object not declared in module
             ModuleBuilder moduleBuilder = getOrCreateHiddenModuleBuilder();
             ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
-            //TODO support qualifiers
             ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
-            moduleBuilder.bindInstance(m.methodName, m.returnType, itemHolderCodeHelper, m.args)
-                    .cacheControl(m.methodName, m.returnType, itemHolderCodeHelper, m.args)
+            moduleBuilder.bindInstance(m, itemHolderCodeHelper)
+                    .cacheControl(m, itemHolderCodeHelper)
                     .switchRefFor(itemHolderCodeHelper,
                             ListUtils.setOf(
                                     m.gcScopeAnnotations,

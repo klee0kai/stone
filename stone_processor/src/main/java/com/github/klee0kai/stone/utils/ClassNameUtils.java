@@ -26,10 +26,10 @@ public class ClassNameUtils {
     }
 
 
-    public static ClassName genInterfaceModuleNameMirror(TypeName or) {
+    public static ClassName genCacheControlInterfaceModuleNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), "I" + origin.simpleName() + "StoneModule");
+        return ClassName.get(origin.packageName(), "I" + origin.simpleName() + "StoneCacheControlModule");
     }
 
 

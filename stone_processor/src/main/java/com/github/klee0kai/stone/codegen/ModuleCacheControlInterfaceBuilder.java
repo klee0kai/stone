@@ -12,6 +12,8 @@ import com.squareup.javapoet.*;
 import javax.lang.model.element.Modifier;
 import java.util.*;
 
+import static com.github.klee0kai.stone.codegen.ModuleBuilder.bindMethodName;
+
 public class ModuleCacheControlInterfaceBuilder {
 
     public final ClassDetail orModuleCl;
@@ -31,11 +33,13 @@ public class ModuleCacheControlInterfaceBuilder {
     public static ModuleCacheControlInterfaceBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
         ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(factoryBuilder.orFactory);
         builder.qualifiers.addAll(allQualifiers);
+
+        builder.bindMethod();
         for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
-            builder.provideMethod(m.methodName, m.returnType, m.args);
-            builder.cacheControlMethod(m.methodName, m.returnType, m.args);
+            builder.provideMethod(m.methodName, m.returnType, m.args)
+                    .cacheControlMethod(m.methodName, m.returnType, m.args);
         }
         return builder;
     }
@@ -43,7 +47,18 @@ public class ModuleCacheControlInterfaceBuilder {
 
     public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl) {
         this.orModuleCl = orModuleCl;
-        this.className = ClassNameUtils.genInterfaceModuleNameMirror(orModuleCl.className);
+        this.className = ClassNameUtils.genCacheControlInterfaceModuleNameMirror(orModuleCl.className);
+    }
+
+    public ModuleCacheControlInterfaceBuilder bindMethod() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addParameter(Object.class, "or")
+                .returns(boolean.class);
+
+        iModuleMethodBuilders.put(bindMethodName, builder);
+
+        return this;
     }
 
     public ModuleCacheControlInterfaceBuilder provideMethod(String name, TypeName typeName, List<FieldDetail> args) {
