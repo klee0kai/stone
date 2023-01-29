@@ -49,8 +49,13 @@ public class AnnotationProcessor extends AbstractProcessor {
         List<ClassName> allQualifiers = new LinkedList<>();
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
             ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
-            allQualifiers.addAll(component.componentAnn.qualifiers);
             allClassesHelper.deepExtractGcAnnotations(component);
+
+            for (ClassDetail cl : component.getAllParents(false)) {
+                if (cl.componentAnn != null) {
+                    allQualifiers.addAll(cl.componentAnn.qualifiers);
+                }
+            }
         }
 
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
