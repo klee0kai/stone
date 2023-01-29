@@ -1,22 +1,22 @@
-package com.dirgub.klee0kai.stone.text_ext.inject.bindInstance;
+package com.dirgub.klee0kai.stone.text_ext.inject.bindInstance.simple;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test_ext.inject.di.bindinstance.GodRebrandingComponent;
+import com.github.klee0kai.test_ext.inject.di.bindinstance.simple.GodRebrandingComponent;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class GodRebrandingTest {
+public class GodRebrandingAimedTest {
 
     @Test
     public void createdIsReusableTest() {
         // Given
         GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
         Earth earth = new Earth();
-        DI.bind(earth);
+        DI.bindEarth(earth);
 
 
         //When
@@ -41,7 +41,7 @@ public class GodRebrandingTest {
 
 
         //When
-        DI.bind(earth);
+        DI.bindEarth(earth);
 
 
         //Then
@@ -58,13 +58,13 @@ public class GodRebrandingTest {
         GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
         Earth earth1 = new Earth();
         Earth earth2 = new Earth();
-        DI.bind(earth1);
+        DI.bindEarth(earth1);
 
 
         //When
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
         DIPro.extOf(DI);
-        DIPro.bind(earth2);
+        DIPro.bindEarth(earth2);
 
 
         //Then
@@ -82,14 +82,14 @@ public class GodRebrandingTest {
         Earth earth1 = new Earth();
         Earth earth2 = new Earth();
         Earth earth3 = new Earth();
-        DI.bind(earth1);
+        DI.bindEarth(earth1);
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
         DIPro.extOf(DI);
-        DIPro.bind(earth2);
+        DIPro.bindEarth(earth2);
 
 
         //When
-        DI.bind(earth3);
+        DI.bindEarth(earth3);
 
 
         //Then

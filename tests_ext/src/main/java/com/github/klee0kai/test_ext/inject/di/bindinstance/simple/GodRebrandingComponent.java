@@ -1,4 +1,4 @@
-package com.github.klee0kai.test_ext.inject.di.bindinstance;
+package com.github.klee0kai.test_ext.inject.di.bindinstance.simple;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
