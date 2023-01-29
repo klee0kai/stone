@@ -1,4 +1,4 @@
-package com.dirgub.klee0kai.stone.text_ext.inject.bindInstance.simple;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.simple;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class GodRebrandingPlanetTest {
+public class GodRebrandingAimedTest {
 
     @Test
     public void createdIsReusableTest() {
         // Given
         GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
         Earth earth = new Earth();
-        DI.bindPlanet(earth);
+        DI.bindEarth(earth);
 
 
         //When
@@ -25,10 +25,10 @@ public class GodRebrandingPlanetTest {
 
 
         //Then
-        assertEquals(earth, DI.sunSystem().planet());
-        assertEquals(earth, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
+        assertEquals(earth, DI.sunSystem().earth());
+        assertEquals(earth, DIPro.sunSystem().earth());
+        assertNull(DI.sunSystem().planet());
+        assertNull(DIPro.sunSystem().planet());
     }
 
     @Test
@@ -41,14 +41,14 @@ public class GodRebrandingPlanetTest {
 
 
         //When
-        DI.bindPlanet(earth);
+        DI.bindEarth(earth);
 
 
         //Then
-        assertEquals(earth, DI.sunSystem().planet());
-        assertEquals(earth, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
+        assertEquals(earth, DI.sunSystem().earth());
+        assertEquals(earth, DIPro.sunSystem().earth());
+        assertNull(DI.sunSystem().planet());
+        assertNull(DIPro.sunSystem().planet());
     }
 
 
@@ -58,20 +58,20 @@ public class GodRebrandingPlanetTest {
         GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
         Earth earth1 = new Earth();
         Earth earth2 = new Earth();
-        DI.bindPlanet(earth1);
+        DI.bindEarth(earth1);
 
 
         //When
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
         DIPro.extOf(DI);
-        DIPro.bindPlanet(earth2);
+        DIPro.bindEarth(earth2);
 
 
         //Then
-        assertEquals(earth2, DI.sunSystem().planet());
-        assertEquals(earth2, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
+        assertEquals(earth2, DI.sunSystem().earth());
+        assertEquals(earth2, DIPro.sunSystem().earth());
+        assertNull(DI.sunSystem().planet());
+        assertNull(DIPro.sunSystem().planet());
     }
 
 
@@ -82,21 +82,21 @@ public class GodRebrandingPlanetTest {
         Earth earth1 = new Earth();
         Earth earth2 = new Earth();
         Earth earth3 = new Earth();
-        DI.bindPlanet(earth1);
+        DI.bindEarth(earth1);
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
         DIPro.extOf(DI);
-        DIPro.bindPlanet(earth2);
+        DIPro.bindEarth(earth2);
 
 
         //When
-        DI.bindPlanet(earth3);
+        DI.bindEarth(earth3);
 
 
         //Then
-        assertEquals(earth3, DI.sunSystem().planet());
-        assertEquals(earth3, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
+        assertEquals(earth3, DI.sunSystem().earth());
+        assertEquals(earth3, DIPro.sunSystem().earth());
+        assertNull(DI.sunSystem().planet());
+        assertNull(DIPro.sunSystem().planet());
     }
 
 }

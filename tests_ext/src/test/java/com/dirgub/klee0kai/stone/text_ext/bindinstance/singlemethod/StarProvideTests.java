@@ -1,4 +1,4 @@
-package com.dirgub.klee0kai.stone.text_ext.inject.bindInstance.singlemethod;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;

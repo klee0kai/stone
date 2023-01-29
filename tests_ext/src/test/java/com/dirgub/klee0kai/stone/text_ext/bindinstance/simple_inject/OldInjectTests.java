@@ -1,5 +1,5 @@
 
-package com.dirgub.klee0kai.stone.text_ext.inject.bindInstance.simple_inject;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.simple_inject;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.base_forest.ForestComponent;

@@ -1,20 +1,19 @@
 package com.github.klee0kai.stone;
 
 import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
+import com.github.klee0kai.stone.exceptions.ComponentsMethodPurposeNotDetected;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 
 import javax.annotation.processing.*;
-import javax.inject.Scope;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.util.LinkedList;
@@ -47,20 +46,11 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
-        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(GcScopeAnnotation.class)) {
-            ClassDetail gcScopeAnn = ClassDetail.of((TypeElement) ownerElement);
-            allClassesHelper.addGcScopeAnnotation(gcScopeAnn);
-        }
-        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Scope.class)) {
-            ClassDetail gcScopeAnn = ClassDetail.of((TypeElement) ownerElement);
-            allClassesHelper.addGcScopeAnnotation(gcScopeAnn);
-        }
-
-
         List<ClassName> allQualifiers = new LinkedList<>();
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
             ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
             allQualifiers.addAll(component.componentAnn.qualifiers);
+            allClassesHelper.deepExtractGcAnnotations(component);
         }
 
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
@@ -77,7 +67,6 @@ public class AnnotationProcessor extends AbstractProcessor {
             moduleBuilder.buildAndWrite();
         }
 
-
         //create components
         for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
             ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
@@ -91,6 +80,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
 
             for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
+                if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)
+                    continue;
+
+
                 if (isModuleProvideMethod(m)) {
                     componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findForType(m.returnType));
                 } else if (isObjectProvideMethod(m)) {
@@ -109,6 +102,9 @@ public class AnnotationProcessor extends AbstractProcessor {
                             allClassesHelper.findForType(m.args.get(0).type),
                             m.protectInjectedAnnotation.timeMillis
                     );
+                } else if (component.isInterfaceClass() || m.isAbstract()) {
+                    //non implemented method
+                    throw new ComponentsMethodPurposeNotDetected(component.className, m);
                 }
             }
 

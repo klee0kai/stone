@@ -1,4 +1,4 @@
-package com.dirgub.klee0kai.stone.text_ext.inject.bindInstance.singlemethod_gc;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod_gc;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent;
@@ -15,7 +15,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class PlanetRollingAndProTests {
+public class ExtPlanetRollingTests {
 
     @Test
     public void gcAllTest() {
@@ -49,7 +49,7 @@ public class PlanetRollingAndProTests {
         DIPro.moonWeak(moonWeak.get());
 
         //When
-        DI.gcAll();
+        DIPro.gcAllExt();
 
         //Then
         for (WeakReference ref : Arrays.asList(
@@ -95,7 +95,7 @@ public class PlanetRollingAndProTests {
         DIPro.moonWeak(moonWeak.get());
 
         //When
-        DI.gcStrong();
+        DIPro.gcStrongExt();
 
         //Then
         for (WeakReference ref : Arrays.asList(
@@ -150,7 +150,7 @@ public class PlanetRollingAndProTests {
         DIPro.moonWeak(moonWeak.get());
 
         //When
-        DI.gcSoft();
+        DIPro.gcSoftExt();
 
         //Then
         for (WeakReference ref : Arrays.asList(
@@ -205,7 +205,7 @@ public class PlanetRollingAndProTests {
         DIPro.moonWeak(moonWeak.get());
 
         //When
-        DI.gcWeak();
+        DIPro.gcWeakExt();
 
         //Then
         for (WeakReference ref : Arrays.asList(
@@ -260,7 +260,7 @@ public class PlanetRollingAndProTests {
         DIPro.moonWeak(moonWeak.get());
 
         //When
-        DI.gcSoftSun();
+        DIPro.gcSoftSunExt();
 
         //Then
         for (WeakReference ref : Arrays.asList(
@@ -315,7 +315,7 @@ public class PlanetRollingAndProTests {
         DIPro.moonWeak(moonWeak.get());
 
         //When
-        DI.gcSoftPlanets();
+        DIPro.gcSoftPlanetsExt();
 
         //Then
         for (WeakReference ref : Arrays.asList(
@@ -337,6 +337,115 @@ public class PlanetRollingAndProTests {
         }
     }
 
+
+    @Test
+    public void gcSoftSiriusTest() {
+        //Given
+        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
+        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
+        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
+        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
+        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
+        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
+        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
+        DI.earthStrong(earthStrong.get());
+        DI.earthSoft(earthSoft.get());
+        DI.planet(planetWeak.get());
+        DI.sunModule().sunStrong(sunStrong.get());
+        DI.sunModule().sunSoft(sunSoft.get());
+        DI.sunModule().star(starWeak.get());
+        //external component init
+        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
+        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
+        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
+        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
+        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
+        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
+        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
+        DIPro.sunModule().siriusStrong(siriusStrong.get());
+        DIPro.sunModule().siriusSoft(siriusSoft.get());
+        DIPro.sunModule().siriusWeak(siriusWeak.get());
+        DIPro.moonStrong(moonStrong.get());
+        DIPro.moonSoft(moonSoft.get());
+        DIPro.moonWeak(moonWeak.get());
+
+        //When
+        DIPro.gcSoftSiriusExt();
+
+        //Then
+        for (WeakReference ref : Arrays.asList(
+                planetWeak,
+                starWeak,
+                siriusSoft, siriusWeak,
+                moonWeak
+        )) {
+            assertNull(ref.get());
+        }
+
+        for (WeakReference ref : Arrays.asList(
+                earthStrong, earthSoft,
+                sunStrong, sunSoft,
+                siriusStrong,
+                moonStrong, moonSoft
+        )) {
+            assertNotNull(ref.get());
+        }
+    }
+
+
+    @Test
+    public void gcSputniksMoonTest() {
+        //Given
+        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
+        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
+        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
+        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
+        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
+        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
+        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
+        DI.earthStrong(earthStrong.get());
+        DI.earthSoft(earthSoft.get());
+        DI.planet(planetWeak.get());
+        DI.sunModule().sunStrong(sunStrong.get());
+        DI.sunModule().sunSoft(sunSoft.get());
+        DI.sunModule().star(starWeak.get());
+        //external component init
+        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
+        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
+        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
+        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
+        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
+        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
+        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
+        DIPro.sunModule().siriusStrong(siriusStrong.get());
+        DIPro.sunModule().siriusSoft(siriusSoft.get());
+        DIPro.sunModule().siriusWeak(siriusWeak.get());
+        DIPro.moonStrong(moonStrong.get());
+        DIPro.moonSoft(moonSoft.get());
+        DIPro.moonWeak(moonWeak.get());
+
+        //When
+        DIPro.gcSoftSputniksExt();
+
+        //Then
+        for (WeakReference ref : Arrays.asList(
+                planetWeak,
+                starWeak,
+                siriusWeak,
+                moonSoft, moonWeak
+        )) {
+            assertNull(ref.get());
+        }
+
+        for (WeakReference ref : Arrays.asList(
+                earthStrong, earthSoft,
+                sunStrong, sunSoft,
+                siriusStrong, siriusSoft,
+                moonStrong
+        )) {
+            assertNotNull(ref.get());
+        }
+    }
 
 
 }

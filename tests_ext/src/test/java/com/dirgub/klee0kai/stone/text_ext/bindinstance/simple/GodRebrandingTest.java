@@ -1,4 +1,4 @@
-package com.dirgub.klee0kai.stone.text_ext.inject.bindInstance.simple;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.simple;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;

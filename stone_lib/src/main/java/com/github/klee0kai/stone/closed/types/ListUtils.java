@@ -8,17 +8,17 @@ import java.util.*;
 public class ListUtils {
 
     public interface IFormat<Tin, Tout> {
-        Tout format(Tin ob);
+        Tout format(Tin it);
     }
 
     public interface ICompare<T> {
-        int compare(T ob1, T ob2);
+        int compare(T it1, T it2);
 
     }
 
 
     public interface IFilter<T> {
-        boolean filter(int inx, T ob);
+        boolean filter(int inx, T it);
 
     }
 
