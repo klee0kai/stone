@@ -1,13 +1,13 @@
 package com.github.klee0kai.stone.test.lifecycle;
 
+import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.test.di.base_phone.PhoneComponent;
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
-import com.github.klee0kai.test.tech.PhoneStore;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.Ram;
 import com.github.klee0kai.test.tech.phone.GoodPhone;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;
@@ -21,15 +21,14 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class GoodPhoneRepairTests {
 
-
     @Test
     public void goodPhoneInjectTest() {
         //Given
-        PhoneStore.recreate();
+        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
 
-        //When
-        GoodPhone goodPhone = new GoodPhone(new DataStorageSize("64G"), new RamSize("4G"));
-        goodPhone.buy();
+        //When buy
+        GoodPhone goodPhone = new GoodPhone();
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("64G"), new RamSize("4G"));
 
         //Then
         assertNotNull(goodPhone.battery);
@@ -40,17 +39,17 @@ public class GoodPhoneRepairTests {
     @Test
     public void goodPhoneBrokeTest() {
         //Given
-        PhoneStore.recreate();
-        GoodPhone goodPhone = new GoodPhone(new DataStorageSize("64G"), new RamSize("4G"));
-        goodPhone.buy();
+        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
+        GoodPhone goodPhone = new GoodPhone();
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("64G"), new RamSize("4G"));
         WeakReference<Battery> batteryRef = new WeakReference<>(goodPhone.battery);
         WeakReference<DataStorage> dataStorageRef = new WeakReference<>(goodPhone.dataStorage);
         WeakReference<Ram> ramRef = new WeakReference<>(goodPhone.ram);
 
-        //When
+        //When broke and repair
         goodPhone.broke();
         System.gc();
-        goodPhone.repair();
+        DI.inject(goodPhone, new DataStorageSize("64G"), new RamSize("4G"));
 
         //Then: Need new details for repair phone. Old components collected  by GC
         assertNull(batteryRef.get());
@@ -61,9 +60,9 @@ public class GoodPhoneRepairTests {
     @Test
     public void goodPhoneDropWatterTest() throws InterruptedException {
         //Given
-        PhoneStore.recreate();
-        GoodPhone goodPhone = new GoodPhone(new DataStorageSize("64G"), new RamSize("4G"));
-        goodPhone.buy();
+        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
+        GoodPhone goodPhone = new GoodPhone();
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("64G"), new RamSize("4G"));
         WeakReference<Battery> batteryRef = new WeakReference<>(goodPhone.battery);
         WeakReference<DataStorage> dataStorageRef = new WeakReference<>(goodPhone.dataStorage);
         WeakReference<Ram> ramRef = new WeakReference<>(goodPhone.ram);
@@ -96,16 +95,16 @@ public class GoodPhoneRepairTests {
     @Test
     public void goodPhoneDrownedRepairTest() throws InterruptedException {
         //Given
-        PhoneStore.recreate();
-        GoodPhone goodPhone = new GoodPhone(new DataStorageSize("64G"), new RamSize("4G"));
-        goodPhone.buy();
+        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
+        GoodPhone goodPhone = new GoodPhone();
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("64G"), new RamSize("4G"));
         UUID ramUuid = goodPhone.dataStorage.uuid;
 
         //When
         goodPhone.dropToWater();
         Thread.sleep(10);
         System.gc();
-        goodPhone.repair();
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("64G"), new RamSize("4G"));
 
         //Then: Can be repair after little time
         assertEquals(ramUuid, goodPhone.dataStorage.uuid);
@@ -115,16 +114,16 @@ public class GoodPhoneRepairTests {
     @Test
     public void goodPhoneDeepDrownedRepairTest() throws InterruptedException {
         //Given
-        PhoneStore.recreate();
-        GoodPhone goodPhone = new GoodPhone(new DataStorageSize("64G"), new RamSize("4G"));
-        goodPhone.buy();
+        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
+        GoodPhone goodPhone = new GoodPhone();
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("64G"), new RamSize("4G"));
         UUID ramUuid = goodPhone.dataStorage.uuid;
 
         //When
         goodPhone.dropToWater();
         Thread.sleep(120);
         System.gc();
-        goodPhone.repair();
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("64G"), new RamSize("4G"));
 
         //Then: Can not be repair without new details
         assertNotEquals(ramUuid, goodPhone.dataStorage.uuid);
