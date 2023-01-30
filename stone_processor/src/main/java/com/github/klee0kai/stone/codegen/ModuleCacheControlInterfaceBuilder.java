@@ -2,6 +2,7 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -13,6 +14,7 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.bindMethodName;
+import static com.github.klee0kai.stone.codegen.ModuleBuilder.switchRefMethodName;
 
 public class ModuleCacheControlInterfaceBuilder {
 
@@ -34,7 +36,8 @@ public class ModuleCacheControlInterfaceBuilder {
         ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(factoryBuilder.orFactory);
         builder.qualifiers.addAll(allQualifiers);
 
-        builder.bindMethod();
+        builder.bindMethod()
+                .switchRefMethod();
         for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
@@ -60,6 +63,18 @@ public class ModuleCacheControlInterfaceBuilder {
 
         return this;
     }
+
+    public ModuleCacheControlInterfaceBuilder switchRefMethod() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(switchRefMethodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
+                .addParameter(ParameterSpec.builder(SwitchCacheParam.class, "__params").build())
+                .returns(void.class);
+
+        iModuleMethodBuilders.put(switchRefMethodName, builder);
+        return this;
+    }
+
 
     public ModuleCacheControlInterfaceBuilder provideMethod(String name, TypeName typeName, List<FieldDetail> args) {
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(name)

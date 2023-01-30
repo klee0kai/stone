@@ -278,6 +278,12 @@ public class ModuleBuilder {
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
                 .addParameter(ParameterSpec.builder(SwitchCacheParam.class, "__params").build())
                 .returns(void.class);
+
+        if (fields.containsKey(overridedModuleFieldName))
+            builder.beginControlFlow("if ( $L != null)", overridedModuleFieldName)
+                    .addStatement("$L.$L(scopes,__params)", overridedModuleFieldName, switchRefMethodName)
+                    .endControlFlow();
+
         iModuleMethodBuilders.put(switchRefMethodName, builder);
 
         collectRuns.add(() -> {
