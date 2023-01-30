@@ -1,34 +1,26 @@
-package com.github.klee0kai.test.di.swcache;
+package com.github.klee0kai.test_ext.inject.di.swcache;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.GcStrongScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
-import com.github.klee0kai.stone.interfaces.IComponent;
-import com.github.klee0kai.test.di.gcforest.GcEarthModule;
-import com.github.klee0kai.test.di.gcforest.scopes.GcMountainScope;
+import com.github.klee0kai.test.di.swcache.SwitchCacheComponent;
 
 @Component
-public interface SwitchCacheComponent extends IComponent {
-
-    GcEarthModule earth();
+public interface SwitchCacheExtComponent extends SwitchCacheComponent {
 
     @GcAllScope
     @SwitchCache(cache = SwitchCache.CacheType.Weak)
-    void allWeak();
+    void allWeakExt();
 
 
     @GcAllScope
     @SwitchCache(cache = SwitchCache.CacheType.Strong, timeMillis = 100)
-    void allStrongFewMillis();
+    void allStrongFewMillisExt();
 
 
     @GcStrongScope
     @SwitchCache(cache = SwitchCache.CacheType.Weak)
-    void strongToWeak();
-
-    @GcMountainScope
-    @SwitchCache(cache = SwitchCache.CacheType.Weak)
-    void mountainToWeak();
+    void strongToWeakExt();
 
 }

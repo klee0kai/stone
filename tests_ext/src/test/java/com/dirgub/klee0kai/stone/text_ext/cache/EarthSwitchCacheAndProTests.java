@@ -1,9 +1,10 @@
-package com.github.klee0kai.stone.test.cache;
+package com.dirgub.klee0kai.stone.text_ext.cache;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.swcache.SwitchCacheComponent;
 import com.github.klee0kai.test.mowgli.earth.Mountain;
 import com.github.klee0kai.test.mowgli.earth.River;
+import com.github.klee0kai.test_ext.inject.di.swcache.SwitchCacheExtComponent;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;
@@ -12,14 +13,16 @@ import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class EarthSwitchCacheTests {
+public class EarthSwitchCacheAndProTests {
 
 
     @Test
     public void allToWeakTest() {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountain = new WeakReference<>(DI.earth().mountainStrong());
+        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
+        DIPro.extOf(DI);
+        WeakReference<Mountain> mountain = new WeakReference<>(DIPro.earth().mountainStrong());
 
         //When
         DI.allWeak();
@@ -33,8 +36,10 @@ public class EarthSwitchCacheTests {
     public void strongToWeakTest() {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(DI.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(DI.earth().mountainSoft());
+        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
+        DIPro.extOf(DI);
+        WeakReference<Mountain> mountainStrong = new WeakReference<>(DIPro.earth().mountainStrong());
+        WeakReference<Mountain> mountainSoft = new WeakReference<>(DIPro.earth().mountainSoft());
 
         //When
         DI.strongToWeak();
@@ -49,7 +54,9 @@ public class EarthSwitchCacheTests {
     public void weakToStrongFewMillisTest() throws InterruptedException {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(DI.earth().mountainWeak());
+        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
+        DIPro.extOf(DI);
+        WeakReference<Mountain> mountainWeak = new WeakReference<>(DIPro.earth().mountainWeak());
 
         //When
         DI.allStrongFewMillis();
@@ -71,8 +78,10 @@ public class EarthSwitchCacheTests {
     public void mountainToWeakTest() {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountain = new WeakReference<>(DI.earth().mountainStrong());
-        WeakReference<River> river = new WeakReference<>(DI.earth().riverSoft());
+        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
+        DIPro.extOf(DI);
+        WeakReference<Mountain> mountain = new WeakReference<>(DIPro.earth().mountainStrong());
+        WeakReference<River> river = new WeakReference<>(DIPro.earth().riverSoft());
 
         //When
         DI.mountainToWeak();
