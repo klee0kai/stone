@@ -10,21 +10,20 @@ public class DDR3Ram extends Ram {
 
     public final UUID uuid = UUID.randomUUID();
 
-    public final String size;
     public final String frequency;
 
     public DDR3Ram() {
-        size = "default";
+        super();
         frequency = "default";
     }
 
     public DDR3Ram(RamSize ramSize) {
-        this.size = ramSize.size;
+        super(ramSize);
         this.frequency = "default";
     }
 
     public DDR3Ram(RamSize ramSize, Frequency frequency) {
-        this.size = ramSize.size;
+        super(ramSize);
         this.frequency = frequency.frequency;
     }
 

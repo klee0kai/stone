@@ -45,4 +45,12 @@ public class ClassNameUtils {
         return ClassName.get(origin.packageName(), origin.simpleName() + "StoneHiddenModule");
     }
 
+    public static boolean isStoneCreatedClass(ClassName className) {
+        return className.simpleName().endsWith("StoneFactory")
+                || className.simpleName().endsWith("StoneModule")
+                || className.simpleName().endsWith("StoneComponent")
+                || className.simpleName().endsWith("StoneHiddenModule")
+                || className.simpleName().endsWith("StoneCacheControlModule");
+    }
+
 }
