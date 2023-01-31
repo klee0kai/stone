@@ -32,8 +32,6 @@ public class ComponentBuilder {
     public static final String provideWrappersGlFieldPrefixName = "__wrapperCreator";
     public static final String hiddenModuleFieldName = "__hiddenModule";
     public static final String relatedComponentsListFieldName = "__related";
-    public static final String protectRecursiveField = "__protectRecursive";
-
     public static final String hiddenModuleMethodName = "hidden";
     public static final String initMethodName = "init";
     public static final String bindMethodName = "bind";
@@ -96,12 +94,6 @@ public class ComponentBuilder {
                 FieldSpec.builder(weakComponentsList, relatedComponentsListFieldName, Modifier.FINAL, Modifier.PRIVATE)
                         .initializer("new $T()", weakComponentsList)
         );
-        fields.put(
-                protectRecursiveField,
-                FieldSpec.builder(boolean.class, protectRecursiveField, Modifier.PRIVATE)
-                        .initializer("false")
-        );
-
 
         initMethod(true);
         bindMethod(true);
@@ -456,7 +448,7 @@ public class ComponentBuilder {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
 
-        sameCallForRelatedComponents(builder, m);
+//        sameCallForRelatedComponents(builder, m);
 
         builder.addStatement(
                         "$T scopes = new $T($T.asList( $L ))",
@@ -474,6 +466,8 @@ public class ComponentBuilder {
             for (String module : modulesFields.keySet()) {
                 builder.addStatement("this.$L.switchRef(scopes, toWeak)", module);
             }
+            builder.addCode(statementInvokeEachRelativeModule(CodeBlock.of("switchRef(scopes, toWeak)")));
+
 
             builder.addStatement("$T.gc()", System.class)
                     .addStatement("$L.clearNulls()", relatedComponentsListFieldName);
@@ -483,6 +477,7 @@ public class ComponentBuilder {
             for (String module : modulesFields.keySet()) {
                 builder.addStatement("this.$L.switchRef(scopes, toDef)", module);
             }
+            builder.addCode(statementInvokeEachRelativeModule(CodeBlock.of("switchRef(scopes, toDef)")));
         });
         return this;
     }
@@ -499,8 +494,6 @@ public class ComponentBuilder {
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
-
-        sameCallForRelatedComponents(builder, m);
 
         builder
                 .addStatement(
@@ -534,6 +527,8 @@ public class ComponentBuilder {
                 builder.addCode(moduleFieldHelper.statementSwitchRefs(
                         "scopes", "switchCacheParams"
                 ));
+
+            builder.addCode(statementInvokeEachRelativeModule(CodeBlock.of("switchRef(scopes, switchCacheParams)")));
         });
         return this;
     }
@@ -613,30 +608,31 @@ public class ComponentBuilder {
         return moduleHiddenBuilder;
     }
 
-    private void sameCallForRelatedComponents(MethodSpec.Builder builder, MethodDetail m) {
-        builder.addStatement("if ($L) return", protectRecursiveField)
-                .addStatement("$L = true", protectRecursiveField)
-                .beginControlFlow("for ($T c : $L.toList())", IComponent.class, relatedComponentsListFieldName);
-        boolean isFirstCastCheck = true;
-        for (ClassDetail cl : orComponentCl.getAllParents(false)) {
-            if (cl.findMethod(m, false) != null && !ClassNameUtils.isStoneCreatedClass(cl.className)) {
-                builder.beginControlFlow(
-                                isFirstCastCheck ? "if (c instanceof $T)" : " else if (c instanceof $T)",
-                                cl.className
-                        )
-                        .addStatement(
-                                "(($T) c).$L",
-                                cl.className,
-                                MethodInvokeHelper.sameMethodInvokeCode(m)
-                        )
-                        .endControlFlow();
-                isFirstCastCheck = false;
-            }
+    private CodeBlock statementInvokeEachRelativeModule(CodeBlock invokeCode) {
+        CodeBlock.Builder builder = CodeBlock.builder();
 
+        builder.beginControlFlow("for ($T c: $L.toList())", IComponent.class, relatedComponentsListFieldName);
+        for (ClassDetail cl : orComponentCl.getAllParents(false)) {
+            if (ClassNameUtils.isStoneCreatedClass(cl.className))
+                continue;
+            List<MethodDetail> moduleProvideMethods = ListUtils.filter(cl.methods,
+                    (inx, it) -> ComponentMethods.isModuleProvideMethod(it));
+            if (moduleProvideMethods.isEmpty())
+                continue;
+            builder.beginControlFlow("if (c instanceof $T)", cl.className);
+            for (MethodDetail m : moduleProvideMethods) {
+                builder.addStatement(
+                        "( ($T) ( ($T) c).$L()).$L",
+                        IModule.class, cl.className, m.methodName, invokeCode
+                );
+            }
+            builder.endControlFlow();
         }
-        builder.endControlFlow()
-                .addStatement("$L = false", protectRecursiveField);
+
+        builder.endControlFlow();
+        return builder.build();
 
     }
+
 
 }

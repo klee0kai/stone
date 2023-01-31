@@ -88,7 +88,7 @@ public class ExtEarthLastDayTests {
         for (Reference ref : Arrays.asList(
                 mountainStrong, mountainWeak,
                 riverStrong, riverWeak,
-                desertStrong, desertWeak,
+                desertStrong, desertWeak, desertFactory,
                 waterFlowStrong, waterFlowWeak
         )) {
             assertNull(ref.get());
@@ -97,7 +97,7 @@ public class ExtEarthLastDayTests {
         for (Reference ref : Arrays.asList(
                 mountainSoft, mountainDef, mountainDef2,
                 riverSoft, riverDef,
-                desertSoft, desertFactory,
+                desertSoft,
                 waterFlowSoft, waterFlowDefRef
         )) {
             assertNotNull(ref.get());
@@ -273,14 +273,13 @@ public class ExtEarthLastDayTests {
                 mountainWeak,
                 riverStrong, riverSoft, riverWeak, riverDef,
                 desertWeak, desertFactory,
-                waterFlowWeak
+                waterFlowStrong, waterFlowSoft, waterFlowDefRef, waterFlowWeak
         )) {
             assertNull(ref.get());
         }
         for (Reference ref : Arrays.asList(
                 mountainStrong, mountainSoft, mountainDef, mountainDef2,
-                desertStrong, desertSoft,
-                waterFlowStrong, waterFlowSoft, waterFlowDefRef
+                desertStrong, desertSoft
         )) {
             assertNotNull(ref.get());
         }

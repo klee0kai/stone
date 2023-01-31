@@ -88,7 +88,7 @@ public class EarthLastDayAndProTests {
         for (Reference ref : Arrays.asList(
                 mountainStrong, mountainWeak,
                 riverStrong, riverWeak,
-                desertStrong, desertWeak,
+                desertStrong, desertWeak, desertFactory,
                 waterFlowStrong, waterFlowWeak
         )) {
             assertNull(ref.get());
@@ -97,7 +97,7 @@ public class EarthLastDayAndProTests {
         for (Reference ref : Arrays.asList(
                 mountainSoft, mountainDef, mountainDef2,
                 riverSoft, riverDef,
-                desertSoft, desertFactory,
+                desertSoft,
                 waterFlowSoft, waterFlowDefRef
         )) {
             assertNotNull(ref.get());
