@@ -180,7 +180,11 @@ public class ComponentBuilder {
             List<MethodDetail> provideModuleMethods = ListUtils.filter(proto.getAllMethods(false, false),
                     (i, m) -> ComponentMethods.isModuleProvideMethod(m)
             );
-            if (provideModuleMethods.isEmpty()) continue;
+            List<MethodDetail> bindInstanceAndProvideMethods = ListUtils.filter(proto.getAllMethods(false, false),
+                    (i, m) -> ComponentMethods.isBindInstanceAndProvideMethod(m)
+            );
+
+            if (provideModuleMethods.isEmpty() && bindInstanceAndProvideMethods.isEmpty()) continue;
 
             List<String> provideFactories = ListUtils.format(provideModuleMethods, (it) -> it.methodName + "()");
 
@@ -190,6 +194,12 @@ public class ComponentBuilder {
                 builder.addStatement(
                         "$L().initCachesFrom( ($T) protoComponent.$L() )",
                         provideModule.methodName, IModule.class, provideModule.methodName
+                );
+            }
+            for (MethodDetail bindInstMethod : bindInstanceAndProvideMethods) {
+                builder.addStatement(
+                        "$L(protoComponent.$L(null))",
+                        bindInstMethod.methodName, bindInstMethod.methodName
                 );
             }
 
