@@ -32,6 +32,7 @@ public class ComponentBuilder {
     public static final String provideWrappersGlFieldPrefixName = "__wrapperCreator";
     public static final String hiddenModuleFieldName = "__hiddenModule";
     public static final String relatedComponentsListFieldName = "__related";
+    public static final String protectRecursiveField = "__protectRecursive";
     public static final String hiddenModuleMethodName = "hidden";
     public static final String initMethodName = "init";
     public static final String bindMethodName = "bind";
@@ -94,6 +95,12 @@ public class ComponentBuilder {
                 FieldSpec.builder(weakComponentsList, relatedComponentsListFieldName, Modifier.FINAL, Modifier.PRIVATE)
                         .initializer("new $T()", weakComponentsList)
         );
+        fields.put(
+                protectRecursiveField,
+                FieldSpec.builder(boolean.class, protectRecursiveField, Modifier.PRIVATE)
+                        .initializer("false")
+        );
+
 
         initMethod(true);
         bindMethod(true);
@@ -159,8 +166,9 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        iComponentMethods.put(bindMethodName, builder);
+        sameCallForRelatedComponents(builder, MethodDetail.of(builder.build()));
 
+        iComponentMethods.put(bindMethodName, builder);
         collectRuns.add(() -> {
             builder.beginControlFlow("for (Object ob : objects)")
                     .addCode(bindModuleCode.build())
@@ -460,7 +468,6 @@ public class ComponentBuilder {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
 
-//        sameCallForRelatedComponents(builder, m);
 
         builder.addStatement(
                         "$T scopes = new $T($T.asList( $L ))",
@@ -646,5 +653,37 @@ public class ComponentBuilder {
 
     }
 
+
+    private void sameCallForRelatedComponents(MethodSpec.Builder builder, MethodDetail m) {
+        boolean isObjectReturn = !(m.returnType.isPrimitive() || Objects.equals(m.returnType, TypeName.VOID));
+        builder.addComment("invoke same method for all related components")
+                .addStatement(
+                        isObjectReturn ? "if ($L) return null" : "if ($L) return",
+                        protectRecursiveField
+                )
+                .addStatement("$L = true", protectRecursiveField)
+                .beginControlFlow("for ($T c : $L.toList())", IComponent.class, relatedComponentsListFieldName);
+        boolean isFirstCastCheck = true;
+        for (ClassDetail cl : orComponentCl.getAllParents(false)) {
+            if (cl.findMethod(m, false) != null && !ClassNameUtils.isStoneCreatedClass(cl.className)) {
+                builder.beginControlFlow(
+                                isFirstCastCheck ? "if (c instanceof $T)" : " else if (c instanceof $T)",
+                                cl.className
+                        )
+                        .addStatement(
+                                "(($T) c).$L",
+                                cl.className,
+                                MethodInvokeHelper.sameMethodInvokeCode(m)
+                        )
+                        .endControlFlow();
+                isFirstCastCheck = false;
+            }
+
+        }
+        builder.endControlFlow()
+                .addStatement("$L = false", protectRecursiveField)
+                .addCode("\n");
+
+    }
 
 }
