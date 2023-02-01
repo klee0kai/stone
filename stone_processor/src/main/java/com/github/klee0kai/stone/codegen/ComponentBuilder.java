@@ -162,7 +162,9 @@ public class ComponentBuilder {
         iComponentMethods.put(bindMethodName, builder);
 
         collectRuns.add(() -> {
-            builder.beginControlFlow("for (Object ob : objects)").addCode(bindModuleCode.build()).endControlFlow();
+            builder.beginControlFlow("for (Object ob : objects)")
+                    .addCode(bindModuleCode.build())
+                    .endControlFlow();
         });
         return this;
     }
@@ -309,7 +311,7 @@ public class ComponentBuilder {
                 builder.addStatement(
                         modulesGraph.codeControlCacheForType(m.methodName, setValueArg.type, qFields,
                                 CodeBlock.of(
-                                        "$T.setIfNullValueAction( $L )",
+                                        "$T.setValueAction( $L )",
                                         CacheAction.class, setValueArg.name
                                 ))
                 );

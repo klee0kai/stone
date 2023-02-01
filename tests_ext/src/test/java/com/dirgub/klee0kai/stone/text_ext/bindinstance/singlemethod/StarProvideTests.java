@@ -62,7 +62,7 @@ public class StarProvideTests {
         //When
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
         DIPro.extOf(DI);
-        DIPro.sunModule().sun(sun1);
+        DIPro.sunModule().sun(sun2);
 
 
         //Then

@@ -469,7 +469,25 @@ public class ModuleBuilder {
         for (FieldDetail q : qFields) {
             cacheControldMethodBuilder.addParameter(q.type, q.name);
         }
-        cacheControldMethodBuilder.beginControlFlow("if (__action != null) switch (__action.type)")
+
+        if (fields.containsKey(overridedModuleFieldName)) {
+            cacheControldMethodBuilder
+                    // invoke for overrided module
+                    .beginControlFlow("if ($L != null)", overridedModuleFieldName)
+                    .addStatement(
+                            "$L.$L($L)",
+                            overridedModuleFieldName,
+                            cacheControlMethodName,
+                            String.join(",", ListUtils.format(
+                                    cacheControldMethodBuilder.parameters,
+                                    (ListUtils.IFormat<ParameterSpec, CharSequence>) it -> it.name)
+                            )
+                    )
+                    .endControlFlow();
+        }
+
+        cacheControldMethodBuilder
+                .beginControlFlow("if (__action != null) switch (__action.type)")
                 //set value
                 .beginControlFlow("case SET_VALUE:")
                 .beginControlFlow("if (__action.value instanceof $T)", m.returnType)
