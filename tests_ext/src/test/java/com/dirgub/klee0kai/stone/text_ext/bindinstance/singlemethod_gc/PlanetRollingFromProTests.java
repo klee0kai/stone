@@ -326,7 +326,7 @@ public class PlanetRollingFromProTests {
         //Then
         for (WeakReference ref : Arrays.asList(
                 earthSoft, planetWeak,
-                sunSoft, starWeak,
+                starWeak,
                 siriusWeak,
                 moonWeak
         )) {

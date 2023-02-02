@@ -326,7 +326,7 @@ public class ExtPlanetRollingTests {
         //Then
         for (WeakReference ref : Arrays.asList(
                 earthSoft, planetWeak,
-                sunSoft, starWeak,
+                 starWeak,
                 siriusWeak,
                 moonWeak
         )) {

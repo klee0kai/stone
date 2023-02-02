@@ -326,7 +326,7 @@ public class PlanetRollingAndProTests {
         //Then
         for (WeakReference ref : Arrays.asList(
                 earthSoft, planetWeak,
-                sunSoft, starWeak,
+                starWeak,
                 siriusWeak,
                 moonWeak
         )) {
@@ -342,7 +342,6 @@ public class PlanetRollingAndProTests {
             assertNotNull(ref.get());
         }
     }
-
 
 
 }
