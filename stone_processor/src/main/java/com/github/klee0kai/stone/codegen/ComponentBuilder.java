@@ -3,6 +3,7 @@ package com.github.klee0kai.stone.codegen;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.closed.IModule;
+import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
@@ -33,7 +34,7 @@ public class ComponentBuilder {
     public static final String hiddenModuleFieldName = "__hiddenModule";
     public static final String relatedComponentsListFieldName = "__related";
     public static final String protectRecursiveField = "__protectRecursive";
-    public static final String hiddenModuleMethodName = "hidden";
+    public static final String hiddenModuleMethodName = "__hidden";
     public static final String initMethodName = "init";
     public static final String bindMethodName = "bind";
     public static final String extOfMethodName = "extOf";
@@ -89,6 +90,7 @@ public class ComponentBuilder {
      */
     public ComponentBuilder implementIComponentMethods() {
         interfaces.add(ClassName.get(IComponent.class));
+        interfaces.add(ClassName.get(IPrivateComponent.class));
         ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakLinkedList.class, IComponent.class);
         fields.put(
                 relatedComponentsListFieldName,
@@ -105,6 +107,7 @@ public class ComponentBuilder {
         initMethod(true);
         bindMethod(true);
         extOfMethod(true);
+        hiddenModuleMethod(true);
         return this;
     }
 
@@ -221,6 +224,26 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder hiddenModuleMethod(boolean override) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(hiddenModuleMethodName)
+                .addModifiers(Modifier.PUBLIC);
+        if (override) builder.addAnnotation(Override.class);
+
+        collectRuns.add(() -> {
+            if (modulesFields.containsKey(hiddenModuleFieldName)) {
+                ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
+                builder.returns(tpName)
+                        .addStatement("return this.$L", hiddenModuleFieldName);
+            } else {
+                builder.returns(IModule.class)
+                        .addStatement("return null");
+            }
+
+        });
+        iComponentMethods.put(hiddenModuleMethodName, builder);
+        return this;
+    }
+
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
         ClassName moduleStoneMirror = ClassNameUtils.genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE).initializer("new $T()", moduleStoneMirror));
@@ -245,14 +268,8 @@ public class ComponentBuilder {
         moduleHiddenBuilder = new ModuleBuilder(null, tpName);
         moduleHiddenBuilder.qualifiers.addAll(qualifiers);
         moduleHiddenBuilder.implementIModule();
-        modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PROTECTED)
+        modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PRIVATE, Modifier.FINAL)
                 .initializer(CodeBlock.of("new $T()", tpName)));
-        modulesMethods.put(hiddenModuleMethodName,
-                MethodSpec.methodBuilder(hiddenModuleMethodName)
-                        .addModifiers(Modifier.PUBLIC)
-                        .returns(tpName)
-                        .addStatement("return this.$L", name)
-        );
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
@@ -490,9 +507,9 @@ public class ComponentBuilder {
 
             builder.addStatement("$T.gc()", System.class)
                     .addStatement("$L.clearNulls()", relatedComponentsListFieldName);
-
             if (fields.containsKey(refCollectionGlFieldName))
                 builder.addStatement("$L.clearNulls()", refCollectionGlFieldName);
+
             for (String module : modulesFields.keySet()) {
                 builder.addStatement("this.$L.switchRef(scopes, toDef)", module);
             }
@@ -634,7 +651,7 @@ public class ComponentBuilder {
         for (ClassDetail cl : orComponentCl.getAllParents(false)) {
             if (ClassNameUtils.isStoneCreatedClass(cl.className))
                 continue;
-            List<MethodDetail> moduleProvideMethods = ListUtils.filter(cl.methods,
+            List<MethodDetail> moduleProvideMethods = ListUtils.filter(cl.getAllMethods(false, false),
                     (inx, it) -> ComponentMethods.isModuleProvideMethod(it));
             if (moduleProvideMethods.isEmpty())
                 continue;
@@ -648,7 +665,16 @@ public class ComponentBuilder {
             builder.endControlFlow();
         }
 
-        builder.endControlFlow();
+        builder.beginControlFlow("if (c instanceof $T)", IPrivateComponent.class)
+                .addStatement(
+                        "$T hidden = ( ($T) c).$L()",
+                        IModule.class, IPrivateComponent.class, hiddenModuleMethodName
+                )
+                .addStatement("if (hidden != null) hidden.$L", invokeCode)
+                .endControlFlow();
+
+        builder.endControlFlow()
+                .add("\n");
         return builder.build();
 
     }
