@@ -230,8 +230,7 @@ public class ModuleBuilder {
                             (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
                     );
                     if (!qFields.isEmpty()) {
-                        // not support qualifiers
-                        // TODO write ingore test
+                        // TODO https://github.com/klee0kai/stone/issues/42
                         continue;
                     }
 
