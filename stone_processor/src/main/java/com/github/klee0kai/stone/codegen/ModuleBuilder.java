@@ -328,24 +328,6 @@ public class ModuleBuilder {
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(m.returnType);
 
-        if (fields.containsKey(overridedModuleFieldName)) {
-            // check cached from overrided module
-            provideMethodBuilder
-                    .beginControlFlow(
-                            "if ($L != null && $L.$L( null  $L  ) != null ) ",
-                            overridedModuleFieldName, overridedModuleFieldName,
-                            cacheControlMethodName,
-                            String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
-                    )
-                    .addStatement(
-                            "return $L.$L( null  $L ) ",
-                            overridedModuleFieldName,
-                            cacheControlMethodName,
-                            String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
-                    )
-                    .endControlFlow();
-        }
-
         if (orModuleCl != null) provideMethodBuilder.addAnnotation(Override.class);
 
 

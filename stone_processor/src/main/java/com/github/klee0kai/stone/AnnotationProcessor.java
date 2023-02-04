@@ -47,13 +47,13 @@ public class AnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
         List<ClassName> allQualifiers = new LinkedList<>();
-        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
-            ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
+        for (Element componentElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
+            ClassDetail component = ClassDetail.of((TypeElement) componentElement);
             allClassesHelper.deepExtractGcAnnotations(component);
 
-            for (ClassDetail cl : component.getAllParents(false)) {
-                if (cl.componentAnn != null) {
-                    allQualifiers.addAll(cl.componentAnn.qualifiers);
+            for (ClassDetail componentParentCl : component.getAllParents(false)) {
+                if (componentParentCl.componentAnn != null) {
+                    allQualifiers.addAll(componentParentCl.componentAnn.qualifiers);
                 }
             }
         }
@@ -79,8 +79,8 @@ public class AnnotationProcessor extends AbstractProcessor {
 
 
             for (ClassName wrappedProvider : component.componentAnn.wrapperProviders) {
-                ClassDetail cl = allClassesHelper.findForType(wrappedProvider);
-                if (cl != null) componentBuilder.addProvideWrapperField(cl);
+                ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
+                if (wrappedProviderCl != null) componentBuilder.addProvideWrapperField(wrappedProviderCl);
             }
 
 
