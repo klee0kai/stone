@@ -14,11 +14,11 @@ public class EarthCacheTests {
     @Test
     public void strongCacheTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountain1 = di.earth().mountainStrong();
-        Mountain mountain2 = di.earth().mountainStrong();
+        Mountain mountain1 = DI.earth().mountainStrong();
+        Mountain mountain2 = DI.earth().mountainStrong();
 
         //Then
         assertEquals(
@@ -31,11 +31,11 @@ public class EarthCacheTests {
     @Test
     public void softCacheTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountain1 = di.earth().mountainSoft();
-        Mountain mountain2 = di.earth().mountainSoft();
+        Mountain mountain1 = DI.earth().mountainSoft();
+        Mountain mountain2 = DI.earth().mountainSoft();
 
         //Then
         assertEquals(
@@ -47,11 +47,11 @@ public class EarthCacheTests {
     @Test
     public void weakCacheTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountain1 = di.earth().mountainWeak();
-        Mountain mountain2 = di.earth().mountainWeak();
+        Mountain mountain1 = DI.earth().mountainWeak();
+        Mountain mountain2 = DI.earth().mountainWeak();
 
         //Then
         assertEquals(
@@ -63,11 +63,11 @@ public class EarthCacheTests {
     @Test
     public void defCacheTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountain1 = di.earth().mountainDefaultSoft();
-        Mountain mountain2 = di.earth().mountainDefaultSoft();
+        Mountain mountain1 = DI.earth().mountainDefaultSoft();
+        Mountain mountain2 = DI.earth().mountainDefaultSoft();
 
         //Then
         assertEquals(
@@ -79,11 +79,11 @@ public class EarthCacheTests {
     @Test
     public void differentMethodDifferentCacheTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountainStrong = di.earth().mountainStrong();
-        Mountain mountainSoft = di.earth().mountainSoft();
+        Mountain mountainStrong = DI.earth().mountainStrong();
+        Mountain mountainSoft = DI.earth().mountainSoft();
 
         //Then
         assertNotEquals(
@@ -96,11 +96,11 @@ public class EarthCacheTests {
     @Test
     public void factoryNotCacheTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountain1 = di.earth().mountainFactory();
-        Mountain mountain2 = di.earth().mountainFactory();
+        Mountain mountain1 = DI.earth().mountainFactory();
+        Mountain mountain2 = DI.earth().mountainFactory();
 
         //Then
         assertNotEquals(
@@ -113,12 +113,12 @@ public class EarthCacheTests {
     @Test
     public void differentDIDifferentCacheTest() {
         //Given
-        GcGodComponent di1 = Stone.createComponent(GcGodComponent.class);
-        GcGodComponent di2 = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI1 = Stone.createComponent(GcGodComponent.class);
+        GcGodComponent DI2 = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountain1 = di1.earth().mountainStrong();
-        Mountain mountain2 = di2.earth().mountainStrong();
+        Mountain mountain1 = DI1.earth().mountainStrong();
+        Mountain mountain2 = DI2.earth().mountainStrong();
 
         //Then
         assertNotEquals(

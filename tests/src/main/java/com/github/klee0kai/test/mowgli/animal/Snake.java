@@ -1,6 +1,5 @@
 package com.github.klee0kai.test.mowgli.animal;
 
-import com.github.klee0kai.test.mowgli.Forest;
 import com.github.klee0kai.test.mowgli.body.Blood;
 import com.github.klee0kai.test.mowgli.community.History;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;
@@ -22,8 +21,4 @@ public class Snake implements IAnimal {
     @Inject
     public Knowledge knowledge;
 
-    @Override
-    public void born() {
-        Forest.DI.inject(this);
-    }
 }

@@ -5,6 +5,7 @@ package com.github.klee0kai.stone.closed.types.single;
  */
 public class SoftItemHolder<T> extends SingleItemHolder<T> {
 
+    @Override
     public T set(T ob) {
         setSoft(ob);
         return ob;

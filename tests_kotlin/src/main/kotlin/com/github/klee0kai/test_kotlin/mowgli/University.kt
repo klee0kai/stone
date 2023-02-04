@@ -22,9 +22,4 @@ class University {
     @Inject
     lateinit var knowledgePhantomProvide: PhantomProvide<Knowledge>
 
-
-    fun build() {
-        RainForest.DI.inject(this)
-    }
-
 }

@@ -20,16 +20,16 @@ public interface EastModule {
     Cave cave();
 
     @Provide(cache = Provide.CacheType.Soft)
-    Cave cave(Cave.CaveType type, int deep);
+    Cave cave(Cave.CaveType type, Integer deep);
 
     @Provide(cache = Provide.CacheType.Soft)
     Cave cave(Cave.CaveType type);
 
 
     @Provide(cache = Provide.CacheType.Soft)
-    Cave cave(Cave.CaveType type, int deep, int space);
+    Cave cave(Cave.CaveType type, Integer deep, Integer space);
 
     @Provide(cache = Provide.CacheType.Soft)
-    Cave cave(int deep, Cave.CaveType type);
+    Cave cave(Integer deep, Cave.CaveType type);
 
 }

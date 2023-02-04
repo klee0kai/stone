@@ -1,6 +1,8 @@
 package com.github.klee0kai.tests.java_models.inject
 
-import com.github.klee0kai.test.mowgli.Forest
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleListener
+import com.github.klee0kai.test.di.base_forest.ForestComponent
 import com.github.klee0kai.test.mowgli.animal.Horse
 import com.github.klee0kai.test.mowgli.animal.Mowgli
 import com.github.klee0kai.test.mowgli.animal.Snake
@@ -11,12 +13,12 @@ class HorseInjectTests {
     @Test
     fun horseBornTest() {
         //Given
-        val forest = Forest()
-        forest.create()
+        val DI = Stone.createComponent(ForestComponent::class.java)
+        val horse = Horse()
+
 
         //When
-        val horse = Horse()
-        horse.born()
+        DI.inject(horse) { listener: IStoneLifeCycleListener? -> }
 
         //Then
         assertNotNull(horse.blood)
@@ -27,12 +29,12 @@ class HorseInjectTests {
     @Test
     fun mowgliBornTest() {
         //Given
-        val forest = Forest()
-        forest.create()
+        val DI = Stone.createComponent(ForestComponent::class.java)
+        val mowgli = Mowgli()
+
 
         //When
-        val mowgli = Mowgli()
-        mowgli.born()
+        DI.inject(mowgli)
 
         //Then
         assertNotNull(mowgli.blood)
@@ -43,15 +45,14 @@ class HorseInjectTests {
     @Test
     fun oneBloodTest() {
         //Given
-        val forest = Forest()
-        forest.create()
+        val DI = Stone.createComponent(ForestComponent::class.java)
+        val mowgli = Mowgli()
+        val snake = Snake()
+
 
         //When
-        val mowgli = Mowgli()
-        mowgli.born()
-        val snake = Snake()
-        snake.born()
-
+        DI.inject(mowgli)
+        DI.inject(snake)
 
         //Then
         assertEquals(mowgli.blood.uuid, snake.blood.uuid)
@@ -60,14 +61,14 @@ class HorseInjectTests {
     @Test
     fun personalityTest() {
         //Given
-        val forest = Forest()
-        forest.create()
+        val DI = Stone.createComponent(ForestComponent::class.java)
+        val mowgli = Mowgli()
+        val snake = Snake()
+
 
         //When
-        val mowgli = Mowgli()
-        mowgli.born()
-        val snake = Snake()
-        snake.born()
+        DI.inject(mowgli)
+        DI.inject(snake)
 
         //Then
         assertNotEquals(mowgli.conscience.uuid, snake.conscience.uuid)

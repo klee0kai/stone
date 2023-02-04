@@ -14,8 +14,6 @@ import javax.inject.Provider;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
-import static com.github.klee0kai.test.mowgli.Forest.DI;
-
 public class Mowgli implements IAnimal {
 
     @Inject
@@ -47,8 +45,4 @@ public class Mowgli implements IAnimal {
     @Inject
     public PhantomProvide<Knowledge> knowledgePhantomProvide;
 
-    @Override
-    public void born() {
-        DI.inject(this);
-    }
 }

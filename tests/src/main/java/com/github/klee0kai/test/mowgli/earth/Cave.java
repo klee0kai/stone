@@ -11,11 +11,11 @@ public class Cave implements IMountain {
         //nothing
     }
 
-    public Cave(CaveType type, int deep) {
+    public Cave(CaveType type, Integer deep) {
         //nothing
     }
 
-    public  enum CaveType {
+    public enum CaveType {
         Solutional, Glacier, Fracture
     }
 

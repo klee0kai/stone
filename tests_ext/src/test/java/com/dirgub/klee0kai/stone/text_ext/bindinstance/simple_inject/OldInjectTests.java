@@ -1,8 +1,10 @@
 
-package com.dirgub.klee0kai.stone.text_ext.inject;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.simple_inject;
 
+import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.test.di.base_forest.ForestComponent;
 import com.github.klee0kai.test.mowgli.animal.Horse;
-import com.github.klee0kai.test_ext.inject.mowgli.OldForest;
+import com.github.klee0kai.test_ext.inject.di.forest.OldForestComponent;
 import com.github.klee0kai.test_ext.inject.mowgli.animal.OldHorse;
 import org.junit.jupiter.api.Test;
 
@@ -14,13 +16,13 @@ public class OldInjectTests {
     @Test
     public void oldHorseInjectTest() {
         // Given
-        OldForest forest = new OldForest();
-        forest.create();
-        forest.old();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
+        DIPro.extOf(DI);
+        OldHorse horse = new OldHorse();
 
         // When
-        OldHorse horse = new OldHorse();
-        horse.born();
+        DIPro.inject(horse);
 
         // Then
         assertNotNull(horse.blood);
@@ -34,28 +36,29 @@ public class OldInjectTests {
     @Test
     public void simpleProvideProTest() {
         // Given
-        OldForest forest = new OldForest();
-        forest.create();
-        forest.old();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
+        DIPro.extOf(DI);
+        OldHorse horse = new OldHorse();
 
         // When
-        OldHorse horse = new OldHorse();
-        horse.born();
+        DIPro.inject(horse);
 
         // Then
         assertTrue(horse.ideology.isFamilyIdeology());
 
     }
+
     @Test
     public void overrideProvideTest() {
         // Given
-        OldForest forest = new OldForest();
-        forest.create();
-        forest.old();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
+        DIPro.extOf(DI);
+        OldHorse horse = new OldHorse();
 
         // When
-        Horse horse = new Horse();
-        horse.born();
+        DIPro.inject(horse);
 
         // Then: new items should generate from new DI component
         assertTrue(horse.knowledge.isOldKnowledge());
@@ -65,15 +68,16 @@ public class OldInjectTests {
     @Test
     public void nonGenCacheTest() {
         // Given
-        OldForest forest = new OldForest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Horse horse = new Horse();
 
         // When
-        Horse horse = new Horse();
-        horse.born();
+        DI.inject(horse);
+
         // simply connect dynamic feature
-        forest.old();
-        horse.born();
+        OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
+        DIPro.extOf(DI);
+        DI.inject(horse);
 
         // Then
         assertFalse(horse.ideology.isFamilyIdeology());
@@ -83,28 +87,28 @@ public class OldInjectTests {
     @Test
     public void overrideCacheTest() {
         // Given
-        OldForest forest = new OldForest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Horse horse = new Horse();
 
         // When
-        Horse horse = new Horse();
-        horse.born();
+        DI.inject(horse);
 
         // simply connect dynamic feature
-        forest.old();
-        horse.born();
+        OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
+        DIPro.extOf(DI);
+        DI.inject(horse);
 
         //use cached component if not need use overrided
         assertFalse(horse.ideology.isFamilyIdeology());
 
         OldHorse oldHorse = new OldHorse();
-        oldHorse.born();
+        DIPro.inject(oldHorse);
 
         //check override on DIPro
         assertTrue(oldHorse.ideology.isFamilyIdeology());
 
         // all use overrided features
-        horse.born();
+        DI.inject(horse);
 
         assertTrue(horse.ideology.isFamilyIdeology());
 

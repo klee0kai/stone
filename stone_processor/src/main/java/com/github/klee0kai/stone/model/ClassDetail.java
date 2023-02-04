@@ -94,6 +94,11 @@ public class ClassDetail implements Cloneable {
         return classDetail;
     }
 
+    /**
+     * @param includeObjectMethods
+     * @param allowDoubles         for use return type and overriden methods
+     * @return
+     */
     public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles) {
         if (!includeObjectMethods && className.equals(ClassName.OBJECT))
             return Collections.emptyList();

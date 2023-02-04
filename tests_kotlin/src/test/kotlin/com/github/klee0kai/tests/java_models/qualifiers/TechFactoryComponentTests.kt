@@ -5,7 +5,6 @@ import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsVersion
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponent
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

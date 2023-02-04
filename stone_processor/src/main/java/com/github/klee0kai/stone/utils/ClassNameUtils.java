@@ -26,10 +26,10 @@ public class ClassNameUtils {
     }
 
 
-    public static ClassName genInterfaceModuleNameMirror(TypeName or) {
+    public static ClassName genCacheControlInterfaceModuleNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), "I" + origin.simpleName() + "StoneModule");
+        return ClassName.get(origin.packageName(), "I" + origin.simpleName() + "StoneCacheControlModule");
     }
 
 
@@ -43,6 +43,14 @@ public class ClassNameUtils {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
         return ClassName.get(origin.packageName(), origin.simpleName() + "StoneHiddenModule");
+    }
+
+    public static boolean isStoneCreatedClass(ClassName className) {
+        return className.simpleName().endsWith("StoneFactory")
+                || className.simpleName().endsWith("StoneModule")
+                || className.simpleName().endsWith("StoneComponent")
+                || className.simpleName().endsWith("StoneHiddenModule")
+                || className.simpleName().endsWith("StoneCacheControlModule");
     }
 
 }

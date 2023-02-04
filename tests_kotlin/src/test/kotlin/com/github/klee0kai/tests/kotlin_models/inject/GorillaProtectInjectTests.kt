@@ -1,6 +1,7 @@
 package com.github.klee0kai.tests.kotlin_models.inject
 
-import com.github.klee0kai.test_kotlin.mowgli.RainForest
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponent
 import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -12,15 +13,15 @@ class GorillaProtectInjectTests {
     @Test
     fun withoutProtectInjectTest() {
         // Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        var gorilla: Gorilla? = Gorilla()
+
 
         //When
-        var gorilla: Gorilla? = Gorilla()
-        gorilla!!.born()
+        DI.inject(gorilla!!)
         val historyWeakReference = WeakReference(gorilla.history)
         gorilla = null
-        RainForest.DI.gcAll()
+        DI.gcAll()
 
         //Then: without protect all not uses should be garbage collected
         assertNull(historyWeakReference.get())
@@ -31,24 +32,23 @@ class GorillaProtectInjectTests {
     @Throws(InterruptedException::class)
     fun withProtectInjectTest() {
         // Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        var gorrila: Gorilla? = Gorilla()
 
 
         //When
-        var gorrila: Gorilla? = Gorilla()
-        gorrila!!.born()
+        DI.inject(gorrila!!)
         val historyWeakReference = WeakReference(gorrila.history)
-        RainForest.DI.protectInjected(gorrila)
+        DI.protectInjected(gorrila)
         gorrila = null
-        RainForest.DI.gcAll()
+        DI.gcAll()
 
         //Then
         assertNotNull(historyWeakReference.get())
 
         //after protect finished
         Thread.sleep(100)
-        RainForest.DI.gcAll()
+        DI.gcAll()
         assertNull(historyWeakReference.get())
     }
 
