@@ -215,13 +215,16 @@ public class ModuleBuilder {
 
         collectRuns.add(() -> {
             if (orModuleCl != null) for (ClassDetail cl : orModuleCl.getAllParents(false)) {
-                if (cl.moduleAnn == null)
-                    continue;
                 ClassName cacheControlInterfaceCl = ClassNameUtils.genCacheControlInterfaceModuleNameMirror(cl.className);
                 builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterfaceCl)
                         .addStatement("$T module = ($T) m", cacheControlInterfaceCl, cacheControlInterfaceCl);
 
                 for (MethodDetail protoProvideMethod : cl.getAllMethods(false, false, "<init>")) {
+                    boolean isProvideMethod = !protoProvideMethod.returnType.isPrimitive()
+                            && !Objects.equals(protoProvideMethod.returnType, TypeName.VOID)
+                            && !protoProvideMethod.returnType.isBoxedPrimitive();
+                    if (!isProvideMethod)
+                        continue;
                     String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
                     List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
                             (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
