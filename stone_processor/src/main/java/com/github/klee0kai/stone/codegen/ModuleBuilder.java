@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
+import com.github.klee0kai.stone.closed.types.single.WeakItemHolder;
 import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -119,8 +120,9 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder overridedField(TypeName typeName) {
-        FieldSpec.Builder builder = FieldSpec.builder(typeName, overridedModuleFieldName, Modifier.PRIVATE)
-                .initializer("null");
+        TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(WeakItemHolder.class), typeName);
+        FieldSpec.Builder builder = FieldSpec.builder(weakHolder, overridedModuleFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                .initializer("new $T()", weakHolder);
         fields.put(overridedModuleFieldName, builder);
         return this;
     }
@@ -159,7 +161,7 @@ public class ModuleBuilder {
             builder
                     // check module class
                     .beginControlFlow("if ( (or instanceof $T) ) ", ClassNameUtils.genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
-                    .addStatement("$L = ($T) or", overridedModuleFieldName, ClassNameUtils.genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
+                    .addStatement("$L.set(($T) or)", overridedModuleFieldName, ClassNameUtils.genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
                     .addStatement("$L = ($T) (($T) or).getFactory() ", factoryFieldName, orModuleCl.className, IModule.class)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
@@ -258,8 +260,8 @@ public class ModuleBuilder {
                 .returns(boolean.class);
 
         if (fields.containsKey(overridedModuleFieldName))
-            builder.beginControlFlow("if ( $L != null )", overridedModuleFieldName)
-                    .addStatement("$L.bind(or)", overridedModuleFieldName)
+            builder.beginControlFlow("if ( $L.get() != null )", overridedModuleFieldName)
+                    .addStatement("$L.get().bind(or)", overridedModuleFieldName)
                     .endControlFlow();
 
         iModuleMethodBuilders.put(bindMethodName, builder);
@@ -334,13 +336,13 @@ public class ModuleBuilder {
             // check cached from overrided module
             provideMethodBuilder
                     .beginControlFlow(
-                            "if ($L != null && $L.$L( null  $L  ) != null ) ",
+                            "if ($L.get() != null && $L.get().$L( null  $L  ) != null ) ",
                             overridedModuleFieldName, overridedModuleFieldName,
                             cacheControlMethodName,
                             String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
                     )
                     .addStatement(
-                            "return $L.$L( null  $L ) ",
+                            "return $L.get().$L( null  $L ) ",
                             overridedModuleFieldName,
                             cacheControlMethodName,
                             String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
@@ -415,13 +417,13 @@ public class ModuleBuilder {
             // check cached from overrided module
             provideMethodBuilder
                     .beginControlFlow(
-                            "if ($L != null && $L.$L( null  $L  ) != null ) ",
+                            "if ($L.get() != null && $L.get().$L( null  $L  ) != null ) ",
                             overridedModuleFieldName, overridedModuleFieldName,
                             cacheControlMethodName,
                             String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
                     )
                     .addStatement(
-                            "return $L.$L( null  $L ) ",
+                            "return $L.get().$L( null  $L ) ",
                             overridedModuleFieldName,
                             cacheControlMethodName,
                             String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
@@ -437,9 +439,9 @@ public class ModuleBuilder {
         if (fields.containsKey(overridedModuleFieldName)) {
             // return from overrided module
             provideMethodBuilder
-                    .beginControlFlow("if ($L != null) ", overridedModuleFieldName)
+                    .beginControlFlow("if ($L.get() != null) ", overridedModuleFieldName)
                     .addStatement(
-                            "return $L.$L( $L ) ",
+                            "return $L.get().$L( $L ) ",
                             overridedModuleFieldName, m.methodName,
                             String.join(",", ListUtils.format(m.args, (it) -> it.name))
                     )
@@ -479,9 +481,9 @@ public class ModuleBuilder {
         if (fields.containsKey(overridedModuleFieldName)) {
             cacheControldMethodBuilder
                     // invoke for overrided module
-                    .beginControlFlow("if ($L != null)", overridedModuleFieldName)
+                    .beginControlFlow("if ($L.get() != null)", overridedModuleFieldName)
                     .addStatement(
-                            "$L.$L($L)",
+                            "$L.get().$L($L)",
                             overridedModuleFieldName,
                             cacheControlMethodName,
                             String.join(",", ListUtils.format(
