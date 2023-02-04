@@ -35,6 +35,7 @@ public class ComponentBuilder {
     public static final String relatedComponentsListFieldName = "__related";
     public static final String protectRecursiveField = "__protectRecursive";
     public static final String hiddenModuleMethodName = "__hidden";
+    public static final String eachModuleMethodName = "__eachModule";
     public static final String initMethodName = "init";
     public static final String bindMethodName = "bind";
     public static final String extOfMethodName = "extOf";
@@ -90,7 +91,7 @@ public class ComponentBuilder {
     public ComponentBuilder implementIComponentMethods() {
         interfaces.add(ClassName.get(IComponent.class));
         interfaces.add(ClassName.get(IPrivateComponent.class));
-        ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakLinkedList.class, IComponent.class);
+        ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakLinkedList.class, IPrivateComponent.class);
         fields.put(
                 relatedComponentsListFieldName,
                 FieldSpec.builder(weakComponentsList, relatedComponentsListFieldName, Modifier.FINAL, Modifier.PRIVATE)
@@ -103,10 +104,13 @@ public class ComponentBuilder {
         );
 
 
+        // IComponent
         initMethod(true);
         bindMethod(true);
         extOfMethod(true);
+        // IPrivateComponent
         hiddenModuleMethod(true);
+        eachModuleMethod(true);
         return this;
     }
 
@@ -149,11 +153,14 @@ public class ComponentBuilder {
 
         collectRuns.add(() -> {
             builder.beginControlFlow("for (Object m : modules)")
-                    .beginControlFlow("if (m instanceof $T)", IComponent.class)
-                    .addStatement("$L.add( ( $T ) m)", relatedComponentsListFieldName, IComponent.class)
+                    .beginControlFlow("if (m instanceof $T)", IPrivateComponent.class)
+                    .addStatement("$L.add( ( $T ) m)", relatedComponentsListFieldName, IPrivateComponent.class)
                     .endControlFlow()
                     .beginControlFlow("else")
-                    .addCode(initModuleCode.build())
+                    .addStatement(
+                            "$L( (module) -> {  module.init(m); } )",
+                            eachModuleMethodName
+                    )
                     .endControlFlow()
                     .endControlFlow();
         });
@@ -168,12 +175,13 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        sameCallForRelatedComponents(builder, MethodDetail.of(builder.build()));
-
         iComponentMethods.put(bindMethodName, builder);
         collectRuns.add(() -> {
             builder.beginControlFlow("for (Object ob : objects)")
-                    .addCode(bindModuleCode.build())
+                    .addStatement(
+                            "$L( (m) -> {  m.bind(ob); } )",
+                            eachModuleMethodName
+                    )
                     .endControlFlow();
         });
         return this;
@@ -215,8 +223,14 @@ public class ComponentBuilder {
 
             builder.addStatement("c.init( $L ) ", String.join(",", provideFactories))
                     .addStatement("c.init(this)")
-                    .addStatement("$L.add(c)", relatedComponentsListFieldName)
                     .endControlFlow();
+
+            builder.beginControlFlow("if (c instanceof $T)", IPrivateComponent.class)
+                    .addStatement(
+                            "$L.add( ($T) c)",
+                            relatedComponentsListFieldName, IPrivateComponent.class)
+                    .endControlFlow();
+
         }
 
         iComponentMethods.put(extOfMethodName, builder);
@@ -242,6 +256,35 @@ public class ComponentBuilder {
         iComponentMethods.put(hiddenModuleMethodName, builder);
         return this;
     }
+
+    public ComponentBuilder eachModuleMethod(boolean override) {
+        ParameterizedTypeName callbackType = ParameterizedTypeName.get(StoneCallback.class, IModule.class);
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(eachModuleMethodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ParameterSpec.builder(callbackType, "callback").build())
+                .addStatement("if ($L) return ", protectRecursiveField)
+                .addStatement("$L = true", protectRecursiveField);
+        if (override) builder.addAnnotation(Override.class);
+
+        collectRuns.add(() -> {
+            for (String module : modulesMethods.keySet()) {
+                builder.addStatement("callback.invoke($L())", module);
+            }
+            if (modulesFields.containsKey(hiddenModuleFieldName)) {
+                builder.addStatement("callback.invoke($L())", hiddenModuleMethodName);
+            }
+
+            builder.beginControlFlow("for ($T c: $L.toList())", IPrivateComponent.class, relatedComponentsListFieldName)
+                    .addStatement("c.$L(callback)", eachModuleMethodName)
+                    .endControlFlow();
+
+
+            builder.addStatement("$L = false", protectRecursiveField);
+        });
+        iComponentMethods.put(eachModuleMethodName, builder);
+        return this;
+    }
+
 
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
         ClassName moduleStoneMirror = ClassNameUtils.genModuleNameMirror(module.className);
@@ -496,21 +539,19 @@ public class ComponentBuilder {
 
         gcMethods.add(builder);
         collectRuns.add(() -> {
-            for (String module : modulesFields.keySet()) {
-                builder.addStatement("this.$L.switchRef(scopes, toWeak)", module);
-            }
-            builder.addCode(statementInvokeEachRelativeModule(CodeBlock.of("switchRef(scopes, toWeak)")));
+            builder.addStatement(
+                            "$L( (m) -> {  m.switchRef(scopes, toWeak); } )",
+                            eachModuleMethodName
+                    )
+                    .addStatement("$T.gc()", System.class)
+                    .addStatement("$L.clearNulls()", relatedComponentsListFieldName)
+                    .addStatement(
+                            "$L( (m) -> {  m.switchRef(scopes, toDef); } )",
+                            eachModuleMethodName
+                    );
 
-
-            builder.addStatement("$T.gc()", System.class)
-                    .addStatement("$L.clearNulls()", relatedComponentsListFieldName);
             if (fields.containsKey(refCollectionGlFieldName))
                 builder.addStatement("$L.clearNulls()", refCollectionGlFieldName);
-
-            for (String module : modulesFields.keySet()) {
-                builder.addStatement("this.$L.switchRef(scopes, toDef)", module);
-            }
-            builder.addCode(statementInvokeEachRelativeModule(CodeBlock.of("switchRef(scopes, toDef)")));
         });
         return this;
     }
@@ -551,20 +592,12 @@ public class ComponentBuilder {
                 SwitchCache.CacheType.class, m.switchCacheAnnotation.cache.name(),
                 m.switchCacheAnnotation.timeMillis,
                 schedulerInitCode.build()
+        ).addStatement(
+                "$L( (m) -> {  m.switchRef(scopes, switchCacheParams); } )",
+                eachModuleMethodName
         );
 
-
         switchRefMethods.add(builder);
-        collectRuns.add(() -> {
-            for (String moduleMethod : modulesMethods.keySet()) {
-                builder.addStatement(
-                        "this.$L.switchRef(scopes, switchCacheParams)",
-                        moduleMethod
-                );
-            }
-
-            builder.addCode(statementInvokeEachRelativeModule(CodeBlock.of("switchRef(scopes, switchCacheParams)")));
-        });
         return this;
     }
 
@@ -638,77 +671,7 @@ public class ComponentBuilder {
 
     private ModuleBuilder getOrCreateHiddenModuleBuilder() {
         if (moduleHiddenBuilder == null) provideHiddenModuleMethod();
-
-
         return moduleHiddenBuilder;
-    }
-
-    private CodeBlock statementInvokeEachRelativeModule(CodeBlock invokeCode) {
-        CodeBlock.Builder builder = CodeBlock.builder();
-
-        builder.beginControlFlow("for ($T c: $L.toList())", IComponent.class, relatedComponentsListFieldName);
-        for (ClassDetail cl : orComponentCl.getAllParents(false)) {
-            if (ClassNameUtils.isStoneCreatedClass(cl.className))
-                continue;
-            List<MethodDetail> moduleProvideMethods = ListUtils.filter(cl.getAllMethods(false, false),
-                    (inx, it) -> ComponentMethods.isModuleProvideMethod(it));
-            if (moduleProvideMethods.isEmpty())
-                continue;
-            builder.beginControlFlow("if (c instanceof $T)", cl.className);
-            for (MethodDetail m : moduleProvideMethods) {
-                builder.addStatement(
-                        "( ($T) ( ($T) c).$L()).$L",
-                        IModule.class, cl.className, m.methodName, invokeCode
-                );
-            }
-            builder.endControlFlow();
-        }
-
-        builder.beginControlFlow("if (c instanceof $T)", IPrivateComponent.class)
-                .addStatement(
-                        "$T hidden = ( ($T) c).$L()",
-                        IModule.class, IPrivateComponent.class, hiddenModuleMethodName
-                )
-                .addStatement("if (hidden != null) hidden.$L", invokeCode)
-                .endControlFlow();
-
-        builder.endControlFlow()
-                .add("\n");
-        return builder.build();
-
-    }
-
-
-    private void sameCallForRelatedComponents(MethodSpec.Builder builder, MethodDetail m) {
-        boolean isObjectReturn = !(m.returnType.isPrimitive() || Objects.equals(m.returnType, TypeName.VOID));
-        builder.addComment("invoke same method for all related components")
-                .addStatement(
-                        isObjectReturn ? "if ($L) return null" : "if ($L) return",
-                        protectRecursiveField
-                )
-                .addStatement("$L = true", protectRecursiveField)
-                .beginControlFlow("for ($T c : $L.toList())", IComponent.class, relatedComponentsListFieldName);
-        boolean isFirstCastCheck = true;
-        for (ClassDetail cl : orComponentCl.getAllParents(false)) {
-            if (cl.findMethod(m, false) != null && !ClassNameUtils.isStoneCreatedClass(cl.className)) {
-                builder.beginControlFlow(
-                                isFirstCastCheck ? "if (c instanceof $T)" : " else if (c instanceof $T)",
-                                cl.className
-                        )
-                        .addStatement(
-                                "(($T) c).$L",
-                                cl.className,
-                                MethodInvokeHelper.sameMethodInvokeCode(m)
-                        )
-                        .endControlFlow();
-                isFirstCastCheck = false;
-            }
-
-        }
-        builder.endControlFlow()
-                .addStatement("$L = false", protectRecursiveField)
-                .addCode("\n");
-
     }
 
 }

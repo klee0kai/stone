@@ -64,7 +64,6 @@ public class StarProvideTests {
         DIPro.extOf(DI);
         DIPro.sunModule().sun(sun2);
 
-
         //Then
         assertEquals(sun2, DI.sunModule().sun(null));
         assertEquals(sun2, DI.sunModule().sun(null));
