@@ -1,17 +1,20 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
+import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.closed.IModule;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
+import javax.inject.Scope;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class AllClassesHelper {
 
@@ -23,6 +26,9 @@ public class AllClassesHelper {
     public ClassDetail iModule;
     public ClassDetail iLifeCycleOwner;
 
+    public TypeElement scopeAnnotationElement;
+    public TypeElement gcScopeAnnotationElement;
+
     public AllClassesHelper() {
     }
 
@@ -31,11 +37,31 @@ public class AllClassesHelper {
         iComponentClassDetails = findForType(ClassName.get(IComponent.class));
         iModule = findForType(ClassName.get(IModule.class));
         iLifeCycleOwner = findForType(ClassName.get(IStoneLifeCycleOwner.class));
+
+        scopeAnnotationElement = typeElementFor(ClassName.get(Scope.class));
+        gcScopeAnnotationElement = typeElementFor(ClassName.get(GcScopeAnnotation.class));
     }
 
-    public void addGcScopeAnnotation(ClassDetail classDetail) {
-        gcScopeAnnotations.put(classDetail.className.toString(), classDetail);
+    public void deepExtractGcAnnotations(ClassDetail classDetail) {
+        for (ClassDetail parent : classDetail.getAllParents(false)) {
+            TypeElement parentEl = typeElementFor(parent.className);
+            for (Element methodEl : parentEl.getEnclosedElements()) {
+                for (AnnotationMirror ann : methodEl.getAnnotationMirrors()) {
+                    List<? extends AnnotationMirror> methodAnnotations = ann.getAnnotationType().asElement().getAnnotationMirrors();
+                    boolean isScopeAnnotated = ListUtils.contains(methodAnnotations, (inx, it) -> {
+                        Element annEl = it.getAnnotationType().asElement();
+                        return Objects.equals(annEl, scopeAnnotationElement) || Objects.equals(annEl, gcScopeAnnotationElement);
+                    });
+                    if (isScopeAnnotated) {
+                        String annClName = ann.getAnnotationType().toString();
+                        ClassDetail annClDetails = ClassDetail.of(typeElementFor(annClName));
+                        gcScopeAnnotations.put(annClDetails.className.toString(), annClDetails);
+                    }
+                }
+            }
+        }
     }
+
 
     public ClassDetail findGcScopeAnnotation(String annTypeName) {
         return gcScopeAnnotations.getOrDefault(annTypeName, null);
@@ -58,4 +84,15 @@ public class AllClassesHelper {
             return ClassDetail.of(elements.getTypeElement(((ClassName) typeName).canonicalName()));
         return null;
     }
+
+    public TypeElement typeElementFor(TypeName typeName) {
+        if (typeName instanceof ClassName)
+            return elements.getTypeElement(((ClassName) typeName).canonicalName());
+        return null;
+    }
+
+    public TypeElement typeElementFor(String canonicalName) {
+        return elements.getTypeElement(canonicalName);
+    }
+
 }

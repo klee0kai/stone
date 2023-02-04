@@ -1,15 +1,12 @@
 package com.github.klee0kai.stone.closed;
 
-import com.github.klee0kai.stone.annotations.component.SwitchCache;
-import com.github.klee0kai.stone.closed.types.TimeScheduler;
+import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 
 import java.util.Set;
 
 /**
  * Stone Private class
  */
-
-
 public interface IModule {
 
     /**
@@ -21,6 +18,12 @@ public interface IModule {
      */
     boolean init(Object ob);
 
+
+    /**
+     * Init caches from module prototype.
+     * using in extOf method
+     */
+    void initCachesFrom(IModule module);
 
     /**
      * bind instance objects
@@ -39,6 +42,6 @@ public interface IModule {
     /**
      * Switch cache type for scope
      */
-    void switchRef(Set<Class> scopes, SwitchCache.CacheType cacheType, TimeScheduler scheduler, long time);
+    void switchRef(Set<Class> scopes, SwitchCacheParam param);
 
 }

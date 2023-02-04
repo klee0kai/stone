@@ -1,10 +1,10 @@
 package com.github.klee0kai.tests.java_models.lifecycle
 
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.test.di.base_phone.PhoneComponent
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize
-import com.github.klee0kai.test.tech.PhoneStore
 import com.github.klee0kai.test.tech.phone.GoodPhone
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
@@ -13,13 +13,14 @@ import java.lang.ref.WeakReference
  * Test lifecycle owner over LifecycleUtils
  */
 class GoodPhoneRepairTests {
-
     @Test
     fun goodPhoneInjectTest() {
-        //When
-        PhoneStore.recreate()
-        val goodPhone = GoodPhone(DataStorageSize("64G"), RamSize("4G"))
-        goodPhone.buy()
+        //Given
+        val DI = Stone.createComponent(PhoneComponent::class.java)
+
+        //When buy
+        val goodPhone = GoodPhone()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
 
         //Then
         assertNotNull(goodPhone.battery)
@@ -30,17 +31,17 @@ class GoodPhoneRepairTests {
     @Test
     fun goodPhoneBrokeTest() {
         //Given
-        PhoneStore.recreate()
-        val goodPhone = GoodPhone(DataStorageSize("64G"), RamSize("4G"))
-        goodPhone.buy()
+        val DI = Stone.createComponent(PhoneComponent::class.java)
+        val goodPhone = GoodPhone()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
         val batteryRef = WeakReference(goodPhone.battery)
         val dataStorageRef = WeakReference(goodPhone.dataStorage)
         val ramRef = WeakReference(goodPhone.ram)
 
-        //When
+        //When broke and repair
         goodPhone.broke()
         System.gc()
-        goodPhone.repair()
+        DI.inject(goodPhone, DataStorageSize("64G"), RamSize("4G"))
 
         //Then: Need new details for repair phone. Old components collected  by GC
         assertNull(batteryRef.get())
@@ -52,9 +53,9 @@ class GoodPhoneRepairTests {
     @Throws(InterruptedException::class)
     fun goodPhoneDropWatterTest() {
         //Given
-        PhoneStore.recreate()
-        val goodPhone = GoodPhone(DataStorageSize("64G"), RamSize("4G"))
-        goodPhone.buy()
+        val DI = Stone.createComponent(PhoneComponent::class.java)
+        val goodPhone = GoodPhone()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
         val batteryRef = WeakReference(goodPhone.battery)
         val dataStorageRef = WeakReference(goodPhone.dataStorage)
         val ramRef = WeakReference(goodPhone.ram)
@@ -87,16 +88,16 @@ class GoodPhoneRepairTests {
     @Throws(InterruptedException::class)
     fun goodPhoneDrownedRepairTest() {
         //Given
-        PhoneStore.recreate()
-        val goodPhone = GoodPhone(DataStorageSize("64G"), RamSize("4G"))
-        goodPhone.buy()
+        val DI = Stone.createComponent(PhoneComponent::class.java)
+        val goodPhone = GoodPhone()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
         val ramUuid = goodPhone.dataStorage.uuid
 
         //When
         goodPhone.dropToWater()
         Thread.sleep(10)
         System.gc()
-        goodPhone.repair()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
 
         //Then: Can be repair after little time
         assertEquals(ramUuid, goodPhone.dataStorage.uuid)
@@ -106,20 +107,18 @@ class GoodPhoneRepairTests {
     @Throws(InterruptedException::class)
     fun goodPhoneDeepDrownedRepairTest() {
         //Given
-        PhoneStore.recreate()
-        val goodPhone = GoodPhone(DataStorageSize("64G"), RamSize("4G"))
-        goodPhone.buy()
+        val DI = Stone.createComponent(PhoneComponent::class.java)
+        val goodPhone = GoodPhone()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
         val ramUuid = goodPhone.dataStorage.uuid
 
         //When
         goodPhone.dropToWater()
         Thread.sleep(120)
         System.gc()
-        goodPhone.repair()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
 
         //Then: Can not be repair without new details
         assertNotEquals(ramUuid, goodPhone.dataStorage.uuid)
     }
-
-
 }

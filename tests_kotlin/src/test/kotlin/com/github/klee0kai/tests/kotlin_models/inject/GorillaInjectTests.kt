@@ -1,6 +1,7 @@
 package com.github.klee0kai.tests.kotlin_models.inject
 
-import com.github.klee0kai.test_kotlin.mowgli.RainForest
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponent
 import com.github.klee0kai.test_kotlin.mowgli.animal.Cougar
 import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
 import org.junit.jupiter.api.Assertions.*
@@ -11,12 +12,12 @@ class GorillaInjectTests {
     @Test
     fun gorillaBornTest() {
         //Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val gorilla = Gorilla()
+
 
         //When
-        val gorilla = Gorilla()
-        gorilla.born()
+        DI.inject(gorilla)
 
         //Then
         assertNotNull(gorilla.blood)
@@ -27,14 +28,14 @@ class GorillaInjectTests {
     @Test
     fun oneBloodTest() {
         //Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val gorilla = Gorilla()
+        val cougar = Cougar()
+
 
         //When
-        val gorilla = Gorilla()
-        gorilla.born()
-        val cougar = Cougar()
-        cougar.born()
+        DI.inject(gorilla)
+        DI.inject(cougar)
 
 
         //Then
@@ -47,14 +48,14 @@ class GorillaInjectTests {
     @Test
     fun personalityTest() {
         //Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val gorilla = Gorilla()
+        val cougar = Cougar()
+
 
         //When
-        val gorilla = Gorilla()
-        gorilla.born()
-        val cougar = Cougar()
-        cougar.born()
+        DI.inject(gorilla)
+        DI.inject(cougar)
 
         //Then
         assertNotEquals(

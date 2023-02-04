@@ -9,7 +9,6 @@ import com.github.klee0kai.test.mowgli.community.History
 import com.github.klee0kai.test.mowgli.galaxy.Earth
 import com.github.klee0kai.test.mowgli.identity.Conscience
 import com.github.klee0kai.test.mowgli.identity.Knowledge
-import com.github.klee0kai.test_kotlin.mowgli.RainForest
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 import javax.inject.Inject
@@ -50,7 +49,4 @@ class Cougar : IAnimal {
     @Inject
     var knowledgePhantomProvide: PhantomProvide<Knowledge>? = null
 
-    override fun born() {
-        RainForest.DI.inject(this)
-    }
 }

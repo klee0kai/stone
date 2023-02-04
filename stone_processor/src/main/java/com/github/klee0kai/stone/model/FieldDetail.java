@@ -1,5 +1,9 @@
 package com.github.klee0kai.stone.model;
 
+import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 
 import javax.inject.Inject;
@@ -19,6 +23,27 @@ public class FieldDetail {
         fieldDetail.type = TypeName.get(p.asType());
         fieldDetail.name = p.getSimpleName().toString();
         fieldDetail.injectAnnotation = p.getAnnotation(Inject.class) != null;
+        return fieldDetail;
+    }
+
+    public static FieldDetail of(FieldSpec field) {
+        FieldDetail fieldDetail = new FieldDetail();
+        fieldDetail.name = field.name;
+        fieldDetail.type = field.type;
+        fieldDetail.injectAnnotation = ListUtils.contains(field.annotations,
+                (inx, ob) -> Objects.equals(ob.type, ClassName.get(Inject.class)));
+        return fieldDetail;
+    }
+
+    /**
+     * Annotations not Supported
+     */
+    public static FieldDetail of(ParameterSpec field) {
+        FieldDetail fieldDetail = new FieldDetail();
+        fieldDetail.name = field.name;
+        fieldDetail.type = field.type;
+        fieldDetail.injectAnnotation = ListUtils.contains(field.annotations,
+                (inx, ob) -> Objects.equals(ob.type, ClassName.get(Inject.class)));
         return fieldDetail;
     }
 

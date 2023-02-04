@@ -8,17 +8,17 @@ import java.util.*;
 public class ListUtils {
 
     public interface IFormat<Tin, Tout> {
-        Tout format(Tin ob);
+        Tout format(Tin it);
     }
 
     public interface ICompare<T> {
-        int compare(T ob1, T ob2);
+        int compare(T it1, T it2);
 
     }
 
 
     public interface IFilter<T> {
-        boolean filter(int inx, T ob);
+        boolean filter(int inx, T it);
 
     }
 
@@ -32,7 +32,7 @@ public class ListUtils {
 
     public static <T> boolean contains(List<T> list, IFilter<T> filter) {
         int idx = 0;
-        for (T it : list) {
+        if (list != null) for (T it : list) {
             if (filter.filter(idx++, it))
                 return true;
         }
@@ -41,7 +41,7 @@ public class ListUtils {
 
     public static <T> T first(List<T> list, IFilter<T> filter) {
         int idx = 0;
-        for (T it : list) {
+        if (list != null) for (T it : list) {
             if (filter.filter(idx++, it))
                 return it;
         }
@@ -51,7 +51,7 @@ public class ListUtils {
     public static <T> List<T> filter(List<T> list, IFilter<T> filter) {
         LinkedList<T> touts = new LinkedList<>();
         int idx = 0;
-        for (T it : list) {
+        if (list != null) for (T it : list) {
             if (filter.filter(idx++, it))
                 touts.add(it);
         }

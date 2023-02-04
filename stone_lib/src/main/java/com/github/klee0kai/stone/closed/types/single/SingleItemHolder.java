@@ -1,8 +1,7 @@
 package com.github.klee0kai.stone.closed.types.single;
 
-import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.closed.types.ScheduleTask;
-import com.github.klee0kai.stone.closed.types.TimeScheduler;
+import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.types.wrappers.IRef;
 
 import java.lang.ref.Reference;
@@ -22,6 +21,7 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
 
     abstract public T set(T ob);
 
+
     abstract public void defRef();
 
     @Override
@@ -30,6 +30,13 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
             return strongHolder;
         return refHolder != null ? refHolder.get() : null;
     }
+
+    public void setIfNull(T ob) {
+        if (get() == null) {
+            set(ob);
+        }
+    }
+
 
     public void setStrong(T ob) {
         strongHolder = ob;
@@ -63,8 +70,9 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
         refHolder = null;
     }
 
-    public void switchCache(SwitchCache.CacheType cacheType, TimeScheduler scheduler, long time) {
-        switch (cacheType) {
+
+    public void switchCache(SwitchCacheParam args) {
+        switch (args.cache) {
             case Default:
                 defRef();
                 break;
@@ -82,9 +90,9 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
                 break;
         }
 
-        if (time > 0) {
+        if (args.time > 0) {
             shedTaskCount.incrementAndGet();
-            scheduler.schedule(new ScheduleTask(time) {
+            args.scheduler.schedule(new ScheduleTask(args.time) {
                 @Override
                 public void run() {
                     if (shedTaskCount.decrementAndGet() <= 0)

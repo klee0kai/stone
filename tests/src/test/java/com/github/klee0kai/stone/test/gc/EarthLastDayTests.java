@@ -23,6 +23,7 @@ public class EarthLastDayTests {
         WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
         WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
         WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultSoft());
+        WeakReference<Mountain> mountainDef2 = new WeakReference<>(di.earth().mountainDefault2Soft());
         WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
         WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
         WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
@@ -33,7 +34,7 @@ public class EarthLastDayTests {
 
         //Then
         for (Reference ref : Arrays.asList(
-                mountainStrong, mountainSoft, mountainWeak, mountainDef,
+                mountainStrong, mountainSoft, mountainDef2, mountainWeak, mountainDef,
                 riverStrong, riverSoft, riverWeak, riverDef
         )) {
             assertNull(ref.get());
@@ -48,6 +49,7 @@ public class EarthLastDayTests {
         WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
         WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
         WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultSoft());
+        WeakReference<Mountain> mountainDef2 = new WeakReference<>(di.earth().mountainDefault2Soft());
         WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
         WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
         WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
@@ -65,7 +67,7 @@ public class EarthLastDayTests {
         }
 
         for (Reference ref : Arrays.asList(
-                mountainSoft, mountainDef,
+                mountainSoft, mountainDef,mountainDef2,
                 riverSoft, riverDef
         )) {
             assertNotNull(ref.get());
@@ -80,6 +82,7 @@ public class EarthLastDayTests {
         WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
         WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
         WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultSoft());
+        WeakReference<Mountain> mountainDef2 = new WeakReference<>(di.earth().mountainDefault2Soft());
         WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
         WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
         WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
@@ -90,7 +93,7 @@ public class EarthLastDayTests {
 
         //Then
         for (Reference ref : Arrays.asList(
-                mountainSoft, mountainWeak, mountainDef,
+                mountainSoft, mountainWeak, mountainDef,mountainDef2,
                 riverSoft, riverWeak, riverDef
         )) {
             assertNull(ref.get());

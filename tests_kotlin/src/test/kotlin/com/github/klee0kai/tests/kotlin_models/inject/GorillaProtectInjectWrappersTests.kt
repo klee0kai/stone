@@ -1,6 +1,7 @@
 package com.github.klee0kai.tests.kotlin_models.inject
 
-import com.github.klee0kai.test_kotlin.mowgli.RainForest
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponent
 import com.github.klee0kai.test_kotlin.mowgli.University
 import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -13,15 +14,15 @@ class GorillaProtectInjectWrappersTests {
     @Test
     fun lazyWrapperProtectTest() {
         // Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val university = University()
+
 
         //When
-        val university = University()
-        university.build()
+        DI.inject(university)
         val history = WeakReference(university.historyLazyProvide.get())
-        RainForest.DI.protectInjected(university)
-        RainForest.DI.gcAll()
+        DI.protectInjected(university)
+        DI.gcAll()
 
         //Then
         assertNotNull(history.get())
@@ -32,23 +33,22 @@ class GorillaProtectInjectWrappersTests {
     @Throws(InterruptedException::class)
     fun withProtectInjectTest() {
         // Given
-        val forest = RainForest()
-        forest.create()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
+        var gorilla: Gorilla? = Gorilla()
 
         //When
-        var gorilla: Gorilla? = Gorilla()
-        gorilla!!.born()
+        DI.inject(gorilla!!)
         val historyWeakReference = WeakReference(gorilla.history)
-        RainForest.DI.protectInjected(gorilla)
+        DI.protectInjected(gorilla)
         gorilla = null
-        RainForest.DI.gcAll()
+        DI.gcAll()
 
         //Then
         assertNotNull(historyWeakReference.get())
 
         //after protect finished
-        Thread.sleep(60)
-        RainForest.DI.gcAll()
+        Thread.sleep(100)
+        DI.gcAll()
         assertNull(historyWeakReference.get())
     }
 

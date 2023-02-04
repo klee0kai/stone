@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.test.inject;
 
-import com.github.klee0kai.test.mowgli.Forest;
+import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.test.di.base_forest.ForestComponent;
 import com.github.klee0kai.test.mowgli.animal.Horse;
 import com.github.klee0kai.test.mowgli.animal.Mowgli;
 import com.github.klee0kai.test.mowgli.animal.Snake;
@@ -14,12 +15,14 @@ public class HorseInjectTests {
     @Test
     public void horseBornTest() {
         //Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Horse horse = new Horse();
+
 
         //When
-        Horse horse = new Horse();
-        horse.born();
+        DI.inject(horse, listener -> {
+
+        });
 
         //Then
         assertNotNull(horse.blood);
@@ -31,12 +34,12 @@ public class HorseInjectTests {
     @Test
     public void mowgliBornTest() {
         //Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Mowgli mowgli = new Mowgli();
+
 
         //When
-        Mowgli mowgli = new Mowgli();
-        mowgli.born();
+        DI.inject(mowgli);
 
         //Then
         assertNotNull(mowgli.blood);
@@ -47,15 +50,14 @@ public class HorseInjectTests {
     @Test
     public void oneBloodTest() {
         //Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Mowgli mowgli = new Mowgli();
+        Snake snake = new Snake();
+
 
         //When
-        Mowgli mowgli = new Mowgli();
-        mowgli.born();
-        Snake snake = new Snake();
-        snake.born();
-
+        DI.inject(mowgli);
+        DI.inject(snake);
 
         //Then
         assertEquals(mowgli.blood.uuid, snake.blood.uuid);
@@ -64,14 +66,14 @@ public class HorseInjectTests {
     @Test
     public void personalityTest() {
         //Given
-        Forest forest = new Forest();
-        forest.create();
+        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        Mowgli mowgli = new Mowgli();
+        Snake snake = new Snake();
+
 
         //When
-        Mowgli mowgli = new Mowgli();
-        mowgli.born();
-        Snake snake = new Snake();
-        snake.born();
+        DI.inject(mowgli);
+        DI.inject(snake);
 
         //Then
         assertNotEquals(mowgli.conscience.uuid, snake.conscience.uuid);

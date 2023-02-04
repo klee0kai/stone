@@ -1,9 +1,11 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
+import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.codegen.ModuleBuilder;
+import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.model.*;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -13,61 +15,106 @@ public class ModulesGraph {
 
 
     private final HashMap<TypeName, List<InvokeCall>> provideTypeCodes = new HashMap<>();
-    private final LinkedList<Pair<MethodDetail, ClassDetail>> modules = new LinkedList<>();
+    private final HashMap<TypeName, List<InvokeCall>> cacheControlTypeCodes = new HashMap<>();
 
-    public void addModule(MethodDetail provideModuleMethod, ClassDetail module) {
-        modules.add(new Pair<>(provideModuleMethod, module));
-        for (MethodDetail m : module.getAllMethods(false, "<init>")) {
+
+    public void collectFromModule(MethodDetail provideModuleMethod, ClassDetail module, Set<ClassName> qualifiers) {
+        ClassDetail iModuleInterface = AnnotationProcessor.allClassesHelper.iModule;
+        for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
+            if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID || m.returnType.isBoxedPrimitive())
+                continue;
+            if (iModuleInterface.findMethod(m, false) != null)
+                continue;
+
             ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
-            for (ClassDetail cl : rtClassDetails.getAllParents(false)) {
-                provideTypeCodes.putIfAbsent(cl.className, new LinkedList<>());
-                provideTypeCodes.get(cl.className).add(new InvokeCall(provideModuleMethod, m));
+            provideTypeCodes.putIfAbsent(rtClassDetails.className, new LinkedList<>());
+            provideTypeCodes.get(rtClassDetails.className).add(new InvokeCall(provideModuleMethod, m));
+
+            MethodDetail cacheControlMethod = new MethodDetail();
+            cacheControlMethod.methodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(m.methodName);
+            cacheControlMethod.args.add(FieldDetail.simple("__action", ClassName.get(CacheAction.class)));
+            for (FieldDetail it : m.args) {
+                if (!((it.type instanceof ClassName) && qualifiers.contains(it.type)))
+                    continue;
+                cacheControlMethod.args.add(it);
             }
+            cacheControlMethod.returnType = m.returnType;
+
+            cacheControlTypeCodes.putIfAbsent(rtClassDetails.className, new LinkedList<>());
+            cacheControlTypeCodes.get(rtClassDetails.className).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
         }
     }
 
-    public CodeBlock codeProvideType(TypeName typeName, List<FieldDetail> qualifiers) {
+    public CodeBlock codeProvideType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
+        InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, typeName, qualifiers);
+        return invokeCall != null ? invokeCall.invokeCode(qualifiers) : null;
+    }
+
+
+    public CodeBlock codeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers, CodeBlock actionParams) {
+        String cacheControlMethodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(provideMethodName);
+        InvokeCall invokeCall = provideTypeInvokeCall(cacheControlTypeCodes, cacheControlMethodName, typeName, qualifiers);
+        if (invokeCall == null || invokeCall.invokeSequence.isEmpty()) {
+            return null;
+        }
+        CodeBlock.Builder invokeBuilder = CodeBlock.builder();
+        int invokeCount = 0;
+        for (MethodDetail m : invokeCall.invokeSequence) {
+            if (invokeCount++ > 0)
+                invokeBuilder.add(".");
+
+            int argCount = 0;
+            CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
+            for (FieldDetail arg : m.args) {
+                if (argCount > 0) argsCodeBuilder.add(",");
+                if (Objects.equals(arg.type, ClassName.get(CacheAction.class))) {
+                    argsCodeBuilder.add(actionParams);
+                    argCount++;
+                } else {
+                    FieldDetail evField = ListUtils.first(qualifiers, (inx, it) -> Objects.equals(it.type, arg.type));
+                    argsCodeBuilder.add(evField != null ? evField.name : "null");
+                }
+            }
+            invokeBuilder.add("$L($L)", m.methodName, argsCodeBuilder.build());
+        }
+        return invokeBuilder.build();
+    }
+
+    private InvokeCall provideTypeInvokeCall(
+            HashMap<TypeName, List<InvokeCall>> provideTypeCodes,
+            String provideMethodName,
+            TypeName typeName,
+            List<FieldDetail> qualifiers
+    ) {
         List<InvokeCall> invokeCalls = provideTypeCodes.getOrDefault(typeName, null);
         if (invokeCalls == null || invokeCalls.isEmpty())
             return null;
         Set<TypeName> qualifiersTypes = new HashSet<>(ListUtils.format(qualifiers, (it) -> it.type));
-        int bestUsedTypeCount = 0;
-        InvokeCall bestInvokeCall = null;
+        int maxUsedQualifiersCount = -1;
+        LinkedList<InvokeCall> bestInvokeCallVariants = new LinkedList<>();
         for (InvokeCall invokeCall : invokeCalls) {
-            if (bestInvokeCall == null) {
-                bestInvokeCall = invokeCall;
-                bestUsedTypeCount = invokeCall.argTypes(qualifiersTypes).size();
-            } else {
-                int usedTypes = invokeCall.argTypes(qualifiersTypes).size();
-                if (bestUsedTypeCount < usedTypes) {
-                    bestUsedTypeCount = usedTypes;
-                    bestInvokeCall = invokeCall;
-                }
-
+            int usedQualifiers = invokeCall.argTypes(qualifiersTypes).size();
+            if (maxUsedQualifiersCount < usedQualifiers) {
+                bestInvokeCallVariants.clear();
+                bestInvokeCallVariants.add(invokeCall);
+                maxUsedQualifiersCount = usedQualifiers;
+            }
+            if (maxUsedQualifiersCount == usedQualifiers) {
+                bestInvokeCallVariants.add(invokeCall);
             }
         }
-
-
-        return bestInvokeCall != null ? bestInvokeCall.invokeCode(qualifiers) : null;
-    }
-
-    public CodeBlock codeSetBindInstancesStatement(TypeName typeName, CodeBlock valueCode) {
-        CodeBlock.Builder codeBuilder = CodeBlock.builder();
-        for (Pair<MethodDetail, ClassDetail> m : modules) {
-            MethodDetail method = m.first;
-            ClassDetail module = m.second;
-            for (MethodDetail bindInstMethod : module.getAllMethods(true, "<init>")) {
-                if (bindInstMethod.bindInstanceAnnotation != null && Objects.equals(bindInstMethod.returnType, typeName)) {
-                    String setBICacheMethodName = ModuleBuilder.setBindInstanceCachedMethodName(bindInstMethod.methodName);
-                    codeBuilder.addStatement(
-                            "$L().$L( $L )",
-                            method.methodName, setBICacheMethodName, valueCode
-                    );
-                }
-            }
+        if (bestInvokeCallVariants.isEmpty()) {
+            return null;
         }
+        if (bestInvokeCallVariants.size() == 1) {
+            return bestInvokeCallVariants.get(0);
+        }
+        InvokeCall nameMatchingInvokeCall = provideMethodName != null ? ListUtils.first(bestInvokeCallVariants, (inx, ob) -> {
+            int len = ob.invokeSequence.size();
+            return Objects.equals(provideMethodName, ob.invokeSequence.get(len - 1).methodName);
+        }) : null;
 
-        return codeBuilder.build();
+        return nameMatchingInvokeCall != null ? nameMatchingInvokeCall : bestInvokeCallVariants.get(0);
     }
 
 }
