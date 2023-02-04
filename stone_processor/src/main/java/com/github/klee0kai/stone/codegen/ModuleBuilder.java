@@ -177,11 +177,11 @@ public class ModuleBuilder {
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
                     .beginControlFlow("catch ( $T | $T | $T | $T | $T e)",
-                        ArrayIndexOutOfBoundsException.class,
-                        ClassNotFoundException.class,
+                            ArrayIndexOutOfBoundsException.class,
+                            ClassNotFoundException.class,
                             InstantiationException.class,
-                        IllegalAccessException.class,
-                        InvocationTargetException.class)
+                            IllegalAccessException.class,
+                            InvocationTargetException.class)
 
                     .beginControlFlow("try")
                     .addComment("we don't got stone factory. We suppose class have constructor")
@@ -189,11 +189,11 @@ public class ModuleBuilder {
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
                     .beginControlFlow("catch ($T | $T | $T | $T ex)",
-                        ArrayIndexOutOfBoundsException.class,
+                            ArrayIndexOutOfBoundsException.class,
                             InstantiationException.class,
-                        IllegalAccessException.class,
-                        InvocationTargetException.class
-                )
+                            IllegalAccessException.class,
+                            InvocationTargetException.class
+                    )
                     .endControlFlow()
 
                     .endControlFlow()
@@ -386,7 +386,8 @@ public class ModuleBuilder {
             provideMethodBuilder.addParameter(p.type, p.name);
         }
 
-        //todo provide from overridedModuleFieldName
+        // not need to use override module.
+        // `factory` field already overridden
 
         provideMethodBuilders.add(provideMethodBuilder);
         return this;
