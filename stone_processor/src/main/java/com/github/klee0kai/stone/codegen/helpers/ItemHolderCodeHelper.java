@@ -38,44 +38,40 @@ public interface ItemHolderCodeHelper {
         }
     }
 
-    ClassName multiKeyMapClassName = ClassName.get(MultiKey.class);
-    ClassName strongRefClassName = ClassName.get(StrongItemHolder.class);
-    ClassName softRefClassName = ClassName.get(SoftItemHolder.class);
-    ClassName weakRefClassName = ClassName.get(WeakItemHolder.class);
+    ClassName multiKeyClassName = ClassName.get(MultiKey.class);
+    ClassName strongHolderClassName = ClassName.get(StrongItemHolder.class);
+    ClassName softHolderClassName = ClassName.get(SoftItemHolder.class);
+    ClassName weakHolderClassName = ClassName.get(WeakItemHolder.class);
 
-    ClassName strongMapClassName = ClassName.get(StrongMapItemHolder.class);
-    ClassName softMapClassName = ClassName.get(SoftMapItemHolder.class);
-    ClassName weakMapClassName = ClassName.get(WeakMapItemHolder.class);
+    ClassName strongMapHolderClassName = ClassName.get(StrongMapItemHolder.class);
+    ClassName softMapHolderClassName = ClassName.get(SoftMapItemHolder.class);
+    ClassName weakMapHolderClassName = ClassName.get(WeakMapItemHolder.class);
 
 
     static ItemCacheType cacheTypeFrom(BindInstance.CacheType cacheType) {
-        if (cacheType == null)
-            return ItemCacheType.Soft;
-        switch (cacheType) {
+        if (cacheType != null) switch (cacheType) {
             case Weak:
                 return ItemCacheType.Weak;
-            case Soft:
-                return ItemCacheType.Soft;
             case Strong:
                 return ItemCacheType.Strong;
+            case Soft:
             default:
                 return ItemCacheType.Soft;
         }
+        return ItemCacheType.Soft;
     }
 
     static ItemCacheType cacheTypeFrom(Provide.CacheType cacheType) {
-        if (cacheType == null)
-            return ItemCacheType.Soft;
-        switch (cacheType) {
+        if (cacheType != null) switch (cacheType) {
             case Weak:
                 return ItemCacheType.Weak;
-            case Soft:
-                return ItemCacheType.Soft;
             case Strong:
                 return ItemCacheType.Strong;
+            case Soft:
             default:
                 return ItemCacheType.Soft;
         }
+        return ItemCacheType.Soft;
     }
 
     static ItemHolderCodeHelper of(
@@ -90,13 +86,13 @@ public interface ItemHolderCodeHelper {
             singleItemHolderHelper.fieldType = fieldOrType;
             switch (cacheType) {
                 case Strong:
-                    singleItemHolderHelper.fieldHolderType = strongRefClassName;
+                    singleItemHolderHelper.holderType = strongHolderClassName;
                     break;
                 case Soft:
-                    singleItemHolderHelper.fieldHolderType = softRefClassName;
+                    singleItemHolderHelper.holderType = softHolderClassName;
                     break;
                 case Weak:
-                    singleItemHolderHelper.fieldHolderType = weakRefClassName;
+                    singleItemHolderHelper.holderType = weakHolderClassName;
                     break;
             }
             return singleItemHolderHelper;
@@ -109,13 +105,13 @@ public interface ItemHolderCodeHelper {
             simpleMapItemHolderHelper.keyParam = qualifiers.get(0);
             switch (cacheType) {
                 case Strong:
-                    simpleMapItemHolderHelper.fieldHolderType = strongMapClassName;
+                    simpleMapItemHolderHelper.holderType = strongMapHolderClassName;
                     break;
                 case Soft:
-                    simpleMapItemHolderHelper.fieldHolderType = softMapClassName;
+                    simpleMapItemHolderHelper.holderType = softMapHolderClassName;
                     break;
                 case Weak:
-                    simpleMapItemHolderHelper.fieldHolderType = weakMapClassName;
+                    simpleMapItemHolderHelper.holderType = weakMapHolderClassName;
                     break;
             }
             return simpleMapItemHolderHelper;
@@ -126,13 +122,13 @@ public interface ItemHolderCodeHelper {
         multiKeyMapItemHolderHelper.keyArgs = qualifiers;
         switch (cacheType) {
             case Strong:
-                multiKeyMapItemHolderHelper.fieldHolderType = strongMapClassName;
+                multiKeyMapItemHolderHelper.holderType = strongMapHolderClassName;
                 break;
             case Soft:
-                multiKeyMapItemHolderHelper.fieldHolderType = softMapClassName;
+                multiKeyMapItemHolderHelper.holderType = softMapHolderClassName;
                 break;
             case Weak:
-                multiKeyMapItemHolderHelper.fieldHolderType = weakMapClassName;
+                multiKeyMapItemHolderHelper.holderType = weakMapHolderClassName;
                 break;
         }
         return multiKeyMapItemHolderHelper;
@@ -154,11 +150,11 @@ public interface ItemHolderCodeHelper {
 
         public String fieldName;
         public TypeName fieldType;
-        public ClassName fieldHolderType;
+        public ClassName holderType;
 
         @Override
         public FieldSpec.Builder cachedField() {
-            ParameterizedTypeName cacheType = ParameterizedTypeName.get(fieldHolderType, fieldType);
+            ParameterizedTypeName cacheType = ParameterizedTypeName.get(holderType, fieldType);
             return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
                     .initializer("new $T()", cacheType);
         }
@@ -195,13 +191,13 @@ public interface ItemHolderCodeHelper {
 
         public String fieldName;
         public TypeName fieldType;
-        public ClassName fieldHolderType;
+        public ClassName holderType;
         public FieldDetail keyParam;
 
 
         @Override
         public FieldSpec.Builder cachedField() {
-            ParameterizedTypeName cacheType = ParameterizedTypeName.get(fieldHolderType, keyParam.type, fieldType);
+            ParameterizedTypeName cacheType = ParameterizedTypeName.get(holderType, keyParam.type, fieldType);
             return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
                     .initializer("new $T()", cacheType);
         }
@@ -244,14 +240,14 @@ public interface ItemHolderCodeHelper {
 
         public String fieldName;
         public TypeName fieldType;
-        public ClassName fieldHolderType;
+        public ClassName holderType;
 
         public List<FieldDetail> keyArgs;
 
 
         @Override
         public FieldSpec.Builder cachedField() {
-            ParameterizedTypeName cacheType = ParameterizedTypeName.get(fieldHolderType, multiKeyMapClassName, fieldType);
+            ParameterizedTypeName cacheType = ParameterizedTypeName.get(holderType, multiKeyClassName, fieldType);
             return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
                     .initializer("new $T()", cacheType);
         }
@@ -259,7 +255,7 @@ public interface ItemHolderCodeHelper {
         @Override
         public CodeBlock codeGetCachedValue() {
             return CodeBlock.builder()
-                    .add("$L.get(new $T($L) )", fieldName, multiKeyMapClassName,
+                    .add("$L.get(new $T($L) )", fieldName, multiKeyClassName,
                             String.join(",", ListUtils.format(keyArgs, (k) -> k.name)))
                     .build();
         }
@@ -267,7 +263,7 @@ public interface ItemHolderCodeHelper {
         @Override
         public CodeBlock codeSetCachedValue(CodeBlock value) {
             return CodeBlock.of(
-                    "$L.set( new $T( $L ), $L )", fieldName, multiKeyMapClassName,
+                    "$L.set( new $T( $L ), $L )", fieldName, multiKeyClassName,
                     String.join(",", ListUtils.format(keyArgs, (k) -> k.name)),
                     value
             );
@@ -276,7 +272,7 @@ public interface ItemHolderCodeHelper {
         @Override
         public CodeBlock codeSetCachedIfNullValue(CodeBlock value) {
             return CodeBlock.of(
-                    "$L.setIfNull( new $T( $L ), $L )", fieldName, multiKeyMapClassName,
+                    "$L.setIfNull( new $T( $L ), $L )", fieldName, multiKeyClassName,
                     String.join(",", ListUtils.format(keyArgs, (k) -> k.name)),
                     value
             );

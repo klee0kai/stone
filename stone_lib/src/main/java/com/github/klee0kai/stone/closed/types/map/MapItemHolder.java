@@ -23,7 +23,6 @@ public abstract class MapItemHolder<Key, T> {
 
     abstract public T set(Key key, T ob);
 
-    abstract public void setIfNull(Key key, T ob);
 
     abstract public void defRef();
 
@@ -35,6 +34,12 @@ public abstract class MapItemHolder<Key, T> {
             return ref != null ? ref.get() : null;
         }
         return null;
+    }
+
+    public void setIfNull(Key key, T ob) {
+        if (get(key) == null) {
+            set(key, ob);
+        }
     }
 
     public T setStrong(Key key, T ob) {

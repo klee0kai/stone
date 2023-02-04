@@ -12,13 +12,6 @@ public class WeakMapItemHolder<Key, T> extends MapItemHolder<Key, T> {
     }
 
     @Override
-    public void setIfNull(Key key, T ob) {
-        if (get(key) == null) {
-            setWeak(key, ob);
-        }
-    }
-
-    @Override
     public void defRef() {
         weak();
     }

@@ -65,16 +65,15 @@ public class ComponentBuilder {
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
     private ModuleBuilder moduleHiddenBuilder = null;
     private final ModulesGraph modulesGraph = new ModulesGraph();
-    private final LinkedList<ModuleFieldHelper> moduleFieldHelpers = new LinkedList<>();
 
 
     public static ComponentBuilder from(ClassDetail component) {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, ClassNameUtils.genComponentNameMirror(component.className));
         componentBuilder.implementIComponentMethods();
 
-        for (ClassDetail cl : component.getAllParents(false)) {
-            if (cl.componentAnn != null) {
-                componentBuilder.qualifiers.addAll(cl.componentAnn.qualifiers);
+        for (ClassDetail componentParentCl : component.getAllParents(false)) {
+            if (componentParentCl.componentAnn != null) {
+                componentBuilder.qualifiers.addAll(componentParentCl.componentAnn.qualifiers);
             }
         }
         return componentBuilder;
@@ -256,8 +255,7 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        modulesGraph.addModule(MethodDetail.simpleName(name), module, qualifiers);
-        moduleFieldHelpers.add(new ModuleFieldHelper(name));
+        modulesGraph.collectFromModule(MethodDetail.simpleName(name), module, qualifiers);
         return this;
     }
 
@@ -273,7 +271,6 @@ public class ComponentBuilder {
 
         initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        moduleFieldHelpers.add(new ModuleFieldHelper(name));
         return this;
     }
 
@@ -559,10 +556,12 @@ public class ComponentBuilder {
 
         switchRefMethods.add(builder);
         collectRuns.add(() -> {
-            for (ModuleFieldHelper moduleFieldHelper : moduleFieldHelpers)
-                builder.addCode(moduleFieldHelper.statementSwitchRefs(
-                        "scopes", "switchCacheParams"
-                ));
+            for (String moduleMethod : modulesMethods.keySet()) {
+                builder.addStatement(
+                        "this.$L.switchRef(scopes, switchCacheParams)",
+                        moduleMethod
+                );
+            }
 
             builder.addCode(statementInvokeEachRelativeModule(CodeBlock.of("switchRef(scopes, switchCacheParams)")));
         });
@@ -622,7 +621,7 @@ public class ComponentBuilder {
     public TypeSpec buildAndWrite() {
         if (moduleHiddenBuilder != null) {
             TypeSpec typeSpec = moduleHiddenBuilder.buildAndWrite();
-            modulesGraph.addModule(
+            modulesGraph.collectFromModule(
                     MethodDetail.simpleName(hiddenModuleMethodName),
                     ClassDetail.of(moduleHiddenBuilder.className.packageName(), typeSpec),
                     qualifiers

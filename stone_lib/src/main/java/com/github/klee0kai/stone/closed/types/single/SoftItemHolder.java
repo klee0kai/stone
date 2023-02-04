@@ -11,13 +11,6 @@ public class SoftItemHolder<T> extends SingleItemHolder<T> {
         return ob;
     }
 
-    @Override
-    public void setIfNull(T ob) {
-        if (get() == null) {
-            setSoft(ob);
-        }
-    }
-
     public void defRef() {
         soft();
     }

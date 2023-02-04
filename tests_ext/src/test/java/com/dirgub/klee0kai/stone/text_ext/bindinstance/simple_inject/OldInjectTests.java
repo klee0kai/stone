@@ -79,7 +79,7 @@ public class OldInjectTests {
         DIPro.extOf(DI);
         DI.inject(horse);
 
-        // Then.
+        // Then
         assertFalse(horse.ideology.isFamilyIdeology());
     }
 

@@ -16,11 +16,9 @@ public class ModulesGraph {
 
     private final HashMap<TypeName, List<InvokeCall>> provideTypeCodes = new HashMap<>();
     private final HashMap<TypeName, List<InvokeCall>> cacheControlTypeCodes = new HashMap<>();
-    private final LinkedList<Pair<MethodDetail, ClassDetail>> modules = new LinkedList<>();
 
 
-    public void addModule(MethodDetail provideModuleMethod, ClassDetail module, Set<ClassName> qualifiers) {
-        modules.add(new Pair<>(provideModuleMethod, module));
+    public void collectFromModule(MethodDetail provideModuleMethod, ClassDetail module, Set<ClassName> qualifiers) {
         ClassDetail iModuleInterface = AnnotationProcessor.allClassesHelper.iModule;
         for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
             if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID || m.returnType.isBoxedPrimitive())
@@ -47,7 +45,47 @@ public class ModulesGraph {
         }
     }
 
-    public InvokeCall provideTypeInvokeCall(HashMap<TypeName, List<InvokeCall>> provideTypeCodes, String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
+    public CodeBlock codeProvideType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
+        InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, typeName, qualifiers);
+        return invokeCall != null ? invokeCall.invokeCode(qualifiers) : null;
+    }
+
+
+    public CodeBlock codeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers, CodeBlock actionParams) {
+        String cacheControlMethodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(provideMethodName);
+        InvokeCall invokeCall = provideTypeInvokeCall(cacheControlTypeCodes, cacheControlMethodName, typeName, qualifiers);
+        if (invokeCall == null || invokeCall.invokeSequence.isEmpty()) {
+            return null;
+        }
+        CodeBlock.Builder invokeBuilder = CodeBlock.builder();
+        int invokeCount = 0;
+        for (MethodDetail m : invokeCall.invokeSequence) {
+            if (invokeCount++ > 0)
+                invokeBuilder.add(".");
+
+            int argCount = 0;
+            CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
+            for (FieldDetail arg : m.args) {
+                if (argCount > 0) argsCodeBuilder.add(",");
+                if (Objects.equals(arg.type, ClassName.get(CacheAction.class))) {
+                    argsCodeBuilder.add(actionParams);
+                    argCount++;
+                } else {
+                    FieldDetail evField = ListUtils.first(qualifiers, (inx, it) -> Objects.equals(it.type, arg.type));
+                    argsCodeBuilder.add(evField != null ? evField.name : "null");
+                }
+            }
+            invokeBuilder.add("$L($L)", m.methodName, argsCodeBuilder.build());
+        }
+        return invokeBuilder.build();
+    }
+
+    private InvokeCall provideTypeInvokeCall(
+            HashMap<TypeName, List<InvokeCall>> provideTypeCodes,
+            String provideMethodName,
+            TypeName typeName,
+            List<FieldDetail> qualifiers
+    ) {
         List<InvokeCall> invokeCalls = provideTypeCodes.getOrDefault(typeName, null);
         if (invokeCalls == null || invokeCalls.isEmpty())
             return null;
@@ -78,47 +116,5 @@ public class ModulesGraph {
 
         return nameMatchingInvokeCall != null ? nameMatchingInvokeCall : bestInvokeCallVariants.get(0);
     }
-
-    /**
-     * @param provideMethodName matching providing method name or null
-     * @param typeName          providing type
-     * @param qualifiers        qualifiers
-     * @return
-     */
-    public CodeBlock codeProvideType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
-        InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, typeName, qualifiers);
-        return invokeCall != null ? invokeCall.invokeCode(qualifiers) : null;
-    }
-
-
-    public CodeBlock codeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers, CodeBlock actionParams) {
-        String cacheControlMethodName =  ModuleCacheControlInterfaceBuilder.cacheControlMethodName(provideMethodName);
-        InvokeCall invokeCall = provideTypeInvokeCall(cacheControlTypeCodes, cacheControlMethodName, typeName, qualifiers);
-        if (invokeCall == null || invokeCall.invokeSequence.isEmpty()) {
-            return null;
-        }
-        CodeBlock.Builder invokeBuilder = CodeBlock.builder();
-        int invokeCount = 0;
-        for (MethodDetail m : invokeCall.invokeSequence) {
-            if (invokeCount++ > 0)
-                invokeBuilder.add(".");
-
-            int argCount = 0;
-            CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
-            for (FieldDetail arg : m.args) {
-                if (argCount > 0) argsCodeBuilder.add(",");
-                if (Objects.equals(arg.type, ClassName.get(CacheAction.class))) {
-                    argsCodeBuilder.add(actionParams);
-                    argCount++;
-                } else {
-                    FieldDetail evField = ListUtils.first(qualifiers, (inx, it) -> Objects.equals(it.type, arg.type));
-                    argsCodeBuilder.add(evField != null ? evField.name : "null");
-                }
-            }
-            invokeBuilder.add("$L($L)", m.methodName, argsCodeBuilder.build());
-        }
-        return invokeBuilder.build();
-    }
-
 
 }

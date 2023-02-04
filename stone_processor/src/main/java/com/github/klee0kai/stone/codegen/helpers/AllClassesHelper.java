@@ -44,17 +44,17 @@ public class AllClassesHelper {
 
     public void deepExtractGcAnnotations(ClassDetail classDetail) {
         for (ClassDetail parent : classDetail.getAllParents(false)) {
-            TypeElement clElement = typeElementFor(parent.className);
-            for (Element m : clElement.getEnclosedElements()) {
-                for (AnnotationMirror ann : m.getAnnotationMirrors()) {
-                    List<? extends AnnotationMirror> annAnnotations = ann.getAnnotationType().asElement().getAnnotationMirrors();
-                    boolean isScopeAnnotated = ListUtils.contains(annAnnotations, (inx, it) -> {
-                        Element el = it.getAnnotationType().asElement();
-                        return Objects.equals(el, scopeAnnotationElement) || Objects.equals(el, gcScopeAnnotationElement);
+            TypeElement parentEl = typeElementFor(parent.className);
+            for (Element methodEl : parentEl.getEnclosedElements()) {
+                for (AnnotationMirror ann : methodEl.getAnnotationMirrors()) {
+                    List<? extends AnnotationMirror> methodAnnotations = ann.getAnnotationType().asElement().getAnnotationMirrors();
+                    boolean isScopeAnnotated = ListUtils.contains(methodAnnotations, (inx, it) -> {
+                        Element annEl = it.getAnnotationType().asElement();
+                        return Objects.equals(annEl, scopeAnnotationElement) || Objects.equals(annEl, gcScopeAnnotationElement);
                     });
                     if (isScopeAnnotated) {
-                        String clName = ann.getAnnotationType().toString();
-                        ClassDetail annClDetails = ClassDetail.of(typeElementFor(clName));
+                        String annClName = ann.getAnnotationType().toString();
+                        ClassDetail annClDetails = ClassDetail.of(typeElementFor(annClName));
                         gcScopeAnnotations.put(annClDetails.className.toString(), annClDetails);
                     }
                 }

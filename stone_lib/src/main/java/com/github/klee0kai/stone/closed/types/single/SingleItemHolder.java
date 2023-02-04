@@ -21,7 +21,6 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
 
     abstract public T set(T ob);
 
-    abstract public void setIfNull(T ob);
 
     abstract public void defRef();
 
@@ -31,6 +30,13 @@ public abstract class SingleItemHolder<T> implements IRef<T> {
             return strongHolder;
         return refHolder != null ? refHolder.get() : null;
     }
+
+    public void setIfNull(T ob) {
+        if (get() == null) {
+            set(ob);
+        }
+    }
+
 
     public void setStrong(T ob) {
         strongHolder = ob;

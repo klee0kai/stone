@@ -23,7 +23,7 @@ class HorseProtectInjectTests {
             horse!!.history
         )
         horse = null
-        System.gc()
+        DI.gcAll()
 
         //Then: without protect all not uses should be garbage collected
         assertNull(historyWeakReference.get())

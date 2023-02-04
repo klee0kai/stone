@@ -11,13 +11,6 @@ public class StrongItemHolder<T> extends SingleItemHolder<T> {
         return ob;
     }
 
-    @Override
-    public void setIfNull(T ob) {
-        if (get() == null) {
-            setStrong(ob);
-        }
-    }
-
     public void defRef() {
         strong();
     }

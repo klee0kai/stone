@@ -20,13 +20,18 @@ public class WeakLinkedList<T> {
         return list.isEmpty();
     }
 
-    public boolean add(T t) {
+    public boolean add(T it) {
         clearNulls();
-        return list.add(new WeakReference<>(t));
+        return list.add(new WeakReference<>(it));
     }
 
-    public boolean remove(Object o) {
-        return clearNulls(o);
+    public void add(int idx, T it) {
+        clearNulls();
+        list.add(idx, new WeakReference<>(it));
+    }
+
+    public boolean remove(Object it) {
+        return clearNulls(it);
     }
 
     public void clear() {
@@ -60,13 +65,11 @@ public class WeakLinkedList<T> {
         return outList;
     }
 
-    public T get(int i) {
-        return list.get(i).get();
+    public T get(int idx) {
+        return list.get(idx).get();
     }
 
 
-    public void add(int i, T t) {
-        list.add(i, new WeakReference<>(t));
-    }
+
 
 }
