@@ -11,5 +11,5 @@ jobs:
     steps:
       - uses: klee0kai/screwdriver@action_meta
         with:
-          cmd: "hello_world"
+          cmd: "hello_world -l"
 
