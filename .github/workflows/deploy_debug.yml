@@ -1,0 +1,15 @@
+name: Deploy Debug Jobs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  hello_world:
+    name: Simple Hello World
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - uses: klee0kai/screwdriver@action_meta
+        with:
+          cmd: "hello_world -l"
+
