@@ -8,34 +8,19 @@ on:
       - 'releases/**'
 
 jobs:
-  tests:
-    name: Collect Release Changes
+  gh_release_diff:
+    name: Collect Changes with Master
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           lfs: true
-
-      - name: set up Python 3
-        uses: actions/setup-python@v4
+      - uses: klee0kai/screwdriver@master
         with:
-          python-version: '3.x'
-      - name: Download CI Tools
-        uses: actions/checkout@v3
-        with:
-          repository: klee0kai/ci_tools
-          path: 'ci_tools'
-          ref: 'master'
-
-      - name: Install CI Tools Requirements
-        run:  pip install -r ./ci_tools/requirements.txt
-
-      - name: Collect changes
-        env:
-          SECRETS_GH_API_TOKEN: ${{ env.SECRETS_GH_API_TOKEN }}
-        run: |
-          python ./ci_tools/ci_tools.py -d --summary -w changes.md release_diff
+          gh_api_token: ${{ secrets.SECRETS_GH_API_TOKEN }}
+          cmd: "gh_release_diff  -l -d --summary -w changes.md"
 
       - name: Upload changes artifacts
         uses: actions/upload-artifact@v3
