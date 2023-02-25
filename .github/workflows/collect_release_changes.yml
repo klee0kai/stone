@@ -9,7 +9,7 @@ on:
 
 jobs:
   gh_release_diff:
-    name: Collect Changes with Master
+    name: Collect Release Changes
     runs-on: ubuntu-latest
     if: ${{ always() }}
     steps:
