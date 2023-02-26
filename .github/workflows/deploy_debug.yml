@@ -9,7 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     steps:
-      - uses: klee0kai/screwdriver@action_meta
+      - uses: actions/checkout@v3
         with:
-          cmd: "hello_world -l"
-
+          fetch-depth: 0
+          lfs: true
+      - uses: klee0kai/screwdriver@master
+        with:
+          gh_api_token:  ${{ secrets.SECRETS_GH_API_TOKEN }}
+          cmd: "hello_world -l -d --summary"
