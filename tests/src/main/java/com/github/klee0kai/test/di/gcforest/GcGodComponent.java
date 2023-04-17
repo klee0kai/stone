@@ -24,7 +24,6 @@ public abstract class GcGodComponent extends GcEarthComponent implements ICompon
     @GcWeakScope
     public abstract void gcWeak();
 
-
     @GcSunScope
     public abstract void gcSun();
 
