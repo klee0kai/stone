@@ -9,15 +9,23 @@ public interface IComponent {
 
     /**
      * init modules.
+     *
      * @param modules can be:
      *                - a factory instance
      *                - a factory class
-     *
      */
     void init(Object... modules);
 
     /**
+     * init dependencies
+     *
+     * @param dependencies - An instance of dependencies
+     */
+    void initDependencies(Object... dependencies);
+
+    /**
      * bind instance objects
+     *
      * @param objects - An instance of bindable objects
      */
     void bind(Object... objects);

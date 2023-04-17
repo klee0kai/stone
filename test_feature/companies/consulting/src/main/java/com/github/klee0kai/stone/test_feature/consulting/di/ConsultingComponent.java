@@ -14,5 +14,4 @@ public interface ConsultingComponent extends ConsultingDependencies {
 
     ProjectsModule projectsModule();
 
-
 }

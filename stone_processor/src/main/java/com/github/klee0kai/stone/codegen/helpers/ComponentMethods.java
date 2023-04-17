@@ -18,8 +18,17 @@ public class ComponentMethods {
                 && m.args.isEmpty();
     }
 
+    public static boolean isDepsProvide(MethodDetail m) {
+        boolean isProvideMethod = isProvideMethod(m);
+        ClassDetail providingClDetails = isProvideMethod ? allClassesHelper.findForType(m.returnType) : null;
+        return providingClDetails != null
+                && providingClDetails.dependenciesAnn != null
+                && m.args.isEmpty();
+    }
+
+
     public static boolean isObjectProvideMethod(MethodDetail m) {
-        return isProvideMethod(m) && !isModuleProvideMethod(m);
+        return isProvideMethod(m) && !isModuleProvideMethod(m) && !isDepsProvide(m);
     }
 
     public static boolean isBindInstanceAndProvideMethod(MethodDetail m) {

@@ -8,6 +8,8 @@ dependencies {
     implementation project(path: ':test_feature:finance:api')
 
     implementation project(":stone_lib")
+    implementation project(path: ':test_feature:hr:api')
+    implementation project(path: ':test_feature:planning:api')
     annotationProcessor project(":stone_processor")
 }
 

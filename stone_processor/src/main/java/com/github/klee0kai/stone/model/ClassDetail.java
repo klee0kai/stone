@@ -1,9 +1,11 @@
 package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.annotations.dependencies.Dependencies;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.model.annotations.ComponentAnnotation;
+import com.github.klee0kai.stone.model.annotations.DependenciesAnnotation;
 import com.github.klee0kai.stone.model.annotations.ModuleAnnotation;
 import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnnotation;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
@@ -35,6 +37,7 @@ public class ClassDetail implements Cloneable {
     // ------- annotations ---------
     public ComponentAnnotation componentAnn;
     public ModuleAnnotation moduleAnn;
+    public DependenciesAnnotation dependenciesAnn;
     public WrapperCreatorsAnnotation wrapperCreatorsAnn;
 
 
@@ -46,6 +49,7 @@ public class ClassDetail implements Cloneable {
 
         classDetail.componentAnn = ComponentAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class));
         classDetail.moduleAnn = ModuleAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class));
+        classDetail.dependenciesAnn = DependenciesAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Dependencies.class));
         classDetail.wrapperCreatorsAnn = WrapperCreatorsAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class));
 
 
@@ -78,6 +82,7 @@ public class ClassDetail implements Cloneable {
 
         classDetail.componentAnn = ComponentAnnotation.findFrom(owner.annotations);
         classDetail.moduleAnn = ModuleAnnotation.findFrom(owner.annotations);
+        classDetail.dependenciesAnn = DependenciesAnnotation.findFrom(owner.annotations);
         classDetail.wrapperCreatorsAnn = WrapperCreatorsAnnotation.findFrom(owner.annotations);
 
         for (MethodSpec m : owner.methodSpecs)
