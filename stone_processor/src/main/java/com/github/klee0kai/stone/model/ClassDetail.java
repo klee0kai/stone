@@ -64,7 +64,6 @@ public class ClassDetail implements Cloneable {
             if (tp instanceof DeclaredType && ((DeclaredType) tp).asElement() instanceof TypeElement)
                 classDetail.interfaces.add(ClassDetail.of((TypeElement) ((DeclaredType) tp).asElement()));
         }
-
         return classDetail;
     }
 

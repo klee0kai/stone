@@ -7,7 +7,7 @@ import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.exceptions.ObjectNotProvided;
+import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -334,9 +334,9 @@ public class ComponentBuilder {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
             CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
             if (codeBlock == null) {
-                throw new ObjectNotProvided(
+                throw new ObjectNotProvidedException(
                         provideTypeWrapperHelper.providingType(),
-                        className,
+                        orComponentCl.className,
                         m.methodName
                 );
             }
@@ -433,7 +433,7 @@ public class ComponentBuilder {
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                     CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
-                        throw new ObjectNotProvided(
+                        throw new ObjectNotProvidedException(
                                 provideTypeWrapperHelper.providingType(),
                                 injectableCl.className,
                                 injectField.name
