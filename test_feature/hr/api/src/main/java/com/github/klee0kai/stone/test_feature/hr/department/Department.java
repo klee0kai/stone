@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface Department {
 
+    String getId();
+
     DepartmentInfo getInfo();
 
     List<EmployeeInfo> employers();
