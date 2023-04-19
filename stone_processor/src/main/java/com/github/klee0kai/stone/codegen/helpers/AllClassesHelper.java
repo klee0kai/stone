@@ -3,6 +3,7 @@ package com.github.klee0kai.stone.codegen.helpers;
 import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.exceptions.ClassNotFoundException;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
@@ -80,9 +81,13 @@ public class AllClassesHelper {
     }
 
     public ClassDetail findForType(TypeName typeName) {
-        if (typeName instanceof ClassName)
-            return ClassDetail.of(elements.getTypeElement(((ClassName) typeName).canonicalName()));
-        return null;
+        try {
+            if (typeName instanceof ClassName)
+                return ClassDetail.of(elements.getTypeElement(((ClassName) typeName).canonicalName()));
+            return null;
+        } catch (Exception e) {
+            throw new ClassNotFoundException(typeName, e);
+        }
     }
 
     public TypeElement typeElementFor(TypeName typeName) {

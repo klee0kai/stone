@@ -40,5 +40,4 @@ interface CompComponent : IComponent {
         kConnectType: KConnectType,
     )
 
-
 }

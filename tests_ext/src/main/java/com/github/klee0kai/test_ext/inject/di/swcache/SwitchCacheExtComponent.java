@@ -13,11 +13,9 @@ public interface SwitchCacheExtComponent extends SwitchCacheComponent {
     @SwitchCache(cache = SwitchCache.CacheType.Weak)
     void allWeakExt();
 
-
     @GcAllScope
     @SwitchCache(cache = SwitchCache.CacheType.Strong, timeMillis = 100)
     void allStrongFewMillisExt();
-
 
     @GcStrongScope
     @SwitchCache(cache = SwitchCache.CacheType.Weak)

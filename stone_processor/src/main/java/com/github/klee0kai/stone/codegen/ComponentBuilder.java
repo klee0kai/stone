@@ -7,7 +7,7 @@ import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.exceptions.ObjectNotProvided;
+import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -37,6 +37,7 @@ public class ComponentBuilder {
     public static final String hiddenModuleMethodName = "__hidden";
     public static final String eachModuleMethodName = "__eachModule";
     public static final String initMethodName = "init";
+    public static final String initDepsMethodName = "initDependencies";
     public static final String bindMethodName = "bind";
     public static final String extOfMethodName = "extOf";
 
@@ -48,13 +49,15 @@ public class ComponentBuilder {
     public final LinkedList<WrapperCreatorField> wrapperCreatorFields = new LinkedList<>();
     public final HashMap<String, MethodSpec.Builder> iComponentMethods = new HashMap<>();
 
-    public final CodeBlock.Builder initModuleCode = CodeBlock.builder();
+    public final CodeBlock.Builder initDepsCode = CodeBlock.builder();
     public final CodeBlock.Builder bindModuleCode = CodeBlock.builder();
 
 
     // ---------------------- provide fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
+    public final HashMap<String, FieldSpec.Builder> depsFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
+    public final HashMap<String, MethodSpec.Builder> depsMethods = new HashMap<>();
     public final List<MethodSpec.Builder> provideObjMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> bindInstanceMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> injectMethods = new LinkedList<>();
@@ -106,6 +109,7 @@ public class ComponentBuilder {
 
         // IComponent
         initMethod(true);
+        initDependenciesMethod(true);
         bindMethod(true);
         extOfMethod(true);
         // IPrivateComponent
@@ -154,9 +158,11 @@ public class ComponentBuilder {
         collectRuns.add(() -> {
             builder.beginControlFlow("for (Object m : modules)")
                     .beginControlFlow("if (m instanceof $T)", IPrivateComponent.class)
+                    .addComment("related component")
                     .addStatement("$L.add( ( $T ) m)", relatedComponentsListFieldName, IPrivateComponent.class)
                     .endControlFlow()
                     .beginControlFlow("else")
+                    .addComment("init modules")
                     .addStatement(
                             "$L( (module) -> {  module.init(m); } )",
                             eachModuleMethodName
@@ -167,6 +173,24 @@ public class ComponentBuilder {
         return this;
     }
 
+
+    public ComponentBuilder initDependenciesMethod(boolean override) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(initDepsMethodName)
+                .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
+                .addParameter(Object[].class, "deps")
+                .varargs(true);
+        if (override) builder.addAnnotation(Override.class);
+
+        iComponentMethods.put(initDepsMethodName, builder);
+
+        collectRuns.add(() -> {
+            builder.beginControlFlow("for (Object m : deps)")
+                    .addComment("init dependencies")
+                    .addCode(initDepsCode.build())
+                    .endControlFlow();
+        });
+        return this;
+    }
 
     public ComponentBuilder bindMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
@@ -296,9 +320,22 @@ public class ComponentBuilder {
                 .addStatement("return this.$L", name);
         modulesMethods.put(name, builder);
 
-        initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
         modulesGraph.collectFromModule(MethodDetail.simpleName(name), module, qualifiers);
+        return this;
+    }
+
+    public ComponentBuilder provideDependenciesMethod(String name, ClassDetail depsModule) {
+        depsFields.put(name, FieldSpec.builder(depsModule.className, name, Modifier.PRIVATE));
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(depsModule.className)
+                .addStatement("return this.$L", name);
+        depsMethods.put(name, builder);
+
+        initDepsCode.addStatement("if (m instanceof $T) this.$L = ( $T ) m", depsModule.className, name, depsModule.className);
+        modulesGraph.collectFromModule(MethodDetail.simpleName(name), depsModule, qualifiers);
         return this;
     }
 
@@ -312,7 +349,6 @@ public class ComponentBuilder {
         modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PRIVATE, Modifier.FINAL)
                 .initializer(CodeBlock.of("new $T()", tpName)));
 
-        initModuleCode.addStatement("this.$L.init(m)", name);
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
         return this;
     }
@@ -334,9 +370,9 @@ public class ComponentBuilder {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
             CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
             if (codeBlock == null) {
-                throw new ObjectNotProvided(
+                throw new ObjectNotProvidedException(
                         provideTypeWrapperHelper.providingType(),
-                        className,
+                        orComponentCl.className,
                         m.methodName
                 );
             }
@@ -433,7 +469,7 @@ public class ComponentBuilder {
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                     CodeBlock codeBlock = modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields);
                     if (codeBlock == null)
-                        throw new ObjectNotProvided(
+                        throw new ObjectNotProvidedException(
                                 provideTypeWrapperHelper.providingType(),
                                 injectableCl.className,
                                 injectField.name
@@ -632,11 +668,16 @@ public class ComponentBuilder {
         for (WrapperCreatorField field : wrapperCreatorFields)
             typeSpecBuilder.addField(field.fieldBuilder.build());
 
+        for (FieldSpec.Builder field : depsFields.values())
+            typeSpecBuilder.addField(field.build());
+
         for (FieldSpec.Builder field : modulesFields.values())
             typeSpecBuilder.addField(field.build());
 
+
         List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
         methodBuilders.addAll(iComponentMethods.values());
+        methodBuilders.addAll(depsMethods.values());
         methodBuilders.addAll(modulesMethods.values());
         methodBuilders.addAll(provideObjMethods);
         methodBuilders.addAll(bindInstanceMethods);
