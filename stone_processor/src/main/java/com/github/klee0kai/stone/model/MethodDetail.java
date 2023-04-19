@@ -5,14 +5,14 @@ import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.model.annotations.BindInstanceAnnotation;
-import com.github.klee0kai.stone.model.annotations.ProtectInjectedAnnotation;
-import com.github.klee0kai.stone.model.annotations.ProvideAnnotation;
-import com.github.klee0kai.stone.model.annotations.SwitchCacheAnnotation;
+import com.github.klee0kai.stone.model.annotations.*;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.lang.model.element.*;
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -35,6 +35,10 @@ public class MethodDetail implements Cloneable {
     public ProtectInjectedAnnotation protectInjectedAnnotation;
     public SwitchCacheAnnotation switchCacheAnnotation;
 
+    public InjectAnnotation injectAnnotation;
+    public NamedAnnotation namedAnnotation;
+    public SingletonAnnotation singletonAnnotation;
+
 
     public LinkedList<TypeName> gcScopeAnnotations = new LinkedList<>();
 
@@ -54,6 +58,9 @@ public class MethodDetail implements Cloneable {
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
         methodDetail.protectInjectedAnnotation = ProtectInjectedAnnotation.of(element.getAnnotation(ProtectInjected.class));
         methodDetail.switchCacheAnnotation = SwitchCacheAnnotation.of(element.getAnnotation(SwitchCache.class));
+        methodDetail.injectAnnotation = InjectAnnotation.of(element.getAnnotation(Inject.class));
+        methodDetail.namedAnnotation = NamedAnnotation.of(element.getAnnotation(Named.class));
+        methodDetail.singletonAnnotation = SingletonAnnotation.of(element.getAnnotation(Singleton.class));
 
         List<Class<? extends Annotation>> scClasses = Arrays.asList(GcAllScope.class, GcWeakScope.class, GcSoftScope.class, GcStrongScope.class);
         for (Class<? extends Annotation> sc : scClasses)
@@ -81,6 +88,10 @@ public class MethodDetail implements Cloneable {
         methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.findFrom(methodSpec.annotations);
         methodDetail.protectInjectedAnnotation = ProtectInjectedAnnotation.findFrom(methodSpec.annotations);
         methodDetail.switchCacheAnnotation = SwitchCacheAnnotation.findFrom(methodSpec.annotations);
+        methodDetail.injectAnnotation = InjectAnnotation.findFrom(methodSpec.annotations);
+        methodDetail.namedAnnotation = NamedAnnotation.findFrom(methodSpec.annotations);
+        methodDetail.singletonAnnotation = SingletonAnnotation.findFrom(methodSpec.annotations);
+
 
         return methodDetail;
     }
