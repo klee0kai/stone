@@ -7,17 +7,21 @@ import com.github.klee0kai.stone.model.MethodDetail;
 public class DependencyChecks {
 
     public static void checkDependencyClass(ClassDetail cl) {
-        checkClassAnnotations(cl);
-        checkClassNoHaveFields(cl);
-        for (MethodDetail m : cl.getAllMethods(false, true))
-            checkMethodSignature(m);
+        try {
+            checkClassAnnotations(cl);
+            checkClassNoHaveFields(cl);
+            for (MethodDetail m : cl.getAllMethods(false, true))
+                checkMethodSignature(m);
+        } catch (Exception e) {
+            throw new DependencyIncorrectSignatureException("Dependency's class " + cl.className + " has incorrect signature", e);
+        }
     }
 
     private static void checkClassAnnotations(ClassDetail cl) {
         if (cl.componentAnn != null)
             throw new DependencyIncorrectSignatureException("Dependency's class " + cl.className + " should not have @Component annotation");
-        if (cl.dependenciesAnn != null)
-            throw new DependencyIncorrectSignatureException("Dependency's class " + cl.className + " should not have @Dependencies annotation");
+        if (cl.moduleAnn != null)
+            throw new DependencyIncorrectSignatureException("Dependency's class " + cl.className + " should not have @Module annotation");
         if (cl.wrapperCreatorsAnn != null)
             throw new DependencyIncorrectSignatureException("Dependency's class " + cl.className + " should not have @WrappersCreator annotation");
     }

@@ -6,4 +6,8 @@ public class ModuleIncorrectSignatureException extends StoneException {
         super(message);
     }
 
+    public ModuleIncorrectSignatureException(String message, Throwable e) {
+        super(message, e);
+    }
+
 }

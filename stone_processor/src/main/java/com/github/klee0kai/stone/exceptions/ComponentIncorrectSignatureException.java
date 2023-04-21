@@ -6,4 +6,8 @@ public class ComponentIncorrectSignatureException extends StoneException {
         super(message);
     }
 
+    public ComponentIncorrectSignatureException(String message, Throwable e) {
+        super(message, e);
+    }
+
 }

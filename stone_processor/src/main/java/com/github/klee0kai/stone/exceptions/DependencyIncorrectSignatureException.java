@@ -6,4 +6,8 @@ public class DependencyIncorrectSignatureException extends StoneException {
         super(message);
     }
 
+    public DependencyIncorrectSignatureException(String message, Throwable e) {
+        super(message, e);
+    }
+
 }

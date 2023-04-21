@@ -8,10 +8,14 @@ import com.github.klee0kai.stone.model.MethodDetail;
 public class ModuleChecks {
 
     public static void checkModuleClass(ClassDetail cl) {
-        checkClassAnnotations(cl);
-        checkClassNoHaveFields(cl);
-        for (MethodDetail m : cl.getAllMethods(false, true))
-            checkMethodSignature(m);
+        try {
+            checkClassAnnotations(cl);
+            checkClassNoHaveFields(cl);
+            for (MethodDetail m : cl.getAllMethods(false, true))
+                checkMethodSignature(cl, m);
+        } catch (Exception e) {
+            throw new ModuleIncorrectSignatureException("Module's class " + cl.className + " has incorrect signature", e);
+        }
     }
 
     private static void checkClassAnnotations(ClassDetail cl) {
@@ -24,19 +28,19 @@ public class ModuleChecks {
     }
 
 
-    private static void checkMethodSignature(MethodDetail m) {
+    private static void checkMethodSignature(ClassDetail cl, MethodDetail m) {
         if (m.injectAnnotation != null)
-            throw new ModuleIncorrectSignatureException("Module's method " + m.methodName + " should not have @Inject annotation");
+            throw new ModuleIncorrectSignatureException("Module's method '" + m.methodName + "' should not have @Inject annotation");
         if (m.protectInjectedAnnotation != null)
-            throw new ModuleIncorrectSignatureException("Module's method " + m.methodName + " should not have @ProtectInjected annotation");
+            throw new ModuleIncorrectSignatureException("Module's method '" + m.methodName + "' should not have @ProtectInjected annotation");
         if (m.switchCacheAnnotation != null)
-            throw new ModuleIncorrectSignatureException("Module's method " + m.methodName + " should not have @SwitchCache annotation");
+            throw new ModuleIncorrectSignatureException("Module's method '" + m.methodName + "' should not have @SwitchCache annotation");
 
-        //non support
+        //non support annotations
         if (m.namedAnnotation != null)
-            throw new ModuleIncorrectSignatureException("Module's method " + m.methodName + " not support @Named annotation");
+            throw new ModuleIncorrectSignatureException("Module's method '" + m.methodName + "' not support @Named annotation");
         if (m.singletonAnnotation != null)
-            throw new ModuleIncorrectSignatureException("Module's method " + m.methodName + " not support @Singleton annotation");
+            throw new ModuleIncorrectSignatureException("Module's method '" + m.methodName + "' not support @Singleton annotation");
     }
 
     private static void checkClassNoHaveFields(ClassDetail cl) {
