@@ -1,15 +1,23 @@
 package com.github.klee0kai.stone.utils;
 
+import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
+import com.github.klee0kai.stone.exceptions.PrimitiveTypeNonSupportedStoneException;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 public class ClassNameUtils {
 
-    public static ClassName typeOf(String clFullName) {
-        if (clFullName.endsWith(".class"))
-            clFullName = clFullName.substring(0, clFullName.lastIndexOf(".class"));
-        return ClassName.get(clFullName.substring(0, clFullName.lastIndexOf(".")),
-                clFullName.substring(clFullName.lastIndexOf(".") + 1));
+    public static ClassName classNameOf(String clFullName) {
+        try {
+            if (clFullName.endsWith(".class"))
+                clFullName = clFullName.substring(0, clFullName.lastIndexOf(".class"));
+            return ClassName.get(clFullName.substring(0, clFullName.lastIndexOf(".")),
+                    clFullName.substring(clFullName.lastIndexOf(".") + 1));
+        } catch (Exception e) {
+            if (!clFullName.contains(".")) throw new PrimitiveTypeNonSupportedStoneException(clFullName, e);
+            throw new ClassNotFoundStoneException(clFullName, e);
+        }
+
     }
 
     public static ClassName genFactoryNameMirror(TypeName or) {

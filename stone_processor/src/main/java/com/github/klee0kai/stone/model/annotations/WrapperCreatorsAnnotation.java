@@ -36,7 +36,7 @@ public class WrapperCreatorsAnnotation implements Cloneable {
             for (int i = 0; qualifiers != null && i < qualifiers.size(); i++) {
                 if (qualifiers.get(i) == null)
                     continue;
-                wrapperCreatorsAnn.wrappers.add(ClassNameUtils.typeOf(qualifiers.get(i).toString()));
+                wrapperCreatorsAnn.wrappers.add(ClassNameUtils.classNameOf(qualifiers.get(i).toString()));
             }
         }
 
