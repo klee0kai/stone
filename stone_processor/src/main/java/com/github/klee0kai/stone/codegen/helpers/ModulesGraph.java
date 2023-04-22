@@ -77,7 +77,7 @@ public class ModulesGraph {
         // provide dependencies while not provide all
         while (!needProvideDeps.isEmpty()) {
             TypeName dep = needProvideDeps.pollFirst();
-            InvokeCall invokeCall = provideTypeInvokeCall(provideMethodName, dep, qualifiers);
+            InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, dep, qualifiers);
             if (invokeCall == null) {
                 if (Objects.equals(dep, typeName)) return null;
                 //todo correct throw error
@@ -138,7 +138,7 @@ public class ModulesGraph {
      */
     public CodeBlock codeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers, CodeBlock actionParams) {
         String cacheControlMethodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(provideMethodName);
-        InvokeCall invokeCall = provideTypeInvokeCall(cacheControlMethodName, typeName, qualifiers);
+        InvokeCall invokeCall = provideTypeInvokeCall(cacheControlTypeCodes, cacheControlMethodName, typeName, qualifiers);
         if (invokeCall == null || invokeCall.invokeSequence.isEmpty()) {
             return null;
         }
@@ -166,6 +166,7 @@ public class ModulesGraph {
     }
 
     private InvokeCall provideTypeInvokeCall(
+            HashMap<TypeName, List<InvokeCall>> provideTypeCodes,
             String provideMethodName,
             TypeName typeName,
             List<FieldDetail> qualifiers
