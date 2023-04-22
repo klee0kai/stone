@@ -1,12 +1,18 @@
 package com.github.klee0kai.stone.checks;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
-import com.github.klee0kai.stone.exceptions.ComponentIncorrectSignatureException;
+import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.squareup.javapoet.ClassName;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.Objects;
+
+import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
 
 public class ComponentChecks {
 
@@ -17,20 +23,21 @@ public class ComponentChecks {
             for (MethodDetail m : cl.getAllMethods(false, true))
                 checkMethodSignature(m);
         } catch (Exception e) {
-            throw new ComponentIncorrectSignatureException("Component's class " + cl.className + " has incorrect signature", e);
+            throw new IncorrectSignatureException(String.format(componentsClass + hasIncorrectSignature, cl.className), e);
         }
     }
 
 
     private static void checkClassAnnotations(ClassDetail cl) {
         if (cl.wrapperCreatorsAnn != null)
-            throw new ComponentIncorrectSignatureException("Component's class " + cl.className + " should not have @WrappersCreator annotation");
+            throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveAnnotation, cl.className, WrappersCreator.class));
 
         for (ClassName q : cl.componentAnn.qualifiers) {
             if (q.isPrimitive())
-                throw new ComponentIncorrectSignatureException("Component's class " + cl.className + " should not have primitive qualifier");
+                throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveQualifier, cl.className, "primitive"));
+
             if (Objects.equals(q, ClassName.OBJECT))
-                throw new ComponentIncorrectSignatureException("Component's class " + cl.className + " should not have Object qualifier");
+                throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveQualifier, cl.className, "Object"));
         }
 
         for (ClassName wr : cl.componentAnn.wrapperProviders) {
@@ -42,12 +49,19 @@ public class ComponentChecks {
 
     private static void checkMethodSignature(MethodDetail m) {
         if (m.provideAnnotation != null)
-            throw new ComponentIncorrectSignatureException("Component's method " + m.methodName + " should not have @Provide annotation");
+            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Provide.class.getSimpleName()));
+
+        //non support annotations
+        if (m.namedAnnotation != null)
+            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Named.class.getSimpleName()));
+
+        if (m.singletonAnnotation != null)
+            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Singleton.class.getSimpleName()));
     }
 
     private static void checkClassNoHaveFields(ClassDetail cl) {
         if (!cl.fields.isEmpty())
-            throw new ComponentIncorrectSignatureException("Component's class " + cl.className + " should not have fields");
+            throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveFields, cl.className));
     }
 
 }

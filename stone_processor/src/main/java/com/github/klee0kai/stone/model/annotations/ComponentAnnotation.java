@@ -2,7 +2,7 @@ package com.github.klee0kai.stone.model.annotations;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.exceptions.ComponentIncorrectSignatureException;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.PrimitiveTypeNonSupportedStoneException;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.AnnotationSpec;
@@ -49,7 +49,7 @@ public class ComponentAnnotation implements Cloneable {
             }
         } catch (Exception e) {
             if (e instanceof PrimitiveTypeNonSupportedStoneException)
-                throw new ComponentIncorrectSignatureException("Primitive types non supported for Component's qualifiers", e);
+                throw new IncorrectSignatureException("Primitive types non supported for Component's qualifiers", e);
             throw e;
         }
 
@@ -65,7 +65,7 @@ public class ComponentAnnotation implements Cloneable {
             }
         } catch (Exception e) {
             if (e instanceof PrimitiveTypeNonSupportedStoneException)
-                throw new ComponentIncorrectSignatureException("Primitive types non supported for Component's WrapperProviders", e);
+                throw new IncorrectSignatureException("Primitive types non supported for Component's WrapperProviders", e);
             throw e;
         }
 

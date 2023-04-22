@@ -8,7 +8,7 @@ import com.squareup.javapoet.CodeBlock;
 public class MethodInvokeHelper {
 
 
-    public static  CodeBlock sameMethodInvokeCode(MethodDetail m) {
+    public static CodeBlock sameMethodInvokeCode(MethodDetail m) {
         return CodeBlock.of(
                 "$L($L)",
                 m.methodName,
