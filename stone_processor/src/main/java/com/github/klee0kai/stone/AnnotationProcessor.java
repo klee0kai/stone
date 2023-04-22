@@ -2,6 +2,9 @@ package com.github.klee0kai.stone;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
+import com.github.klee0kai.stone.checks.ComponentChecks;
+import com.github.klee0kai.stone.checks.DependencyChecks;
+import com.github.klee0kai.stone.checks.ModuleChecks;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
@@ -9,6 +12,7 @@ import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.exceptions.ComponentsMethodPurposeNotDetectedException;
 import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
+import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.google.auto.service.AutoService;
@@ -24,9 +28,7 @@ import java.util.Set;
 import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.*;
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes({
-        "*"
-})
+@SupportedAnnotationTypes({"*"})
 public class AnnotationProcessor extends AbstractProcessor {
 
     public static final String PROJECT_URL = "https://github.com/klee0kai/stone";
@@ -48,37 +50,46 @@ public class AnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
         List<ClassName> allQualifiers = new LinkedList<>();
-        for (Element componentElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
-            ClassDetail component = ClassDetail.of((TypeElement) componentElement);
-            allClassesHelper.deepExtractGcAnnotations(component);
+        for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
+            try {
+                ClassDetail component = ClassDetail.of((TypeElement) componentEl);
+                allClassesHelper.deepExtractGcAnnotations(component);
 
-            for (ClassDetail componentParentCl : component.getAllParents(false)) {
-                if (componentParentCl.componentAnn != null) {
-                    allQualifiers.addAll(componentParentCl.componentAnn.qualifiers);
+                for (ClassDetail componentParentCl : component.getAllParents(false)) {
+                    if (componentParentCl.componentAnn != null) {
+                        allQualifiers.addAll(componentParentCl.componentAnn.qualifiers);
+                    }
                 }
+            } catch (Throwable e) {
+                throw new CreateStoneComponentException(componentEl, e);
             }
         }
 
-        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Module.class)) {
-            ClassDetail module = ClassDetail.of((TypeElement) ownerElement);
+        for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
+            try {
+                ClassDetail module = ClassDetail.of((TypeElement) moduleEl);
 
-            ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
-            factoryBuilder.buildAndWrite();
+                ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
+                factoryBuilder.buildAndWrite();
 
-            ModuleCacheControlInterfaceBuilder moduleCacheControlInterfaceBuilder = ModuleCacheControlInterfaceBuilder.from(factoryBuilder, allQualifiers);
-            moduleCacheControlInterfaceBuilder.buildAndWrite();
+                ModuleCacheControlInterfaceBuilder moduleCacheControlInterfaceBuilder = ModuleCacheControlInterfaceBuilder.from(factoryBuilder, allQualifiers);
+                moduleCacheControlInterfaceBuilder.buildAndWrite();
 
 
-            ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
-            moduleBuilder.buildAndWrite();
+                ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
+                moduleBuilder.buildAndWrite();
+            } catch (Throwable e) {
+                throw new CreateStoneModuleException(moduleEl, e);
+            }
         }
 
         //create components
-        for (Element ownerElement : roundEnv.getElementsAnnotatedWith(Component.class)) {
+        for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
-                ClassDetail component = ClassDetail.of((TypeElement) ownerElement);
-                ComponentBuilder componentBuilder = ComponentBuilder.from(component);
+                ClassDetail component = ClassDetail.of((TypeElement) componentEl);
+                ComponentChecks.checkComponentClass(component);
 
+                ComponentBuilder componentBuilder = ComponentBuilder.from(component);
                 for (ClassName wrappedProvider : component.componentAnn.wrapperProviders) {
                     ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
                     if (wrappedProviderCl != null) componentBuilder.addProvideWrapperField(wrappedProviderCl);
@@ -89,8 +100,12 @@ public class AnnotationProcessor extends AbstractProcessor {
                         continue;
 
                     if (isModuleProvideMethod(m)) {
-                        componentBuilder.provideModuleMethod(m.methodName, allClassesHelper.findForType(m.returnType));
+                        ClassDetail moduleCl = allClassesHelper.findForType(m.returnType);
+                        ModuleChecks.checkModuleClass(moduleCl);
+                        componentBuilder.provideModuleMethod(m.methodName, moduleCl);
                     } else if (isDepsProvide(m)) {
+                        ClassDetail dependencyCl = allClassesHelper.findForType(m.returnType);
+                        DependencyChecks.checkDependencyClass(dependencyCl);
                         componentBuilder.provideDependenciesMethod(m.methodName, allClassesHelper.findForType(m.returnType));
                     } else if (isObjectProvideMethod(m)) {
                         componentBuilder.provideObjMethod(m);
@@ -115,8 +130,8 @@ public class AnnotationProcessor extends AbstractProcessor {
                 }
                 componentBuilder.buildAndWrite();
 
-            } catch (Exception e) {
-                throw new CreateStoneComponentException(ownerElement, e);
+            } catch (Throwable e) {
+                throw new CreateStoneComponentException(componentEl, e);
             }
 
         }

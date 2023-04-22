@@ -43,7 +43,7 @@ public class ClassDetail implements Cloneable {
 
     public static ClassDetail of(TypeElement owner) {
         ClassDetail classDetail = new ClassDetail();
-        classDetail.className = ClassNameUtils.typeOf(owner.getQualifiedName().toString());
+        classDetail.className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());
         classDetail.modifiers = owner.getModifiers();
         classDetail.kind = TypeKindDetails.of(owner.getKind());
 
