@@ -20,6 +20,10 @@ public class StoneExceptionStrings {
     public static String shouldNoHaveFields = "should not have fields";
     public static String shouldImplementInterface = "should implement %s";
     public static String shouldHaveConstructorWithoutArgs = "should have public constructor without parameters";
+    public static String shouldHaveInjectableClassAsParameter = "should have an injection class as a parameter";
+    public static String shouldProvideNonPrimitiveObjects = "should provide non primitive objects";
+    public static String shouldNoHavePrimitiveArguments = "should no have primitive arguments";
+    public static String recursiveProviding = "Recursive providing dependencies: %s";
 
 
     public static String collectCauseMessages(String mes, Throwable cause) {

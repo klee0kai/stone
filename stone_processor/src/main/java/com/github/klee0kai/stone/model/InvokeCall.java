@@ -33,6 +33,10 @@ public class InvokeCall {
         return argsTypes;
     }
 
+    public TypeName resultType() {
+        return invokeSequence.get(invokeSequence.size() - 1).returnType;
+    }
+
     public CodeBlock invokeCode(List<FieldDetail> envFields) {
         CodeBlock.Builder invokeBuilder = CodeBlock.builder();
         int i = 0;
