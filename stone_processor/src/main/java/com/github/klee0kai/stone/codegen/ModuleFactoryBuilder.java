@@ -2,6 +2,7 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.closed.IModuleFactory;
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.constructorNonFound;
 
 public class ModuleFactoryBuilder {
 
@@ -42,8 +44,11 @@ public class ModuleFactoryBuilder {
                     continue;
                 ClassDetail providingClass = allClassesHelper.findForType(m.returnType);
                 boolean hasConstructor = providingClass.findMethod(MethodDetail.constructorMethod(m.args), false) != null;
-                if (m.bindInstanceAnnotation != null || !hasConstructor) {
+                if (m.bindInstanceAnnotation != null) {
                     builder.provideNullMethod(m.methodName, m.returnType, m.args);
+                } else if (!hasConstructor) {
+                    List<String> argTypes = ListUtils.format(m.args, (it) -> it.type.toString());
+                    throw new ObjectNotProvidedException(String.format(constructorNonFound, providingClass.className, String.join(", ", argTypes)));
                 } else {
                     builder.provideMethod(m.methodName, m.returnType, m.args);
                 }

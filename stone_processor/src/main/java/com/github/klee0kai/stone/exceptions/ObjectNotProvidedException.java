@@ -6,17 +6,14 @@ import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.errorPr
 
 public class ObjectNotProvidedException extends StoneException {
 
-    public final TypeName requiredType;
-
-    public final TypeName classWhereShouldBeProvided;
-    public final String providingNameOrClass;
-
 
     public ObjectNotProvidedException(TypeName requiredType, TypeName classWhereShouldBeProvided, String providingNameOrField) {
         super(String.format(errorProvideType, requiredType.toString(), classWhereShouldBeProvided.toString(), providingNameOrField));
-        this.requiredType = requiredType;
-        this.classWhereShouldBeProvided = classWhereShouldBeProvided;
-        this.providingNameOrClass = providingNameOrField;
     }
+
+    public ObjectNotProvidedException(String message) {
+        super(message);
+    }
+
 
 }

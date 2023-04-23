@@ -24,6 +24,7 @@ public class StoneExceptionStrings {
     public static String shouldProvideNonPrimitiveObjects = "should provide non primitive objects";
     public static String shouldNoHavePrimitiveArguments = "should no have primitive arguments";
     public static String recursiveProviding = "Recursive providing dependencies: %s";
+    public static String constructorNonFound = "No found public constructor for class: %s with args: %s";
 
 
     public static String collectCauseMessages(String mes, Throwable cause) {
