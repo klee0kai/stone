@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.deps;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.house.HouseComponent;
+import com.github.klee0kai.test.di.house.simple.HouseComponent;
 import com.github.klee0kai.test.house.House;
 import org.junit.jupiter.api.Test;
 

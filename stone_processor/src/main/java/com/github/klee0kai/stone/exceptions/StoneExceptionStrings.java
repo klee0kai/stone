@@ -25,7 +25,7 @@ public class StoneExceptionStrings {
     public static String shouldHaveInjectableClassAsParameter = "should have an injection class as a parameter";
     public static String shouldProvideNonPrimitiveObjects = "should provide non primitive objects";
     public static String shouldNoHavePrimitiveArguments = "should no have primitive arguments";
-    public static String recursiveProviding = "Recursive providing dependencies: %s";
+    public static String recursiveProviding = "Recursive providing detected";
     public static String constructorNonFound = "No found public constructor for class: %s with args: %s";
 
 

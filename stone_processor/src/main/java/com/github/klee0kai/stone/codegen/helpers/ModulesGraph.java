@@ -8,6 +8,7 @@ import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;
 import com.github.klee0kai.stone.model.*;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.utils.RecursiveDetector;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -73,6 +74,7 @@ public class ModulesGraph {
         Set<TypeName> argTypes = new HashSet<>(ListUtils.format(qualifiers, it -> it.type));
         LinkedList<InvokeCall> provideTypeInvokes = new LinkedList<>();
         LinkedList<TypeName> needProvideDeps = new LinkedList<>();
+        RecursiveDetector<Integer> needProvideDepsRecursiveDetector = new RecursiveDetector<>();
         needProvideDeps.add(typeName);
 
         // provide dependencies while not provide all
@@ -87,21 +89,19 @@ public class ModulesGraph {
 
             List<TypeName> newDeps = ListUtils.filter(new ArrayList<>(invokeCall.argTypes()), (indx, it) -> {
                 if (Objects.equals(dep, it)) return false; // bind instance case
-                for (InvokeCall f : provideTypeInvokes) {
-                    //check already provided to local variable
-                    if (Objects.equals(f.resultType(), it)) return false;
-                }
                 // qualifies not need to provide
                 return it instanceof ClassName && !allQualifiers.contains(it) && !argTypes.contains(it);
             });
-            if (!newDeps.isEmpty() && ListUtils.listAreSame(newDeps, needProvideDeps, Objects::equals)) {
-                String recursiveDeps = String.join(", ", ListUtils.format(newDeps, TypeName::toString));
-                throw new RecurciveProviding(String.format(recursiveProviding, recursiveDeps));
-            }
 
             needProvideDeps.addAll(newDeps);
             needProvideDeps = ListUtils.removeDoublesRight(needProvideDeps, Objects::equals);
+            boolean recursiveDetected = !newDeps.isEmpty() && needProvideDepsRecursiveDetector.next(needProvideDeps.hashCode());
+            if (recursiveDetected) throw new RecurciveProviding(recursiveProviding);
+
             provideTypeInvokes.add(invokeCall);
+            provideTypeInvokes = ListUtils.removeDoublesRight(provideTypeInvokes,
+                    (it1, it2) -> Objects.equals(it1.resultType(), it2.resultType()));
+
         }
 
         int varIndex = 1;
