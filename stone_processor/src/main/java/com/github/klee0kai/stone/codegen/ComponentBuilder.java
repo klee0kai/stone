@@ -7,7 +7,6 @@ import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.exceptions.ImplementMethodStoneException;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.interfaces.IComponent;
@@ -17,6 +16,7 @@ import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.utils.ImplementMethodCollection;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
@@ -69,7 +69,7 @@ public class ComponentBuilder {
     public final List<MethodSpec.Builder> switchRefMethods = new LinkedList<>();
 
 
-    private final LinkedList<Runnable> collectRuns = new LinkedList<>();
+    private final ImplementMethodCollection collectRuns = new ImplementMethodCollection();
     private ModuleBuilder moduleHiddenBuilder = null;
     private final ModulesGraph modulesGraph = new ModulesGraph();
 
@@ -159,7 +159,7 @@ public class ComponentBuilder {
 
         iComponentMethods.put(initMethodName, builder);
 
-        collectRuns.add(() -> {
+        collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object m : modules)")
                     .beginControlFlow("if (m instanceof $T)", IPrivateComponent.class)
                     .addComment("related component")
@@ -187,7 +187,7 @@ public class ComponentBuilder {
 
         iComponentMethods.put(initDepsMethodName, builder);
 
-        collectRuns.add(() -> {
+        collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object m : deps)")
                     .addComment("init dependencies")
                     .addCode(initDepsCode.build())
@@ -204,7 +204,7 @@ public class ComponentBuilder {
         if (override) builder.addAnnotation(Override.class);
 
         iComponentMethods.put(bindMethodName, builder);
-        collectRuns.add(() -> {
+        collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object ob : objects)")
                     .addStatement(
                             "$L( (m) -> {  m.bind(ob); } )",
@@ -270,7 +270,7 @@ public class ComponentBuilder {
                 .addModifiers(Modifier.PUBLIC);
         if (override) builder.addAnnotation(Override.class);
 
-        collectRuns.add(() -> {
+        collectRuns.execute(null, () -> {
             if (modulesFields.containsKey(hiddenModuleFieldName)) {
                 ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
                 builder.returns(tpName)
@@ -294,7 +294,7 @@ public class ComponentBuilder {
                 .addStatement("$L = true", protectRecursiveField);
         if (override) builder.addAnnotation(Override.class);
 
-        collectRuns.add(() -> {
+        collectRuns.execute(null, () -> {
             for (String module : modulesMethods.keySet()) {
                 builder.addStatement("callback.invoke($L())", module);
             }
@@ -370,25 +370,21 @@ public class ComponentBuilder {
         );
 
         provideObjMethods.add(builder);
-        collectRuns.add(() -> {
-            try {
-                IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
-                CodeBlock codeBlock = modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
-                if (codeBlock == null) {
-                    throw new ObjectNotProvidedException(
-                            provideTypeWrapperHelper.providingType(),
-                            orComponentCl.className,
-                            m.methodName
-                    );
-                }
-                builder.addCode(codeBlock)
-                        .addStatement(
-                                "return $L",
-                                provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.get()"))
-                        );
-            } catch (Exception e) {
-                throw new ImplementMethodStoneException(String.format(errorImplementMethod, m.methodName), e);
+        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
+            IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
+            CodeBlock codeBlock = modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
+            if (codeBlock == null) {
+                throw new ObjectNotProvidedException(
+                        provideTypeWrapperHelper.providingType(),
+                        orComponentCl.className,
+                        m.methodName
+                );
             }
+            builder.addCode(codeBlock)
+                    .addStatement(
+                            "return $L",
+                            provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.get()"))
+                    );
         });
         return this;
     }
@@ -425,7 +421,7 @@ public class ComponentBuilder {
                             ));
         }
 
-        collectRuns.add(() -> {
+        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
             // bind object declared in module
             if (setValueArg != null) {
                 builder.addStatement(
@@ -466,68 +462,63 @@ public class ComponentBuilder {
         if (lifeCycleOwner != null) timeHolderFields();
 
         injectMethods.add(builder);
-        collectRuns.add(() -> {
-            try {
-                for (FieldDetail injectableField : injectableFields) {
-                    ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
+        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
+            for (FieldDetail injectableField : injectableFields) {
+                ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
 
+                for (FieldDetail injectField : injectableCl.getAllFields()) {
+                    if (!injectField.injectAnnotation) continue;
+
+                    SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
+                    IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
+                    CodeBlock provideStatement = modulesGraph.statementProvideType(injectField.name + "Ph", null, provideTypeWrapperHelper.providingType(), qFields);
+                    if (provideStatement == null)
+                        throw new ObjectNotProvidedException(
+                                provideTypeWrapperHelper.providingType(),
+                                injectableCl.className,
+                                injectField.name
+                        );
+
+                    builder.addCode(provideStatement)
+                            .addStatement(
+                                    "$L.$L",
+                                    injectableField.name,
+                                    setFieldHelper.codeSetField(
+                                            provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.get()", injectField.name + "Ph"))
+                                    )
+                            );
+                }
+            }
+
+            //protect by lifecycle owner
+            for (FieldDetail injectableField : injectableFields) {
+                ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
+
+                CodeBlock.Builder subscrCode = CodeBlock.builder();
+                boolean emptyCode = true;
+                if (lifeCycleOwner != null) {
+
+                    subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
+                        IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
+                        if (injectHelper.isGenerateWrapper())
+                            //nothing to protect
+                            continue;
 
-                        SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                        IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                        CodeBlock provideStatement = modulesGraph.statementProvideType(injectField.name + "Ph", null, provideTypeWrapperHelper.providingType(), qFields);
-                        if (provideStatement == null)
-                            throw new ObjectNotProvidedException(
-                                    provideTypeWrapperHelper.providingType(),
-                                    injectableCl.className,
-                                    injectField.name
-                            );
+                        SetFieldHelper getFieldHelper = new SetFieldHelper(injectField, injectableCl);
 
-                        builder.addCode(provideStatement)
-                                .addStatement(
-                                        "$L.$L",
-                                        injectableField.name,
-                                        setFieldHelper.codeSetField(
-                                                provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.get()", injectField.name + "Ph"))
-                                        )
-                                );
+                        emptyCode = false;
+                        subscrCode.addStatement(
+                                "$L.add(new $T($L, $L.$L , timeMillis))",
+                                refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
+                                injectableField.name, getFieldHelper.codeGetField()
+                        );
                     }
+                    subscrCode.endControlFlow(")");
+
+                    if (!emptyCode) builder.addCode(subscrCode.build());
                 }
-
-                //protect by lifecycle owner
-                for (FieldDetail injectableField : injectableFields) {
-                    ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
-
-                    CodeBlock.Builder subscrCode = CodeBlock.builder();
-                    boolean emptyCode = true;
-                    if (lifeCycleOwner != null) {
-
-                        subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
-                        for (FieldDetail injectField : injectableCl.getAllFields()) {
-                            if (!injectField.injectAnnotation) continue;
-                            IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                            if (injectHelper.isGenerateWrapper())
-                                //nothing to protect
-                                continue;
-
-                            SetFieldHelper getFieldHelper = new SetFieldHelper(injectField, injectableCl);
-
-                            emptyCode = false;
-                            subscrCode.addStatement(
-                                    "$L.add(new $T($L, $L.$L , timeMillis))",
-                                    refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
-                                    injectableField.name, getFieldHelper.codeGetField()
-                            );
-                        }
-                        subscrCode.endControlFlow(")");
-
-                        if (!emptyCode) builder.addCode(subscrCode.build());
-                    }
-                }
-
-            } catch (Exception e) {
-                throw new ImplementMethodStoneException(String.format(errorImplementMethod, m.methodName), e);
             }
         });
         return this;
@@ -543,7 +534,7 @@ public class ComponentBuilder {
                 .returns(void.class);
 
         protectInjectedMethods.add(builder);
-        collectRuns.add(() -> {
+        collectRuns.execute(String.format(errorImplementMethod, name), () -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
                 IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
@@ -590,7 +581,7 @@ public class ComponentBuilder {
 
 
         gcMethods.add(builder);
-        collectRuns.add(() -> {
+        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
             builder.addStatement(
                             "$L( (m) -> {  m.switchRef(scopes, toWeak); } )",
                             eachModuleMethodName
@@ -653,22 +644,8 @@ public class ComponentBuilder {
         return this;
     }
 
-
-    /**
-     * Collect all params. prebuild
-     *
-     * @return
-     */
-    public ComponentBuilder collect() {
-        for (Runnable r : collectRuns)
-            r.run();
-
-        collectRuns.clear();
-        return this;
-    }
-
     public TypeSpec build() {
-        collect();
+        collectRuns.executeAll();
 
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
         typeSpecBuilder.addModifiers(Modifier.PUBLIC);
