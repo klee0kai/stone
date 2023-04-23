@@ -18,7 +18,7 @@ public class ImplementMethodCollection {
             try {
                 r.second.run();
             } catch (Throwable e) {
-                if (r.first == null) throw new ImplementMethodStoneException(e);
+                if (r.first == null) throw e;
                 throw new ImplementMethodStoneException(r.first, e);
             }
         }

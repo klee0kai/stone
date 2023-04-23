@@ -372,15 +372,15 @@ public class ComponentBuilder {
         provideObjMethods.add(builder);
         collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
-            CodeBlock codeBlock = modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
-            if (codeBlock == null) {
+            CodeBlock statementBlock = modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
+            if (statementBlock == null) {
                 throw new ObjectNotProvidedException(
                         provideTypeWrapperHelper.providingType(),
                         orComponentCl.className,
                         m.methodName
                 );
             }
-            builder.addCode(codeBlock)
+            builder.addCode(statementBlock)
                     .addStatement(
                             "return $L",
                             provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.get()"))
