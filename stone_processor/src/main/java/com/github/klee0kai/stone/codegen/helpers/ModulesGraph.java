@@ -15,6 +15,7 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.*;
 
+import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.errorProvideType;
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.recursiveProviding;
 
 public class ModulesGraph {
@@ -80,8 +81,7 @@ public class ModulesGraph {
             InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, dep, qualifiers);
             if (invokeCall == null) {
                 if (Objects.equals(dep, typeName)) return null;
-                //todo correct throw error
-                throw new ObjectNotProvidedException(dep, dep, provideMethodName);
+                throw new ObjectNotProvidedException(String.format(errorProvideType, dep.toString()));
             }
             provideMethodName = null;
 

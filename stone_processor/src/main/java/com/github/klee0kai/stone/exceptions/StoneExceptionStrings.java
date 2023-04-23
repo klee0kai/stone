@@ -7,7 +7,9 @@ public class StoneExceptionStrings {
     public static String classNonFoundMes = "Class not found: %s\nTry import class directly";
     public static String primitiveTypeNonSupported = "Primitive type non supported: %s";
     public static String methodPurposeNonDetected = "What is purpose for Method '%s'. Declared in %s";
-    public static String errorProvideType = "Error provide type %s. Required in %s.%s";
+    public static String errorProvideTypeRequiredIn = "Error provide type %s. Required in %s.%s";
+    public static String errorProvideType = "Error provide type %s";
+    public static String errorImplementMethod = "Error to implement method: '%s'";
 
     public static String componentsClass = "Component's class %s ";
     public static String moduleClass = "Module's class %s ";

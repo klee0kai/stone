@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
+import com.github.klee0kai.stone.exceptions.ImplementMethodStoneException;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.interfaces.IComponent;
@@ -22,8 +23,7 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.method;
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.shouldHaveInjectableClassAsParameter;
+import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
 
 public class ComponentBuilder {
 
@@ -371,21 +371,24 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.add(() -> {
-            IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
-            CodeBlock codeBlock = modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
-            if (codeBlock == null) {
-                throw new ObjectNotProvidedException(
-                        provideTypeWrapperHelper.providingType(),
-                        orComponentCl.className,
-                        m.methodName
-                );
-            }
-
-            builder.addCode(codeBlock)
-                    .addStatement(
-                            "return $L",
-                            provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.get()"))
+            try {
+                IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
+                CodeBlock codeBlock = modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
+                if (codeBlock == null) {
+                    throw new ObjectNotProvidedException(
+                            provideTypeWrapperHelper.providingType(),
+                            orComponentCl.className,
+                            m.methodName
                     );
+                }
+                builder.addCode(codeBlock)
+                        .addStatement(
+                                "return $L",
+                                provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.get()"))
+                        );
+            } catch (Exception e) {
+                throw new ImplementMethodStoneException(String.format(errorImplementMethod, m.methodName), e);
+            }
         });
         return this;
     }
@@ -464,62 +467,67 @@ public class ComponentBuilder {
 
         injectMethods.add(builder);
         collectRuns.add(() -> {
-            for (FieldDetail injectableField : injectableFields) {
-                ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
+            try {
+                for (FieldDetail injectableField : injectableFields) {
+                    ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
 
-                for (FieldDetail injectField : injectableCl.getAllFields()) {
-                    if (!injectField.injectAnnotation) continue;
-
-                    SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                    CodeBlock provideStatement = modulesGraph.statementProvideType(injectField.name + "Ph", null, provideTypeWrapperHelper.providingType(), qFields);
-                    if (provideStatement == null)
-                        throw new ObjectNotProvidedException(
-                                provideTypeWrapperHelper.providingType(),
-                                injectableCl.className,
-                                injectField.name
-                        );
-
-                    builder.addCode(provideStatement)
-                            .addStatement(
-                                    "$L.$L",
-                                    injectableField.name,
-                                    setFieldHelper.codeSetField(
-                                            provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.get()", injectField.name + "Ph"))
-                                    )
-                            );
-                }
-            }
-
-            //protect by lifecycle owner
-            for (FieldDetail injectableField : injectableFields) {
-                ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
-
-                CodeBlock.Builder subscrCode = CodeBlock.builder();
-                boolean emptyCode = true;
-                if (lifeCycleOwner != null) {
-
-                    subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
-                        IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                        if (injectHelper.isGenerateWrapper())
-                            //nothing to protect
-                            continue;
 
-                        SetFieldHelper getFieldHelper = new SetFieldHelper(injectField, injectableCl);
+                        SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
+                        IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
+                        CodeBlock provideStatement = modulesGraph.statementProvideType(injectField.name + "Ph", null, provideTypeWrapperHelper.providingType(), qFields);
+                        if (provideStatement == null)
+                            throw new ObjectNotProvidedException(
+                                    provideTypeWrapperHelper.providingType(),
+                                    injectableCl.className,
+                                    injectField.name
+                            );
 
-                        emptyCode = false;
-                        subscrCode.addStatement(
-                                "$L.add(new $T($L, $L.$L , timeMillis))",
-                                refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
-                                injectableField.name, getFieldHelper.codeGetField()
-                        );
+                        builder.addCode(provideStatement)
+                                .addStatement(
+                                        "$L.$L",
+                                        injectableField.name,
+                                        setFieldHelper.codeSetField(
+                                                provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.get()", injectField.name + "Ph"))
+                                        )
+                                );
                     }
-                    subscrCode.endControlFlow(")");
-
-                    if (!emptyCode) builder.addCode(subscrCode.build());
                 }
+
+                //protect by lifecycle owner
+                for (FieldDetail injectableField : injectableFields) {
+                    ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
+
+                    CodeBlock.Builder subscrCode = CodeBlock.builder();
+                    boolean emptyCode = true;
+                    if (lifeCycleOwner != null) {
+
+                        subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
+                        for (FieldDetail injectField : injectableCl.getAllFields()) {
+                            if (!injectField.injectAnnotation) continue;
+                            IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
+                            if (injectHelper.isGenerateWrapper())
+                                //nothing to protect
+                                continue;
+
+                            SetFieldHelper getFieldHelper = new SetFieldHelper(injectField, injectableCl);
+
+                            emptyCode = false;
+                            subscrCode.addStatement(
+                                    "$L.add(new $T($L, $L.$L , timeMillis))",
+                                    refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
+                                    injectableField.name, getFieldHelper.codeGetField()
+                            );
+                        }
+                        subscrCode.endControlFlow(")");
+
+                        if (!emptyCode) builder.addCode(subscrCode.build());
+                    }
+                }
+
+            } catch (Exception e) {
+                throw new ImplementMethodStoneException(String.format(errorImplementMethod, m.methodName), e);
             }
         });
         return this;
