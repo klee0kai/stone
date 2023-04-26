@@ -107,7 +107,7 @@ public class ModulesGraph {
         int varIndex = 1;
         LinkedList<Pair<FieldDetail, InvokeCall>> depsProvide = new LinkedList<>();
         for (InvokeCall it : provideTypeInvokes) {
-            String name = Objects.equals(it.resultType(), typeName) ? "__result" : ("__dep" + varIndex++);
+            String name = Objects.equals(it.resultType(), typeName) ? "result" : ("dep" + varIndex++);
             FieldDetail f = FieldDetail.simple(name, it.resultType());
             depsProvide.add(new Pair<>(f, it));
         }
@@ -121,7 +121,7 @@ public class ModulesGraph {
             provideCodeStatement.addStatement("$T $L = $L", invokeCall.first.type, invokeCall.first.name, invokeCall.second.invokeCode(vars));
             vars.add(invokeCall.first);
         }
-        return provideCodeStatement.addStatement("return __result")
+        return provideCodeStatement.addStatement("return result")
                 .endControlFlow(")")
                 .build();
     }

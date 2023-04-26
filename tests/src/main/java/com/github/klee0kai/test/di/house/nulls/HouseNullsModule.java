@@ -12,7 +12,7 @@ public class HouseNullsModule {
     }
 
     public House house(Kichen kichen) {
-        return new House(kichen, null, null);
+        return new House(kichen, null, null, null);
     }
 
 }

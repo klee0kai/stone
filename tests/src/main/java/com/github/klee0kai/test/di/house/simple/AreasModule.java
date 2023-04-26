@@ -3,16 +3,18 @@ package com.github.klee0kai.test.di.house.simple;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.test.house.kitchen.cookingarea.CookingArea;
 import com.github.klee0kai.test.house.kitchen.sinkarea.SinkArea;
-import com.github.klee0kai.test.house.kitchen.storagearea.Cookware;
-import com.github.klee0kai.test.house.kitchen.storagearea.StoreArea;
+import com.github.klee0kai.test.house.kitchen.storagearea.*;
+import com.github.klee0kai.test.house.qualifiers.StoreAreaType;
 
 @Module
-public interface AreasModule {
+abstract class AreasModule {
 
-    CookingArea cookingArea();
+    public abstract CookingArea cookingArea();
 
-    SinkArea sinkArea();
+    public abstract SinkArea sinkArea();
 
-    StoreArea storeArea(Cookware cookware);
+    public abstract StoreArea storeArea(StoreAreaType type, Cookware cookware, Clothes clothes, Sanitizers sanitizers);
+
+    abstract public GarageStore garageStore(Cookware cookware, Clothes clothes, Sanitizers sanitizers);
 
 }
