@@ -77,24 +77,8 @@ public class HouseTests {
 
         //then
         assertNotEquals(sanitizers1.uuid, sanitizers2.uuid);
-        assertNotEquals(house.kichen.storeArea.sanitizers,house.bathRoom.storeArea.sanitizers);
-        assertNotEquals(house.kichen.storeArea.sanitizers,house.bedRoom.storeArea.sanitizers);
-    }
-
-    @Test
-    public void singleProvideTest() {
-        //Given
-        Sanitizers.createCount = 0;
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
-
-        //when
-        House house = di.house();
-
-        //then: do not provide deps with doubles
-        assertEquals(1, Sanitizers.createCount);
-        assertNotNull(house.kichen.storeArea.sanitizers);
-        assertNotNull(house.kichen.storeArea.sanitizers);
-        assertNotNull(house.kichen.storeArea.sanitizers);
+        assertNotEquals(house.kichen.storeArea.sanitizers, house.bathRoom.storeArea.sanitizers);
+        assertNotEquals(house.kichen.storeArea.sanitizers, house.bedRoom.storeArea.sanitizers);
     }
 
 

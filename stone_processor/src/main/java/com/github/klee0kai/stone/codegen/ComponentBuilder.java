@@ -383,7 +383,7 @@ public class ComponentBuilder {
             builder.addCode(statementBlock)
                     .addStatement(
                             "return $L",
-                            provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.get()"))
+                            provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.provide()"))
                     );
         });
         return this;
@@ -435,7 +435,7 @@ public class ComponentBuilder {
 
             if (isProvideMethod) {
                 builder.addCode(modulesGraph.statementProvideType("gh", m.methodName, m.returnType, qFields))
-                        .addStatement("return gh.get()");
+                        .addStatement("return gh.provide()");
             }
 
         });
@@ -484,7 +484,7 @@ public class ComponentBuilder {
                                     "$L.$L",
                                     injectableField.name,
                                     setFieldHelper.codeSetField(
-                                            provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.get()", injectField.name + "Ph"))
+                                            provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", injectField.name + "Ph"))
                                     )
                             );
                 }
