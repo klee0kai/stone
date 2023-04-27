@@ -18,6 +18,7 @@ import java.util.*;
 
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.errorProvideType;
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.recursiveProviding;
+import static com.github.klee0kai.stone.model.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
 
 public class ModulesGraph {
 
@@ -35,14 +36,16 @@ public class ModulesGraph {
     public void collectFromModule(MethodDetail provideModuleMethod, ClassDetail module) {
         ClassDetail iModuleInterface = AnnotationProcessor.allClassesHelper.iModule;
         for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
-            if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID || m.returnType.isBoxedPrimitive())
+            if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID)
                 continue;
             if (iModuleInterface.findMethod(m, false) != null)
                 continue;
+            boolean isCached = m.provideAnnotation == null || m.provideAnnotation.isCachingProvideType();
+            int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
 
             ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
             provideTypeCodes.putIfAbsent(rtClassDetails.className, new LinkedList<>());
-            provideTypeCodes.get(rtClassDetails.className).add(new InvokeCall(provideModuleMethod, m));
+            provideTypeCodes.get(rtClassDetails.className).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
 
             MethodDetail cacheControlMethod = new MethodDetail();
             cacheControlMethod.methodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(m.methodName);
@@ -109,7 +112,8 @@ public class ModulesGraph {
         for (InvokeCall it : provideTypeInvokes) {
             String name = Objects.equals(it.resultType(), typeName) ? "result" : ("dep" + varIndex++);
             ParameterizedTypeName phProvideDep = ParameterizedTypeName.get(ClassName.get(PhantomProvide.IProvide.class), it.resultType());
-            FieldDetail f = FieldDetail.simple(name, phProvideDep);
+            TypeName depProvideType = (it.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0 ? it.resultType() : phProvideDep;
+            FieldDetail f = FieldDetail.simple(name, depProvideType);
             depsProvide.add(new Pair<>(f, it));
         }
 
@@ -119,10 +123,21 @@ public class ModulesGraph {
         List<FieldDetail> vars = new LinkedList<>(qualifiers);
         while (!depsProvide.isEmpty()) {
             Pair<FieldDetail, InvokeCall> invokeCall = depsProvide.pollLast();
-            provideCodeStatement.addStatement("$T $L = () -> $L ", invokeCall.first.type, invokeCall.first.name, invokeCall.second.invokeCode(vars));
-            vars.add(invokeCall.first);
+            boolean isLambdaProvide = invokeCall.first.type instanceof ParameterizedTypeName;
+
+            if (!depsProvide.isEmpty()) {
+                provideCodeStatement.addStatement(
+                        isLambdaProvide ? "$T $L = () -> $L " : "$T $L =  $L ",
+                        invokeCall.first.type, invokeCall.first.name,
+                        invokeCall.second.invokeCode(vars)
+                );
+                vars.add(invokeCall.first);
+            } else {
+                provideCodeStatement.addStatement("return $L", invokeCall.second.invokeCode(vars));
+            }
         }
-        return provideCodeStatement.addStatement("return result.provide()")
+
+        return provideCodeStatement
                 .endControlFlow("")
                 .build();
     }

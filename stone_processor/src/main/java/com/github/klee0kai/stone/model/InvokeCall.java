@@ -11,10 +11,19 @@ import java.util.*;
 
 public class InvokeCall {
 
+    public static final int INVOKE_PROVIDE_OBJECT_CACHED = 0x1;
+
     public final List<MethodDetail> invokeSequence = new LinkedList<>();
+    public final int flags;
 
     public InvokeCall(MethodDetail... callSequence) {
         this.invokeSequence.addAll(Arrays.asList(callSequence));
+        this.flags = 0;
+    }
+
+    public InvokeCall(int flags, MethodDetail... callSequence) {
+        this.invokeSequence.addAll(Arrays.asList(callSequence));
+        this.flags = flags;
     }
 
 
