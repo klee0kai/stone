@@ -28,6 +28,8 @@ public class HorseInjectTests {
         assertNotNull(horse.blood);
         assertNotNull(horse.knowledge);
         assertNotNull(horse.conscience);
+        assertNotNull(horse.methodInjectedConscience);
+        assertNotNull(horse.methodInjectedKnowledge);
     }
 
 
@@ -78,5 +80,6 @@ public class HorseInjectTests {
         //Then
         assertNotEquals(mowgli.conscience.uuid, snake.conscience.uuid);
     }
+
 
 }

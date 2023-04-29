@@ -24,4 +24,14 @@ public class Horse implements IAnimal {
     @Inject
     public Ideology ideology;
 
+
+    public Conscience methodInjectedConscience;
+    public Knowledge methodInjectedKnowledge;
+
+    @Inject
+    public void initInject(Conscience conscience, Knowledge knowledge) {
+        methodInjectedConscience = conscience;
+        methodInjectedKnowledge = knowledge;
+    }
+
 }
