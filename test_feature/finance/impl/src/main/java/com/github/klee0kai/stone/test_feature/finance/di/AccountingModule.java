@@ -5,10 +5,12 @@ import com.github.klee0kai.stone.test_feature.finance.accounting.Accounting;
 import com.github.klee0kai.stone.test_feature.finance.store.AccountingStore;
 
 @Module
-public interface AccountingModule {
+public abstract class AccountingModule {
 
-    Accounting accounting();
+    public Accounting accounting() {
+        return null;
+    }
 
-    AccountingStore accountingStore();
+    public abstract AccountingStore accountingStore();
 
 }
