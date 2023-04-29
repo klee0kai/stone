@@ -494,7 +494,7 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        String provideFieldName = injectMethod.methodName + "_" + injectField.name + "Ph";
+                        String provideFieldName = injectMethod.methodName + "_" + injectField.name;
                         IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                         CodeBlock provideStatement = modulesGraph.statementProvideType(provideFieldName, null, provideTypeWrapperHelper.providingType(), qFields);
                         if (provideStatement == null)
@@ -507,7 +507,7 @@ public class ComponentBuilder {
                         builder.addCode(provideStatement);
 
                         if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
-                        providingArgsCode.add(provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", injectField.name + "Ph")));
+                        providingArgsCode.add(provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", provideFieldName)));
 
                     }
 
