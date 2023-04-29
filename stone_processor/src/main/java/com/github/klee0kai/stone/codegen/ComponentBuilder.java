@@ -488,6 +488,32 @@ public class ComponentBuilder {
                                     )
                             );
                 }
+
+                for (MethodDetail injectMethod : injectableCl.getAllMethods(false, false, "<init>")) {
+                    if (injectMethod.injectAnnotation == null) continue;
+
+                    CodeBlock.Builder providingArgsCode = CodeBlock.builder();
+                    for (FieldDetail injectField : injectMethod.args) {
+                        String provideFieldName = injectMethod.methodName + "_" + injectField.name + "Ph";
+                        IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
+                        CodeBlock provideStatement = modulesGraph.statementProvideType(provideFieldName, null, provideTypeWrapperHelper.providingType(), qFields);
+                        if (provideStatement == null)
+                            throw new ObjectNotProvidedException(
+                                    provideTypeWrapperHelper.providingType(),
+                                    injectableCl.className,
+                                    injectField.name
+                            );
+
+                        builder.addCode(provideStatement);
+
+                        if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
+                        providingArgsCode.add(provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", injectField.name + "Ph")));
+
+                    }
+
+                    builder.addStatement("$L.$L( $L )", injectableField.name, injectMethod.methodName, providingArgsCode.build());
+                }
+
             }
 
             //protect by lifecycle owner
