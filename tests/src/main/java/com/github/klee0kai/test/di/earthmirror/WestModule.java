@@ -8,12 +8,6 @@ import com.github.klee0kai.test.mowgli.earth.*;
 public abstract class WestModule {
 
     @Provide(cache = Provide.CacheType.Factory)
-    public abstract IRiver river();
-
-    @Provide(cache = Provide.CacheType.Soft)
-    public abstract IMountain mountain();
-
-    @Provide(cache = Provide.CacheType.Factory)
     public IRiver riverImpl() {
         return new River();
     }
@@ -23,21 +17,10 @@ public abstract class WestModule {
         return new Mountain();
     }
 
-
     @Provide(cache = Provide.CacheType.Soft)
     public abstract Cave cave();
 
     @Provide(cache = Provide.CacheType.Soft)
     public abstract Cave cave(Cave.CaveType type, Integer deep);
-
-    @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave(Cave.CaveType type);
-
-
-    @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave(Cave.CaveType type, Integer deep, Integer space);
-
-    @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave(Integer deep, Cave.CaveType type);
 
 }

@@ -7,7 +7,9 @@ public class StoneExceptionStrings {
     public static String classNonFoundMes = "Class not found: %s\nTry import class directly";
     public static String primitiveTypeNonSupported = "Primitive type non supported: %s";
     public static String methodPurposeNonDetected = "What is purpose for Method '%s'. Declared in %s";
-    public static String errorProvideType = "Error provide type %s. Required in %s.%s";
+    public static String errorProvideTypeRequiredIn = "Error provide type %s. Required in %s.%s";
+    public static String errorProvideType = "Error provide type %s";
+    public static String errorImplementMethod = "Error to implement method: '%s'";
 
     public static String componentsClass = "Component's class %s ";
     public static String moduleClass = "Module's class %s ";
@@ -20,6 +22,11 @@ public class StoneExceptionStrings {
     public static String shouldNoHaveFields = "should not have fields";
     public static String shouldImplementInterface = "should implement %s";
     public static String shouldHaveConstructorWithoutArgs = "should have public constructor without parameters";
+    public static String shouldHaveInjectableClassAsParameter = "should have an injection class as a parameter";
+    public static String shouldProvideNonPrimitiveObjects = "should provide non primitive objects";
+    public static String shouldNoHavePrimitiveArguments = "should no have primitive arguments";
+    public static String recursiveProviding = "Recursive providing detected";
+    public static String constructorNonFound = "No found public constructor for class: %s with args: %s";
 
 
     public static String collectCauseMessages(String mes, Throwable cause) {

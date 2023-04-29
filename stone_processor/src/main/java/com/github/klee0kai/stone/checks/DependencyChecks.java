@@ -7,11 +7,14 @@ import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.squareup.javapoet.TypeName;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.Objects;
 
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
 
@@ -53,6 +56,15 @@ public class DependencyChecks {
 
         if (m.singletonAnnotation != null)
             throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Singleton.class.getSimpleName()));
+
+        if (!Objects.equals(m.methodName, "<init>")) {
+            if (Objects.equals(m.returnType, TypeName.VOID) || m.returnType.isPrimitive())
+                throw new IncorrectSignatureException(String.format(method + shouldProvideNonPrimitiveObjects, m.methodName));
+
+            for (FieldDetail f : m.args)
+                if (f.type.isPrimitive())
+                    throw new IncorrectSignatureException(String.format(method + shouldNoHavePrimitiveArguments, m.methodName));
+        }
     }
 
     private static void checkClassNoHaveFields(ClassDetail cl) {

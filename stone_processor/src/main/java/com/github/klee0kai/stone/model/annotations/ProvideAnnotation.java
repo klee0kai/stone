@@ -32,4 +32,8 @@ public class ProvideAnnotation implements Cloneable {
     public ProvideAnnotation clone() throws CloneNotSupportedException {
         return (ProvideAnnotation) super.clone();
     }
+
+    public boolean isCachingProvideType() {
+        return cacheType != Provide.CacheType.Factory;
+    }
 }
