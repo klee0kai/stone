@@ -64,9 +64,9 @@ public class ModulesGraph {
 
     /**
      * Generate object's provide code from module or dependency.
-     * Provide over crate new PhantomProvider variable
+     * Provide via {@link com.github.klee0kai.stone.types.wrappers.PhantomProvide.IProvide}
      *
-     * @param localVariable     phantomProvider local variable which provide the type
+     * @param localVariable     {@link com.github.klee0kai.stone.types.wrappers.PhantomProvide.IProvide} local variable which provide the type
      * @param provideMethodName predefined method name. Useful for bind instance names
      * @param typeName          providing type
      * @param qualifiers        using component's qualifiers
