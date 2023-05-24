@@ -3,6 +3,7 @@ package com.github.klee0kai.stone.utils;
 import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
 import com.github.klee0kai.stone.exceptions.PrimitiveTypeNonSupportedStoneException;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 public class ClassNameUtils {
@@ -59,6 +60,19 @@ public class ClassNameUtils {
                 || className.simpleName().endsWith("StoneComponent")
                 || className.simpleName().endsWith("StoneHiddenModule")
                 || className.simpleName().endsWith("StoneCacheControlModule");
+    }
+
+    public static TypeName rawTypeOf(TypeName typeName) {
+        if (typeName instanceof ParameterizedTypeName)
+            return rawTypeOf(((ParameterizedTypeName) typeName).rawType);
+        return typeName;
+    }
+
+    public static String simpleName(TypeName typeName) {
+        TypeName raw = rawTypeOf(typeName);
+        if (raw instanceof ClassName)
+            return ((ClassName) raw).simpleName();
+        return null;
     }
 
 }

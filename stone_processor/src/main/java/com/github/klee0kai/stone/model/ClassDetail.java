@@ -21,7 +21,7 @@ import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
 public class ClassDetail implements Cloneable {
 
-    public ClassName className;
+    public TypeName className;
 
     public Set<Modifier> modifiers = Collections.emptySet();
 
