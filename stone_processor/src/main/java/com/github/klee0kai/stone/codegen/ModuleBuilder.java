@@ -368,7 +368,7 @@ public class ModuleBuilder {
         //bind item code
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
         if (bindMethodBuilder != null) {
-            bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, m.returnType)
+            bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, ClassNameUtils.rawTypeOf(m.returnType))
                     .addStatement(itemHolderCodeHelper.codeSetCachedValue(
                             CodeBlock.of("($T) or", m.returnType)
                     ))
