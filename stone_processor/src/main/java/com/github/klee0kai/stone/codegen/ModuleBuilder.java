@@ -368,7 +368,7 @@ public class ModuleBuilder {
         //bind item code
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
         if (bindMethodBuilder != null) {
-            bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, m.returnType)
+            bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, ClassNameUtils.rawTypeOf(m.returnType))
                     .addStatement(itemHolderCodeHelper.codeSetCachedValue(
                             CodeBlock.of("($T) or", m.returnType)
                     ))
@@ -498,7 +498,7 @@ public class ModuleBuilder {
                 .beginControlFlow("if (__action != null) switch (__action.type)")
                 //set value
                 .beginControlFlow("case SET_VALUE:")
-                .beginControlFlow("if (__action.value instanceof $T)", m.returnType)
+                .beginControlFlow("if (__action.value instanceof $T)", ClassNameUtils.rawTypeOf(m.returnType))
                 .addStatement(itemHolderCodeHelper.codeSetCachedValue(
                         CodeBlock.of("( $T ) __action.value", m.returnType)
                 ))
@@ -507,7 +507,7 @@ public class ModuleBuilder {
                 .endControlFlow()
                 //set if null value
                 .beginControlFlow("case SET_IF_NULL:")
-                .beginControlFlow("if (__action.value instanceof $T)", m.returnType)
+                .beginControlFlow("if (__action.value instanceof $T)", ClassNameUtils.rawTypeOf(m.returnType))
                 .addStatement(itemHolderCodeHelper.codeSetCachedIfNullValue(
                         CodeBlock.of("( $T ) __action.value", m.returnType)
                 ))

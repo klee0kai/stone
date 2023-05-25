@@ -43,9 +43,8 @@ public class ModulesGraph {
             boolean isCached = m.provideAnnotation == null || m.provideAnnotation.isCachingProvideType();
             int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
 
-            ClassDetail rtClassDetails = AnnotationProcessor.allClassesHelper.findForType(m.returnType);
-            provideTypeCodes.putIfAbsent(rtClassDetails.className, new LinkedList<>());
-            provideTypeCodes.get(rtClassDetails.className).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
+            provideTypeCodes.putIfAbsent(m.returnType, new LinkedList<>());
+            provideTypeCodes.get(m.returnType).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
 
             MethodDetail cacheControlMethod = new MethodDetail();
             cacheControlMethod.methodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(m.methodName);
@@ -57,8 +56,8 @@ public class ModulesGraph {
             }
             cacheControlMethod.returnType = m.returnType;
 
-            cacheControlTypeCodes.putIfAbsent(rtClassDetails.className, new LinkedList<>());
-            cacheControlTypeCodes.get(rtClassDetails.className).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
+            cacheControlTypeCodes.putIfAbsent(m.returnType, new LinkedList<>());
+            cacheControlTypeCodes.get(m.returnType).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
         }
     }
 

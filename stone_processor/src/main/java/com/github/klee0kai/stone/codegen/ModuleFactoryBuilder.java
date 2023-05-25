@@ -59,7 +59,7 @@ public class ModuleFactoryBuilder {
 
     public ModuleFactoryBuilder(ClassDetail orFactory) {
         this.orFactory = orFactory;
-        this.className = orFactory.className;
+        this.className = (ClassName) orFactory.className;
     }
 
 
