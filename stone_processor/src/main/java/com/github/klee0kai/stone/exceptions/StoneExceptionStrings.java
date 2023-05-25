@@ -19,6 +19,7 @@ public class StoneExceptionStrings {
     public static String hasIncorrectSignature = "has incorrect signature";
     public static String shouldNoHaveAnnotation = "should not have @%s annotation";
     public static String shouldNoHaveQualifier = "should not have %s qualifier";
+    public static String shouldHaveOnlySingleModuleMethod = "should have only one module or dependency method. %s has duplicate";
     public static String shouldNoHaveFields = "should not have fields";
     public static String shouldImplementInterface = "should implement %s";
     public static String shouldHaveConstructorWithoutArgs = "should have public constructor without parameters";

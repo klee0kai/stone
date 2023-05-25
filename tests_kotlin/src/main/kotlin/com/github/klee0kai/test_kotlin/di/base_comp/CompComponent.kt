@@ -10,10 +10,7 @@ import com.github.klee0kai.test_kotlin.tech.comp.DesktopComp
 import com.github.klee0kai.test_kotlin.tech.comp.GameComp
 
 @Component(
-    qualifiers = arrayOf(
-        MonitorSize::class, Company::class,
-        KConnectType::class,
-    )
+    qualifiers = [MonitorSize::class, Company::class, KConnectType::class]
 )
 interface CompComponent : IComponent {
 

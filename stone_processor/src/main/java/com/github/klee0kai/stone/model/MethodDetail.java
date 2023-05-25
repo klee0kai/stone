@@ -143,6 +143,17 @@ public class MethodDetail implements Cloneable {
         return true;
     }
 
+    public boolean hasAnyAnnotation() {
+        return provideAnnotation != null
+                || bindInstanceAnnotation != null
+                || protectInjectedAnnotation != null
+                || switchCacheAnnotation != null
+                || injectAnnotation != null
+                || namedAnnotation != null
+                || singletonAnnotation != null
+                || !gcScopeAnnotations.isEmpty();
+    }
+
     @Override
     public MethodDetail clone() throws CloneNotSupportedException {
         return (MethodDetail) super.clone();

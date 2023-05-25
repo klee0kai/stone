@@ -31,6 +31,18 @@ public class ComponentMethods {
         return isProvideMethod(m) && !isModuleProvideMethod(m) && !isDepsProvide(m);
     }
 
+    public static boolean isInitModuleMethod(MethodDetail m) {
+        if (m.hasAnyAnnotation() || m.args.size() != 1 || m.returnType != TypeName.VOID) return false;
+        ClassDetail initClass = allClassesHelper.findForType(m.args.get(0).type);
+        return initClass.moduleAnn != null;
+    }
+
+    public static boolean isDepsInitMethod(MethodDetail m) {
+        if (m.hasAnyAnnotation() || m.args.size() != 1 || m.returnType != TypeName.VOID) return false;
+        ClassDetail initClass = allClassesHelper.findForType(m.args.get(0).type);
+        return initClass.dependenciesAnn != null;
+    }
+
     public static boolean isBindInstanceAndProvideMethod(MethodDetail m) {
         return m.bindInstanceAnnotation != null
                 && m.args.size() == 1

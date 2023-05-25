@@ -1,17 +1,20 @@
 package com.github.klee0kai.stone.checks;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
 
 public class ComponentChecks {
@@ -22,6 +25,7 @@ public class ComponentChecks {
             checkClassNoHaveFields(cl);
             for (MethodDetail m : cl.getAllMethods(false, true))
                 checkMethodSignature(m);
+            checkNoModuleDoubles(cl);
         } catch (Exception e) {
             throw new IncorrectSignatureException(String.format(componentsClass + hasIncorrectSignature, cl.className), e);
         }
@@ -41,10 +45,30 @@ public class ComponentChecks {
         }
 
         for (ClassName wr : cl.componentAnn.wrapperProviders) {
-            ClassDetail wrCl = AnnotationProcessor.allClassesHelper.findForType(wr);
+            ClassDetail wrCl = allClassesHelper.findForType(wr);
             WrappersCreatorChecks.checkWrapperClass(wrCl);
         }
+    }
 
+    private static void checkNoModuleDoubles(ClassDetail cl) {
+        Set<TypeName> modules = new HashSet<>();
+        for (MethodDetail m : cl.getAllMethods(false, true)) {
+            ClassDetail module = allClassesHelper.findForType(m.returnType);
+            if (module != null && (module.moduleAnn != null || module.dependenciesAnn != null)) {
+                if (modules.contains(m.returnType)) {
+                    throw new IncorrectSignatureException(
+                            String.format(componentsClass + shouldHaveOnlySingleModuleMethod,
+                                    cl.className,
+                                    ((ClassName) m.returnType).simpleName())
+                    );
+                }
+
+                for (ClassDetail p : module.getAllParents(false)) {
+                    if (p.moduleAnn != null || p.dependenciesAnn != null)
+                        modules.add(m.returnType);
+                }
+            }
+        }
     }
 
     private static void checkMethodSignature(MethodDetail m) {
