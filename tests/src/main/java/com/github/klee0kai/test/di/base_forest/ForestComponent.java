@@ -28,6 +28,11 @@ public interface ForestComponent extends IComponent {
 
     void inject(School school);
 
+    void initUnitedModule(UnitedModule unitedModule);
+
+    void initUnitedModule(Class<? extends UnitedModule> unitedModule);
+
+    void iniAllModules(UnitedModule unitedModule, IdentityModule identityModule);
 
     @GcAllScope
     void gcAll();

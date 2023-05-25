@@ -13,14 +13,18 @@ public interface IComponent {
      * @param modules can be:
      *                - a factory instance
      *                - a factory class
+     * @deprecated Create init method with module type as argument
      */
+    @Deprecated
     void init(Object... modules);
 
     /**
      * init dependencies
      *
      * @param dependencies - An instance of dependencies
+     * @deprecated Create init method with dependency type as argument
      */
+    @Deprecated
     void initDependencies(Object... dependencies);
 
     /**

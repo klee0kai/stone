@@ -9,6 +9,7 @@ import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
+import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -50,7 +51,7 @@ public class ComponentBuilder {
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
     public final LinkedList<WrapperCreatorField> wrapperCreatorFields = new LinkedList<>();
-    public final HashMap<String, MethodSpec.Builder> iComponentMethods = new HashMap<>();
+    public final List<MethodSpec.Builder> iComponentMethods = new LinkedList<>();
 
     public final CodeBlock.Builder initDepsCode = CodeBlock.builder();
     public final CodeBlock.Builder bindModuleCode = CodeBlock.builder();
@@ -157,7 +158,7 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        iComponentMethods.put(initMethodName, builder);
+        iComponentMethods.add(builder);
 
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object m : modules)")
@@ -168,7 +169,7 @@ public class ComponentBuilder {
                     .beginControlFlow("else")
                     .addComment("init modules")
                     .addStatement(
-                            "$L( (module) -> {  module.init(m); } )",
+                            "$L( (module) -> { module.init(m); } )",
                             eachModuleMethodName
                     )
                     .endControlFlow()
@@ -185,7 +186,7 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        iComponentMethods.put(initDepsMethodName, builder);
+        iComponentMethods.add(builder);
 
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object m : deps)")
@@ -196,6 +197,31 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder initMethod(MethodDetail m) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC);
+        for (FieldDetail arg : m.args) {
+            builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
+            ClassDetail iniCl = allClassesHelper.findForType(arg.type);
+            if (Objects.equals(ClassNameUtils.rawTypeOf(arg.type), ClassName.get(Class.class))) {
+                TypeName initType = ((ParameterizedTypeName) arg.type).typeArguments.get(0);
+                iniCl = allClassesHelper.findForType(initType);
+            }
+
+            if (iniCl.moduleAnn != null || iniCl.componentAnn != null) {
+                builder.addStatement("$L( $L )", initMethodName, arg.name);
+            } else if (iniCl.dependenciesAnn != null) {
+                builder.addStatement("$L( $L )", initDepsMethodName, arg.name);
+            } else {
+                throw new StoneException(String.format(method + hasIncorrectSignature, m.methodName));
+            }
+        }
+
+        iComponentMethods.add(builder);
+        return this;
+    }
+
     public ComponentBuilder bindMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
@@ -203,7 +229,7 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        iComponentMethods.put(bindMethodName, builder);
+        iComponentMethods.add(builder);
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object ob : objects)")
                     .addStatement(
@@ -261,7 +287,7 @@ public class ComponentBuilder {
 
         }
 
-        iComponentMethods.put(extOfMethodName, builder);
+        iComponentMethods.add(builder);
         return this;
     }
 
@@ -281,7 +307,7 @@ public class ComponentBuilder {
             }
 
         });
-        iComponentMethods.put(hiddenModuleMethodName, builder);
+        iComponentMethods.add(builder);
         return this;
     }
 
@@ -309,7 +335,7 @@ public class ComponentBuilder {
 
             builder.addStatement("$L = false", protectRecursiveField);
         });
-        iComponentMethods.put(eachModuleMethodName, builder);
+        iComponentMethods.add(builder);
         return this;
     }
 
@@ -695,7 +721,7 @@ public class ComponentBuilder {
 
 
         List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
-        methodBuilders.addAll(iComponentMethods.values());
+        methodBuilders.addAll(iComponentMethods);
         methodBuilders.addAll(depsMethods.values());
         methodBuilders.addAll(modulesMethods.values());
         methodBuilders.addAll(provideObjMethods);

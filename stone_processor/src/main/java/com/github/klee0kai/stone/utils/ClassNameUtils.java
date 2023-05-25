@@ -5,6 +5,9 @@ import com.github.klee0kai.stone.exceptions.PrimitiveTypeNonSupportedStoneExcept
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.WildcardTypeName;
+
+import java.util.List;
 
 public class ClassNameUtils {
 
@@ -65,6 +68,10 @@ public class ClassNameUtils {
     public static TypeName rawTypeOf(TypeName typeName) {
         if (typeName instanceof ParameterizedTypeName)
             return rawTypeOf(((ParameterizedTypeName) typeName).rawType);
+        if (typeName instanceof WildcardTypeName) {
+            List<TypeName> upperBounds = ((WildcardTypeName) typeName).upperBounds;
+            return rawTypeOf(!upperBounds.isEmpty() ? upperBounds.get(0) : null);
+        }
         return typeName;
     }
 

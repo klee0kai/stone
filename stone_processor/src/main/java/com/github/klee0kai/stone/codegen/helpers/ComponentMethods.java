@@ -1,7 +1,11 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
 import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.utils.ClassNameUtils;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.Objects;
@@ -32,15 +36,20 @@ public class ComponentMethods {
     }
 
     public static boolean isInitModuleMethod(MethodDetail m) {
-        if (m.hasAnyAnnotation() || m.args.size() != 1 || m.returnType != TypeName.VOID) return false;
-        ClassDetail initClass = allClassesHelper.findForType(m.args.get(0).type);
-        return initClass.moduleAnn != null;
-    }
-
-    public static boolean isDepsInitMethod(MethodDetail m) {
-        if (m.hasAnyAnnotation() || m.args.size() != 1 || m.returnType != TypeName.VOID) return false;
-        ClassDetail initClass = allClassesHelper.findForType(m.args.get(0).type);
-        return initClass.dependenciesAnn != null;
+        if (m.hasAnyAnnotation() || m.args.isEmpty() || m.returnType != TypeName.VOID) return false;
+        for (FieldDetail f : m.args) {
+            ClassDetail initClass = allClassesHelper.findForType(f.type);
+            if (Objects.equals(ClassNameUtils.rawTypeOf(f.type), ClassName.get(Class.class))) {
+                TypeName variant = ((ParameterizedTypeName) f.type).typeArguments.get(0);
+                variant = ClassNameUtils.rawTypeOf(variant);
+                ClassDetail clVariant = allClassesHelper.findForType(variant);
+                if (clVariant != null) initClass = clVariant;
+            }
+            if (initClass == null) return false;
+            if (initClass.componentAnn == null && initClass.moduleAnn == null && initClass.dependenciesAnn == null)
+                return false;
+        }
+        return true;
     }
 
     public static boolean isBindInstanceAndProvideMethod(MethodDetail m) {
