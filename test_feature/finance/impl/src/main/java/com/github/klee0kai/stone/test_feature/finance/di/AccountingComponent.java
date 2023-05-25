@@ -10,4 +10,6 @@ public interface AccountingComponent extends IComponent {
 
     AccountingModule accounting();
 
+     void initDeps(AccountingDependencies deps);
+
 }

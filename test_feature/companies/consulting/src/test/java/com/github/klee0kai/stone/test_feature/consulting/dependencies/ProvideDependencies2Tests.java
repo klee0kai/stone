@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ProvideDependenciesTests {
+public class ProvideDependencies2Tests {
 
     @Test
     void hrNoDepsTest() {
@@ -20,7 +20,7 @@ public class ProvideDependenciesTests {
         HrComponent featureDi = Stone.createComponent(HrComponent.class);
 
         //When
-        featureDi.initDependencies(appDI);
+        featureDi.initDeps(appDI);
 
         //Then
         HrDependencies hrDeps = featureDi.hrDependencies();
@@ -34,7 +34,7 @@ public class ProvideDependenciesTests {
         AccountingComponent featureDi = Stone.createComponent(AccountingComponent.class);
 
         //When
-        featureDi.initDependencies(appDI);
+        featureDi.initDeps(appDI);
 
         //Then
         LogisticProject logisticProject = featureDi.dependencies().logisticProject();

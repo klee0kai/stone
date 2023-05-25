@@ -12,4 +12,7 @@ public interface PlanningComponent extends IComponent {
     ProjectsModule projectsModule();
 
     void inject(PlanningRun planningRun);
+
+    void initDep(PlanningDependencies planningRun);
+
 }

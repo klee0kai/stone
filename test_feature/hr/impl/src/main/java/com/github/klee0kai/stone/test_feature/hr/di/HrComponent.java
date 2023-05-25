@@ -13,4 +13,6 @@ public interface HrComponent extends IComponent {
 
     EmployeesStore employeesStore();
 
+    void initDeps(HrDependencies deps);
+
 }
