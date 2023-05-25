@@ -32,6 +32,7 @@ public interface IComponent {
      *
      * @param objects - An instance of bindable objects
      */
+    @Deprecated
     void bind(Object... objects);
 
     /**
