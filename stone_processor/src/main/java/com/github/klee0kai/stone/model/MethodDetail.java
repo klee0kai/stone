@@ -46,6 +46,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.elementKind = element.getKind();
 
         methodDetail.addAnnotation(InitAnn.of(element.getAnnotation(Init.class)));
+        methodDetail.addAnnotation(ExtOfAnn.of(element.getAnnotation(ExtendOf.class)));
         methodDetail.addAnnotation(ProvideAnn.of(element.getAnnotation(Provide.class)));
         methodDetail.addAnnotation(BindInstanceAnn.of(element.getAnnotation(BindInstance.class)));
         methodDetail.addAnnotation(ProtectInjectedAnn.of(element.getAnnotation(ProtectInjected.class)));
@@ -77,6 +78,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.args = ListUtils.format(methodSpec.parameters, FieldDetail::of);
 
         methodDetail.addAnnotation(InitAnn.findFrom(methodSpec.annotations));
+        methodDetail.addAnnotation(ExtOfAnn.findFrom(methodSpec.annotations));
         methodDetail.addAnnotation(ProvideAnn.findFrom(methodSpec.annotations));
         methodDetail.addAnnotation(BindInstanceAnn.findFrom(methodSpec.annotations));
         methodDetail.addAnnotation(ProtectInjectedAnn.findFrom(methodSpec.annotations));

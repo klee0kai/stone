@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
+import com.github.klee0kai.stone.annotations.component.ExtendOf;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -12,6 +14,7 @@ import com.squareup.javapoet.TypeName;
 import java.util.Objects;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.componentExtOfMethodSignatureIncorrect;
 
 public class ComponentMethods {
 
@@ -52,6 +55,17 @@ public class ComponentMethods {
             if (!initClass.hasAnyAnnotation(ComponentAnn.class, ModuleAnn.class, DependenciesAnn.class))
                 return false;
         }
+        return true;
+    }
+
+    public static boolean isExtOfMethod(ClassDetail cl, MethodDetail m) {
+        if (!m.hasAnyAnnotation(ExtOfAnn.class)) return false;
+        if (!m.hasOnlyAnnotations(false, ExtOfAnn.class)
+                || m.args.size() != 1 || m.returnType != TypeName.VOID)
+            throw new IncorrectSignatureException(String.format(componentExtOfMethodSignatureIncorrect, m.methodName, ExtendOf.class.getSimpleName()));
+        ClassDetail parentComponent = allClassesHelper.findForType(m.args.get(0).type);
+        if (!parentComponent.hasOnlyAnnotations(ComponentAnn.class) || !cl.isExtOf(parentComponent.className))
+            throw new IncorrectSignatureException(String.format(componentExtOfMethodSignatureIncorrect, m.methodName, ExtendOf.class.getSimpleName()));
         return true;
     }
 

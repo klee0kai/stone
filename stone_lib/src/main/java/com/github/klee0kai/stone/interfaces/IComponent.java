@@ -5,6 +5,7 @@ package com.github.klee0kai.stone.interfaces;
  * Each Stone component implement this interface.
  * Could be use
  */
+@Deprecated
 public interface IComponent {
 
     /**
@@ -38,6 +39,7 @@ public interface IComponent {
     /**
      * this component extends of other
      */
+    @Deprecated
     void extOf(IComponent components);
 
 }

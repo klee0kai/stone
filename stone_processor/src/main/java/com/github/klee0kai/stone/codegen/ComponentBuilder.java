@@ -291,6 +291,19 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder extOfMethod(MethodDetail m) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC);
+        for (FieldDetail arg : m.args) {
+            builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
+            builder.addStatement("$L( $L )", extOfMethodName, arg.name);
+        }
+
+        iComponentMethods.add(builder);
+        return this;
+    }
+
     public ComponentBuilder hiddenModuleMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(hiddenModuleMethodName)
                 .addModifiers(Modifier.PUBLIC);
