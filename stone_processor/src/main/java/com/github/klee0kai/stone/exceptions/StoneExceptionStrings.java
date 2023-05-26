@@ -40,6 +40,27 @@ public class StoneExceptionStrings {
             + "Should have only one argument of parent component. "
             + "Should be void.";
 
+    public static String componentBindInstanceMethodSignatureIncorrect = "Component's bindInstance method have incorrect signature: '%s'. "
+            + "Method Should have only %s annotation and GC scope annotations. "
+            + "Should have only one argument of providing object. "
+            + "Providing object should not be primitive or boxed primitive. "
+            + "Can return only providing object or should be void. ";
+
+    public static String componentGCMethodSignatureIncorrect = "Component's gc method have incorrect signature: '%s'. "
+            + "Should be void.";
+
+    public static String componentSwitchCacheMethodSignatureIncorrect = "Component's SwitchCache method have incorrect signature: '%s'. "
+            + "Method Should have only %s annotation and GC scope annotations. "
+            + "Should no have arguments. "
+            + "Should be void.";
+
+    public static String componentProtectInjectedMethodSignatureIncorrect = "Component's ProtectInjected method have incorrect signature: '%s'. "
+            + "Method Should have only %s annotation. "
+            + "Should have only one argument (non primitive and non boxed primitive). "
+            + "Should be void.";
+
+    public static String componentMethodNameBusy = "Component's method name busy by lib's private interfaces";
+
     public static String collectCauseMessages(String mes, Throwable cause) {
         StringBuilder sb = new StringBuilder(mes);
         while (cause != null) {

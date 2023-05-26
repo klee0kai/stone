@@ -25,6 +25,7 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
 
 public class ComponentBuilder {
@@ -253,7 +254,7 @@ public class ComponentBuilder {
                     (i, m) -> ComponentMethods.isModuleProvideMethod(m)
             );
             List<MethodDetail> bindInstanceAndProvideMethods = ListUtils.filter(proto.getAllMethods(false, false),
-                    (i, m) -> ComponentMethods.isBindInstanceAndProvideMethod(m)
+                    (i, m) -> ComponentMethods.isBindInstanceMethod(m) == BindInstanceAndProvide
             );
 
             if (provideModuleMethods.isEmpty() && bindInstanceAndProvideMethods.isEmpty()) continue;
