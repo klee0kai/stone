@@ -9,20 +9,21 @@ import com.squareup.javapoet.ClassName;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
+import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class WrapperCreatorsAnnotation implements Cloneable {
+public class WrapperCreatorsAnn implements Cloneable, IAnnotation {
 
     public List<ClassName> wrappers = new LinkedList<>();
 
-    public static WrapperCreatorsAnnotation of(AnnotationMirror annMirror) {
+    public static WrapperCreatorsAnn of(AnnotationMirror annMirror) {
         if (annMirror == null)
             return null;
 
-        WrapperCreatorsAnnotation wrapperCreatorsAnn = new WrapperCreatorsAnnotation();
+        WrapperCreatorsAnn wrapperCreatorsAnn = new WrapperCreatorsAnn();
 
         ExecutableElement wrappersKey = null;
         Map<? extends ExecutableElement, ? extends AnnotationValue> elementMap = annMirror.getElementValues();
@@ -44,16 +45,21 @@ public class WrapperCreatorsAnnotation implements Cloneable {
     }
 
 
-    public static WrapperCreatorsAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static WrapperCreatorsAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(WrappersCreator.class)));
         if (spec == null)
             return null;
-        return new WrapperCreatorsAnnotation();
+        return new WrapperCreatorsAnn();
     }
 
     @Override
-    public WrapperCreatorsAnnotation clone() throws CloneNotSupportedException {
-        return (WrapperCreatorsAnnotation) super.clone();
+    public WrapperCreatorsAnn clone() throws CloneNotSupportedException {
+        return (WrapperCreatorsAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return WrappersCreator.class;
     }
 }

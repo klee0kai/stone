@@ -9,10 +9,12 @@ import com.github.klee0kai.stone.codegen.helpers.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
+import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
@@ -50,7 +52,7 @@ public class ComponentBuilder {
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
     public final LinkedList<WrapperCreatorField> wrapperCreatorFields = new LinkedList<>();
-    public final HashMap<String, MethodSpec.Builder> iComponentMethods = new HashMap<>();
+    public final List<MethodSpec.Builder> iComponentMethods = new LinkedList<>();
 
     public final CodeBlock.Builder initDepsCode = CodeBlock.builder();
     public final CodeBlock.Builder bindModuleCode = CodeBlock.builder();
@@ -79,9 +81,8 @@ public class ComponentBuilder {
         componentBuilder.implementIComponentMethods();
 
         for (ClassDetail componentParentCl : component.getAllParents(false)) {
-            if (componentParentCl.componentAnn != null) {
-                componentBuilder.qualifiers.addAll(componentParentCl.componentAnn.qualifiers);
-            }
+            ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
+            if (parentCompAnn != null) componentBuilder.qualifiers.addAll(parentCompAnn.qualifiers);
         }
         componentBuilder.modulesGraph.allQualifiers.addAll(componentBuilder.qualifiers);
         return componentBuilder;
@@ -143,7 +144,7 @@ public class ComponentBuilder {
         String name = provideWrappersGlFieldPrefixName + wrapperCreatorFields.size();
         wrapperCreatorFields.add(new WrapperCreatorField(
                 name,
-                provideWrappersCl.wrapperCreatorsAnn.wrappers,
+                provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers,
                 FieldSpec.builder(provideWrappersCl.className, name, Modifier.PRIVATE, Modifier.FINAL)
                         .initializer("new $T()", provideWrappersCl.className)
         ));
@@ -157,7 +158,7 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        iComponentMethods.put(initMethodName, builder);
+        iComponentMethods.add(builder);
 
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object m : modules)")
@@ -168,7 +169,7 @@ public class ComponentBuilder {
                     .beginControlFlow("else")
                     .addComment("init modules")
                     .addStatement(
-                            "$L( (module) -> {  module.init(m); } )",
+                            "$L( (module) -> { module.init(m); } )",
                             eachModuleMethodName
                     )
                     .endControlFlow()
@@ -185,7 +186,7 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        iComponentMethods.put(initDepsMethodName, builder);
+        iComponentMethods.add(builder);
 
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object m : deps)")
@@ -196,6 +197,31 @@ public class ComponentBuilder {
         return this;
     }
 
+    public ComponentBuilder initMethod(MethodDetail m) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC);
+        for (FieldDetail arg : m.args) {
+            builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
+            ClassDetail iniCl = allClassesHelper.findForType(arg.type);
+            if (Objects.equals(ClassNameUtils.rawTypeOf(arg.type), ClassName.get(Class.class))) {
+                TypeName initType = ((ParameterizedTypeName) arg.type).typeArguments.get(0);
+                iniCl = allClassesHelper.findForType(initType);
+            }
+
+            if (iniCl.hasAnyAnnotation(ModuleAnn.class, ComponentAnn.class)) {
+                builder.addStatement("$L( $L )", initMethodName, arg.name);
+            } else if (iniCl.hasAnyAnnotation(DependenciesAnn.class)) {
+                builder.addStatement("$L( $L )", initDepsMethodName, arg.name);
+            } else {
+                throw new StoneException(String.format(method + hasIncorrectSignature, m.methodName));
+            }
+        }
+
+        iComponentMethods.add(builder);
+        return this;
+    }
+
     public ComponentBuilder bindMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
@@ -203,7 +229,7 @@ public class ComponentBuilder {
                 .varargs(true);
         if (override) builder.addAnnotation(Override.class);
 
-        iComponentMethods.put(bindMethodName, builder);
+        iComponentMethods.add(builder);
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object ob : objects)")
                     .addStatement(
@@ -261,7 +287,20 @@ public class ComponentBuilder {
 
         }
 
-        iComponentMethods.put(extOfMethodName, builder);
+        iComponentMethods.add(builder);
+        return this;
+    }
+
+    public ComponentBuilder extOfMethod(MethodDetail m) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC);
+        for (FieldDetail arg : m.args) {
+            builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
+            builder.addStatement("$L( $L )", extOfMethodName, arg.name);
+        }
+
+        iComponentMethods.add(builder);
         return this;
     }
 
@@ -281,7 +320,7 @@ public class ComponentBuilder {
             }
 
         });
-        iComponentMethods.put(hiddenModuleMethodName, builder);
+        iComponentMethods.add(builder);
         return this;
     }
 
@@ -309,7 +348,7 @@ public class ComponentBuilder {
 
             builder.addStatement("$L = false", protectRecursiveField);
         });
-        iComponentMethods.put(eachModuleMethodName, builder);
+        iComponentMethods.add(builder);
         return this;
     }
 
@@ -409,7 +448,7 @@ public class ComponentBuilder {
         if (isProvideMethod && modulesGraph.statementProvideType(null, m.methodName, m.returnType, qFields) == null) {
             //  bind object not declared in module
             ModuleBuilder moduleBuilder = getOrCreateHiddenModuleBuilder();
-            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
+            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
             ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
             moduleBuilder.bindInstance(m, itemHolderCodeHelper)
                     .cacheControl(m, itemHolderCodeHelper)
@@ -490,7 +529,7 @@ public class ComponentBuilder {
                 }
 
                 for (MethodDetail injectMethod : injectableCl.getAllMethods(false, false, "<init>")) {
-                    if (injectMethod.injectAnnotation == null) continue;
+                    if (!injectMethod.hasAnnotations(InjectAnn.class)) continue;
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
@@ -649,7 +688,7 @@ public class ComponentBuilder {
 
 
         CodeBlock.Builder schedulerInitCode = CodeBlock.builder();
-        if (m.switchCacheAnnotation.timeMillis > 0) {
+        if (m.ann(SwitchCacheAnn.class).timeMillis > 0) {
             timeHolderFields();
             schedulerInitCode.add("this.$L", scheduleGlFieldName);
         } else {
@@ -658,8 +697,8 @@ public class ComponentBuilder {
         builder.addStatement(
                 "$T switchCacheParams = new $T( $T.$L , $L, $L )",
                 SwitchCacheParam.class, SwitchCacheParam.class,
-                SwitchCache.CacheType.class, m.switchCacheAnnotation.cache.name(),
-                m.switchCacheAnnotation.timeMillis,
+                SwitchCache.CacheType.class, m.ann(SwitchCacheAnn.class).cache.name(),
+                m.ann(SwitchCacheAnn.class).timeMillis,
                 schedulerInitCode.build()
         ).addStatement(
                 "$L( (m) -> {  m.switchRef(scopes, switchCacheParams); } )",
@@ -695,7 +734,7 @@ public class ComponentBuilder {
 
 
         List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
-        methodBuilders.addAll(iComponentMethods.values());
+        methodBuilders.addAll(iComponentMethods);
         methodBuilders.addAll(depsMethods.values());
         methodBuilders.addAll(modulesMethods.values());
         methodBuilders.addAll(provideObjMethods);

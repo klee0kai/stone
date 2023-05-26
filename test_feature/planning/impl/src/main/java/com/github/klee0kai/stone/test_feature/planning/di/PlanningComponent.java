@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.test_feature.planning.di;
 
 import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.annotations.component.Init;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.test_feature.planning.PlanningRun;
 
@@ -12,4 +13,8 @@ public interface PlanningComponent extends IComponent {
     ProjectsModule projectsModule();
 
     void inject(PlanningRun planningRun);
+
+    @Init
+    void initDep(PlanningDependencies planningRun);
+
 }

@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;
 import com.github.klee0kai.stone.model.*;
+import com.github.klee0kai.stone.model.annotations.ProvideAnn;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
 import com.github.klee0kai.stone.utils.RecursiveDetector;
 import com.squareup.javapoet.ClassName;
@@ -40,7 +41,7 @@ public class ModulesGraph {
                 continue;
             if (iModuleInterface.findMethod(m, false) != null)
                 continue;
-            boolean isCached = m.provideAnnotation == null || m.provideAnnotation.isCachingProvideType();
+            boolean isCached = !m.hasAnnotations(ProvideAnn.class) || m.ann(ProvideAnn.class).isCachingProvideType();
             int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
 
             provideTypeCodes.putIfAbsent(m.returnType, new LinkedList<>());

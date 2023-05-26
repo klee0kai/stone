@@ -1,11 +1,12 @@
 package com.github.klee0kai.stone.checks;
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.dependencies.Dependencies;
-import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.ComponentAnn;
+import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
+import com.github.klee0kai.stone.model.annotations.IAnnotation;
+import com.github.klee0kai.stone.model.annotations.ModuleAnn;
 import com.github.klee0kai.stone.types.wrappers.IWrapperCreator;
 import com.squareup.javapoet.ClassName;
 
@@ -27,12 +28,12 @@ public class WrappersCreatorChecks {
     }
 
     private static void checkClassAnnotations(ClassDetail cl) {
-        if (cl.componentAnn != null)
-            throw new IncorrectSignatureException(String.format(wrappersProviderClass + shouldNoHaveAnnotation, cl.className, Component.class.getSimpleName()));
-        if (cl.dependenciesAnn != null)
-            throw new IncorrectSignatureException(String.format(wrappersProviderClass + shouldNoHaveAnnotation, cl.className, Dependencies.class.getSimpleName()));
-        if (cl.moduleAnn != null)
-            throw new IncorrectSignatureException(String.format(wrappersProviderClass + shouldNoHaveAnnotation, cl.className, Module.class.getSimpleName()));
+        IAnnotation prohibitedAnn = cl.anyAnnotation(ComponentAnn.class, DependenciesAnn.class, ModuleAnn.class);
+        if (prohibitedAnn != null)
+            throw new IncorrectSignatureException(String.format(
+                    wrappersProviderClass + shouldNoHaveAnnotation,
+                    cl.className, prohibitedAnn.originalAnn().getSimpleName()
+            ));
     }
 
     private static void checkIWrapperCreatorInterface(ClassDetail cl) {

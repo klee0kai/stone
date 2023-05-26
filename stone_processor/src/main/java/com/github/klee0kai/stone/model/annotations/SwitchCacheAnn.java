@@ -5,34 +5,40 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class SwitchCacheAnnotation implements Cloneable {
+public class SwitchCacheAnn implements Cloneable, IAnnotation {
 
     public SwitchCache.CacheType cache;
     public long timeMillis;
 
-    public static SwitchCacheAnnotation of(SwitchCache ann) {
+    public static SwitchCacheAnn of(SwitchCache ann) {
         if (ann == null)
             return null;
-        SwitchCacheAnnotation sAnn = new SwitchCacheAnnotation();
+        SwitchCacheAnn sAnn = new SwitchCacheAnn();
         sAnn.timeMillis = ann.timeMillis();
         sAnn.cache = ann.cache();
         return sAnn;
     }
 
-    public static SwitchCacheAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static SwitchCacheAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(SwitchCache.class)));
         if (spec == null)
             return null;
-        return new SwitchCacheAnnotation();
+        return new SwitchCacheAnn();
     }
 
 
     @Override
-    public SwitchCacheAnnotation clone() throws CloneNotSupportedException {
-        return (SwitchCacheAnnotation) super.clone();
+    public SwitchCacheAnn clone() throws CloneNotSupportedException {
+        return (SwitchCacheAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return SwitchCache.class;
     }
 }

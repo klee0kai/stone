@@ -12,6 +12,9 @@ import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
+import com.github.klee0kai.stone.model.annotations.ModuleAnn;
+import com.github.klee0kai.stone.model.annotations.ProvideAnn;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
@@ -73,8 +76,8 @@ public class ModuleBuilder {
 
             int cacheFieldsCount = builder.cacheFields.size();
 
-            if (m.bindInstanceAnnotation != null) {
-                ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
+            if (m.hasAnyAnnotation(BindInstanceAnn.class)) {
+                ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
                 builder.bindInstance(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
@@ -84,12 +87,12 @@ public class ModuleBuilder {
                                         ClassName.get(GcAllScope.class),
                                         cacheType.getGcScopeClassName()
                                 ));
-            } else if (m.provideAnnotation != null && m.provideAnnotation.cacheType == Provide.CacheType.Factory) {
+            } else if (m.hasAnyAnnotation(ProvideAnn.class) && m.ann(ProvideAnn.class).cacheType == Provide.CacheType.Factory) {
                 builder.provideFactory(m)
                         .mockControl(m);
             } else {
                 ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(
-                        m.provideAnnotation != null ? m.provideAnnotation.cacheType : Provide.CacheType.Soft
+                        m.hasAnyAnnotation(ProvideAnn.class) ? m.ann(ProvideAnn.class).cacheType : Provide.CacheType.Soft
                 );
                 ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
                 builder.provideCached(m, itemHolderCodeHelper)
@@ -137,7 +140,7 @@ public class ModuleBuilder {
     public ModuleBuilder implementIModule() {
         interfaces.add(ClassName.get(IModule.class));
         if (orModuleCl != null) for (ClassDetail parentModule : orModuleCl.getAllParents(false)) {
-            if (parentModule.moduleAnn != null)
+            if (parentModule.hasAnnotations(ModuleAnn.class))
                 interfaces.add(ClassNameUtils.genCacheControlInterfaceModuleNameMirror(parentModule.className));
         }
 

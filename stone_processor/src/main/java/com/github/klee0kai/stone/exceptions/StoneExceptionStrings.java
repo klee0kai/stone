@@ -18,7 +18,9 @@ public class StoneExceptionStrings {
     public static String method = "Method '%s' ";
     public static String hasIncorrectSignature = "has incorrect signature";
     public static String shouldNoHaveAnnotation = "should not have @%s annotation";
+    public static String shouldNHaveOnlyAnnotation = "should have only one @%s annotation";
     public static String shouldNoHaveQualifier = "should not have %s qualifier";
+    public static String shouldHaveOnlySingleModuleMethod = "should have only one module or dependency method. %s has duplicate";
     public static String shouldNoHaveFields = "should not have fields";
     public static String shouldImplementInterface = "should implement %s";
     public static String shouldHaveConstructorWithoutArgs = "should have public constructor without parameters";
@@ -28,6 +30,15 @@ public class StoneExceptionStrings {
     public static String recursiveProviding = "Recursive providing detected";
     public static String constructorNonFound = "No found public constructor for class: %s with args: %s";
 
+    public static String componentInitMethodSignatureIncorrect = "Component's init method have incorrect signature: '%s'. "
+            + "Method Should have only one %s annotation. "
+            + "Should have arguments of module or dependencies. "
+            + "Should be void.";
+
+    public static String componentExtOfMethodSignatureIncorrect = "Component's extOf method have incorrect signature: '%s'. "
+            + "Method Should have only one %s annotation. "
+            + "Should have only one argument of parent component. "
+            + "Should be void.";
 
     public static String collectCauseMessages(String mes, Throwable cause) {
         StringBuilder sb = new StringBuilder(mes);

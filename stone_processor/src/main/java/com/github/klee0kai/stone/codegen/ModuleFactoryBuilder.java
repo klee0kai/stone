@@ -6,6 +6,7 @@ import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.ClassName;
@@ -44,7 +45,7 @@ public class ModuleFactoryBuilder {
                     continue;
                 ClassDetail providingClass = allClassesHelper.findForType(m.returnType);
                 boolean hasConstructor = providingClass.findMethod(MethodDetail.constructorMethod(m.args), false) != null;
-                if (m.bindInstanceAnnotation != null) {
+                if (m.hasAnnotations(BindInstanceAnn.class)) {
                     builder.provideNullMethod(m.methodName, m.returnType, m.args);
                 } else if (!hasConstructor) {
                     List<String> argTypes = ListUtils.format(m.args, (it) -> it.type.toString());

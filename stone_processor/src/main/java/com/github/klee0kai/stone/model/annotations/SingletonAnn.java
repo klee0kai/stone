@@ -6,33 +6,39 @@ import com.squareup.javapoet.ClassName;
 
 import javax.inject.Singleton;
 import javax.lang.model.element.AnnotationMirror;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class SingletonAnnotation implements Cloneable {
+public class SingletonAnn implements Cloneable, IAnnotation {
 
-    public static SingletonAnnotation of(Singleton ann) {
+    public static SingletonAnn of(Singleton ann) {
         if (ann == null)
             return null;
-        return new SingletonAnnotation();
+        return new SingletonAnn();
     }
 
-    public static SingletonAnnotation of(AnnotationMirror annMirror) {
+    public static SingletonAnn of(AnnotationMirror annMirror) {
         if (annMirror == null)
             return null;
-        return new SingletonAnnotation();
+        return new SingletonAnn();
     }
 
-    public static SingletonAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static SingletonAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Singleton.class)));
         if (spec == null)
             return null;
-        return new SingletonAnnotation();
+        return new SingletonAnn();
     }
 
     @Override
-    public SingletonAnnotation clone() throws CloneNotSupportedException {
-        return (SingletonAnnotation) super.clone();
+    public SingletonAnn clone() throws CloneNotSupportedException {
+        return (SingletonAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return Singleton.class;
     }
 }

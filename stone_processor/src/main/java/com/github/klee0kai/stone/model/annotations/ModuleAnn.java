@@ -6,28 +6,33 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.AnnotationMirror;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class ModuleAnnotation implements Cloneable {
+public class ModuleAnn implements Cloneable, IAnnotation {
 
-
-    public static ModuleAnnotation of(AnnotationMirror annMirror) {
+    public static ModuleAnn of(AnnotationMirror annMirror) {
         if (annMirror == null)
             return null;
-        return new ModuleAnnotation();
+        return new ModuleAnn();
     }
 
-    public static ModuleAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static ModuleAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Module.class)));
         if (spec == null)
             return null;
-        return new ModuleAnnotation();
+        return new ModuleAnn();
     }
 
     @Override
-    public ModuleAnnotation clone() throws CloneNotSupportedException {
-        return (ModuleAnnotation) super.clone();
+    public ModuleAnn clone() throws CloneNotSupportedException {
+        return (ModuleAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return Module.class;
     }
 }
