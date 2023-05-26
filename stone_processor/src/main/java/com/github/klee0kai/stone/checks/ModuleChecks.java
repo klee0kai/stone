@@ -28,7 +28,7 @@ public class ModuleChecks {
         IAnnotation prohibitedAnn = cl.anyAnnotation(ComponentAnn.class, DependenciesAnn.class, WrapperCreatorsAnn.class);
         if (prohibitedAnn != null)
             throw new IncorrectSignatureException(String.format(
-                    dependencyClass + shouldNoHaveAnnotation,
+                    moduleClass + shouldNoHaveAnnotation,
                     cl.className, prohibitedAnn.originalAnn().getSimpleName()
             ));
     }

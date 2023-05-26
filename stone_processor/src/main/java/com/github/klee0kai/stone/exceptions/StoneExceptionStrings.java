@@ -30,11 +30,15 @@ public class StoneExceptionStrings {
     public static String recursiveProviding = "Recursive providing detected";
     public static String constructorNonFound = "No found public constructor for class: %s with args: %s";
 
+    public static String componentInitMethodSignatureIncorrect = "Component's init method have incorrect signature: '%s'. "
+            + "Method Should have only one %s annotation. "
+            + "Should have arguments of module or dependencies. "
+            + "Should be void.";
 
     public static String componentExtOfMethodSignatureIncorrect = "Component's extOf method have incorrect signature: '%s'. "
             + "Method Should have only one %s annotation. "
-            + "Should have only one argument of parent component. ";
-
+            + "Should have only one argument of parent component. "
+            + "Should be void.";
 
     public static String collectCauseMessages(String mes, Throwable cause) {
         StringBuilder sb = new StringBuilder(mes);

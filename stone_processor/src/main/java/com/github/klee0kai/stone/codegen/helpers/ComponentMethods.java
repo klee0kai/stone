@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
 import com.github.klee0kai.stone.annotations.component.ExtendOf;
+import com.github.klee0kai.stone.annotations.component.Init;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -15,6 +16,7 @@ import java.util.Objects;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.componentExtOfMethodSignatureIncorrect;
+import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.componentInitMethodSignatureIncorrect;
 
 public class ComponentMethods {
 
@@ -40,9 +42,11 @@ public class ComponentMethods {
     }
 
     public static boolean isInitModuleMethod(MethodDetail m) {
+        if (!m.hasAnyAnnotation(InitAnn.class)) return false;
         if (!m.hasOnlyAnnotations(false, InitAnn.class)
                 || m.args.isEmpty() || m.returnType != TypeName.VOID)
-            return false;
+            throw new IncorrectSignatureException(String.format(componentInitMethodSignatureIncorrect, m.methodName, Init.class.getSimpleName()));
+
         for (FieldDetail f : m.args) {
             ClassDetail initClass = allClassesHelper.findForType(f.type);
             if (Objects.equals(ClassNameUtils.rawTypeOf(f.type), ClassName.get(Class.class))) {
@@ -52,8 +56,8 @@ public class ComponentMethods {
                 if (clVariant != null) initClass = clVariant;
             }
             if (initClass == null) return false;
-            if (!initClass.hasAnyAnnotation(ComponentAnn.class, ModuleAnn.class, DependenciesAnn.class))
-                return false;
+            if (!initClass.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class))
+                throw new IncorrectSignatureException(String.format(componentInitMethodSignatureIncorrect, m.methodName, Init.class.getSimpleName()));
         }
         return true;
     }

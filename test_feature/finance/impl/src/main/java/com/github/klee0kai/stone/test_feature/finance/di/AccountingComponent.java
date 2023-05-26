@@ -12,6 +12,6 @@ public interface AccountingComponent extends IComponent {
     AccountingModule accounting();
 
     @Init
-     void initDeps(AccountingDependencies deps);
+    void initDeps(AccountingDependencies deps);
 
 }
