@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.test_feature.hr.di;
 
 import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.annotations.component.Init;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.test_feature.hr.store.EmployeesStore;
 
@@ -13,6 +14,7 @@ public interface HrComponent extends IComponent {
 
     EmployeesStore employeesStore();
 
+    @Init
     void initDeps(HrDependencies deps);
 
 }

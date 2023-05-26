@@ -37,7 +37,9 @@ public class ComponentMethods {
     }
 
     public static boolean isInitModuleMethod(MethodDetail m) {
-        if (m.hasAnyAnnotation() || m.args.isEmpty() || m.returnType != TypeName.VOID) return false;
+        if (!m.hasOnlyAnnotations(false, InitAnn.class)
+                || m.args.isEmpty() || m.returnType != TypeName.VOID)
+            return false;
         for (FieldDetail f : m.args) {
             ClassDetail initClass = allClassesHelper.findForType(f.type);
             if (Objects.equals(ClassNameUtils.rawTypeOf(f.type), ClassName.get(Class.class))) {
