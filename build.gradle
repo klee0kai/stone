@@ -11,7 +11,7 @@ buildscript {
 
 allprojects {
     group 'com.github.klee0kai.stone'
-    version '0.0.12'
+    version '0.0.13'
 }
 
 
