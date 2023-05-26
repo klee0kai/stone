@@ -12,14 +12,13 @@ import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
 
 @Component
 interface RainForestComponent : IComponent {
+
     fun united(): UnitedModule
 
     fun identity(): IdentityModule
 
-
     @GcAllScope
     fun gcAll()
-
 
     fun inject(university: University)
     fun inject(gorilla: Gorilla)
@@ -30,4 +29,5 @@ interface RainForestComponent : IComponent {
 
     @ProtectInjected(timeMillis = 50)
     fun protectInjected(gorrila: University)
+
 }

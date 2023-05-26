@@ -4,12 +4,14 @@ import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
+import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
+import com.github.klee0kai.test.tech.components.OperationSystem;
 import com.github.klee0kai.test.tech.phone.GoodPhone;
 import com.github.klee0kai.test.tech.phone.OnePhone;
 
 @Component(
-        qualifiers = {DataStorageSize.class, RamSize.class}
+        qualifiers = {DataStorageSize.class, RamSize.class, PhoneOsType.class, OperationSystem.class}
 )
 public interface PhoneComponent extends IComponent {
 

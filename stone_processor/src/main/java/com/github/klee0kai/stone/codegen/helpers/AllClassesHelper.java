@@ -3,9 +3,11 @@ package com.github.klee0kai.stone.codegen.helpers;
 import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
+import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
@@ -80,9 +82,17 @@ public class AllClassesHelper {
     }
 
     public ClassDetail findForType(TypeName typeName) {
-        if (typeName instanceof ClassName)
-            return ClassDetail.of(elements.getTypeElement(((ClassName) typeName).canonicalName()));
-        return null;
+        try {
+            TypeName rawType = ClassNameUtils.rawTypeOf(typeName);
+            if (rawType instanceof ClassName) {
+                ClassDetail cl = ClassDetail.of(elements.getTypeElement(((ClassName) rawType).canonicalName()));
+                cl.className = typeName ;
+                return cl;
+            }
+            return null;
+        } catch (Exception e) {
+            throw new ClassNotFoundStoneException(typeName, e);
+        }
     }
 
     public TypeElement typeElementFor(TypeName typeName) {

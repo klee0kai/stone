@@ -1,11 +1,10 @@
 package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.annotations.dependencies.Dependencies;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
-import com.github.klee0kai.stone.model.annotations.ComponentAnnotation;
-import com.github.klee0kai.stone.model.annotations.ModuleAnnotation;
-import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnnotation;
+import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.*;
@@ -19,7 +18,7 @@ import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
 public class ClassDetail implements Cloneable {
 
-    public ClassName className;
+    public TypeName className;
 
     public Set<Modifier> modifiers = Collections.emptySet();
 
@@ -33,20 +32,20 @@ public class ClassDetail implements Cloneable {
 
 
     // ------- annotations ---------
-    public ComponentAnnotation componentAnn;
-    public ModuleAnnotation moduleAnn;
-    public WrapperCreatorsAnnotation wrapperCreatorsAnn;
+
+    private Map<Class<? extends IAnnotation>, IAnnotation> annotations = new HashMap<>();
 
 
     public static ClassDetail of(TypeElement owner) {
         ClassDetail classDetail = new ClassDetail();
-        classDetail.className = ClassNameUtils.typeOf(owner.getQualifiedName().toString());
+        classDetail.className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());
         classDetail.modifiers = owner.getModifiers();
         classDetail.kind = TypeKindDetails.of(owner.getKind());
 
-        classDetail.componentAnn = ComponentAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class));
-        classDetail.moduleAnn = ModuleAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class));
-        classDetail.wrapperCreatorsAnn = WrapperCreatorsAnnotation.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class));
+        classDetail.addAnnotation(ComponentAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class)));
+        classDetail.addAnnotation(ModuleAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class)));
+        classDetail.addAnnotation(DependenciesAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Dependencies.class)));
+        classDetail.addAnnotation(WrapperCreatorsAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class)));
 
 
         for (Element el : owner.getEnclosedElements()) {
@@ -64,7 +63,6 @@ public class ClassDetail implements Cloneable {
             if (tp instanceof DeclaredType && ((DeclaredType) tp).asElement() instanceof TypeElement)
                 classDetail.interfaces.add(ClassDetail.of((TypeElement) ((DeclaredType) tp).asElement()));
         }
-
         return classDetail;
     }
 
@@ -77,9 +75,10 @@ public class ClassDetail implements Cloneable {
         classDetail.modifiers = owner.modifiers;
         classDetail.kind = TypeKindDetails.of(owner.kind);
 
-        classDetail.componentAnn = ComponentAnnotation.findFrom(owner.annotations);
-        classDetail.moduleAnn = ModuleAnnotation.findFrom(owner.annotations);
-        classDetail.wrapperCreatorsAnn = WrapperCreatorsAnnotation.findFrom(owner.annotations);
+        classDetail.addAnnotation(ComponentAnn.findFrom(owner.annotations));
+        classDetail.addAnnotation(ModuleAnn.findFrom(owner.annotations));
+        classDetail.addAnnotation(DependenciesAnn.findFrom(owner.annotations));
+        classDetail.addAnnotation(WrapperCreatorsAnn.findFrom(owner.annotations));
 
         for (MethodSpec m : owner.methodSpecs)
             classDetail.methods.add(MethodDetail.of(m));
@@ -226,6 +225,49 @@ public class ClassDetail implements Cloneable {
     public boolean isInterfaceClass() {
         return kind == TypeKindDetails.INTERFACE;
     }
+
+    public void addAnnotation(IAnnotation annotation) {
+        if (annotation != null) annotations.put(annotation.getClass(), annotation);
+    }
+
+    public <T> T ann(Class<T> tClass) {
+        return (T) annotations.getOrDefault(tClass, null);
+    }
+
+    @SafeVarargs
+    public final IAnnotation anyAnnotation(Class<? extends IAnnotation>... aClasses) {
+        for (Class<? extends IAnnotation> cl : aClasses) {
+            IAnnotation ann = annotations.getOrDefault(cl, null);
+            if (ann != null) return ann;
+        }
+        return null;
+    }
+
+    @SafeVarargs
+    public final boolean hasAnnotations(Class<? extends IAnnotation>... aClasses) {
+        for (Class<? extends IAnnotation> cl : aClasses) {
+            if (!annotations.containsKey(cl)) return false;
+        }
+        return true;
+    }
+
+    @SafeVarargs
+    public final boolean hasAnyAnnotation(Class<? extends IAnnotation>... aClasses) {
+        for (Class<? extends IAnnotation> cl : aClasses) {
+            if (annotations.containsKey(cl)) return true;
+        }
+        return false;
+    }
+
+    @SafeVarargs
+    public final boolean hasOnlyAnnotations(Class<? extends IAnnotation>... aClasses) {
+        if (annotations.size() != aClasses.length) return false;
+        for (Class<? extends IAnnotation> cl : aClasses) {
+            if (!annotations.containsKey(cl)) return false;
+        }
+        return true;
+    }
+
 
     @Override
     public ClassDetail clone() throws CloneNotSupportedException {

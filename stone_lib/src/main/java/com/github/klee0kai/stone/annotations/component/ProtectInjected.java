@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 
 /**
  * protect injected components in class.
- *
  */
 
 @Retention(value = RetentionPolicy.CLASS)
@@ -18,7 +17,6 @@ public @interface ProtectInjected {
     /**
      * protect tim millis.
      * Default protect 5 sec.
-     *
      */
     long timeMillis() default 5000L;
 

@@ -13,4 +13,5 @@ public interface TechFactoryExtComponent extends TechFactoryComponent, ITechProv
 
     @Override
     TechFactoryExtModule factory();
+
 }

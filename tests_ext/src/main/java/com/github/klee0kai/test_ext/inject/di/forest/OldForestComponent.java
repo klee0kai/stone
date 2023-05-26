@@ -8,16 +8,13 @@ import com.github.klee0kai.test_ext.inject.mowgli.animal.OldHorse;
 @Component
 public interface OldForestComponent extends ForestComponent {
 
-
     @Override
     OldIdentityModule identity();
 
     DiseasesModule diseases();
 
-
     void inject(OldHorse horse, IStoneLifeCycleOwner iStoneLifeCycleOwner);
 
     void inject(OldHorse horse);
-
 
 }

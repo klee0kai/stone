@@ -2,6 +2,7 @@ package com.github.klee0kai.test.di.base_forest;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
+import com.github.klee0kai.stone.annotations.component.Init;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
@@ -28,6 +29,14 @@ public interface ForestComponent extends IComponent {
 
     void inject(School school);
 
+    @Init
+    void initUnitedModule(UnitedModule unitedModule);
+
+    @Init
+    void initUnitedModule(Class<? extends UnitedModule> unitedModule);
+
+    @Init
+    void iniAllModules(UnitedModule unitedModule, IdentityModule identityModule);
 
     @GcAllScope
     void gcAll();

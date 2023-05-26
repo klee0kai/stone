@@ -45,4 +45,38 @@ public class Mowgli implements IAnimal {
     @Inject
     public PhantomProvide<Knowledge> knowledgePhantomProvide;
 
+
+    public WeakReference<Knowledge> methodKnowledgeWeakRef;
+
+    public SoftReference<Knowledge> methodKnowledgeSoftRef;
+
+    public LazyProvide<Knowledge> methodKnowledgeLazyProvide;
+
+    public IRef<Knowledge> methodKnowledgePhantomProvide2;
+
+    public Provider<Knowledge> methodKnowledgePhantomProvide3;
+
+    public PhantomProvide<Knowledge> methodKnowledgePhantomProvide;
+
+    @Inject
+    public void refInject(WeakReference<Knowledge> knowledgeWeakRef, SoftReference<Knowledge> knowledgeSoftRef) {
+        methodKnowledgeWeakRef = knowledgeWeakRef;
+        methodKnowledgeSoftRef = knowledgeSoftRef;
+    }
+
+
+    @Inject
+    public void wrapperInject(
+            LazyProvide<Knowledge> knowledgeLazyProvide,
+            IRef<Knowledge> knowledgePhantomProvide2,
+            Provider<Knowledge> knowledgePhantomProvide3,
+            PhantomProvide<Knowledge> knowledgePhantomProvide
+    ) {
+        methodKnowledgeLazyProvide = knowledgeLazyProvide;
+        methodKnowledgePhantomProvide2 = knowledgePhantomProvide2;
+        methodKnowledgePhantomProvide3 = knowledgePhantomProvide3;
+        methodKnowledgePhantomProvide = knowledgePhantomProvide;
+    }
+
+
 }
