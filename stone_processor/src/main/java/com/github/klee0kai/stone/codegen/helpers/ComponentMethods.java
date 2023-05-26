@@ -3,9 +3,7 @@ package com.github.klee0kai.stone.codegen.helpers;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.model.annotations.ComponentAnn;
-import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
-import com.github.klee0kai.stone.model.annotations.ModuleAnn;
+import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -56,52 +54,36 @@ public class ComponentMethods {
     }
 
     public static boolean isBindInstanceAndProvideMethod(MethodDetail m) {
-        return m.bindInstanceAnn != null
+        return m.hasOnlyAnnotations(true, BindInstanceAnn.class)
                 && m.args.size() == 1
                 && !m.args.get(0).type.isPrimitive()
                 && !m.args.get(0).type.isBoxedPrimitive()
-                && Objects.equals(m.returnType, m.args.get(0).type)
-                && m.protectInjectedAnn == null
-                && m.provideAnn == null
-                && m.switchCacheAnn == null;
+                && Objects.equals(m.returnType, m.args.get(0).type);
     }
 
     public static boolean isBindInstanceMethod(MethodDetail m) {
-        return m.bindInstanceAnn != null
+        return m.hasOnlyAnnotations(true, BindInstanceAnn.class)
                 && m.args.size() == 1
                 && !m.args.get(0).type.isPrimitive()
                 && !m.args.get(0).type.isBoxedPrimitive()
-                && m.returnType == TypeName.VOID
-                && m.protectInjectedAnn == null
-                && m.provideAnn == null
-                && m.switchCacheAnn == null
-                && m.gcScopeAnnotations.isEmpty();
+                && m.returnType == TypeName.VOID;
     }
 
     public static boolean isGcMethod(MethodDetail m) {
         return !m.gcScopeAnnotations.isEmpty()
                 && m.returnType == TypeName.VOID
-                && m.protectInjectedAnn == null
-                && m.provideAnn == null
-                && m.bindInstanceAnn == null
-                && m.switchCacheAnn == null;
+                && m.hasOnlyAnnotations(true);
     }
 
     public static boolean isSwitchCacheMethod(MethodDetail m) {
         return m.returnType == TypeName.VOID
-                && m.switchCacheAnn != null
-                && !m.gcScopeAnnotations.isEmpty()
-                && (m.args == null || m.args.isEmpty())
-                && m.provideAnn == null
-                && m.bindInstanceAnn == null;
+                && m.hasOnlyAnnotations(true, SwitchCacheAnn.class)
+                && (m.args == null || m.args.isEmpty());
     }
 
     public static boolean isInjectMethod(MethodDetail m) {
         boolean injectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() >= 1;
-        injectMethod &= m.protectInjectedAnn == null
-                && m.provideAnn == null
-                && m.bindInstanceAnn == null
-                && m.switchCacheAnn == null;
+        injectMethod &= m.hasOnlyAnnotations(false);
         TypeName typeName = injectMethod ? m.args.get(0).type : null;
         injectMethod &= typeName != null
                 && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
@@ -109,11 +91,8 @@ public class ComponentMethods {
     }
 
     public static boolean isProtectInjectedMethod(MethodDetail m) {
-        boolean protectInjectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1
-                && m.protectInjectedAnn != null;
-        protectInjectMethod &= m.provideAnn == null
-                && m.bindInstanceAnn == null
-                && m.switchCacheAnn == null;
+        boolean protectInjectMethod = m.returnType == TypeName.VOID && m.args != null && m.args.size() == 1;
+        protectInjectMethod &= m.hasOnlyAnnotations(false, ProtectInjectedAnn.class);
         TypeName typeName = protectInjectMethod ? m.args.get(0).type : null;
         protectInjectMethod &= typeName != null
                 && allClassesHelper.iComponentClassDetails.findMethod(m, true) == null;
@@ -124,10 +103,7 @@ public class ComponentMethods {
         return !m.returnType.isPrimitive()
                 && !m.returnType.isBoxedPrimitive()
                 && m.returnType != TypeName.VOID
-                && m.protectInjectedAnn == null
-                && m.provideAnn == null
-                && m.bindInstanceAnn == null
-                && m.switchCacheAnn == null;
+                && m.hasOnlyAnnotations(false);
     }
 
 

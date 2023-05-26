@@ -16,6 +16,7 @@ import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
+import com.github.klee0kai.stone.model.annotations.ProtectInjectedAnn;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 
@@ -123,7 +124,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                         componentBuilder.protectInjectedMethod(
                                 m.methodName,
                                 allClassesHelper.findForType(m.args.get(0).type),
-                                m.protectInjectedAnn.timeMillis
+                                m.ann(ProtectInjectedAnn.class).timeMillis
                         );
                     } else if (component.isInterfaceClass() || m.isAbstract()) {
                         //non implemented method

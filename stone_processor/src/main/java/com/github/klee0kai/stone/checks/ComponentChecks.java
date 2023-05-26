@@ -1,19 +1,13 @@
 package com.github.klee0kai.stone.checks;
 
-import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.model.annotations.ComponentAnn;
-import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
-import com.github.klee0kai.stone.model.annotations.ModuleAnn;
-import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnn;
+import com.github.klee0kai.stone.model.annotations.*;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -76,15 +70,9 @@ public class ComponentChecks {
     }
 
     private static void checkMethodSignature(MethodDetail m) {
-        if (m.provideAnn != null)
-            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Provide.class.getSimpleName()));
-
-        //non support annotations
-        if (m.namedAnnotation != null)
-            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Named.class.getSimpleName()));
-
-        if (m.singletonAnn != null)
-            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Singleton.class.getSimpleName()));
+        IAnnotation prohibitedAnn = m.anyAnnotation(ProvideAnn.class, NamedAnn.class, SingletonAnn.class);
+        if (prohibitedAnn != null)
+            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, prohibitedAnn.originalAnn().getSimpleName()));
     }
 
     private static void checkClassNoHaveFields(ClassDetail cl) {

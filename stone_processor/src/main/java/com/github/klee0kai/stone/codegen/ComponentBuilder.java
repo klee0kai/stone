@@ -14,10 +14,7 @@ import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.model.annotations.ComponentAnn;
-import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
-import com.github.klee0kai.stone.model.annotations.ModuleAnn;
-import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnn;
+import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
@@ -438,7 +435,7 @@ public class ComponentBuilder {
         if (isProvideMethod && modulesGraph.statementProvideType(null, m.methodName, m.returnType, qFields) == null) {
             //  bind object not declared in module
             ModuleBuilder moduleBuilder = getOrCreateHiddenModuleBuilder();
-            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnn.cacheType);
+            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
             ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
             moduleBuilder.bindInstance(m, itemHolderCodeHelper)
                     .cacheControl(m, itemHolderCodeHelper)
@@ -519,7 +516,7 @@ public class ComponentBuilder {
                 }
 
                 for (MethodDetail injectMethod : injectableCl.getAllMethods(false, false, "<init>")) {
-                    if (injectMethod.injectAnnotation == null) continue;
+                    if (!injectMethod.hasAnnotations(InjectAnn.class)) continue;
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
@@ -678,7 +675,7 @@ public class ComponentBuilder {
 
 
         CodeBlock.Builder schedulerInitCode = CodeBlock.builder();
-        if (m.switchCacheAnn.timeMillis > 0) {
+        if (m.ann(SwitchCacheAnn.class).timeMillis > 0) {
             timeHolderFields();
             schedulerInitCode.add("this.$L", scheduleGlFieldName);
         } else {
@@ -687,8 +684,8 @@ public class ComponentBuilder {
         builder.addStatement(
                 "$T switchCacheParams = new $T( $T.$L , $L, $L )",
                 SwitchCacheParam.class, SwitchCacheParam.class,
-                SwitchCache.CacheType.class, m.switchCacheAnn.cache.name(),
-                m.switchCacheAnn.timeMillis,
+                SwitchCache.CacheType.class, m.ann(SwitchCacheAnn.class).cache.name(),
+                m.ann(SwitchCacheAnn.class).timeMillis,
                 schedulerInitCode.build()
         ).addStatement(
                 "$L( (m) -> {  m.switchRef(scopes, switchCacheParams); } )",
