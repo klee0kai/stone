@@ -5,35 +5,41 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class ProvideAnnotation implements Cloneable {
+public class ProvideAnn implements Cloneable, IAnnotation {
 
     public Provide.CacheType cacheType = Provide.CacheType.Soft;
 
-    public static ProvideAnnotation of(Provide ann) {
+    public static ProvideAnn of(Provide ann) {
         if (ann == null)
             return null;
-        ProvideAnnotation sAnn = new ProvideAnnotation();
+        ProvideAnn sAnn = new ProvideAnn();
         sAnn.cacheType = ann.cache();
         return sAnn;
     }
 
-    public static ProvideAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static ProvideAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Provide.class)));
         if (spec == null)
             return null;
-        return new ProvideAnnotation();
+        return new ProvideAnn();
     }
 
     @Override
-    public ProvideAnnotation clone() throws CloneNotSupportedException {
-        return (ProvideAnnotation) super.clone();
+    public ProvideAnn clone() throws CloneNotSupportedException {
+        return (ProvideAnn) super.clone();
     }
 
     public boolean isCachingProvideType() {
         return cacheType != Provide.CacheType.Factory;
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return Provide.class;
     }
 }

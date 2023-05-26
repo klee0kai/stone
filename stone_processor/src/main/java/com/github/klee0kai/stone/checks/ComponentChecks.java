@@ -5,6 +5,10 @@ import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.ComponentAnn;
+import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
+import com.github.klee0kai.stone.model.annotations.ModuleAnn;
+import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnn;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
@@ -33,10 +37,10 @@ public class ComponentChecks {
 
 
     private static void checkClassAnnotations(ClassDetail cl) {
-        if (cl.wrapperCreatorsAnn != null)
+        if (cl.hasAnyAnnotation(WrapperCreatorsAnn.class))
             throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveAnnotation, cl.className, WrappersCreator.class));
 
-        for (ClassName q : cl.componentAnn.qualifiers) {
+        for (ClassName q : cl.ann(ComponentAnn.class).qualifiers) {
             if (q.isPrimitive())
                 throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveQualifier, cl.className, "primitive"));
 
@@ -44,7 +48,7 @@ public class ComponentChecks {
                 throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveQualifier, cl.className, "Object"));
         }
 
-        for (ClassName wr : cl.componentAnn.wrapperProviders) {
+        for (ClassName wr : cl.ann(ComponentAnn.class).wrapperProviders) {
             ClassDetail wrCl = allClassesHelper.findForType(wr);
             WrappersCreatorChecks.checkWrapperClass(wrCl);
         }
@@ -54,7 +58,7 @@ public class ComponentChecks {
         Set<TypeName> modules = new HashSet<>();
         for (MethodDetail m : cl.getAllMethods(false, true)) {
             ClassDetail module = allClassesHelper.findForType(m.returnType);
-            if (module != null && (module.moduleAnn != null || module.dependenciesAnn != null)) {
+            if (module != null && module.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class)) {
                 if (modules.contains(m.returnType)) {
                     throw new IncorrectSignatureException(
                             String.format(componentsClass + shouldHaveOnlySingleModuleMethod,
@@ -64,7 +68,7 @@ public class ComponentChecks {
                 }
 
                 for (ClassDetail p : module.getAllParents(false)) {
-                    if (p.moduleAnn != null || p.dependenciesAnn != null)
+                    if (module.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class))
                         modules.add(m.returnType);
                 }
             }
@@ -72,14 +76,14 @@ public class ComponentChecks {
     }
 
     private static void checkMethodSignature(MethodDetail m) {
-        if (m.provideAnnotation != null)
+        if (m.provideAnn != null)
             throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Provide.class.getSimpleName()));
 
         //non support annotations
         if (m.namedAnnotation != null)
             throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Named.class.getSimpleName()));
 
-        if (m.singletonAnnotation != null)
+        if (m.singletonAnn != null)
             throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, Singleton.class.getSimpleName()));
     }
 

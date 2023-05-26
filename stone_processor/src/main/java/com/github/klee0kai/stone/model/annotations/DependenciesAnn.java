@@ -6,27 +6,33 @@ import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.AnnotationMirror;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class DependenciesAnnotation implements Cloneable {
+public class DependenciesAnn implements Cloneable, IAnnotation {
 
-    public static DependenciesAnnotation of(AnnotationMirror annMirror) {
+    public static DependenciesAnn of(AnnotationMirror annMirror) {
         if (annMirror == null)
             return null;
-        return new DependenciesAnnotation();
+        return new DependenciesAnn();
     }
 
-    public static DependenciesAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static DependenciesAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Dependencies.class)));
         if (spec == null)
             return null;
-        return new DependenciesAnnotation();
+        return new DependenciesAnn();
     }
 
     @Override
-    public DependenciesAnnotation clone() throws CloneNotSupportedException {
-        return (DependenciesAnnotation) super.clone();
+    public DependenciesAnn clone() throws CloneNotSupportedException {
+        return (DependenciesAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return Dependencies.class;
     }
 }

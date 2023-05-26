@@ -6,33 +6,39 @@ import com.squareup.javapoet.ClassName;
 
 import javax.inject.Inject;
 import javax.lang.model.element.AnnotationMirror;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class InjectAnnotation implements Cloneable {
+public class InjectAnn implements Cloneable,IAnnotation {
 
-    public static InjectAnnotation of(Inject ann) {
+    public static InjectAnn of(Inject ann) {
         if (ann == null)
             return null;
-        return new InjectAnnotation();
+        return new InjectAnn();
     }
 
-    public static InjectAnnotation of(AnnotationMirror annMirror) {
+    public static InjectAnn of(AnnotationMirror annMirror) {
         if (annMirror == null)
             return null;
-        return new InjectAnnotation();
+        return new InjectAnn();
     }
 
-    public static InjectAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static InjectAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Inject.class)));
         if (spec == null)
             return null;
-        return new InjectAnnotation();
+        return new InjectAnn();
     }
 
     @Override
-    public InjectAnnotation clone() throws CloneNotSupportedException {
-        return (InjectAnnotation) super.clone();
+    public InjectAnn clone() throws CloneNotSupportedException {
+        return (InjectAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return Inject.class;
     }
 }

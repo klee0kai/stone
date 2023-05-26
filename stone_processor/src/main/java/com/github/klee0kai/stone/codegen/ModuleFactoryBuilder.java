@@ -44,7 +44,7 @@ public class ModuleFactoryBuilder {
                     continue;
                 ClassDetail providingClass = allClassesHelper.findForType(m.returnType);
                 boolean hasConstructor = providingClass.findMethod(MethodDetail.constructorMethod(m.args), false) != null;
-                if (m.bindInstanceAnnotation != null) {
+                if (m.bindInstanceAnn != null) {
                     builder.provideNullMethod(m.methodName, m.returnType, m.args);
                 } else if (!hasConstructor) {
                     List<String> argTypes = ListUtils.format(m.args, (it) -> it.type.toString());

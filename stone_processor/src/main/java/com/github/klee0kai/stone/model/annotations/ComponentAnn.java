@@ -11,21 +11,22 @@ import com.squareup.javapoet.ClassName;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
+import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ComponentAnnotation implements Cloneable {
+public class ComponentAnn implements Cloneable, IAnnotation {
 
     public List<ClassName> qualifiers = new LinkedList<>();
 
     public List<ClassName> wrapperProviders = new LinkedList<>();
 
-    public static ComponentAnnotation of(AnnotationMirror annMirror) {
+    public static ComponentAnn of(AnnotationMirror annMirror) {
         if (annMirror == null)
             return null;
-        ComponentAnnotation componentAnnotation = new ComponentAnnotation();
+        ComponentAnn componentAnn = new ComponentAnn();
 
         ExecutableElement qualifiersKey = null;
         ExecutableElement wrappersProvidersKey = null;
@@ -44,7 +45,7 @@ public class ComponentAnnotation implements Cloneable {
                 for (int i = 0; qualifiers != null && i < qualifiers.size(); i++) {
                     if (qualifiers.get(i) == null)
                         continue;
-                    componentAnnotation.qualifiers.add(ClassNameUtils.classNameOf(qualifiers.get(i).toString()));
+                    componentAnn.qualifiers.add(ClassNameUtils.classNameOf(qualifiers.get(i).toString()));
                 }
             }
         } catch (Exception e) {
@@ -60,7 +61,7 @@ public class ComponentAnnotation implements Cloneable {
                 for (int i = 0; wrapperProviders != null && i < wrapperProviders.size(); i++) {
                     if (wrapperProviders.get(i) == null)
                         continue;
-                    componentAnnotation.wrapperProviders.add(ClassNameUtils.classNameOf(wrapperProviders.get(i).toString()));
+                    componentAnn.wrapperProviders.add(ClassNameUtils.classNameOf(wrapperProviders.get(i).toString()));
                 }
             }
         } catch (Exception e) {
@@ -70,21 +71,25 @@ public class ComponentAnnotation implements Cloneable {
         }
 
 
-        return componentAnnotation;
+        return componentAnn;
     }
 
 
-    public static ComponentAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static ComponentAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Component.class)));
         if (spec == null)
             return null;
-        return new ComponentAnnotation();
+        return new ComponentAnn();
     }
 
     @Override
-    public ComponentAnnotation clone() throws CloneNotSupportedException {
-        return (ComponentAnnotation) super.clone();
+    public ComponentAnn clone() throws CloneNotSupportedException {
+        return (ComponentAnn) super.clone();
     }
 
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return Component.class;
+    }
 }

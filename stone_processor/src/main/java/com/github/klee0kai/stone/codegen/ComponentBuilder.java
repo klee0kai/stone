@@ -14,6 +14,10 @@ import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.ComponentAnn;
+import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
+import com.github.klee0kai.stone.model.annotations.ModuleAnn;
+import com.github.klee0kai.stone.model.annotations.WrapperCreatorsAnn;
 import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
@@ -80,9 +84,8 @@ public class ComponentBuilder {
         componentBuilder.implementIComponentMethods();
 
         for (ClassDetail componentParentCl : component.getAllParents(false)) {
-            if (componentParentCl.componentAnn != null) {
-                componentBuilder.qualifiers.addAll(componentParentCl.componentAnn.qualifiers);
-            }
+            ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
+            if (parentCompAnn != null) componentBuilder.qualifiers.addAll(parentCompAnn.qualifiers);
         }
         componentBuilder.modulesGraph.allQualifiers.addAll(componentBuilder.qualifiers);
         return componentBuilder;
@@ -144,7 +147,7 @@ public class ComponentBuilder {
         String name = provideWrappersGlFieldPrefixName + wrapperCreatorFields.size();
         wrapperCreatorFields.add(new WrapperCreatorField(
                 name,
-                provideWrappersCl.wrapperCreatorsAnn.wrappers,
+                provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers,
                 FieldSpec.builder(provideWrappersCl.className, name, Modifier.PRIVATE, Modifier.FINAL)
                         .initializer("new $T()", provideWrappersCl.className)
         ));
@@ -209,9 +212,9 @@ public class ComponentBuilder {
                 iniCl = allClassesHelper.findForType(initType);
             }
 
-            if (iniCl.moduleAnn != null || iniCl.componentAnn != null) {
+            if (iniCl.hasAnyAnnotation(ModuleAnn.class, ComponentAnn.class)) {
                 builder.addStatement("$L( $L )", initMethodName, arg.name);
-            } else if (iniCl.dependenciesAnn != null) {
+            } else if (iniCl.hasAnyAnnotation(DependenciesAnn.class)) {
                 builder.addStatement("$L( $L )", initDepsMethodName, arg.name);
             } else {
                 throw new StoneException(String.format(method + hasIncorrectSignature, m.methodName));
@@ -435,7 +438,7 @@ public class ComponentBuilder {
         if (isProvideMethod && modulesGraph.statementProvideType(null, m.methodName, m.returnType, qFields) == null) {
             //  bind object not declared in module
             ModuleBuilder moduleBuilder = getOrCreateHiddenModuleBuilder();
-            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnnotation.cacheType);
+            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.bindInstanceAnn.cacheType);
             ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
             moduleBuilder.bindInstance(m, itemHolderCodeHelper)
                     .cacheControl(m, itemHolderCodeHelper)
@@ -675,7 +678,7 @@ public class ComponentBuilder {
 
 
         CodeBlock.Builder schedulerInitCode = CodeBlock.builder();
-        if (m.switchCacheAnnotation.timeMillis > 0) {
+        if (m.switchCacheAnn.timeMillis > 0) {
             timeHolderFields();
             schedulerInitCode.add("this.$L", scheduleGlFieldName);
         } else {
@@ -684,8 +687,8 @@ public class ComponentBuilder {
         builder.addStatement(
                 "$T switchCacheParams = new $T( $T.$L , $L, $L )",
                 SwitchCacheParam.class, SwitchCacheParam.class,
-                SwitchCache.CacheType.class, m.switchCacheAnnotation.cache.name(),
-                m.switchCacheAnnotation.timeMillis,
+                SwitchCache.CacheType.class, m.switchCacheAnn.cache.name(),
+                m.switchCacheAnn.timeMillis,
                 schedulerInitCode.build()
         ).addStatement(
                 "$L( (m) -> {  m.switchRef(scopes, switchCacheParams); } )",

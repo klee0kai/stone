@@ -15,6 +15,7 @@ import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
 import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.ComponentAnn;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 
@@ -56,9 +57,8 @@ public class AnnotationProcessor extends AbstractProcessor {
                 allClassesHelper.deepExtractGcAnnotations(component);
 
                 for (ClassDetail componentParentCl : component.getAllParents(false)) {
-                    if (componentParentCl.componentAnn != null) {
-                        allQualifiers.addAll(componentParentCl.componentAnn.qualifiers);
-                    }
+                    ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
+                    if (parentCompAnn != null) allQualifiers.addAll(parentCompAnn.qualifiers);
                 }
             } catch (Throwable e) {
                 throw new CreateStoneComponentException(componentEl, e);
@@ -90,7 +90,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ComponentChecks.checkComponentClass(component);
 
                 ComponentBuilder componentBuilder = ComponentBuilder.from(component);
-                for (ClassName wrappedProvider : component.componentAnn.wrapperProviders) {
+                for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
                     ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
                     if (wrappedProviderCl != null) componentBuilder.addProvideWrapperField(wrappedProviderCl);
                 }
@@ -123,7 +123,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                         componentBuilder.protectInjectedMethod(
                                 m.methodName,
                                 allClassesHelper.findForType(m.args.get(0).type),
-                                m.protectInjectedAnnotation.timeMillis
+                                m.protectInjectedAnn.timeMillis
                         );
                     } else if (component.isInterfaceClass() || m.isAbstract()) {
                         //non implemented method

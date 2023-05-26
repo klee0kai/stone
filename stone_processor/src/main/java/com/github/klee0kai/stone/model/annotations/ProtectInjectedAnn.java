@@ -5,31 +5,37 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class ProtectInjectedAnnotation implements Cloneable {
+public class ProtectInjectedAnn implements Cloneable, IAnnotation {
 
     public long timeMillis;
 
-    public static ProtectInjectedAnnotation of(ProtectInjected ann) {
+    public static ProtectInjectedAnn of(ProtectInjected ann) {
         if (ann == null)
             return null;
-        ProtectInjectedAnnotation sAnn = new ProtectInjectedAnnotation();
+        ProtectInjectedAnn sAnn = new ProtectInjectedAnn();
         sAnn.timeMillis = ann.timeMillis();
         return sAnn;
     }
 
-    public static ProtectInjectedAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static ProtectInjectedAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(ProtectInjected.class)));
         if (spec == null)
             return null;
-        return new ProtectInjectedAnnotation();
+        return new ProtectInjectedAnn();
     }
 
     @Override
-    public ProtectInjectedAnnotation clone() throws CloneNotSupportedException {
-        return (ProtectInjectedAnnotation) super.clone();
+    public ProtectInjectedAnn clone() throws CloneNotSupportedException {
+        return (ProtectInjectedAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return ProtectInjected.class;
     }
 }

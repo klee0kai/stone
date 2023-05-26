@@ -29,15 +29,15 @@ public class MethodDetail implements Cloneable {
 
     public List<FieldDetail> args = new LinkedList<>();
 
-    public ProvideAnnotation provideAnnotation;
-    public BindInstanceAnnotation bindInstanceAnnotation;
+    public ProvideAnn provideAnn;
+    public BindInstanceAnn bindInstanceAnn;
 
-    public ProtectInjectedAnnotation protectInjectedAnnotation;
-    public SwitchCacheAnnotation switchCacheAnnotation;
+    public ProtectInjectedAnn protectInjectedAnn;
+    public SwitchCacheAnn switchCacheAnn;
 
-    public InjectAnnotation injectAnnotation;
-    public NamedAnnotation namedAnnotation;
-    public SingletonAnnotation singletonAnnotation;
+    public InjectAnn injectAnnotation;
+    public NamedAnn namedAnnotation;
+    public SingletonAnn singletonAnn;
 
 
     public LinkedList<TypeName> gcScopeAnnotations = new LinkedList<>();
@@ -54,13 +54,13 @@ public class MethodDetail implements Cloneable {
         methodDetail.returnType = TypeName.get(element.getReturnType());
         methodDetail.modifiers = element.getModifiers();
         methodDetail.elementKind = element.getKind();
-        methodDetail.provideAnnotation = ProvideAnnotation.of(element.getAnnotation(Provide.class));
-        methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.of(element.getAnnotation(BindInstance.class));
-        methodDetail.protectInjectedAnnotation = ProtectInjectedAnnotation.of(element.getAnnotation(ProtectInjected.class));
-        methodDetail.switchCacheAnnotation = SwitchCacheAnnotation.of(element.getAnnotation(SwitchCache.class));
-        methodDetail.injectAnnotation = InjectAnnotation.of(element.getAnnotation(Inject.class));
-        methodDetail.namedAnnotation = NamedAnnotation.of(element.getAnnotation(Named.class));
-        methodDetail.singletonAnnotation = SingletonAnnotation.of(element.getAnnotation(Singleton.class));
+        methodDetail.provideAnn = ProvideAnn.of(element.getAnnotation(Provide.class));
+        methodDetail.bindInstanceAnn = BindInstanceAnn.of(element.getAnnotation(BindInstance.class));
+        methodDetail.protectInjectedAnn = ProtectInjectedAnn.of(element.getAnnotation(ProtectInjected.class));
+        methodDetail.switchCacheAnn = SwitchCacheAnn.of(element.getAnnotation(SwitchCache.class));
+        methodDetail.injectAnnotation = InjectAnn.of(element.getAnnotation(Inject.class));
+        methodDetail.namedAnnotation = NamedAnn.of(element.getAnnotation(Named.class));
+        methodDetail.singletonAnn = SingletonAnn.of(element.getAnnotation(Singleton.class));
 
         List<Class<? extends Annotation>> scClasses = Arrays.asList(GcAllScope.class, GcWeakScope.class, GcSoftScope.class, GcStrongScope.class);
         for (Class<? extends Annotation> sc : scClasses)
@@ -84,13 +84,13 @@ public class MethodDetail implements Cloneable {
         methodDetail.modifiers = methodSpec.modifiers;
         methodDetail.args = ListUtils.format(methodSpec.parameters, FieldDetail::of);
 
-        methodDetail.provideAnnotation = ProvideAnnotation.findFrom(methodSpec.annotations);
-        methodDetail.bindInstanceAnnotation = BindInstanceAnnotation.findFrom(methodSpec.annotations);
-        methodDetail.protectInjectedAnnotation = ProtectInjectedAnnotation.findFrom(methodSpec.annotations);
-        methodDetail.switchCacheAnnotation = SwitchCacheAnnotation.findFrom(methodSpec.annotations);
-        methodDetail.injectAnnotation = InjectAnnotation.findFrom(methodSpec.annotations);
-        methodDetail.namedAnnotation = NamedAnnotation.findFrom(methodSpec.annotations);
-        methodDetail.singletonAnnotation = SingletonAnnotation.findFrom(methodSpec.annotations);
+        methodDetail.provideAnn = ProvideAnn.findFrom(methodSpec.annotations);
+        methodDetail.bindInstanceAnn = BindInstanceAnn.findFrom(methodSpec.annotations);
+        methodDetail.protectInjectedAnn = ProtectInjectedAnn.findFrom(methodSpec.annotations);
+        methodDetail.switchCacheAnn = SwitchCacheAnn.findFrom(methodSpec.annotations);
+        methodDetail.injectAnnotation = InjectAnn.findFrom(methodSpec.annotations);
+        methodDetail.namedAnnotation = NamedAnn.findFrom(methodSpec.annotations);
+        methodDetail.singletonAnn = SingletonAnn.findFrom(methodSpec.annotations);
 
 
         return methodDetail;
@@ -144,13 +144,13 @@ public class MethodDetail implements Cloneable {
     }
 
     public boolean hasAnyAnnotation() {
-        return provideAnnotation != null
-                || bindInstanceAnnotation != null
-                || protectInjectedAnnotation != null
-                || switchCacheAnnotation != null
+        return provideAnn != null
+                || bindInstanceAnn != null
+                || protectInjectedAnn != null
+                || switchCacheAnn != null
                 || injectAnnotation != null
                 || namedAnnotation != null
-                || singletonAnnotation != null
+                || singletonAnn != null
                 || !gcScopeAnnotations.isEmpty();
     }
 
@@ -164,12 +164,12 @@ public class MethodDetail implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MethodDetail that = (MethodDetail) o;
-        return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType) && Objects.equals(args, that.args) && Objects.equals(provideAnnotation, that.provideAnnotation) && Objects.equals(bindInstanceAnnotation, that.bindInstanceAnnotation);
+        return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType) && Objects.equals(args, that.args) && Objects.equals(provideAnn, that.provideAnn) && Objects.equals(bindInstanceAnn, that.bindInstanceAnn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, returnType, args, provideAnnotation, bindInstanceAnnotation);
+        return Objects.hash(methodName, returnType, args, provideAnn, bindInstanceAnn);
     }
 
 

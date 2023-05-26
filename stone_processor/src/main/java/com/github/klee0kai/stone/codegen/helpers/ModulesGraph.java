@@ -40,7 +40,7 @@ public class ModulesGraph {
                 continue;
             if (iModuleInterface.findMethod(m, false) != null)
                 continue;
-            boolean isCached = m.provideAnnotation == null || m.provideAnnotation.isCachingProvideType();
+            boolean isCached = m.provideAnn == null || m.provideAnn.isCachingProvideType();
             int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
 
             provideTypeCodes.putIfAbsent(m.returnType, new LinkedList<>());

@@ -5,32 +5,38 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Objects;
 
-public class BindInstanceAnnotation implements Cloneable {
+public class BindInstanceAnn implements Cloneable, IAnnotation {
 
     public BindInstance.CacheType cacheType = BindInstance.CacheType.Soft;
 
-    public static BindInstanceAnnotation of(BindInstance ann) {
+    public static BindInstanceAnn of(BindInstance ann) {
         if (ann == null)
             return null;
-        BindInstanceAnnotation sAnn = new BindInstanceAnnotation();
+        BindInstanceAnn sAnn = new BindInstanceAnn();
         sAnn.cacheType = ann.cache();
         return sAnn;
     }
 
-    public static BindInstanceAnnotation findFrom(List<AnnotationSpec> annotationSpecs) {
+    public static BindInstanceAnn findFrom(List<AnnotationSpec> annotationSpecs) {
         AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(BindInstance.class)));
         if (spec == null)
             return null;
-        return new BindInstanceAnnotation();
+        return new BindInstanceAnn();
     }
 
 
     @Override
-    public BindInstanceAnnotation clone() throws CloneNotSupportedException {
-        return (BindInstanceAnnotation) super.clone();
+    public BindInstanceAnn clone() throws CloneNotSupportedException {
+        return (BindInstanceAnn) super.clone();
+    }
+
+    @Override
+    public Class<? extends Annotation> originalAnn() {
+        return BindInstance.class;
     }
 }
