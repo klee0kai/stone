@@ -9,8 +9,19 @@ import com.squareup.javapoet.WildcardTypeName;
 
 import java.util.List;
 
+/**
+ * Class and type resolving utils.
+ */
 public class ClassNameUtils {
 
+    /**
+     * Get class name from full name.
+     * Primitives and boxed types are not support
+     *
+     * @param clFullName class full name like "com.github.klee0kai.stone.annotations.component.class"
+     * @return class name
+     * @throws PrimitiveTypeNonSupportedStoneException primitive types are not support
+     */
     public static ClassName classNameOf(String clFullName) {
         try {
             if (clFullName.endsWith(".class"))
@@ -22,47 +33,6 @@ public class ClassNameUtils {
             throw new ClassNotFoundStoneException(clFullName, e);
         }
 
-    }
-
-    public static ClassName genFactoryNameMirror(TypeName or) {
-        if (!(or instanceof ClassName)) return null;
-        ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneFactory");
-    }
-
-
-    public static ClassName genModuleNameMirror(TypeName or) {
-        if (!(or instanceof ClassName)) return null;
-        ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneModule");
-    }
-
-
-    public static ClassName genCacheControlInterfaceModuleNameMirror(TypeName or) {
-        if (!(or instanceof ClassName)) return null;
-        ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), "I" + origin.simpleName() + "StoneCacheControlModule");
-    }
-
-
-    public static ClassName genComponentNameMirror(TypeName or) {
-        if (!(or instanceof ClassName)) return null;
-        ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneComponent");
-    }
-
-    public static ClassName genHiddenModuleNameMirror(TypeName or) {
-        if (!(or instanceof ClassName)) return null;
-        ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneHiddenModule");
-    }
-
-    public static boolean isStoneCreatedClass(ClassName className) {
-        return className.simpleName().endsWith("StoneFactory")
-                || className.simpleName().endsWith("StoneModule")
-                || className.simpleName().endsWith("StoneComponent")
-                || className.simpleName().endsWith("StoneHiddenModule")
-                || className.simpleName().endsWith("StoneCacheControlModule");
     }
 
     public static TypeName rawTypeOf(TypeName typeName) {

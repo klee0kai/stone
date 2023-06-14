@@ -24,6 +24,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genModuleNameMirror;
 
 public class ModuleBuilder {
 
@@ -60,9 +62,9 @@ public class ModuleBuilder {
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
     public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
-        ModuleBuilder builder = new ModuleBuilder(factoryBuilder.orFactory, ClassNameUtils.genModuleNameMirror(factoryBuilder.orFactory.className))
+        ModuleBuilder builder = new ModuleBuilder(factoryBuilder.orFactory, genModuleNameMirror(factoryBuilder.orFactory.className))
                 .factoryField(factoryBuilder.orFactory.className, factoryBuilder.className)
-                .overridedField(ClassNameUtils.genCacheControlInterfaceModuleNameMirror(factoryBuilder.orFactory.className))
+                .overridedField(genCacheControlInterfaceModuleNameMirror(factoryBuilder.orFactory.className))
                 .implementIModule();
         builder.qualifiers.addAll(allQualifiers);
 
@@ -141,7 +143,7 @@ public class ModuleBuilder {
         interfaces.add(ClassName.get(IModule.class));
         if (orModuleCl != null) for (ClassDetail parentModule : orModuleCl.getAllParents(false)) {
             if (parentModule.hasAnnotations(ModuleAnn.class))
-                interfaces.add(ClassNameUtils.genCacheControlInterfaceModuleNameMirror(parentModule.className));
+                interfaces.add(genCacheControlInterfaceModuleNameMirror(parentModule.className));
         }
 
         initMethod();
@@ -163,8 +165,8 @@ public class ModuleBuilder {
         if (orModuleCl != null) {
             builder
                     // check module class
-                    .beginControlFlow("if ( (or instanceof $T) ) ", ClassNameUtils.genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
-                    .addStatement("$L.set(($T) or)", overridedModuleFieldName, ClassNameUtils.genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
+                    .beginControlFlow("if ( (or instanceof $T) ) ", genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
+                    .addStatement("$L.set(($T) or)", overridedModuleFieldName, genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
                     .addStatement("$L = ($T) (($T) or).getFactory() ", factoryFieldName, orModuleCl.className, IModule.class)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
@@ -220,7 +222,7 @@ public class ModuleBuilder {
 
         collectRuns.add(() -> {
             if (orModuleCl != null) for (ClassDetail cl : orModuleCl.getAllParents(false)) {
-                ClassName cacheControlInterfaceCl = ClassNameUtils.genCacheControlInterfaceModuleNameMirror(cl.className);
+                ClassName cacheControlInterfaceCl = genCacheControlInterfaceModuleNameMirror(cl.className);
                 builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterfaceCl)
                         .addStatement("$T module = ($T) m", cacheControlInterfaceCl, cacheControlInterfaceCl);
 

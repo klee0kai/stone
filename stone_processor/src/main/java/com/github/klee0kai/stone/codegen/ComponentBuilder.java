@@ -27,6 +27,7 @@ import java.util.*;
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 
 public class ComponentBuilder {
 
@@ -78,7 +79,7 @@ public class ComponentBuilder {
 
 
     public static ComponentBuilder from(ClassDetail component) {
-        ComponentBuilder componentBuilder = new ComponentBuilder(component, ClassNameUtils.genComponentNameMirror(component.className));
+        ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className));
         componentBuilder.implementIComponentMethods();
 
         for (ClassDetail componentParentCl : component.getAllParents(false)) {
@@ -312,7 +313,7 @@ public class ComponentBuilder {
 
         collectRuns.execute(null, () -> {
             if (modulesFields.containsKey(hiddenModuleFieldName)) {
-                ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
+                ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
                 builder.returns(tpName)
                         .addStatement("return this.$L", hiddenModuleFieldName);
             } else {
@@ -355,7 +356,7 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
-        ClassName moduleStoneMirror = ClassNameUtils.genModuleNameMirror(module.className);
+        ClassName moduleStoneMirror = genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE).initializer("new $T()", moduleStoneMirror));
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
@@ -386,7 +387,7 @@ public class ComponentBuilder {
     public ComponentBuilder provideHiddenModuleMethod() {
         String name = hiddenModuleFieldName;
 
-        ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
+        ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
         moduleHiddenBuilder = new ModuleBuilder(null, tpName);
         moduleHiddenBuilder.qualifiers.addAll(qualifiers);
         moduleHiddenBuilder.implementIModule();

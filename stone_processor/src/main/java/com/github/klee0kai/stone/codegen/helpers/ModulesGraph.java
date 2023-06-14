@@ -90,7 +90,7 @@ public class ModulesGraph {
             }
             provideMethodName = null;
 
-            List<TypeName> newDeps = ListUtils.filter(new ArrayList<>(invokeCall.argTypes()), (indx, it) -> {
+            List<TypeName> newDeps = ListUtils.filter(new ArrayList<>(invokeCall.argTypes(null)), (indx, it) -> {
                 if (Objects.equals(dep, it)) return false; // bind instance case
                 // qualifies not need to provide
                 return it instanceof ClassName && !allQualifiers.contains(it) && !argTypes.contains(it);

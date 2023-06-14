@@ -22,6 +22,7 @@ import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.constructorNonFound;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genFactoryNameMirror;
 
 public class ModuleFactoryBuilder {
 
@@ -39,7 +40,7 @@ public class ModuleFactoryBuilder {
         builder.qualifiers.addAll(allQualifiers);
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
         if (builder.needBuild) {
-            builder.className = ClassNameUtils.genFactoryNameMirror(module.className);
+            builder.className = genFactoryNameMirror(module.className);
             for (MethodDetail m : module.getAllMethods(false, false, "<init>")) {
                 if (!m.isAbstract() && !module.isInterfaceClass())
                     continue;

@@ -29,6 +29,10 @@ import java.util.Set;
 
 import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.*;
 
+/**
+ * Stone's Annotation processor
+ * Entry Point of the lib.
+ */
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({"*"})
 public class AnnotationProcessor extends AbstractProcessor {
