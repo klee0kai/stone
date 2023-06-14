@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.*;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 /**
  * Stone's Annotation processor
@@ -65,8 +66,14 @@ public class AnnotationProcessor extends AbstractProcessor {
                     ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
                     if (parentCompAnn != null) allQualifiers.addAll(parentCompAnn.qualifiers);
                 }
-            } catch (Throwable e) {
-                throw new CreateStoneComponentException(componentEl, e);
+            } catch (Throwable cause) {
+                throw new CreateStoneComponentException(
+                        createErrorMes()
+                                .cannotCreateComponent(componentEl.getSimpleName().toString())
+                                .collectCauseMessages(cause)
+                                .build(),
+                        cause
+                );
             }
         }
 
@@ -139,8 +146,14 @@ public class AnnotationProcessor extends AbstractProcessor {
                 }
                 componentBuilder.buildAndWrite();
 
-            } catch (Throwable e) {
-                throw new CreateStoneComponentException(componentEl, e);
+            } catch (Throwable cause) {
+                throw new CreateStoneComponentException(
+                        createErrorMes()
+                                .cannotCreateComponent(componentEl.getSimpleName().toString())
+                                .collectCauseMessages(cause)
+                                .build(),
+                        cause
+                );
             }
 
         }
