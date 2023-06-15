@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.checkWrapperClass;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 public class ComponentChecks {
@@ -68,7 +69,7 @@ public class ComponentChecks {
 
         for (ClassName wr : cl.ann(ComponentAnn.class).wrapperProviders) {
             ClassDetail wrCl = allClassesHelper.findForType(wr);
-            WrappersCreatorChecks.checkWrapperClass(wrCl);
+            checkWrapperClass(wrCl);
         }
     }
 

@@ -2,6 +2,9 @@ package com.github.klee0kai.stone.closed.types;
 
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 
+/**
+ * Stone Private class
+ */
 public class SwitchCacheParam {
 
     public final SwitchCache.CacheType cache;

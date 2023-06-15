@@ -280,6 +280,12 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder add(String mes) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(mes);
+        return this;
+    }
+
 
     public ExceptionStringBuilder collectCauseMessages(Throwable cause) {
         while (cause != null) {

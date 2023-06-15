@@ -20,6 +20,9 @@ import java.util.*;
 
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
+/**
+ * Index all elements in projects.
+ */
 public class AllClassesHelper {
 
     private Elements elements;
@@ -33,9 +36,11 @@ public class AllClassesHelper {
     public TypeElement scopeAnnotationElement;
     public TypeElement gcScopeAnnotationElement;
 
-    public AllClassesHelper() {
-    }
-
+    /**
+     * Index common classes using in lib
+     *
+     * @param elements annotation processor's elements
+     */
     public void init(Elements elements) {
         this.elements = elements;
         iComponentClassDetails = findForType(ClassName.get(IComponent.class));
@@ -46,6 +51,12 @@ public class AllClassesHelper {
         gcScopeAnnotationElement = typeElementFor(ClassName.get(GcScopeAnnotation.class));
     }
 
+    /**
+     * Collect all using GcScope annotations in component and all in component's parents.
+     * After the method you can use findGcScopeAnnotation to get annotation details
+     *
+     * @param classDetail component's ClassDetail object
+     */
     public void deepExtractGcAnnotations(ClassDetail classDetail) {
         for (ClassDetail parent : classDetail.getAllParents(false)) {
             TypeElement parentEl = typeElementFor(parent.className);
@@ -66,12 +77,23 @@ public class AllClassesHelper {
         }
     }
 
-
+    /**
+     * Get annotation details for annotation name
+     *
+     * @param annTypeName full class name
+     * @return ClassDetail object of the annotation if found
+     */
     public ClassDetail findGcScopeAnnotation(String annTypeName) {
         return gcScopeAnnotations.getOrDefault(annTypeName, null);
     }
 
-
+    /**
+     * Check that class is implement stone lifecycle owner.
+     * {@link IStoneLifeCycleOwner}
+     *
+     * @param typeName class name
+     * @return true if this class implement  {@link IStoneLifeCycleOwner}
+     */
     public boolean isLifeCycleOwner(TypeName typeName) {
         if (lifeCycleOwners.contains(typeName))
             return true;
@@ -83,6 +105,12 @@ public class AllClassesHelper {
         return false;
     }
 
+    /**
+     * Find class details of type.
+     *
+     * @param typeName type name
+     * @return {@link ClassDetail} if found
+     */
     public ClassDetail findForType(TypeName typeName) {
         try {
             TypeName rawType = ClassNameUtils.rawTypeOf(typeName);
@@ -102,12 +130,24 @@ public class AllClassesHelper {
         }
     }
 
+    /**
+     * Find compile element  of typename
+     *
+     * @param typeName typename
+     * @return compile element if found
+     */
     public TypeElement typeElementFor(TypeName typeName) {
         if (typeName instanceof ClassName)
             return elements.getTypeElement(((ClassName) typeName).canonicalName());
         return null;
     }
 
+    /**
+     * Find compile element  of typename
+     *
+     * @param canonicalName type canonical name
+     * @return compile element if found
+     */
     public TypeElement typeElementFor(String canonicalName) {
         return elements.getTypeElement(canonicalName);
     }

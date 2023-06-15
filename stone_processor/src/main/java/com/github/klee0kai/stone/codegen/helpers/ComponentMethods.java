@@ -5,6 +5,8 @@ import com.github.klee0kai.stone.annotations.component.Init;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
+import com.github.klee0kai.stone.checks.DependencyChecks;
+import com.github.klee0kai.stone.checks.ModuleChecks;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -26,17 +28,39 @@ public class ComponentMethods {
     public static boolean isModuleProvideMethod(MethodDetail m) {
         boolean isProvideMethod = isProvideMethod(m);
         ClassDetail providingClDetails = isProvideMethod ? allClassesHelper.findForType(m.returnType) : null;
-        return providingClDetails != null
-                && providingClDetails.hasAnnotations(ModuleAnn.class)
-                && m.args.isEmpty();
+        if (providingClDetails == null || !providingClDetails.hasAnnotations(ModuleAnn.class))
+            return false;
+        if (!m.args.isEmpty() || !m.annotations.isEmpty()) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .add("should no have arguments and annotations.")
+                            .build()
+            );
+        }
+        ModuleChecks.checkModuleClass(providingClDetails);
+        checkMethodBusy(m);
+
+        return m.args.isEmpty();
     }
 
     public static boolean isDepsProvide(MethodDetail m) {
         boolean isProvideMethod = isProvideMethod(m);
         ClassDetail providingClDetails = isProvideMethod ? allClassesHelper.findForType(m.returnType) : null;
-        return providingClDetails != null
-                && providingClDetails.hasAnnotations(DependenciesAnn.class)
-                && m.args.isEmpty();
+        if (providingClDetails == null || !providingClDetails.hasAnnotations(DependenciesAnn.class))
+            return false;
+        if (!m.args.isEmpty() || !m.annotations.isEmpty()) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .add("should no have arguments and annotations.")
+                            .build()
+            );
+        }
+        DependencyChecks.checkDependencyClass(providingClDetails);
+        checkMethodBusy(m);
+
+        return true;
     }
 
 

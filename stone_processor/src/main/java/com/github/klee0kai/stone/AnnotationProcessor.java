@@ -3,8 +3,6 @@ package com.github.klee0kai.stone;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.checks.ComponentChecks;
-import com.github.klee0kai.stone.checks.DependencyChecks;
-import com.github.klee0kai.stone.checks.ModuleChecks;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
@@ -118,12 +116,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
                     if (isModuleProvideMethod(m)) {
                         ClassDetail moduleCl = allClassesHelper.findForType(m.returnType);
-                        ModuleChecks.checkModuleClass(moduleCl);
                         componentBuilder.provideModuleMethod(m.methodName, moduleCl);
                     } else if (isDepsProvide(m)) {
                         ClassDetail dependencyCl = allClassesHelper.findForType(m.returnType);
-                        DependencyChecks.checkDependencyClass(dependencyCl);
-                        componentBuilder.provideDependenciesMethod(m.methodName, allClassesHelper.findForType(m.returnType));
+                        componentBuilder.provideDependenciesMethod(m.methodName, dependencyCl);
                     } else if (isInitModuleMethod(m)) {
                         componentBuilder.initMethod(m);
                     } else if (isExtOfMethod(component, m)) {

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 
+/**
+ * Stone Private class
+ */
 public class WeakLinkedList<T> {
 
     private final LinkedList<Reference<T>> list = new LinkedList<>();

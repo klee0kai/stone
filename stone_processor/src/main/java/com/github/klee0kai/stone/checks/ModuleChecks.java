@@ -16,9 +16,9 @@ public class ModuleChecks {
     public static void checkModuleClass(ClassDetail cl) {
         try {
             checkClassAnnotations(cl);
-            checkClassNoHaveFields(cl);
+            checkModuleClassNoHaveFields(cl);
             for (MethodDetail m : cl.getAllMethods(false, true))
-                checkMethodSignature(m);
+                checkModuleMethodSignature(m);
         } catch (Exception e) {
             throw new IncorrectSignatureException(
                     createErrorMes()
@@ -30,20 +30,8 @@ public class ModuleChecks {
         }
     }
 
-    private static void checkClassAnnotations(ClassDetail cl) {
-        IAnnotation prohibitedAnn = cl.anyAnnotation(ComponentAnn.class, DependenciesAnn.class, WrapperCreatorsAnn.class);
-        if (prohibitedAnn != null) {
-            throw new IncorrectSignatureException(
-                    createErrorMes()
-                            .moduleClass(cl.className.toString())
-                            .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
-                            .build()
-            );
-        }
-    }
 
-
-    private static void checkMethodSignature(MethodDetail m) {
+    public static void checkModuleMethodSignature(MethodDetail m) {
         IAnnotation prohibitedAnn = m.anyAnnotation(InjectAnn.class, ProtectInjectedAnn.class, SwitchCacheAnn.class, NamedAnn.class, SingletonAnn.class);
         if (prohibitedAnn != null) {
             throw new IncorrectSignatureException(
@@ -76,7 +64,7 @@ public class ModuleChecks {
         }
     }
 
-    private static void checkClassNoHaveFields(ClassDetail cl) {
+    public static void checkModuleClassNoHaveFields(ClassDetail cl) {
         if (!cl.fields.isEmpty()) {
             throw new IncorrectSignatureException(
                     createErrorMes()
@@ -86,5 +74,19 @@ public class ModuleChecks {
             );
         }
     }
+
+
+    private static void checkClassAnnotations(ClassDetail cl) {
+        IAnnotation prohibitedAnn = cl.anyAnnotation(ComponentAnn.class, DependenciesAnn.class, WrapperCreatorsAnn.class);
+        if (prohibitedAnn != null) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .moduleClass(cl.className.toString())
+                            .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
+                            .build()
+            );
+        }
+    }
+
 
 }
