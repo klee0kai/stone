@@ -55,19 +55,19 @@ public class ExceptionStringBuilder {
     }
 
 
-    public ExceptionStringBuilder wrappersProviderClass(String className) {
+    public ExceptionStringBuilder wrappersCreatorClass(String className) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,
-                "WrappersProvider's class %s",
+                "WrappersCreator's class %s",
                 className));
         return this;
     }
 
-    public ExceptionStringBuilder method(String className) {
+    public ExceptionStringBuilder method(String methodName) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,
                 "method '%s'",
-                className));
+                methodName));
         return this;
     }
 
@@ -217,6 +217,18 @@ public class ExceptionStringBuilder {
 
 
     public ExceptionStringBuilder componentExtOfMethodSignatureIncorrect(String className, String annotation) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(String.format(Locale.ROOT,
+                "Component's bindInstance method have incorrect signature: '%s'. "
+                        + "Method Should have only %s annotation and GC scope annotations. "
+                        + "Should have only one argument of providing object. "
+                        + "Providing object should not be primitive or boxed primitive. "
+                        + "Can return only providing object or should be void. ",
+                className, annotation));
+        return this;
+    }
+
+    public ExceptionStringBuilder componentBindInstanceMethodSignatureIncorrect(String className, String annotation) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,
                 "Component's bindInstance method have incorrect signature: '%s'. "

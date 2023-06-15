@@ -18,6 +18,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import java.util.*;
 
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+
 public class AllClassesHelper {
 
     private Elements elements;
@@ -86,12 +88,17 @@ public class AllClassesHelper {
             TypeName rawType = ClassNameUtils.rawTypeOf(typeName);
             if (rawType instanceof ClassName) {
                 ClassDetail cl = ClassDetail.of(elements.getTypeElement(((ClassName) rawType).canonicalName()));
-                cl.className = typeName ;
+                cl.className = typeName;
                 return cl;
             }
             return null;
         } catch (Exception e) {
-            throw new ClassNotFoundStoneException(typeName, e);
+            throw new ClassNotFoundStoneException(
+                    createErrorMes()
+                            .classNonFound(typeName.toString())
+                            .build(),
+                    e
+            );
         }
     }
 

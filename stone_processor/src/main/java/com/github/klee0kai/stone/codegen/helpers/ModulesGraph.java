@@ -17,8 +17,7 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.*;
 
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.errorProvideType;
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.recursiveProviding;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.model.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
 
 public class ModulesGraph {
@@ -86,7 +85,13 @@ public class ModulesGraph {
             InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, dep, qualifiers);
             if (invokeCall == null) {
                 if (Objects.equals(dep, typeName)) return null;
-                throw new ObjectNotProvidedException(String.format(errorProvideType, dep.toString()));
+                throw new ObjectNotProvidedException(
+                        createErrorMes()
+                                .errorProvideType(dep.toString())
+                                .build(),
+                        null
+                );
+
             }
             provideMethodName = null;
 
@@ -99,7 +104,14 @@ public class ModulesGraph {
             needProvideDeps.addAll(newDeps);
             needProvideDeps = ListUtils.removeDoublesRight(needProvideDeps, Objects::equals);
             boolean recursiveDetected = !newDeps.isEmpty() && needProvideDepsRecursiveDetector.next(needProvideDeps.hashCode());
-            if (recursiveDetected) throw new RecurciveProviding(recursiveProviding);
+            if (recursiveDetected) {
+                throw new RecurciveProviding(
+                        createErrorMes()
+                                .recursiveProviding()
+                                .build(),
+                        null
+                );
+            }
 
             provideTypeInvokes.add(invokeCall);
             provideTypeInvokes = ListUtils.removeDoublesRight(provideTypeInvokes,

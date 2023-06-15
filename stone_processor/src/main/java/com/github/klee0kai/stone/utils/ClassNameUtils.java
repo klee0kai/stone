@@ -9,6 +9,8 @@ import com.squareup.javapoet.WildcardTypeName;
 
 import java.util.List;
 
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+
 /**
  * Class and type resolving utils.
  */
@@ -29,8 +31,18 @@ public class ClassNameUtils {
             return ClassName.get(clFullName.substring(0, clFullName.lastIndexOf(".")),
                     clFullName.substring(clFullName.lastIndexOf(".") + 1));
         } catch (Exception e) {
-            if (!clFullName.contains(".")) throw new PrimitiveTypeNonSupportedStoneException(clFullName, e);
-            throw new ClassNotFoundStoneException(clFullName, e);
+            if (!clFullName.contains(".")) {
+                throw new PrimitiveTypeNonSupportedStoneException(
+                        createErrorMes()
+                                .primitiveTypesNonSupported(clFullName)
+                                .build(),
+                        e);
+            }
+            throw new ClassNotFoundStoneException(
+                    createErrorMes()
+                            .classNonFound(clFullName)
+                            .build(),
+                    e);
         }
 
     }

@@ -14,7 +14,7 @@ import javax.lang.model.element.Modifier;
 import java.util.Collections;
 import java.util.Objects;
 
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 public class WrappersCreatorChecks {
 
@@ -23,17 +23,25 @@ public class WrappersCreatorChecks {
             checkClassAnnotations(cl);
             checkIWrapperCreatorInterface(cl);
         } catch (Exception e) {
-            throw new IncorrectSignatureException("WrappersCreator's class " + cl.className + " has incorrect signature", e);
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .wrappersCreatorClass(cl.className.toString())
+                            .hasIncorrectSignature()
+                            .build()
+                    , e);
         }
     }
 
     private static void checkClassAnnotations(ClassDetail cl) {
         IAnnotation prohibitedAnn = cl.anyAnnotation(ComponentAnn.class, DependenciesAnn.class, ModuleAnn.class);
-        if (prohibitedAnn != null)
-            throw new IncorrectSignatureException(String.format(
-                    wrappersProviderClass + shouldNoHaveAnnotation,
-                    cl.className, prohibitedAnn.originalAnn().getSimpleName()
-            ));
+        if (prohibitedAnn != null) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .wrappersCreatorClass(cl.className.toString())
+                            .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
+                            .build()
+            );
+        }
     }
 
     private static void checkIWrapperCreatorInterface(ClassDetail cl) {
@@ -44,12 +52,24 @@ public class WrappersCreatorChecks {
                 isWrapperCreatorInterface = true;
                 break;
             }
-        if (!isWrapperCreatorInterface)
-            throw new IncorrectSignatureException(String.format(wrappersProviderClass + shouldImplementInterface, cl.className, IWrapperCreator.class.getCanonicalName()));
+        if (!isWrapperCreatorInterface) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .wrappersCreatorClass(cl.className.toString())
+                            .shouldImplementInterface(IWrapperCreator.class.getCanonicalName())
+                            .build()
+            );
+        }
 
         MethodDetail m = cl.findMethod(MethodDetail.constructorMethod(Collections.emptyList()), false);
-        if (m == null || !m.modifiers.contains(Modifier.PUBLIC))
-            throw new IncorrectSignatureException(String.format(wrappersProviderClass + shouldHaveConstructorWithoutArgs, cl.className));
+        if (m == null || !m.modifiers.contains(Modifier.PUBLIC)) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .wrappersCreatorClass(cl.className.toString())
+                            .shouldHaveConstructorWithoutArgs()
+                            .build()
+            );
+        }
     }
 
 }

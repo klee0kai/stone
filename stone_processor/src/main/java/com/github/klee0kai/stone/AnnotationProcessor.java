@@ -10,9 +10,9 @@ import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
-import com.github.klee0kai.stone.exceptions.ComponentsMethodPurposeNotDetectedException;
 import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
 import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
@@ -91,7 +91,12 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
                 moduleBuilder.buildAndWrite();
             } catch (Throwable e) {
-                throw new CreateStoneModuleException(moduleEl, e);
+                throw new CreateStoneModuleException(
+                        createErrorMes()
+                                .cannotCreateModule(moduleEl.toString())
+                                .collectCauseMessages(e)
+                                .build(),
+                        e);
             }
         }
 
@@ -141,7 +146,11 @@ public class AnnotationProcessor extends AbstractProcessor {
                         );
                     } else if (component.isInterfaceClass() || m.isAbstract()) {
                         //non implemented method
-                        throw new ComponentsMethodPurposeNotDetectedException(component.className, m);
+                        throw new IncorrectSignatureException(
+                                createErrorMes()
+                                        .methodPurposeNonDetected(m.methodName, component.className.toString())
+                                        .build()
+                        );
                     }
                 }
                 componentBuilder.buildAndWrite();
