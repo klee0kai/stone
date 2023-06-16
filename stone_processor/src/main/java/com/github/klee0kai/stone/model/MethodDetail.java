@@ -254,9 +254,10 @@ public class MethodDetail implements Cloneable {
      */
     @SafeVarargs
     public final boolean hasOnlyAnnotations(boolean allowGsScopeAnnotations, Class<? extends IAnnotation>... aClasses) {
-        if (annotations.size() != aClasses.length) return false;
-        for (Class<? extends IAnnotation> cl : aClasses) {
-            if (!annotations.containsKey(cl)) return false;
+        if (annotations.size() > aClasses.length) return false;
+        List<Class<? extends IAnnotation>> availableClasses = Arrays.asList(aClasses);
+        for (Class<? extends IAnnotation> annotation : annotations.keySet()) {
+            if (!availableClasses.contains(annotation)) return false;
         }
         return allowGsScopeAnnotations || gcScopeAnnotations.isEmpty();
     }

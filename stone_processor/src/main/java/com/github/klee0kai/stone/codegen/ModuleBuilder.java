@@ -2,13 +2,13 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.closed.types.single.WeakItemHolder;
 import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -23,7 +23,11 @@ import javax.lang.model.element.Modifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import static com.github.klee0kai.stone.checks.ModuleMethods.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
+import static com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper.cacheTypeFrom;
+import static com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper.of;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genModuleNameMirror;
 
@@ -78,25 +82,14 @@ public class ModuleBuilder {
 
             int cacheFieldsCount = builder.cacheFields.size();
 
-            if (m.hasAnyAnnotation(BindInstanceAnn.class)) {
-                ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
-                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
-                builder.bindInstance(m, itemHolderCodeHelper)
-                        .cacheControl(m, itemHolderCodeHelper)
-                        .switchRefFor(itemHolderCodeHelper,
-                                ListUtils.setOf(
-                                        m.gcScopeAnnotations,
-                                        ClassName.get(GcAllScope.class),
-                                        cacheType.getGcScopeClassName()
-                                ));
-            } else if (m.hasAnyAnnotation(ProvideAnn.class) && m.ann(ProvideAnn.class).cacheType == Provide.CacheType.Factory) {
+            if (isProvideFactoryObject(m)) {
                 builder.provideFactory(m)
                         .mockControl(m);
-            } else {
-                ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(
-                        m.hasAnyAnnotation(ProvideAnn.class) ? m.ann(ProvideAnn.class).cacheType : Provide.CacheType.Soft
-                );
-                ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
+            } else if (isProvideCachedObject(m)) {
+                ProvideAnn ann = m.ann(ProvideAnn.class);
+                ItemHolderCodeHelper.ItemCacheType cacheType = ann != null
+                        ? cacheTypeFrom(ann.cacheType) : ItemHolderCodeHelper.ItemCacheType.Soft;
+                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
                 builder.provideCached(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
                         .switchRefFor(itemHolderCodeHelper,
@@ -105,7 +98,27 @@ public class ModuleBuilder {
                                         ClassName.get(GcAllScope.class),
                                         cacheType.getGcScopeClassName()
                                 ));
+            } else if (isBindInstanceMethod(m)) {
+                ItemHolderCodeHelper.ItemCacheType cacheType = cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
+                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
+                builder.bindInstance(m, itemHolderCodeHelper)
+                        .cacheControl(m, itemHolderCodeHelper)
+                        .switchRefFor(itemHolderCodeHelper,
+                                ListUtils.setOf(
+                                        m.gcScopeAnnotations,
+                                        ClassName.get(GcAllScope.class),
+                                        cacheType.getGcScopeClassName()
+                                ));
+            } else {
+                throw new IncorrectSignatureException(
+                        createErrorMes()
+                                .moduleClass(factoryBuilder.orFactory.className.toString())
+                                .method(m.methodName)
+                                .hasIncorrectSignature()
+                                .build()
+                );
             }
+
         }
         return builder;
     }

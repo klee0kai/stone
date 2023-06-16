@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.*;
+import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 /**

@@ -133,6 +133,16 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder shouldHaveOnlyAnnotations(String... annotations) {
+        if (sb.length() > 0) sb.append(" ");
+        String annList = String.join(", @", annotations);
+        sb.append(String.format(Locale.ROOT,
+                "should have only @%s annotation",
+                annList));
+        return this;
+    }
+
+
     public ExceptionStringBuilder shouldNoHaveQualifier(String qualifier) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,

@@ -1,12 +1,10 @@
-package com.github.klee0kai.stone.codegen.helpers;
+package com.github.klee0kai.stone.checks;
 
 import com.github.klee0kai.stone.annotations.component.ExtendOf;
 import com.github.klee0kai.stone.annotations.component.Init;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.stone.checks.DependencyChecks;
-import com.github.klee0kai.stone.checks.ModuleChecks;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.model.ClassDetail;

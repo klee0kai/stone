@@ -2,10 +2,14 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
-import com.github.klee0kai.stone.codegen.helpers.*;
+import com.github.klee0kai.stone.codegen.helpers.IProvideTypeWrapperHelper;
+import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
+import com.github.klee0kai.stone.codegen.helpers.ModulesGraph;
+import com.github.klee0kai.stone.codegen.helpers.SetFieldHelper;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
@@ -25,7 +29,7 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
-import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
+import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 
