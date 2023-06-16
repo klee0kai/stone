@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.checks;
 
+import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -53,7 +54,7 @@ public class ModuleMethods {
                     createErrorMes()
                             .method(m.methodName)
                             .hasIncorrectSignature()
-                            .shouldHaveOnlyAnnotations(Provide.class.getSimpleName())
+                            .shouldHaveOnlyAnnotations(BindInstance.class.getSimpleName())
                             .build()
             );
         }
