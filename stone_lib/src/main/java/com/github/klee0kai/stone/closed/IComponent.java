@@ -1,11 +1,10 @@
-package com.github.klee0kai.stone.interfaces;
+package com.github.klee0kai.stone.closed;
 
 
 /**
  * Each Stone component implement this interface.
  * Could be use
  */
-@Deprecated
 public interface IComponent {
 
     /**
@@ -16,7 +15,6 @@ public interface IComponent {
      *                - a factory class
      * @deprecated Create init method with module type as argument
      */
-    @Deprecated
     void init(Object... modules);
 
     /**
@@ -25,7 +23,6 @@ public interface IComponent {
      * @param dependencies - An instance of dependencies
      * @deprecated Create init method with dependency type as argument
      */
-    @Deprecated
     void initDependencies(Object... dependencies);
 
     /**
@@ -33,13 +30,11 @@ public interface IComponent {
      *
      * @param objects - An instance of bindable objects
      */
-    @Deprecated
     void bind(Object... objects);
 
     /**
      * this component extends of other
      */
-    @Deprecated
     void extOf(IComponent components);
 
 }

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.codegen.helpers;
 
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.types.wrappers.IRef;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
 import com.squareup.javapoet.ClassName;
@@ -56,7 +56,7 @@ public interface IProvideTypeWrapperHelper {
 
                 ClassName phantomProvide = ClassName.get(PhantomProvide.class);
                 if (Objects.equals(phantomProvide, typeName.rawType)
-                        || Objects.equals(ClassName.get(IRef.class), typeName.rawType)
+                        || Objects.equals(ClassName.get(Ref.class), typeName.rawType)
                         || Objects.equals(ClassName.get(Provider.class), typeName.rawType))
                     return new ProvideFieldWrapperHelper(
                             phantomProvide,

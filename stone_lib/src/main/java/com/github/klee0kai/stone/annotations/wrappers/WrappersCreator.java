@@ -1,12 +1,14 @@
 package com.github.klee0kai.stone.annotations.wrappers;
 
 
+import com.github.klee0kai.stone.types.wrappers.WrapperCreator;
+
 import java.lang.annotation.*;
 
 /**
  * Provide custom wrappers creator, class
  * <p>
- * Should implement {@link com.github.klee0kai.stone.types.wrappers.IWrapperCreator}
+ * Should implement {@link WrapperCreator}
  * and declare custom wrappers in annotation
  */
 @Retention(value = RetentionPolicy.CLASS)

@@ -2,7 +2,7 @@ package com.github.klee0kai.stone.closed.types.single;
 
 import com.github.klee0kai.stone.closed.types.ScheduleTask;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
-import com.github.klee0kai.stone.types.wrappers.IRef;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Stone Private class
  */
-public abstract class SingleItemHolder<T> implements IRef<T> {
+public abstract class SingleItemHolder<T> implements Ref<T> {
 
     private T strongHolder = null;
     private Reference<T> refHolder = null;

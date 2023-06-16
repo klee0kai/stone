@@ -4,9 +4,9 @@ import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
-import com.github.klee0kai.stone.interfaces.IComponent;
+import com.github.klee0kai.stone.closed.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
+import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -45,7 +45,7 @@ public class AllClassesHelper {
         this.elements = elements;
         iComponentClassDetails = findForType(ClassName.get(IComponent.class));
         iModule = findForType(ClassName.get(IModule.class));
-        iLifeCycleOwner = findForType(ClassName.get(IStoneLifeCycleOwner.class));
+        iLifeCycleOwner = findForType(ClassName.get(StoneLifeCycleOwner.class));
 
         scopeAnnotationElement = typeElementFor(ClassName.get(Scope.class));
         gcScopeAnnotationElement = typeElementFor(ClassName.get(GcScopeAnnotation.class));
@@ -89,10 +89,10 @@ public class AllClassesHelper {
 
     /**
      * Check that class is implement stone lifecycle owner.
-     * {@link IStoneLifeCycleOwner}
+     * {@link StoneLifeCycleOwner}
      *
      * @param typeName class name
-     * @return true if this class implement  {@link IStoneLifeCycleOwner}
+     * @return true if this class implement  {@link StoneLifeCycleOwner}
      */
     public boolean isLifeCycleOwner(TypeName typeName) {
         if (lifeCycleOwners.contains(typeName))

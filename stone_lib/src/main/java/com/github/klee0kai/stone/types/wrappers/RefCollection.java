@@ -8,27 +8,27 @@ import java.util.List;
 
 public class RefCollection<T> {
 
-    private final List<IRef<T>> refs = new LinkedList<>();
+    private final List<Ref<T>> refs = new LinkedList<>();
 
-    public void add(IRef<T> iRef) {
+    public void add(Ref<T> ref) {
         clearNulls();
-        refs.add(iRef);
+        refs.add(ref);
     }
 
-    public List<IRef<T>> getAllRefs() {
+    public List<Ref<T>> getAllRefs() {
         clearNulls();
         return refs;
     }
 
     public List<T> getAll() {
         clearNulls();
-        return ListUtils.format(refs, IRef::get);
+        return ListUtils.format(refs, Ref::get);
     }
 
     public void clearNulls() {
-        Iterator<IRef<T>> it = refs.iterator();
+        Iterator<Ref<T>> it = refs.iterator();
         while (it.hasNext()) {
-            IRef<T> ref = it.next();
+            Ref<T> ref = it.next();
             if (ref == null || ref.get() == null)
                 it.remove();
         }

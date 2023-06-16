@@ -7,7 +7,7 @@ import com.github.klee0kai.stone.model.annotations.ComponentAnn;
 import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
 import com.github.klee0kai.stone.model.annotations.IAnnotation;
 import com.github.klee0kai.stone.model.annotations.ModuleAnn;
-import com.github.klee0kai.stone.types.wrappers.IWrapperCreator;
+import com.github.klee0kai.stone.types.wrappers.WrapperCreator;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.Modifier;
@@ -45,7 +45,7 @@ public class WrappersCreatorChecks {
     }
 
     private static void checkIWrapperCreatorInterface(ClassDetail cl) {
-        ClassName wrClName = ClassName.get(IWrapperCreator.class);
+        ClassName wrClName = ClassName.get(WrapperCreator.class);
         boolean isWrapperCreatorInterface = false;
         for (ClassDetail p : cl.getAllParents(false))
             if (Objects.equals(p.className, wrClName)) {
@@ -56,7 +56,7 @@ public class WrappersCreatorChecks {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .wrappersCreatorClass(cl.className.toString())
-                            .shouldImplementInterface(IWrapperCreator.class.getCanonicalName())
+                            .shouldImplementInterface(WrapperCreator.class.getCanonicalName())
                             .build()
             );
         }

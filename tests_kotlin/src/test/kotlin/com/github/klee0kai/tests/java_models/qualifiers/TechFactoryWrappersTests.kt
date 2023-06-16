@@ -1,7 +1,7 @@
 package com.github.klee0kai.tests.java_models.qualifiers
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone.types.wrappers.IRef
+import com.github.klee0kai.stone.types.wrappers.Ref
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponent
 import com.github.klee0kai.test.tech.components.Battery
 import org.junit.jupiter.api.Assertions.*
@@ -15,7 +15,7 @@ class TechFactoryWrappersTests {
         val DI = Stone.createComponent(TechFactoryComponent::class.java)
 
         //When
-        val battery: IRef<Battery> = DI.batteryLazy()
+        val battery: Ref<Battery> = DI.batteryLazy()
 
         //Then
         assertEquals(
@@ -54,7 +54,7 @@ class TechFactoryWrappersTests {
         val DI = Stone.createComponent(TechFactoryComponent::class.java)
 
         //When
-        val battery: IRef<Battery> = DI.batteryPhantomProvider()
+        val battery: Ref<Battery> = DI.batteryPhantomProvider()
 
         //Then
         assertNotEquals(

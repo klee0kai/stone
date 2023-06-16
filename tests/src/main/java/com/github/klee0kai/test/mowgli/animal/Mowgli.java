@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.mowgli.animal;
 
-import com.github.klee0kai.stone.types.wrappers.IRef;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
 import com.github.klee0kai.test.mowgli.body.Blood;
@@ -37,7 +37,7 @@ public class Mowgli implements IAnimal {
     public LazyProvide<Knowledge> knowledgeLazyProvide;
 
     @Inject
-    public IRef<Knowledge> knowledgePhantomProvide2;
+    public Ref<Knowledge> knowledgePhantomProvide2;
 
     @Inject
     public Provider<Knowledge> knowledgePhantomProvide3;
@@ -52,7 +52,7 @@ public class Mowgli implements IAnimal {
 
     public LazyProvide<Knowledge> methodKnowledgeLazyProvide;
 
-    public IRef<Knowledge> methodKnowledgePhantomProvide2;
+    public Ref<Knowledge> methodKnowledgePhantomProvide2;
 
     public Provider<Knowledge> methodKnowledgePhantomProvide3;
 
@@ -68,7 +68,7 @@ public class Mowgli implements IAnimal {
     @Inject
     public void wrapperInject(
             LazyProvide<Knowledge> knowledgeLazyProvide,
-            IRef<Knowledge> knowledgePhantomProvide2,
+            Ref<Knowledge> knowledgePhantomProvide2,
             Provider<Knowledge> knowledgePhantomProvide3,
             PhantomProvide<Knowledge> knowledgePhantomProvide
     ) {

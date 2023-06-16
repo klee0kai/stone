@@ -1,7 +1,7 @@
 package com.github.klee0kai.test_ext.inject.di.base_phone;
 
 import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
+import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.di.base_phone.PhoneComponent;
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
@@ -17,5 +17,5 @@ public interface PhoneExtComponent extends PhoneComponent {
 
     void injectExt(GoodPhone goodPhone, DataStorageSize dataStorageSize, RamSize ramSize);
 
-    void injectExt(GoodPhone goodPhone, IStoneLifeCycleOwner lifeCycleOwner, DataStorageSize dataStorageSize, RamSize ramSize);
+    void injectExt(GoodPhone goodPhone, StoneLifeCycleOwner lifeCycleOwner, DataStorageSize dataStorageSize, RamSize ramSize);
 }

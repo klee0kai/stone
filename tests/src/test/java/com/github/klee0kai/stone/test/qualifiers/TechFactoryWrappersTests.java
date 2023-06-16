@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.types.wrappers.IRef;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponent;
 import com.github.klee0kai.test.tech.components.Battery;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ public class TechFactoryWrappersTests {
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
 
         //When
-        IRef<Battery> battery = DI.batteryLazy();
+        Ref<Battery> battery = DI.batteryLazy();
 
         //Then
         assertEquals(
@@ -58,7 +58,7 @@ public class TechFactoryWrappersTests {
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
 
         //When
-        IRef<Battery> battery = DI.batteryPhantomProvider();
+        Ref<Battery> battery = DI.batteryPhantomProvider();
 
         //Then
         assertNotEquals(
@@ -88,7 +88,7 @@ public class TechFactoryWrappersTests {
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
 
         //When
-        IRef<Battery> battery = DI.batteryProviderIRef();
+        Ref<Battery> battery = DI.batteryProviderIRef();
 
         //Then
         assertNotEquals(

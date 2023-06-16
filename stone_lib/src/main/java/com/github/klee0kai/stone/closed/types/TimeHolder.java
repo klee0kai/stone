@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.closed.types;
 
-import com.github.klee0kai.stone.types.wrappers.IRef;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -8,7 +8,7 @@ import java.lang.ref.SoftReference;
 /**
  * Stone Private class
  */
-public class TimeHolder<T> implements IRef<T> {
+public class TimeHolder<T> implements Ref<T> {
 
     private final TimeScheduler timer;
     private Reference<T> ref = null;
