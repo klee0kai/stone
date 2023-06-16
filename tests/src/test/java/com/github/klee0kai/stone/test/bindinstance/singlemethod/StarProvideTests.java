@@ -42,23 +42,6 @@ public class StarProvideTests {
 
 
     @Test
-    public void bindSunCommonTest() {
-        //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Sun sun = new Sun();
-
-        //When
-        DI.bind(sun);
-
-        //Then
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertNull(DI.sunModule().star(null));
-    }
-
-
-
-    @Test
     public void separateSunBindingTest() {
         //Given
         PlanetComponent DI = Stone.createComponent(PlanetComponent.class);

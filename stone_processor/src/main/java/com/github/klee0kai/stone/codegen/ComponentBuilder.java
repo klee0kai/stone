@@ -308,7 +308,7 @@ public class ComponentBuilder {
                 .addModifiers(Modifier.PUBLIC);
         for (FieldDetail arg : m.args) {
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-            builder.addStatement("$L( $L )", extOfMethodName, arg.name);
+            builder.addStatement("$L( ($T) $L )", extOfMethodName, IComponent.class, arg.name);
         }
 
         iComponentMethods.add(builder);

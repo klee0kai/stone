@@ -20,7 +20,7 @@ public class StarProvideTests {
 
         //When
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
 
 
         //Then
@@ -36,7 +36,7 @@ public class StarProvideTests {
         //Given
         PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
         Sun sun = new Sun();
 
         //When
@@ -61,7 +61,7 @@ public class StarProvideTests {
 
         //When
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
         DIPro.sunModule().sun(sun2);
 
         //Then
@@ -80,11 +80,11 @@ public class StarProvideTests {
         Sun sun3 = new Sun();
         DI.sunModule().sun(sun1);
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
         DIPro.sunModule().sun(sun2);
 
         //When
-        DI.bind(sun3);
+        DI.bindSun(sun3);
 
 
         //Then
