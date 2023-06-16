@@ -51,7 +51,7 @@ public class PlanetProvideTests {
         Earth earth = new Earth();
 
         //When
-        DI.bind(earth);
+        DI.earth(earth);
 
         //Then
         assertEquals(earth, DI.earth(null));

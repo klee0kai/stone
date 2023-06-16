@@ -15,7 +15,7 @@ public interface IComponent {
      *                - a factory class
      * @deprecated Create init method with module type as argument
      */
-    void init(Object... modules);
+    void __init(Object... modules);
 
     /**
      * init dependencies
@@ -23,18 +23,18 @@ public interface IComponent {
      * @param dependencies - An instance of dependencies
      * @deprecated Create init method with dependency type as argument
      */
-    void initDependencies(Object... dependencies);
+    void __initDependencies(Object... dependencies);
 
     /**
      * bind instance objects
      *
      * @param objects - An instance of bindable objects
      */
-    void bind(Object... objects);
+    void __bind(Object... objects);
 
     /**
      * this component extends of other
      */
-    void extOf(IComponent components);
+    void __extOf(IComponent components);
 
 }

@@ -20,7 +20,7 @@ public class TechFactoryComponentOverridedTests {
         //Given
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
         TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Ram ram = DI.ram();
@@ -35,7 +35,7 @@ public class TechFactoryComponentOverridedTests {
         //Given
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
         TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
 
         //When
@@ -52,7 +52,7 @@ public class TechFactoryComponentOverridedTests {
         //Given
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
         TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         OperationSystem os = DI.phoneOs();
@@ -67,7 +67,7 @@ public class TechFactoryComponentOverridedTests {
         //Given
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
         TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         OperationSystem os = DI.phoneOs(PhoneOsType.Ios, new PhoneOsVersion("11"));
@@ -83,7 +83,7 @@ public class TechFactoryComponentOverridedTests {
         //Given
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
         TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Ram ram8Gb = DI.ram(new RamSize("8GB"));
@@ -102,7 +102,7 @@ public class TechFactoryComponentOverridedTests {
         //Given
         TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
         TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         OperationSystem android = DI.phoneOs(PhoneOsType.Android);

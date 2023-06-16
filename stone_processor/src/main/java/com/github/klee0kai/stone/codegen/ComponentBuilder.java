@@ -3,6 +3,7 @@ package com.github.klee0kai.stone.codegen;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.checks.ComponentMethods;
+import com.github.klee0kai.stone.closed.IComponent;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
@@ -14,7 +15,6 @@ import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
-import com.github.klee0kai.stone.closed.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -47,10 +47,10 @@ public class ComponentBuilder {
     public static final String protectRecursiveField = "__protectRecursive";
     public static final String hiddenModuleMethodName = "__hidden";
     public static final String eachModuleMethodName = "__eachModule";
-    public static final String initMethodName = "init";
-    public static final String initDepsMethodName = "initDependencies";
-    public static final String bindMethodName = "bind";
-    public static final String extOfMethodName = "extOf";
+    public static final String initMethodName = "__init";
+    public static final String initDepsMethodName = "__initDependencies";
+    public static final String bindMethodName = "__bind";
+    public static final String extOfMethodName = "__extOf";
 
     public final Set<TypeName> interfaces = new HashSet<>();
     public final Set<ClassName> qualifiers = new HashSet<>();
@@ -286,8 +286,8 @@ public class ComponentBuilder {
                 );
             }
 
-            builder.addStatement("c.init( $L ) ", String.join(",", provideFactories))
-                    .addStatement("c.init(this)")
+            builder.addStatement("c.__init( $L ) ", String.join(",", provideFactories))
+                    .addStatement("c.__init(this)")
                     .endControlFlow();
 
             builder.beginControlFlow("if (c instanceof $T)", IPrivateComponent.class)
@@ -308,7 +308,7 @@ public class ComponentBuilder {
                 .addModifiers(Modifier.PUBLIC);
         for (FieldDetail arg : m.args) {
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-            builder.addStatement("$L( $L )", extOfMethodName, arg.name);
+            builder.addStatement("$L( ($T) $L )", extOfMethodName, IComponent.class, arg.name);
         }
 
         iComponentMethods.add(builder);

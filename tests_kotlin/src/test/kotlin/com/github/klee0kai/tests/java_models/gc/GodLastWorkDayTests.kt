@@ -159,5 +159,5 @@ class GodLastWorkDayTests {
  * [Research](https://github.com/klee0kai/KotlinMemLeakResearch)
  */
 fun GcGodComponent.bindSingle(obj: Any?) {
-    bind(obj)
+    __bind(obj)
 }

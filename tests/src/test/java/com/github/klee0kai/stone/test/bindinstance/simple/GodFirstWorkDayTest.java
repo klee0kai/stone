@@ -19,7 +19,7 @@ public class GodFirstWorkDayTest {
         Sun sun = new Sun();
 
         //When
-        DI.bind(sun);
+        DI.__bind(sun);
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
@@ -35,7 +35,7 @@ public class GodFirstWorkDayTest {
         Earth earth = new Earth();
 
         //When
-        DI.bind(sun, earth);
+        DI.__bind(sun, earth);
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
@@ -53,7 +53,7 @@ public class GodFirstWorkDayTest {
         Saturn saturn = new Saturn();
 
         //When
-        DI.bind(sun, earth, saturn);
+        DI.__bind(sun, earth, saturn);
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
@@ -72,9 +72,9 @@ public class GodFirstWorkDayTest {
         Saturn saturn = new Saturn();
 
         //When
-        DI.bind(saturn);
-        DI.bind(earth);
-        DI.bind(sun);
+        DI.__bind(saturn);
+        DI.__bind(earth);
+        DI.__bind(sun);
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid);

@@ -35,7 +35,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
@@ -82,7 +82,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
@@ -138,7 +138,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
@@ -194,7 +194,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
@@ -250,7 +250,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
@@ -306,7 +306,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
@@ -362,7 +362,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
@@ -418,7 +418,7 @@ public class ExtPlanetRollingTests {
         DI.sunModule().star(starWeak.get());
         //external component init
         ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
         WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());

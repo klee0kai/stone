@@ -84,7 +84,7 @@ public class StarProvideTests {
         DIPro.sunModule().sun(sun2);
 
         //When
-        DI.bind(sun3);
+        DI.bindSun(sun3);
 
 
         //Then
