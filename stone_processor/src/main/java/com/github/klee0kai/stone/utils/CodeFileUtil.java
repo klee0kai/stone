@@ -8,8 +8,18 @@ import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
 
+
+/**
+ * Generate java files util
+ */
 public class CodeFileUtil {
 
+    /**
+     * Generate class java file.
+     *
+     * @param packageName package of type
+     * @param spec        type specifications
+     */
     public static void writeToJavaFile(String packageName, TypeSpec spec) {
         try {
             JavaFile javaFile =

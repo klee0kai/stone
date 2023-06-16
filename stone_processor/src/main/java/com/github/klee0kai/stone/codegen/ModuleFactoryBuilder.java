@@ -7,7 +7,6 @@ import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
-import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
@@ -21,7 +20,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.constructorNonFound;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genFactoryNameMirror;
 
 public class ModuleFactoryBuilder {
 
@@ -39,7 +39,7 @@ public class ModuleFactoryBuilder {
         builder.qualifiers.addAll(allQualifiers);
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
         if (builder.needBuild) {
-            builder.className = ClassNameUtils.genFactoryNameMirror(module.className);
+            builder.className = genFactoryNameMirror(module.className);
             for (MethodDetail m : module.getAllMethods(false, false, "<init>")) {
                 if (!m.isAbstract() && !module.isInterfaceClass())
                     continue;
@@ -49,7 +49,12 @@ public class ModuleFactoryBuilder {
                     builder.provideNullMethod(m.methodName, m.returnType, m.args);
                 } else if (!hasConstructor) {
                     List<String> argTypes = ListUtils.format(m.args, (it) -> it.type.toString());
-                    throw new ObjectNotProvidedException(String.format(constructorNonFound, providingClass.className, String.join(", ", argTypes)));
+                    throw new ObjectNotProvidedException(
+                            createErrorMes()
+                                    .constructorNonFound(providingClass.className.toString(), argTypes)
+                                    .build(),
+                            null
+                    );
                 } else {
                     builder.provideMethod(m.methodName, m.returnType, m.args);
                 }

@@ -9,6 +9,10 @@ java {
     withJavadocJar()
 }
 
+javadoc {
+    exclude("com/github/klee0kai/stone/closed/")
+}
+
 publishing {
     publications {
         maven(MavenPublication) {

@@ -2,7 +2,14 @@ package com.github.klee0kai.stone.model;
 
 import java.util.Objects;
 
+/**
+ * Simple pair type.
+ *
+ * @param <K> first's type
+ * @param <T> second's type
+ */
 public class Pair<K, T> {
+
     public final K first;
     public final T second;
 

@@ -4,6 +4,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Stone Private class
+ */
 public class Threads {
 
     public static ThreadPoolExecutor singleThreadExecutor(String name) {

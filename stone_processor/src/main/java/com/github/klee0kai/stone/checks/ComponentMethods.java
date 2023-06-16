@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.codegen.helpers;
+package com.github.klee0kai.stone.checks;
 
 import com.github.klee0kai.stone.annotations.component.ExtendOf;
 import com.github.klee0kai.stone.annotations.component.Init;
@@ -19,24 +19,46 @@ import com.squareup.javapoet.TypeName;
 import java.util.Objects;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 public class ComponentMethods {
 
     public static boolean isModuleProvideMethod(MethodDetail m) {
         boolean isProvideMethod = isProvideMethod(m);
         ClassDetail providingClDetails = isProvideMethod ? allClassesHelper.findForType(m.returnType) : null;
-        return providingClDetails != null
-                && providingClDetails.hasAnnotations(ModuleAnn.class)
-                && m.args.isEmpty();
+        if (providingClDetails == null || !providingClDetails.hasAnnotations(ModuleAnn.class))
+            return false;
+        if (!m.args.isEmpty() || !m.annotations.isEmpty()) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .add("should no have arguments and annotations.")
+                            .build()
+            );
+        }
+        ModuleChecks.checkModuleClass(providingClDetails);
+        checkMethodBusy(m);
+
+        return m.args.isEmpty();
     }
 
     public static boolean isDepsProvide(MethodDetail m) {
         boolean isProvideMethod = isProvideMethod(m);
         ClassDetail providingClDetails = isProvideMethod ? allClassesHelper.findForType(m.returnType) : null;
-        return providingClDetails != null
-                && providingClDetails.hasAnnotations(DependenciesAnn.class)
-                && m.args.isEmpty();
+        if (providingClDetails == null || !providingClDetails.hasAnnotations(DependenciesAnn.class))
+            return false;
+        if (!m.args.isEmpty() || !m.annotations.isEmpty()) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .add("should no have arguments and annotations.")
+                            .build()
+            );
+        }
+        DependencyChecks.checkDependencyClass(providingClDetails);
+        checkMethodBusy(m);
+
+        return true;
     }
 
 
@@ -46,7 +68,11 @@ public class ComponentMethods {
 
     public static boolean isInitModuleMethod(MethodDetail m) {
         if (!m.hasAnyAnnotation(InitAnn.class)) return false;
-        StoneException ex = new IncorrectSignatureException(String.format(componentInitMethodSignatureIncorrect, m.methodName, Init.class.getSimpleName()));
+        StoneException ex = new IncorrectSignatureException(
+                createErrorMes()
+                        .componentInitMethodSignatureIncorrect(m.methodName, Init.class.getSimpleName())
+                        .build()
+        );
         if (!m.hasOnlyAnnotations(false, InitAnn.class)
                 || m.args.isEmpty() || m.returnType != TypeName.VOID)
             throw ex;
@@ -70,7 +96,11 @@ public class ComponentMethods {
 
     public static boolean isExtOfMethod(ClassDetail cl, MethodDetail m) {
         if (!m.hasAnyAnnotation(ExtOfAnn.class)) return false;
-        StoneException ex = new IncorrectSignatureException(String.format(componentExtOfMethodSignatureIncorrect, m.methodName, ExtendOf.class.getSimpleName()));
+        StoneException ex = new IncorrectSignatureException(
+                createErrorMes()
+                        .componentExtOfMethodSignatureIncorrect(m.methodName, ExtendOf.class.getSimpleName())
+                        .build()
+        );
         if (!m.hasOnlyAnnotations(false, ExtOfAnn.class)
                 || m.args.size() != 1 || m.returnType != TypeName.VOID)
             throw ex;
@@ -84,7 +114,11 @@ public class ComponentMethods {
 
     public static BindInstanceType isBindInstanceMethod(MethodDetail m) {
         if (!m.hasAnyAnnotation(BindInstanceAnn.class)) return null;
-        StoneException ex = new IncorrectSignatureException(String.format(componentBindInstanceMethodSignatureIncorrect, m.methodName, BindInstance.class.getSimpleName()));
+        StoneException ex = new IncorrectSignatureException(
+                createErrorMes()
+                        .componentBindInstanceMethodSignatureIncorrect(m.methodName, BindInstance.class.getSimpleName())
+                        .build()
+        );
         if (!m.hasOnlyAnnotations(true, BindInstanceAnn.class)) throw ex;
         if (m.args.size() != 1) throw ex;
         TypeName typeName = m.args.get(0).type;
@@ -101,8 +135,13 @@ public class ComponentMethods {
 
     public static boolean isGcMethod(MethodDetail m) {
         if (m.gcScopeAnnotations.isEmpty() || !m.hasOnlyAnnotations(true)) return false;
-        if (m.returnType != TypeName.VOID)
-            throw new IncorrectSignatureException(String.format(componentGCMethodSignatureIncorrect, m.methodName));
+        if (m.returnType != TypeName.VOID) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .componentGCMethodSignatureIncorrect(m.methodName)
+                            .build()
+            );
+        }
         checkMethodBusy(m);
 
         return true;
@@ -110,7 +149,11 @@ public class ComponentMethods {
 
     public static boolean isSwitchCacheMethod(MethodDetail m) {
         if (!m.hasAnyAnnotation(SwitchCacheAnn.class)) return false;
-        StoneException ex = new IncorrectSignatureException(String.format(componentSwitchCacheMethodSignatureIncorrect, m.methodName, SwitchCache.class.getSimpleName()));
+        StoneException ex = new IncorrectSignatureException(
+                createErrorMes()
+                        .componentSwitchCacheMethodSignatureIncorrect(m.methodName, SwitchCache.class.getSimpleName())
+                        .build()
+        );
         if (!m.hasOnlyAnnotations(true, SwitchCacheAnn.class)) throw ex;
         if (m.returnType != TypeName.VOID || !m.args.isEmpty()) throw ex;
         checkMethodBusy(m);
@@ -128,7 +171,11 @@ public class ComponentMethods {
 
     public static boolean isProtectInjectedMethod(MethodDetail m) {
         if (!m.hasAnyAnnotation(ProtectInjectedAnn.class)) return false;
-        StoneException ex = new IncorrectSignatureException(String.format(componentProtectInjectedMethodSignatureIncorrect, m.methodName, ProtectInjected.class.getSimpleName()));
+        StoneException ex = new IncorrectSignatureException(
+                createErrorMes()
+                        .componentProtectInjectedMethodSignatureIncorrect(m.methodName, ProtectInjected.class.getSimpleName())
+                        .build()
+        );
         if (!m.hasOnlyAnnotations(false, ProtectInjectedAnn.class) || m.returnType != TypeName.VOID || m.args.size() != 1)
             throw ex;
         TypeName typeName = m.args.get(0).type;
@@ -148,8 +195,13 @@ public class ComponentMethods {
 
 
     private static void checkMethodBusy(MethodDetail m) {
-        if (allClassesHelper.iComponentClassDetails.findMethod(m, true) != null)
-            throw new IncorrectSignatureException(componentMethodNameBusy);
+        if (allClassesHelper.iComponentClassDetails.findMethod(m, true) != null) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .componentMethodNameBusy(m.methodName)
+                            .build()
+            );
+        }
     }
 
     public enum BindInstanceType {

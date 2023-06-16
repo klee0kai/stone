@@ -3,16 +3,14 @@ package com.github.klee0kai.stone;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.checks.ComponentChecks;
-import com.github.klee0kai.stone.checks.DependencyChecks;
-import com.github.klee0kai.stone.checks.ModuleChecks;
 import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
 import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
-import com.github.klee0kai.stone.exceptions.ComponentsMethodPurposeNotDetectedException;
 import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
 import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
@@ -27,8 +25,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.*;
+import static com.github.klee0kai.stone.checks.ComponentMethods.*;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
+/**
+ * Stone's Annotation processor
+ * Entry Point of the lib.
+ */
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({"*"})
 public class AnnotationProcessor extends AbstractProcessor {
@@ -61,8 +64,14 @@ public class AnnotationProcessor extends AbstractProcessor {
                     ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
                     if (parentCompAnn != null) allQualifiers.addAll(parentCompAnn.qualifiers);
                 }
-            } catch (Throwable e) {
-                throw new CreateStoneComponentException(componentEl, e);
+            } catch (Throwable cause) {
+                throw new CreateStoneComponentException(
+                        createErrorMes()
+                                .cannotCreateComponent(componentEl.getSimpleName().toString())
+                                .collectCauseMessages(cause)
+                                .build(),
+                        cause
+                );
             }
         }
 
@@ -80,7 +89,12 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
                 moduleBuilder.buildAndWrite();
             } catch (Throwable e) {
-                throw new CreateStoneModuleException(moduleEl, e);
+                throw new CreateStoneModuleException(
+                        createErrorMes()
+                                .cannotCreateModule(moduleEl.toString())
+                                .collectCauseMessages(e)
+                                .build(),
+                        e);
             }
         }
 
@@ -102,12 +116,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
                     if (isModuleProvideMethod(m)) {
                         ClassDetail moduleCl = allClassesHelper.findForType(m.returnType);
-                        ModuleChecks.checkModuleClass(moduleCl);
                         componentBuilder.provideModuleMethod(m.methodName, moduleCl);
                     } else if (isDepsProvide(m)) {
                         ClassDetail dependencyCl = allClassesHelper.findForType(m.returnType);
-                        DependencyChecks.checkDependencyClass(dependencyCl);
-                        componentBuilder.provideDependenciesMethod(m.methodName, allClassesHelper.findForType(m.returnType));
+                        componentBuilder.provideDependenciesMethod(m.methodName, dependencyCl);
                     } else if (isInitModuleMethod(m)) {
                         componentBuilder.initMethod(m);
                     } else if (isExtOfMethod(component, m)) {
@@ -130,13 +142,23 @@ public class AnnotationProcessor extends AbstractProcessor {
                         );
                     } else if (component.isInterfaceClass() || m.isAbstract()) {
                         //non implemented method
-                        throw new ComponentsMethodPurposeNotDetectedException(component.className, m);
+                        throw new IncorrectSignatureException(
+                                createErrorMes()
+                                        .methodPurposeNonDetected(m.methodName, component.className.toString())
+                                        .build()
+                        );
                     }
                 }
                 componentBuilder.buildAndWrite();
 
-            } catch (Throwable e) {
-                throw new CreateStoneComponentException(componentEl, e);
+            } catch (Throwable cause) {
+                throw new CreateStoneComponentException(
+                        createErrorMes()
+                                .cannotCreateComponent(componentEl.getSimpleName().toString())
+                                .collectCauseMessages(cause)
+                                .build(),
+                        cause
+                );
             }
 
         }

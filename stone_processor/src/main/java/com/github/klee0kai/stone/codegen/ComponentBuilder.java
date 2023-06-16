@@ -2,14 +2,18 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
-import com.github.klee0kai.stone.codegen.helpers.*;
+import com.github.klee0kai.stone.codegen.helpers.IProvideTypeWrapperHelper;
+import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
+import com.github.klee0kai.stone.codegen.helpers.ModulesGraph;
+import com.github.klee0kai.stone.codegen.helpers.SetFieldHelper;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
+import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
-import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -25,8 +29,9 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
-import static com.github.klee0kai.stone.codegen.helpers.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
+import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 
 public class ComponentBuilder {
 
@@ -78,7 +83,7 @@ public class ComponentBuilder {
 
 
     public static ComponentBuilder from(ClassDetail component) {
-        ComponentBuilder componentBuilder = new ComponentBuilder(component, ClassNameUtils.genComponentNameMirror(component.className));
+        ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className));
         componentBuilder.implementIComponentMethods();
 
         for (ClassDetail componentParentCl : component.getAllParents(false)) {
@@ -215,7 +220,12 @@ public class ComponentBuilder {
             } else if (iniCl.hasAnyAnnotation(DependenciesAnn.class)) {
                 builder.addStatement("$L( $L )", initDepsMethodName, arg.name);
             } else {
-                throw new StoneException(String.format(method + hasIncorrectSignature, m.methodName));
+                throw new IncorrectSignatureException(
+                        createErrorMes()
+                                .method(m.methodName)
+                                .hasIncorrectSignature()
+                                .build()
+                );
             }
         }
 
@@ -312,7 +322,7 @@ public class ComponentBuilder {
 
         collectRuns.execute(null, () -> {
             if (modulesFields.containsKey(hiddenModuleFieldName)) {
-                ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
+                ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
                 builder.returns(tpName)
                         .addStatement("return this.$L", hiddenModuleFieldName);
             } else {
@@ -355,7 +365,7 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
-        ClassName moduleStoneMirror = ClassNameUtils.genModuleNameMirror(module.className);
+        ClassName moduleStoneMirror = genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE).initializer("new $T()", moduleStoneMirror));
         MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
                 .addAnnotation(Override.class)
@@ -386,7 +396,7 @@ public class ComponentBuilder {
     public ComponentBuilder provideHiddenModuleMethod() {
         String name = hiddenModuleFieldName;
 
-        ClassName tpName = ClassNameUtils.genHiddenModuleNameMirror(orComponentCl.className);
+        ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
         moduleHiddenBuilder = new ModuleBuilder(null, tpName);
         moduleHiddenBuilder.qualifiers.addAll(qualifiers);
         moduleHiddenBuilder.implementIModule();
@@ -410,14 +420,19 @@ public class ComponentBuilder {
         );
 
         provideObjMethods.add(builder);
-        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
             CodeBlock statementBlock = modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
             if (statementBlock == null) {
                 throw new ObjectNotProvidedException(
-                        provideTypeWrapperHelper.providingType(),
-                        orComponentCl.className,
-                        m.methodName
+                        createErrorMes()
+                                .errorProvideTypeRequiredIn(
+                                        provideTypeWrapperHelper.providingType().toString(),
+                                        orComponentCl.className.toString(),
+                                        m.methodName
+                                )
+                                .build(),
+                        null
                 );
             }
             builder.addCode(statementBlock)
@@ -461,7 +476,7 @@ public class ComponentBuilder {
                             ));
         }
 
-        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             // bind object declared in module
             if (setValueArg != null) {
                 builder.addStatement(
@@ -496,13 +511,18 @@ public class ComponentBuilder {
 
         List<FieldDetail> injectableFields = ListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && !qualifiers.contains(it.type));
 
-        if (injectableFields.isEmpty())
-            throw new IncorrectSignatureException(String.format(method + shouldHaveInjectableClassAsParameter, m.methodName));
+        if (injectableFields.isEmpty()) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .shouldHaveInjectableClassAsParameter()
+                            .build());
+        }
 
         if (lifeCycleOwner != null) timeHolderFields();
 
         injectMethods.add(builder);
-        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             for (FieldDetail injectableField : injectableFields) {
                 ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
 
@@ -512,12 +532,18 @@ public class ComponentBuilder {
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                     CodeBlock provideStatement = modulesGraph.statementProvideType(injectField.name + "Ph", null, provideTypeWrapperHelper.providingType(), qFields);
-                    if (provideStatement == null)
+                    if (provideStatement == null) {
                         throw new ObjectNotProvidedException(
-                                provideTypeWrapperHelper.providingType(),
-                                injectableCl.className,
-                                injectField.name
+                                createErrorMes()
+                                        .errorProvideTypeRequiredIn(
+                                                provideTypeWrapperHelper.providingType().toString(),
+                                                injectableCl.className.toString(),
+                                                injectField.name
+                                        )
+                                        .build(),
+                                null
                         );
+                    }
 
                     builder.addCode(provideStatement)
                             .addStatement(
@@ -537,12 +563,18 @@ public class ComponentBuilder {
                         String provideFieldName = injectMethod.methodName + "_" + injectField.name;
                         IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
                         CodeBlock provideStatement = modulesGraph.statementProvideType(provideFieldName, null, provideTypeWrapperHelper.providingType(), qFields);
-                        if (provideStatement == null)
+                        if (provideStatement == null) {
                             throw new ObjectNotProvidedException(
-                                    provideTypeWrapperHelper.providingType(),
-                                    injectableCl.className,
-                                    injectField.name
+                                    ExceptionStringBuilder.createErrorMes()
+                                            .errorProvideTypeRequiredIn(
+                                                    provideTypeWrapperHelper.providingType().toString(),
+                                                    injectableCl.className.toString(),
+                                                    injectField.name
+                                            )
+                                            .build(),
+                                    null
                             );
+                        }
 
                         builder.addCode(provideStatement);
 
@@ -600,7 +632,7 @@ public class ComponentBuilder {
                 .returns(void.class);
 
         protectInjectedMethods.add(builder);
-        collectRuns.execute(String.format(errorImplementMethod, name), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(name).build(), () -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
                 IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
@@ -647,7 +679,7 @@ public class ComponentBuilder {
 
 
         gcMethods.add(builder);
-        collectRuns.execute(String.format(errorImplementMethod, m.methodName), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             builder.addStatement(
                             "$L( (m) -> {  m.switchRef(scopes, toWeak); } )",
                             eachModuleMethodName

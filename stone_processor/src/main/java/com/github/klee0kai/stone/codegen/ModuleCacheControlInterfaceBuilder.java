@@ -15,6 +15,7 @@ import java.util.*;
 
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.bindMethodName;
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.switchRefMethodName;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 
 public class ModuleCacheControlInterfaceBuilder {
 
@@ -50,7 +51,7 @@ public class ModuleCacheControlInterfaceBuilder {
 
     public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl) {
         this.orModuleCl = orModuleCl;
-        this.className = ClassNameUtils.genCacheControlInterfaceModuleNameMirror(orModuleCl.className);
+        this.className = genCacheControlInterfaceModuleNameMirror(orModuleCl.className);
     }
 
     public ModuleCacheControlInterfaceBuilder bindMethod() {

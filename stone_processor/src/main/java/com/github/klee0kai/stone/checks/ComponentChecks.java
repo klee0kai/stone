@@ -13,7 +13,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
-import static com.github.klee0kai.stone.exceptions.StoneExceptionStrings.*;
+import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.checkWrapperClass;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 public class ComponentChecks {
 
@@ -25,26 +26,50 @@ public class ComponentChecks {
                 checkMethodSignature(m);
             checkNoModuleDoubles(cl);
         } catch (Exception e) {
-            throw new IncorrectSignatureException(String.format(componentsClass + hasIncorrectSignature, cl.className), e);
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .componentsClass(cl.className.toString())
+                            .hasIncorrectSignature()
+                            .build(),
+                    e
+            );
         }
     }
 
 
     private static void checkClassAnnotations(ClassDetail cl) {
-        if (cl.hasAnyAnnotation(WrapperCreatorsAnn.class))
-            throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveAnnotation, cl.className, WrappersCreator.class));
+        if (cl.hasAnyAnnotation(WrapperCreatorsAnn.class)) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .componentsClass(cl.className.toString())
+                            .shouldNoHaveAnnotation(WrappersCreator.class.toString())
+                            .build()
+            );
+        }
 
         for (ClassName q : cl.ann(ComponentAnn.class).qualifiers) {
-            if (q.isPrimitive())
-                throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveQualifier, cl.className, "primitive"));
+            if (q.isPrimitive()) {
+                throw new IncorrectSignatureException(
+                        createErrorMes()
+                                .componentsClass(cl.className.toString())
+                                .shouldNoHaveQualifier("primitive")
+                                .build()
+                );
+            }
 
-            if (Objects.equals(q, ClassName.OBJECT))
-                throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveQualifier, cl.className, "Object"));
+            if (Objects.equals(q, ClassName.OBJECT)) {
+                throw new IncorrectSignatureException(
+                        createErrorMes()
+                                .componentsClass(cl.className.toString())
+                                .shouldNoHaveQualifier("Object")
+                                .build()
+                );
+            }
         }
 
         for (ClassName wr : cl.ann(ComponentAnn.class).wrapperProviders) {
             ClassDetail wrCl = allClassesHelper.findForType(wr);
-            WrappersCreatorChecks.checkWrapperClass(wrCl);
+            checkWrapperClass(wrCl);
         }
     }
 
@@ -55,13 +80,14 @@ public class ComponentChecks {
             if (module != null && module.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class)) {
                 if (modules.contains(m.returnType)) {
                     throw new IncorrectSignatureException(
-                            String.format(componentsClass + shouldHaveOnlySingleModuleMethod,
-                                    cl.className,
-                                    ((ClassName) m.returnType).simpleName())
+                            createErrorMes()
+                                    .componentsClass(cl.className.toString())
+                                    .shouldHaveOnlySingleModuleMethod(((ClassName) m.returnType).simpleName())
+                                    .build()
                     );
                 }
 
-                for (ClassDetail p : module.getAllParents(false)) {
+                for (ClassDetail ignored : module.getAllParents(false)) {
                     if (module.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class))
                         modules.add(m.returnType);
                 }
@@ -71,13 +97,25 @@ public class ComponentChecks {
 
     private static void checkMethodSignature(MethodDetail m) {
         IAnnotation prohibitedAnn = m.anyAnnotation(ProvideAnn.class, NamedAnn.class, SingletonAnn.class);
-        if (prohibitedAnn != null)
-            throw new IncorrectSignatureException(String.format(method + shouldNoHaveAnnotation, m.methodName, prohibitedAnn.originalAnn().getSimpleName()));
+        if (prohibitedAnn != null) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
+                            .build()
+            );
+        }
     }
 
     private static void checkClassNoHaveFields(ClassDetail cl) {
-        if (!cl.fields.isEmpty())
-            throw new IncorrectSignatureException(String.format(componentsClass + shouldNoHaveFields, cl.className));
+        if (!cl.fields.isEmpty()) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .componentsClass(cl.className.toString())
+                            .shouldNoHaveFields()
+                            .build()
+            );
+        }
     }
 
 }

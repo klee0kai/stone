@@ -49,8 +49,9 @@ public class ComponentAnn implements Cloneable, IAnnotation {
                 }
             }
         } catch (Exception e) {
-            if (e instanceof PrimitiveTypeNonSupportedStoneException)
+            if (e instanceof PrimitiveTypeNonSupportedStoneException) {
                 throw new IncorrectSignatureException("Primitive types non supported for Component's qualifiers", e);
+            }
             throw e;
         }
 
@@ -65,8 +66,9 @@ public class ComponentAnn implements Cloneable, IAnnotation {
                 }
             }
         } catch (Exception e) {
-            if (e instanceof PrimitiveTypeNonSupportedStoneException)
+            if (e instanceof PrimitiveTypeNonSupportedStoneException) {
                 throw new IncorrectSignatureException("Primitive types non supported for Component's WrapperProviders", e);
+            }
             throw e;
         }
 

@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Stone Private class
  */
-
 public class TimeScheduler {
 
     private static final int MAX_VALUE_AWAIT_TIME = 30;
