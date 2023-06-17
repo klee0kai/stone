@@ -6,14 +6,15 @@ import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
-import com.github.klee0kai.stone.codegen.helpers.IProvideTypeWrapperHelper;
-import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
-import com.github.klee0kai.stone.codegen.helpers.ModulesGraph;
-import com.github.klee0kai.stone.codegen.helpers.SetFieldHelper;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
+import com.github.klee0kai.stone.helpers.IProvideTypeWrapperHelper;
+import com.github.klee0kai.stone.helpers.ItemHolderCodeHelper;
+import com.github.klee0kai.stone.helpers.SetFieldHelper;
+import com.github.klee0kai.stone.helpers.invokecall.InvokeCall;
+import com.github.klee0kai.stone.helpers.invokecall.ModulesGraph;
 import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -275,7 +276,7 @@ public class ComponentBuilder {
                     .addStatement("$T protoComponent = ($T) c", proto.className, proto.className);
             for (MethodDetail provideModule : provideModuleMethods) {
                 builder.addStatement(
-                        "$L().initCachesFrom( ($T) protoComponent.$L() )",
+                        "$L().initCachesFrom( ($T) protoComponent.$L(), false)",
                         provideModule.methodName, IModule.class, provideModule.methodName
                 );
             }
@@ -479,12 +480,15 @@ public class ComponentBuilder {
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             // bind object declared in module
             if (setValueArg != null) {
-                builder.addStatement(
-                        modulesGraph.codeControlCacheForType(m.methodName, setValueArg.type, qFields,
-                                CodeBlock.of(
-                                        "$T.setValueAction( $L )",
-                                        CacheAction.class, setValueArg.name
-                                ))
+                InvokeCall cacheControlInvoke = modulesGraph.invokeControlCacheForType(m.methodName, setValueArg.type, qFields);
+                builder.addStatement(cacheControlInvoke.invokeCode(qFields,
+                        typeName -> CodeBlock.of(
+                                "$T.setValueAction( $L )",
+                                CacheAction.class, setValueArg.name
+                        ))
+                ).addStatement(
+                        "$L( (module) -> { module.initCachesFrom( $L() , true ); } )",
+                        eachModuleMethodName, cacheControlInvoke.invokeSequence.get(0).methodName
                 );
             }
 

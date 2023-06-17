@@ -7,8 +7,8 @@ import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.closed.types.single.WeakItemHolder;
-import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
+import com.github.klee0kai.stone.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -22,12 +22,13 @@ import com.squareup.javapoet.*;
 import javax.lang.model.element.Modifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Function;
 
 import static com.github.klee0kai.stone.checks.ModuleMethods.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
-import static com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper.cacheTypeFrom;
-import static com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper.of;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.cacheTypeFrom;
+import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.of;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genModuleNameMirror;
 
@@ -231,7 +232,8 @@ public class ModuleBuilder {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(initCachesFromMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addParameter(IModule.class, "m");
+                .addParameter(IModule.class, "m")
+                .addParameter(boolean.class, "onlyBindInstance");
 
         collectRuns.add(() -> {
             if (orModuleCl != null) for (ClassDetail cl : orModuleCl.getAllParents(false)) {
@@ -239,19 +241,14 @@ public class ModuleBuilder {
                 builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterfaceCl)
                         .addStatement("$T module = ($T) m", cacheControlInterfaceCl, cacheControlInterfaceCl);
 
-                for (MethodDetail protoProvideMethod : cl.getAllMethods(false, false, "<init>")) {
-                    boolean isProvideMethod = !protoProvideMethod.returnType.isPrimitive()
-                            && !Objects.equals(protoProvideMethod.returnType, TypeName.VOID)
-                            && !protoProvideMethod.returnType.isBoxedPrimitive();
-                    if (!isProvideMethod)
-                        continue;
+                final Function<MethodDetail, Void> provideMethodLambda = protoProvideMethod -> {
                     String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
                     List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
                             (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
                     );
                     if (!qFields.isEmpty()) {
                         // TODO https://github.com/klee0kai/stone/issues/42
-                        continue;
+                        return null;
                     }
 
                     builder.addStatement(
@@ -259,9 +256,21 @@ public class ModuleBuilder {
                             protoCacheControlMethodName, CacheAction.class, protoCacheControlMethodName
                     );
 
+                    return null;
+                };
+
+                for (MethodDetail protoProvideMethod : cl.getAllMethods(false, false, "<init>")) {
+                    if (!protoProvideMethod.hasAnnotations(BindInstanceAnn.class)) continue;
+                    provideMethodLambda.apply(protoProvideMethod);
                 }
 
-                builder.endControlFlow();
+                builder.beginControlFlow("if (!onlyBindInstance)");
+                for (MethodDetail protoProvideMethod : cl.getAllMethods(false, false, "<init>")) {
+                    if (protoProvideMethod.hasAnnotations(BindInstanceAnn.class)) continue;
+                    provideMethodLambda.apply(protoProvideMethod);
+                }
+                builder.endControlFlow()
+                        .endControlFlow();
             }
         });
         iModuleMethodBuilders.put(initCachesFromMethodName, builder);

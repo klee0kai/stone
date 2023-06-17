@@ -22,8 +22,10 @@ public interface IModule {
     /**
      * Init caches from module prototype.
      * using in extOf method
+     *
+     * @param onlyBindInstance update cached only for bindInstance variables
      */
-    void initCachesFrom(IModule module);
+    void initCachesFrom(IModule module, boolean onlyBindInstance);
 
     /**
      * bind instance objects

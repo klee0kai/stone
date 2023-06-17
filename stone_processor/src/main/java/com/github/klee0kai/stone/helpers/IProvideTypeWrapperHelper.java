@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.codegen.helpers;
+package com.github.klee0kai.stone.helpers;
 
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.types.wrappers.IRef;
