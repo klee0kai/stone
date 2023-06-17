@@ -14,7 +14,6 @@ import java.util.*;
 
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.bindMethodName;
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.switchRefMethodName;
-import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 
 public class ModuleCacheControlInterfaceBuilder {
 
@@ -32,33 +31,19 @@ public class ModuleCacheControlInterfaceBuilder {
     public final List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
 
 
-    public static ModuleCacheControlInterfaceBuilder from(ClassDetail orModule, List<ClassName> allQualifiers) {
+    public static ModuleCacheControlInterfaceBuilder from(
+            ClassDetail orModule,
+            ClassName cacheControlCl,
+            List<ClassName> allQualifiers
+    ) {
         ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(
                 orModule,
-                genCacheControlInterfaceModuleNameMirror(orModule.className)
-        );
-        builder.qualifiers.addAll(allQualifiers);
-
-        builder.bindMethod()
+                cacheControlCl
+        ).addQualifiers(allQualifiers)
+                .bindMethod()
                 .switchRefMethod();
+
         for (MethodDetail m : orModule.getAllMethods(false, false)) {
-            if (Objects.equals(m.methodName, "<init>"))
-                continue;
-            builder.provideMethod(m.methodName, m.returnType, m.args)
-                    .cacheControlMethod(m.methodName, m.returnType, m.args);
-        }
-        return builder;
-    }
-
-    public static ModuleCacheControlInterfaceBuilder hiddenModule(ClassDetail hiddenModule, ClassName cacheControlInterface, List<ClassName> allQualifiers) {
-        ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(
-                hiddenModule,
-                cacheControlInterface
-        );
-        builder.qualifiers.addAll(allQualifiers);
-        builder.bindMethod()
-                .switchRefMethod();
-        for (MethodDetail m : hiddenModule.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
             builder.provideMethod(m.methodName, m.returnType, m.args)
@@ -72,7 +57,7 @@ public class ModuleCacheControlInterfaceBuilder {
         this.className = className;
     }
 
-    public ModuleCacheControlInterfaceBuilder addQualifiers(Set<ClassName> qualifiers) {
+    public ModuleCacheControlInterfaceBuilder addQualifiers(Collection<ClassName> qualifiers) {
         this.qualifiers.addAll(qualifiers);
         return this;
     }
