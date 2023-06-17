@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genModuleNameMirror;
 
 /**
  * Stone's Annotation processor
@@ -82,7 +83,11 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleCacheControlInterfaceBuilder.from(module, allQualifiers)
                         .buildAndWrite();
 
-                ModuleBuilder.from(module, factoryBuilder.className, allQualifiers)
+                ModuleBuilder.from(
+                                module,
+                                genModuleNameMirror(module.className),
+                                factoryBuilder.className,
+                                allQualifiers)
                         .buildAndWrite();
             } catch (Throwable e) {
                 throw new CreateStoneModuleException(
@@ -108,9 +113,10 @@ public class AnnotationProcessor extends AbstractProcessor {
                                 allQualifiers)
                         .buildAndWrite();
 
-                ModuleBuilder.hiddenModule(
+                ModuleBuilder.from(
                                 component.hiddenModule,
-                                component.hiddenModuleCacheControlInterface,
+                                (ClassName) component.hiddenModule.className,
+                                null,
                                 allQualifiers)
                         .buildAndWrite();
 
