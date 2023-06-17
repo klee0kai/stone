@@ -9,12 +9,10 @@ import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
 import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
 import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
-import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
-import com.github.klee0kai.stone.model.annotations.ProtectInjectedAnn;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 
@@ -25,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 /**
@@ -101,55 +98,11 @@ public class AnnotationProcessor extends AbstractProcessor {
         //create components
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
-                ClassDetail component = new ClassDetail((TypeElement) componentEl);
+                ComponentClassDetails component = new ComponentClassDetails((TypeElement) componentEl);
                 ComponentChecks.checkComponentClass(component);
 
-                ComponentBuilder componentBuilder = ComponentBuilder.from(component);
-                for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
-                    ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
-                    if (wrappedProviderCl != null) componentBuilder.addProvideWrapperField(wrappedProviderCl);
-                }
-
-                for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
-                    if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)
-                        continue;
-
-                    if (isModuleProvideMethod(m)) {
-                        ClassDetail moduleCl = allClassesHelper.findForType(m.returnType);
-                        componentBuilder.provideModuleMethod(m.methodName, moduleCl);
-                    } else if (isDepsProvide(m)) {
-                        ClassDetail dependencyCl = allClassesHelper.findForType(m.returnType);
-                        componentBuilder.provideDependenciesMethod(m.methodName, dependencyCl);
-                    } else if (isInitModuleMethod(m)) {
-                        componentBuilder.initMethod(m);
-                    } else if (isExtOfMethod(component, m)) {
-                        componentBuilder.extOfMethod(m);
-                    } else if (isObjectProvideMethod(m)) {
-                        componentBuilder.provideObjMethod(m);
-                    } else if (isBindInstanceMethod(m) != null) {
-                        componentBuilder.bindInstanceMethod(m);
-                    } else if (isGcMethod(m)) {
-                        componentBuilder.gcMethod(m);
-                    } else if (isSwitchCacheMethod(m)) {
-                        componentBuilder.switchRefMethod(m);
-                    } else if (isInjectMethod(m)) {
-                        componentBuilder.injectMethod(m);
-                    } else if (isProtectInjectedMethod(m)) {
-                        componentBuilder.protectInjectedMethod(
-                                m.methodName,
-                                allClassesHelper.findForType(m.args.get(0).type),
-                                m.ann(ProtectInjectedAnn.class).timeMillis
-                        );
-                    } else if (component.isInterfaceClass() || m.isAbstract()) {
-                        //non implemented method
-                        throw new IncorrectSignatureException(
-                                createErrorMes()
-                                        .methodPurposeNonDetected(m.methodName, component.className.toString())
-                                        .build()
-                        );
-                    }
-                }
-                componentBuilder.buildAndWrite();
+                ComponentBuilder.from(component)
+                        .buildAndWrite();
 
             } catch (Throwable cause) {
                 throw new CreateStoneComponentException(

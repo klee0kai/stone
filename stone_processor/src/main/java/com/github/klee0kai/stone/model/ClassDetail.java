@@ -37,7 +37,7 @@ public class ClassDetail implements Cloneable {
 
     // ------- annotations ---------
 
-    private final Map<Class<? extends IAnnotation>, IAnnotation> annotations = new HashMap<>();
+    private Map<Class<? extends IAnnotation>, IAnnotation> annotations = new HashMap<>();
 
 
     /**
@@ -101,6 +101,16 @@ public class ClassDetail implements Cloneable {
         }
     }
 
+    public ClassDetail(ClassDetail cp) {
+        this.className = cp.className;
+        this.modifiers = cp.modifiers;
+        this.kind = cp.kind;
+        this.methods = cp.methods;
+        this.fields = cp.fields;
+        this.superClass = cp.superClass;
+        this.interfaces = cp.interfaces;
+        this.annotations = cp.annotations;
+    }
 
     /**
      * List all methods of this class include parent classes and interfaces
