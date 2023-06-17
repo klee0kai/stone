@@ -798,7 +798,7 @@ public class ComponentBuilder {
             TypeSpec typeSpec = moduleHiddenBuilder.buildAndWrite();
             modulesGraph.collectFromModule(
                     MethodDetail.simpleName(hiddenModuleMethodName),
-                    ClassDetail.of(moduleHiddenBuilder.className.packageName(), typeSpec)
+                    new ClassDetail(moduleHiddenBuilder.className.packageName(), typeSpec)
             );
         }
         if (moduleHiddenCacheControlBuilder != null) {

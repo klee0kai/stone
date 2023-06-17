@@ -57,7 +57,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         List<ClassName> allQualifiers = new LinkedList<>();
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
-                ClassDetail component = ClassDetail.of((TypeElement) componentEl);
+                ClassDetail component = new ClassDetail((TypeElement) componentEl);
                 allClassesHelper.deepExtractGcAnnotations(component);
 
                 for (ClassDetail componentParentCl : component.getAllParents(false)) {
@@ -77,7 +77,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 
         for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
             try {
-                ClassDetail module = ClassDetail.of((TypeElement) moduleEl);
+                ClassDetail module = new ClassDetail((TypeElement) moduleEl);
 
                 ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
                 factoryBuilder.buildAndWrite();
@@ -101,7 +101,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         //create components
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
-                ClassDetail component = ClassDetail.of((TypeElement) componentEl);
+                ClassDetail component = new ClassDetail((TypeElement) componentEl);
                 ComponentChecks.checkComponentClass(component);
 
                 ComponentBuilder componentBuilder = ComponentBuilder.from(component);

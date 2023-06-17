@@ -69,7 +69,7 @@ public class AllClassesHelper {
                     });
                     if (isScopeAnnotated) {
                         String annClName = ann.getAnnotationType().toString();
-                        ClassDetail annClDetails = ClassDetail.of(typeElementFor(annClName));
+                        ClassDetail annClDetails = new ClassDetail(typeElementFor(annClName));
                         gcScopeAnnotations.put(annClDetails.className.toString(), annClDetails);
                     }
                 }
@@ -116,7 +116,7 @@ public class AllClassesHelper {
         try {
             TypeName rawType = ClassNameUtils.rawTypeOf(typeName);
             if (rawType instanceof ClassName) {
-                ClassDetail cl = ClassDetail.of(elements.getTypeElement(((ClassName) rawType).canonicalName()));
+                ClassDetail cl = new ClassDetail(elements.getTypeElement(((ClassName) rawType).canonicalName()));
                 cl.className = typeName;
                 return cl;
             }

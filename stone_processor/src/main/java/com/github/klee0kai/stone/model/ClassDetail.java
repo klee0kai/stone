@@ -46,34 +46,31 @@ public class ClassDetail implements Cloneable {
      * @param owner original element
      * @return new ClassDetail object of this element
      */
-    public static ClassDetail of(TypeElement owner) {
-        ClassDetail classDetail = new ClassDetail();
-        classDetail.className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());
-        classDetail.modifiers = owner.getModifiers();
-        classDetail.kind = TypeKindDetails.of(owner.getKind());
+    public ClassDetail(TypeElement owner) {
+        className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());
+        modifiers = owner.getModifiers();
+        kind = TypeKindDetails.of(owner.getKind());
 
-        classDetail.addAnnotation(ComponentAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class)));
-        classDetail.addAnnotation(ModuleAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class)));
-        classDetail.addAnnotation(DependenciesAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Dependencies.class)));
-        classDetail.addAnnotation(WrapperCreatorsAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class)));
-
+        addAnnotation(ComponentAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class)));
+        addAnnotation(ModuleAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class)));
+        addAnnotation(DependenciesAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Dependencies.class)));
+        addAnnotation(WrapperCreatorsAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class)));
 
         for (Element el : owner.getEnclosedElements()) {
             if (el instanceof ExecutableElement)
-                classDetail.methods.add(MethodDetail.of((ExecutableElement) el));
+                methods.add(MethodDetail.of((ExecutableElement) el));
             else if (el instanceof VariableElement)
-                classDetail.fields.add(FieldDetail.of((VariableElement) el));
+                fields.add(FieldDetail.of((VariableElement) el));
         }
         if (owner.getSuperclass() instanceof DeclaredType) {
             if (((DeclaredType) owner.getSuperclass()).asElement() instanceof TypeElement)
-                classDetail.superClass = ClassDetail.of((TypeElement) (((DeclaredType) owner.getSuperclass()).asElement()));
+                superClass = new ClassDetail((TypeElement) (((DeclaredType) owner.getSuperclass()).asElement()));
         }
 
         for (TypeMirror tp : owner.getInterfaces()) {
             if (tp instanceof DeclaredType && ((DeclaredType) tp).asElement() instanceof TypeElement)
-                classDetail.interfaces.add(ClassDetail.of((TypeElement) ((DeclaredType) tp).asElement()));
+                interfaces.add(new ClassDetail((TypeElement) ((DeclaredType) tp).asElement()));
         }
-        return classDetail;
     }
 
     /**
@@ -81,31 +78,29 @@ public class ClassDetail implements Cloneable {
      * Annotations not supported.
      * May ignore some interfaces and classes that are not yet in the project
      */
-    public static ClassDetail of(String packageName, TypeSpec owner) {
-        ClassDetail classDetail = new ClassDetail();
-        classDetail.className = ClassName.get(packageName, owner.name);
-        classDetail.modifiers = owner.modifiers;
-        classDetail.kind = TypeKindDetails.of(owner.kind);
+    public ClassDetail(String packageName, TypeSpec owner) {
+        className = ClassName.get(packageName, owner.name);
+        modifiers = owner.modifiers;
+        kind = TypeKindDetails.of(owner.kind);
 
-        classDetail.addAnnotation(ComponentAnn.findFrom(owner.annotations));
-        classDetail.addAnnotation(ModuleAnn.findFrom(owner.annotations));
-        classDetail.addAnnotation(DependenciesAnn.findFrom(owner.annotations));
-        classDetail.addAnnotation(WrapperCreatorsAnn.findFrom(owner.annotations));
+        addAnnotation(ComponentAnn.findFrom(owner.annotations));
+        addAnnotation(ModuleAnn.findFrom(owner.annotations));
+        addAnnotation(DependenciesAnn.findFrom(owner.annotations));
+        addAnnotation(WrapperCreatorsAnn.findFrom(owner.annotations));
 
         for (MethodSpec m : owner.methodSpecs)
-            classDetail.methods.add(MethodDetail.of(m));
+            methods.add(MethodDetail.of(m));
 
         for (FieldSpec f : owner.fieldSpecs)
-            classDetail.fields.add(FieldDetail.of(f));
+            fields.add(FieldDetail.of(f));
 
-        classDetail.superClass = allClassesHelper.tryFindForType(owner.superclass);
+        superClass = allClassesHelper.tryFindForType(owner.superclass);
         for (TypeName t : owner.superinterfaces) {
             ClassDetail inf = allClassesHelper.tryFindForType(t);
-            if (inf != null) classDetail.interfaces.add(inf);
+            if (inf != null) interfaces.add(inf);
         }
-
-        return classDetail;
     }
+
 
     /**
      * List all methods of this class include parent classes and interfaces
