@@ -1,13 +1,15 @@
-package com.github.klee0kai.stone.model;
+package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
-import com.squareup.javapoet.ClassName;
+import com.github.klee0kai.stone.model.FieldDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.*;
+import java.util.function.Function;
+
+import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
 
 /**
  * Invoke sequence or call sequence.
@@ -77,32 +79,32 @@ public class InvokeCall {
      * Generate invoke code bloke
      *
      * @param envFields predefined arguments in generated code
+     * @param argGen    argument generator, if non found in envFields
      * @return new code block without semicolon
      */
-    public CodeBlock invokeCode(List<FieldDetail> envFields) {
+    @SafeVarargs
+    public final CodeBlock invokeCode(
+            List<FieldDetail> envFields,
+            Function<TypeName, CodeBlock>... argGen
+    ) {
+        List<Function<TypeName, CodeBlock>> argGens = new LinkedList<>();
+        argGens.add(unwrapArgument(envFields));
+        argGens.addAll(Arrays.asList(argGen));
+
         CodeBlock.Builder invokeBuilder = CodeBlock.builder();
-        List<Pair<TypeName, String>> provideFields = ListUtils.format(envFields, it -> {
-            if (it.type instanceof ParameterizedTypeName) {
-                ParameterizedTypeName type = (ParameterizedTypeName) it.type;
-                TypeName orType = type.typeArguments.get(type.typeArguments.size() - 1);
-                if (Objects.equals(type.rawType, ClassName.get(PhantomProvide.IProvide.class)))
-                    return new Pair<>(orType, it.name + ".provide()");
-                if (Objects.equals(type.rawType, ClassName.get(PhantomProvide.class)))
-                    return new Pair<>(orType, it.name + ".get()");
-            }
-            return new Pair<>(it.type, it.name);
-        });
-
-
-        int i = 0;
+        int invokeCount = 0;
         for (MethodDetail m : invokeSequence) {
-            LinkedList<String> argNames = new LinkedList<>();
+
+            int argCount = 0;
+            CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
             for (FieldDetail arg : m.args) {
-                Pair<TypeName, String> evField = ListUtils.first(provideFields, (inx, it) -> Objects.equals(it.first, arg.type));
-                argNames.add(evField != null ? evField.second : "null");
+                if (argCount++ > 0) argsCodeBuilder.add(",");
+                CodeBlock argCode = ListUtils.firstNotNull(argGens, it -> it.apply(arg.type));
+                argsCodeBuilder.add(argCode != null ? argCode : CodeBlock.of("null"));
             }
-            if (i++ > 0) invokeBuilder.add(".");
-            invokeBuilder.add("$L($L)", m.methodName, String.join(",", argNames));
+
+            if (invokeCount++ > 0) invokeBuilder.add(".");
+            invokeBuilder.add("$L($L)", m.methodName, argsCodeBuilder.build());
         }
         return invokeBuilder.build();
     }

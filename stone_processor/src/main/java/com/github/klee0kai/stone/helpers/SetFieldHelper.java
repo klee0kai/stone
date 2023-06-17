@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.codegen.helpers;
+package com.github.klee0kai.stone.helpers;
 
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;

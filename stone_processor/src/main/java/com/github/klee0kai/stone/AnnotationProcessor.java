@@ -7,14 +7,12 @@ import com.github.klee0kai.stone.codegen.ComponentBuilder;
 import com.github.klee0kai.stone.codegen.ModuleBuilder;
 import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
-import com.github.klee0kai.stone.codegen.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
 import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
-import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
+import com.github.klee0kai.stone.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
-import com.github.klee0kai.stone.model.annotations.ProtectInjectedAnn;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 
@@ -25,8 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
+import static com.github.klee0kai.stone.utils.StoneNamingUtils.genModuleNameMirror;
 
 /**
  * Stone's Annotation processor
@@ -57,7 +56,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         List<ClassName> allQualifiers = new LinkedList<>();
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
-                ClassDetail component = ClassDetail.of((TypeElement) componentEl);
+                ClassDetail component = new ClassDetail((TypeElement) componentEl);
                 allClassesHelper.deepExtractGcAnnotations(component);
 
                 for (ClassDetail componentParentCl : component.getAllParents(false)) {
@@ -77,17 +76,23 @@ public class AnnotationProcessor extends AbstractProcessor {
 
         for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
             try {
-                ClassDetail module = ClassDetail.of((TypeElement) moduleEl);
+                ClassDetail module = new ClassDetail((TypeElement) moduleEl);
 
                 ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
                 factoryBuilder.buildAndWrite();
 
-                ModuleCacheControlInterfaceBuilder moduleCacheControlInterfaceBuilder = ModuleCacheControlInterfaceBuilder.from(factoryBuilder, allQualifiers);
-                moduleCacheControlInterfaceBuilder.buildAndWrite();
+                ModuleCacheControlInterfaceBuilder.from(
+                                module,
+                                genCacheControlInterfaceModuleNameMirror(module.className),
+                                allQualifiers)
+                        .buildAndWrite();
 
-
-                ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
-                moduleBuilder.buildAndWrite();
+                ModuleBuilder.from(
+                                module,
+                                genModuleNameMirror(module.className),
+                                factoryBuilder.className,
+                                allQualifiers)
+                        .buildAndWrite();
             } catch (Throwable e) {
                 throw new CreateStoneModuleException(
                         createErrorMes()
@@ -101,55 +106,24 @@ public class AnnotationProcessor extends AbstractProcessor {
         //create components
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
-                ClassDetail component = ClassDetail.of((TypeElement) componentEl);
+                ComponentClassDetails component = new ComponentClassDetails((TypeElement) componentEl);
                 ComponentChecks.checkComponentClass(component);
 
-                ComponentBuilder componentBuilder = ComponentBuilder.from(component);
-                for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
-                    ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
-                    if (wrappedProviderCl != null) componentBuilder.addProvideWrapperField(wrappedProviderCl);
-                }
+                ComponentBuilder.from(component)
+                        .buildAndWrite();
 
-                for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
-                    if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)
-                        continue;
+                ModuleCacheControlInterfaceBuilder.from(
+                                component.hiddenModule,
+                                component.hiddenModuleCacheControlInterface,
+                                allQualifiers)
+                        .buildAndWrite();
 
-                    if (isModuleProvideMethod(m)) {
-                        ClassDetail moduleCl = allClassesHelper.findForType(m.returnType);
-                        componentBuilder.provideModuleMethod(m.methodName, moduleCl);
-                    } else if (isDepsProvide(m)) {
-                        ClassDetail dependencyCl = allClassesHelper.findForType(m.returnType);
-                        componentBuilder.provideDependenciesMethod(m.methodName, dependencyCl);
-                    } else if (isInitModuleMethod(m)) {
-                        componentBuilder.initMethod(m);
-                    } else if (isExtOfMethod(component, m)) {
-                        componentBuilder.extOfMethod(m);
-                    } else if (isObjectProvideMethod(m)) {
-                        componentBuilder.provideObjMethod(m);
-                    } else if (isBindInstanceMethod(m) != null) {
-                        componentBuilder.bindInstanceMethod(m);
-                    } else if (isGcMethod(m)) {
-                        componentBuilder.gcMethod(m);
-                    } else if (isSwitchCacheMethod(m)) {
-                        componentBuilder.switchRefMethod(m);
-                    } else if (isInjectMethod(m)) {
-                        componentBuilder.injectMethod(m);
-                    } else if (isProtectInjectedMethod(m)) {
-                        componentBuilder.protectInjectedMethod(
-                                m.methodName,
-                                allClassesHelper.findForType(m.args.get(0).type),
-                                m.ann(ProtectInjectedAnn.class).timeMillis
-                        );
-                    } else if (component.isInterfaceClass() || m.isAbstract()) {
-                        //non implemented method
-                        throw new IncorrectSignatureException(
-                                createErrorMes()
-                                        .methodPurposeNonDetected(m.methodName, component.className.toString())
-                                        .build()
-                        );
-                    }
-                }
-                componentBuilder.buildAndWrite();
+                ModuleBuilder.from(
+                                component.hiddenModule,
+                                (ClassName) component.hiddenModule.className,
+                                null,
+                                allQualifiers)
+                        .buildAndWrite();
 
             } catch (Throwable cause) {
                 throw new CreateStoneComponentException(

@@ -1,12 +1,14 @@
-package com.github.klee0kai.stone.codegen.helpers;
+package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;
-import com.github.klee0kai.stone.model.*;
+import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.FieldDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.Pair;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
 import com.github.klee0kai.stone.utils.RecursiveDetector;
@@ -17,8 +19,9 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.*;
 
+import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
-import static com.github.klee0kai.stone.model.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
+import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
 
 public class ModulesGraph {
 
@@ -47,7 +50,7 @@ public class ModulesGraph {
             provideTypeCodes.get(m.returnType).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
 
             MethodDetail cacheControlMethod = new MethodDetail();
-            cacheControlMethod.methodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(m.methodName);
+            cacheControlMethod.methodName = cacheControlMethodName(m.methodName);
             cacheControlMethod.args.add(FieldDetail.simple("__action", ClassName.get(CacheAction.class)));
             for (FieldDetail it : m.args) {
                 if (!((it.type instanceof ClassName) && allQualifiers.contains(it.type)))
@@ -161,36 +164,15 @@ public class ModulesGraph {
      * @param provideMethodName predefined method name
      * @param typeName          the name of the type whose cache needs to be changed
      * @param qualifiers        method's arguments
-     * @param actionParams      change cache action
-     * @return generated code
+     * @return cache control invoke call
      */
-    public CodeBlock codeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers, CodeBlock actionParams) {
-        String cacheControlMethodName = ModuleCacheControlInterfaceBuilder.cacheControlMethodName(provideMethodName);
+    public InvokeCall invokeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
+        String cacheControlMethodName = cacheControlMethodName(provideMethodName);
         InvokeCall invokeCall = provideTypeInvokeCall(cacheControlTypeCodes, cacheControlMethodName, typeName, qualifiers);
         if (invokeCall == null || invokeCall.invokeSequence.isEmpty()) {
             return null;
         }
-        CodeBlock.Builder invokeBuilder = CodeBlock.builder();
-        int invokeCount = 0;
-        for (MethodDetail m : invokeCall.invokeSequence) {
-            if (invokeCount++ > 0)
-                invokeBuilder.add(".");
-
-            int argCount = 0;
-            CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
-            for (FieldDetail arg : m.args) {
-                if (argCount > 0) argsCodeBuilder.add(",");
-                if (Objects.equals(arg.type, ClassName.get(CacheAction.class))) {
-                    argsCodeBuilder.add(actionParams);
-                    argCount++;
-                } else {
-                    FieldDetail evField = ListUtils.first(qualifiers, (inx, it) -> Objects.equals(it.type, arg.type));
-                    argsCodeBuilder.add(evField != null ? evField.name : "null");
-                }
-            }
-            invokeBuilder.add("$L($L)", m.methodName, argsCodeBuilder.build());
-        }
-        return invokeBuilder.build();
+        return invokeCall;
     }
 
     private InvokeCall provideTypeInvokeCall(

@@ -50,6 +50,14 @@ public class ListUtils {
         return null;
     }
 
+    public static <Tin, Tout> Tout firstNotNull(List<Tin> list, IFormat<Tin, Tout> format) {
+        if (list != null) for (Tin it : list) {
+            Tout out = format.format(it);
+            if (out != null) return out;
+        }
+        return null;
+    }
+
     public static <T> LinkedList<T> filter(List<T> list, IFilter<T> filter) {
         LinkedList<T> touts = new LinkedList<>();
         int idx = 0;
