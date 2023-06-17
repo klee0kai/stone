@@ -6,7 +6,6 @@ import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
@@ -48,10 +47,14 @@ public class ModuleCacheControlInterfaceBuilder {
         return builder;
     }
 
-
     public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl) {
         this.orModuleCl = orModuleCl;
         this.className = genCacheControlInterfaceModuleNameMirror(orModuleCl.className);
+    }
+
+    public ModuleCacheControlInterfaceBuilder addQualifiers(Set<ClassName> qualifiers) {
+        this.qualifiers.addAll(qualifiers);
+        return this;
     }
 
     public ModuleCacheControlInterfaceBuilder bindMethod() {

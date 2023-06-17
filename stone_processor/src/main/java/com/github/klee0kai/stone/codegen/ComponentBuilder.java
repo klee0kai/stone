@@ -80,12 +80,13 @@ public class ComponentBuilder {
 
     private final ImplementMethodCollection collectRuns = new ImplementMethodCollection();
     private ModuleBuilder moduleHiddenBuilder = null;
+    private ModuleCacheControlInterfaceBuilder moduleHiddenCacheControlBuilder = null;
     private final ModulesGraph modulesGraph = new ModulesGraph();
 
 
     public static ComponentBuilder from(ClassDetail component) {
-        ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className));
-        componentBuilder.implementIComponentMethods();
+        ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className))
+                .implementIComponentMethods();
 
         for (ClassDetail componentParentCl : component.getAllParents(false)) {
             ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
@@ -276,8 +277,10 @@ public class ComponentBuilder {
                     .addStatement("$T protoComponent = ($T) c", proto.className, proto.className);
             for (MethodDetail provideModule : provideModuleMethods) {
                 builder.addStatement(
-                        "$L().initCachesFrom( ($T) protoComponent.$L(), false)",
-                        provideModule.methodName, IModule.class, provideModule.methodName
+                        "$L().$L( ($T) protoComponent.$L())",
+                        provideModule.methodName,
+                        ModuleBuilder.initCachesFromMethodName,
+                        IModule.class, provideModule.methodName
                 );
             }
             for (MethodDetail bindInstMethod : bindInstanceAndProvideMethods) {
@@ -317,21 +320,34 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder hiddenModuleMethod(boolean override) {
+        ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
         MethodSpec.Builder builder = MethodSpec.methodBuilder(hiddenModuleMethodName)
-                .addModifiers(Modifier.PUBLIC);
+                .addModifiers(Modifier.PUBLIC)
+                .returns(tpName)
+                .addStatement("return this.$L", hiddenModuleFieldName);
         if (override) builder.addAnnotation(Override.class);
 
-        collectRuns.execute(null, () -> {
-            if (modulesFields.containsKey(hiddenModuleFieldName)) {
-                ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
-                builder.returns(tpName)
-                        .addStatement("return this.$L", hiddenModuleFieldName);
-            } else {
-                builder.returns(IModule.class)
-                        .addStatement("return null");
-            }
+        String name = hiddenModuleFieldName;
+        modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PRIVATE, Modifier.FINAL)
+                .initializer(CodeBlock.of("new $T()", tpName)));
 
-        });
+        moduleHiddenBuilder = new ModuleBuilder(null, tpName, genCacheControlInterfaceModuleNameMirror(orComponentCl.className))
+                .implementIModule()
+                .addQualifiers(qualifiers);
+
+        moduleHiddenCacheControlBuilder = new ModuleCacheControlInterfaceBuilder(orComponentCl)
+                .bindMethod()
+                .switchRefMethod()
+                .addQualifiers(qualifiers);
+
+        for (ClassDetail componentParentCl : orComponentCl.getAllParents(false)) {
+            if (!componentParentCl.hasAnyAnnotation(ComponentAnn.class)) continue;
+            moduleHiddenBuilder.interfaces.add(
+                    genCacheControlInterfaceModuleNameMirror(componentParentCl.className)
+            );
+        }
+
+        bindModuleCode.addStatement("this.$L.bind(ob)", name);
         iComponentMethods.add(builder);
         return this;
     }
@@ -394,20 +410,6 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder provideHiddenModuleMethod() {
-        String name = hiddenModuleFieldName;
-
-        ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
-        moduleHiddenBuilder = new ModuleBuilder(null, tpName);
-        moduleHiddenBuilder.qualifiers.addAll(qualifiers);
-        moduleHiddenBuilder.implementIModule();
-        modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer(CodeBlock.of("new $T()", tpName)));
-
-        bindModuleCode.addStatement("this.$L.bind(ob)", name);
-        return this;
-    }
-
     public ComponentBuilder provideObjMethod(MethodDetail m) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
@@ -464,10 +466,9 @@ public class ComponentBuilder {
 
         if (isProvideMethod && modulesGraph.statementProvideType(null, m.methodName, m.returnType, qFields) == null) {
             //  bind object not declared in module
-            ModuleBuilder moduleBuilder = getOrCreateHiddenModuleBuilder();
             ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
-            ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
-            moduleBuilder.bindInstance(m, itemHolderCodeHelper)
+            ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleHiddenBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
+            moduleHiddenBuilder.bindInstance(m, itemHolderCodeHelper)
                     .cacheControl(m, itemHolderCodeHelper)
                     .switchRefFor(itemHolderCodeHelper,
                             ListUtils.setOf(
@@ -475,21 +476,26 @@ public class ComponentBuilder {
                                     ClassName.get(GcAllScope.class),
                                     cacheType.getGcScopeClassName()
                             ));
+
+            moduleHiddenCacheControlBuilder.cacheControlMethod(m.methodName, m.returnType, m.args);
         }
+
 
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             // bind object declared in module
             if (setValueArg != null) {
                 InvokeCall cacheControlInvoke = modulesGraph.invokeControlCacheForType(m.methodName, setValueArg.type, qFields);
                 builder.addStatement(cacheControlInvoke.invokeCode(qFields,
-                        typeName -> CodeBlock.of(
-                                "$T.setValueAction( $L )",
-                                CacheAction.class, setValueArg.name
-                        ))
-                ).addStatement(
-                        "$L( (module) -> { module.initCachesFrom( $L() , true ); } )",
-                        eachModuleMethodName, cacheControlInvoke.invokeSequence.get(0).methodName
-                );
+                                typeName -> CodeBlock.of(
+                                        "$T.setValueAction( $L )",
+                                        CacheAction.class, setValueArg.name
+                                )))
+                        .addStatement(
+                                "$L( (module) -> { module.$L( $L() ); } )",
+                                eachModuleMethodName,
+                                ModuleBuilder.updateBindInstancesFrom,
+                                cacheControlInvoke.invokeSequence.get(0).methodName
+                        );
             }
 
             if (isProvideMethod) {
@@ -795,6 +801,9 @@ public class ComponentBuilder {
                     ClassDetail.of(moduleHiddenBuilder.className.packageName(), typeSpec)
             );
         }
+        if (moduleHiddenCacheControlBuilder != null) {
+            moduleHiddenCacheControlBuilder.buildAndWrite();
+        }
 
         TypeSpec typeSpec = build();
         if (typeSpec != null) {
@@ -802,11 +811,6 @@ public class ComponentBuilder {
         }
 
         return typeSpec;
-    }
-
-    private ModuleBuilder getOrCreateHiddenModuleBuilder() {
-        if (moduleHiddenBuilder == null) provideHiddenModuleMethod();
-        return moduleHiddenBuilder;
     }
 
 }

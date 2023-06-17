@@ -107,6 +107,7 @@ public class AllClassesHelper {
 
     /**
      * Find class details of type.
+     * May throw exception
      *
      * @param typeName type name
      * @return {@link ClassDetail} if found
@@ -127,6 +128,20 @@ public class AllClassesHelper {
                             .build(),
                     e
             );
+        }
+    }
+
+    /**
+     * Find class details of type.
+     *
+     * @param typeName type name
+     * @return {@link ClassDetail} if found or null
+     */
+    public ClassDetail tryFindForType(TypeName typeName) {
+        try {
+            return findForType(typeName);
+        } catch (Exception e) {
+            return null;
         }
     }
 

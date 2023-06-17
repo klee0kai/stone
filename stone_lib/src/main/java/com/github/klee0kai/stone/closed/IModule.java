@@ -18,14 +18,18 @@ public interface IModule {
      */
     boolean init(Object ob);
 
-
     /**
      * Init caches from module prototype.
      * using in extOf method
-     *
-     * @param onlyBindInstance update cached only for bindInstance variables
      */
-    void initCachesFrom(IModule module, boolean onlyBindInstance);
+    void initCachesFrom(IModule module);
+
+    /**
+     * Update values of bindInstance variables
+     *
+     * @param module related module, source to update
+     */
+    void __updateBindInstancesFrom(IModule module);
 
     /**
      * bind instance objects

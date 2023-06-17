@@ -79,6 +79,7 @@ public class ClassDetail implements Cloneable {
     /**
      * Take class details from type specs.
      * Annotations not supported.
+     * May ignore some interfaces and classes that are not yet in the project
      */
     public static ClassDetail of(String packageName, TypeSpec owner) {
         ClassDetail classDetail = new ClassDetail();
@@ -97,9 +98,11 @@ public class ClassDetail implements Cloneable {
         for (FieldSpec f : owner.fieldSpecs)
             classDetail.fields.add(FieldDetail.of(f));
 
-        classDetail.superClass = allClassesHelper.findForType(owner.superclass);
-        for (TypeName t : owner.superinterfaces)
-            classDetail.interfaces.add(allClassesHelper.findForType(t));
+        classDetail.superClass = allClassesHelper.tryFindForType(owner.superclass);
+        for (TypeName t : owner.superinterfaces) {
+            ClassDetail inf = allClassesHelper.tryFindForType(t);
+            if (inf != null) classDetail.interfaces.add(inf);
+        }
 
         return classDetail;
     }
