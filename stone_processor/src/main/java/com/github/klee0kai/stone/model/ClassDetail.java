@@ -39,6 +39,10 @@ public class ClassDetail implements Cloneable {
 
     private Map<Class<? extends IAnnotation>, IAnnotation> annotations = new HashMap<>();
 
+    public ClassDetail(TypeName className) {
+        this.className = className;
+    }
+
 
     /**
      * Take class details from compile type element

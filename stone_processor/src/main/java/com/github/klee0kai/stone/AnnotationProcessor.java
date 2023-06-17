@@ -79,12 +79,11 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
                 factoryBuilder.buildAndWrite();
 
-                ModuleCacheControlInterfaceBuilder moduleCacheControlInterfaceBuilder = ModuleCacheControlInterfaceBuilder.from(factoryBuilder, allQualifiers);
-                moduleCacheControlInterfaceBuilder.buildAndWrite();
+                ModuleCacheControlInterfaceBuilder.from(module, allQualifiers)
+                        .buildAndWrite();
 
-
-                ModuleBuilder moduleBuilder = ModuleBuilder.from(factoryBuilder, allQualifiers);
-                moduleBuilder.buildAndWrite();
+                ModuleBuilder.from(module, factoryBuilder.className, allQualifiers)
+                        .buildAndWrite();
             } catch (Throwable e) {
                 throw new CreateStoneModuleException(
                         createErrorMes()
@@ -102,6 +101,17 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ComponentChecks.checkComponentClass(component);
 
                 ComponentBuilder.from(component)
+                        .buildAndWrite();
+
+                ModuleCacheControlInterfaceBuilder.hiddenModule(component.hiddenModule,
+                                component.hiddenModuleCacheControlInterface,
+                                allQualifiers)
+                        .buildAndWrite();
+
+                ModuleBuilder.hiddenModule(
+                                component.hiddenModule,
+                                component.hiddenModuleCacheControlInterface,
+                                allQualifiers)
                         .buildAndWrite();
 
             } catch (Throwable cause) {

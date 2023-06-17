@@ -19,6 +19,7 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
+import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -43,7 +44,9 @@ public class ModuleBuilder {
     public static final String getFactoryMethodName = "getFactory";
     public static final String switchRefMethodName = "switchRef";
 
+    @Nullable
     public final ClassDetail orModuleCl;
+
     public ClassName className;
     public ClassName cacheControlInterface;
 
@@ -66,18 +69,18 @@ public class ModuleBuilder {
 
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
-    public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
+    public static ModuleBuilder from(ClassDetail orModuleCl, ClassName factoryClName, List<ClassName> allQualifiers) {
         ModuleBuilder builder = new ModuleBuilder(
-                factoryBuilder.orFactory,
-                genModuleNameMirror(factoryBuilder.orFactory.className),
-                genCacheControlInterfaceModuleNameMirror(factoryBuilder.orFactory.className)
+                orModuleCl,
+                genModuleNameMirror(orModuleCl.className),
+                genCacheControlInterfaceModuleNameMirror(orModuleCl.className)
         )
-                .factoryField(factoryBuilder.orFactory.className, factoryBuilder.className)
+                .factoryField(orModuleCl.className, factoryClName)
                 .overridedField()
                 .implementIModule();
         builder.qualifiers.addAll(allQualifiers);
 
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
+        for (MethodDetail m : orModuleCl.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
 
@@ -117,7 +120,67 @@ public class ModuleBuilder {
             } else {
                 throw new IncorrectSignatureException(
                         createErrorMes()
-                                .moduleClass(factoryBuilder.orFactory.className.toString())
+                                .moduleClass(orModuleCl.className.toString())
+                                .method(m.methodName)
+                                .hasIncorrectSignature()
+                                .build()
+                );
+            }
+
+        }
+        return builder;
+    }
+
+    public static ModuleBuilder hiddenModule(ClassDetail hiddenModuleCl, ClassName cacheControlInterface, List<ClassName> allQualifiers) {
+        ModuleBuilder builder = new ModuleBuilder(
+                null,
+                (ClassName) hiddenModuleCl.className,
+                cacheControlInterface
+        ).overridedField()
+                .implementIModule();
+        builder.qualifiers.addAll(allQualifiers);
+
+        for (MethodDetail m : hiddenModuleCl.getAllMethods(false, false)) {
+            if (Objects.equals(m.methodName, "<init>"))
+                continue;
+
+            List<FieldDetail> qFields = ListUtils.filter(m.args,
+                    (inx, it) -> (it.type instanceof ClassName) && allQualifiers.contains(it.type)
+            );
+
+            int cacheFieldsCount = builder.cacheFields.size();
+
+            if (isProvideFactoryObject(m)) {
+                builder.provideFactory(m)
+                        .mockControl(m);
+            } else if (isProvideCachedObject(m)) {
+                ProvideAnn ann = m.ann(ProvideAnn.class);
+                ItemHolderCodeHelper.ItemCacheType cacheType = ann != null
+                        ? cacheTypeFrom(ann.cacheType) : ItemHolderCodeHelper.ItemCacheType.Soft;
+                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
+                builder.provideCached(m, itemHolderCodeHelper)
+                        .cacheControl(m, itemHolderCodeHelper)
+                        .switchRefFor(itemHolderCodeHelper,
+                                ListUtils.setOf(
+                                        m.gcScopeAnnotations,
+                                        ClassName.get(GcAllScope.class),
+                                        cacheType.getGcScopeClassName()
+                                ));
+            } else if (isBindInstanceMethod(m)) {
+                ItemHolderCodeHelper.ItemCacheType cacheType = cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
+                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
+                builder.bindInstance(m, itemHolderCodeHelper)
+                        .cacheControl(m, itemHolderCodeHelper)
+                        .switchRefFor(itemHolderCodeHelper,
+                                ListUtils.setOf(
+                                        m.gcScopeAnnotations,
+                                        ClassName.get(GcAllScope.class),
+                                        cacheType.getGcScopeClassName()
+                                ));
+            } else {
+                throw new IncorrectSignatureException(
+                        createErrorMes()
+                                .moduleClass(hiddenModuleCl.className.toString())
                                 .method(m.methodName)
                                 .hasIncorrectSignature()
                                 .build()
@@ -129,7 +192,7 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder(ClassDetail orModuleCl, ClassName orModuleClName, ClassName cacheControlInterface) {
+    public ModuleBuilder(@Nullable ClassDetail orModuleCl, ClassName orModuleClName, ClassName cacheControlInterface) {
         this.orModuleCl = orModuleCl;
         this.className = orModuleClName;
         this.cacheControlInterface = cacheControlInterface;

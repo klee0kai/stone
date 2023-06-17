@@ -32,13 +32,16 @@ public class ModuleCacheControlInterfaceBuilder {
     public final List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
 
 
-    public static ModuleCacheControlInterfaceBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
-        ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(factoryBuilder.orFactory);
+    public static ModuleCacheControlInterfaceBuilder from(ClassDetail orModule, List<ClassName> allQualifiers) {
+        ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(
+                orModule,
+                genCacheControlInterfaceModuleNameMirror(orModule.className)
+        );
         builder.qualifiers.addAll(allQualifiers);
 
         builder.bindMethod()
                 .switchRefMethod();
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
+        for (MethodDetail m : orModule.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
             builder.provideMethod(m.methodName, m.returnType, m.args)
@@ -47,9 +50,26 @@ public class ModuleCacheControlInterfaceBuilder {
         return builder;
     }
 
-    public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl) {
+    public static ModuleCacheControlInterfaceBuilder hiddenModule(ClassDetail hiddenModule, ClassName cacheControlInterface, List<ClassName> allQualifiers) {
+        ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(
+                hiddenModule,
+                cacheControlInterface
+        );
+        builder.qualifiers.addAll(allQualifiers);
+        builder.bindMethod()
+                .switchRefMethod();
+        for (MethodDetail m : hiddenModule.getAllMethods(false, false)) {
+            if (Objects.equals(m.methodName, "<init>"))
+                continue;
+            builder.provideMethod(m.methodName, m.returnType, m.args)
+                    .cacheControlMethod(m.methodName, m.returnType, m.args);
+        }
+        return builder;
+    }
+
+    public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl, ClassName className) {
         this.orModuleCl = orModuleCl;
-        this.className = genCacheControlInterfaceModuleNameMirror(orModuleCl.className);
+        this.className = className;
     }
 
     public ModuleCacheControlInterfaceBuilder addQualifiers(Set<ClassName> qualifiers) {

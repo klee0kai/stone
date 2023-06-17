@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.closed.IModule;
@@ -11,7 +10,6 @@ import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.IProvideTypeWrapperHelper;
-import com.github.klee0kai.stone.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
 import com.github.klee0kai.stone.helpers.invokecall.InvokeCall;
 import com.github.klee0kai.stone.interfaces.IComponent;
@@ -79,8 +77,6 @@ public class ComponentBuilder {
 
 
     private final ImplementMethodCollection collectRuns = new ImplementMethodCollection();
-    private ModuleBuilder moduleHiddenBuilder = null;
-    private ModuleCacheControlInterfaceBuilder moduleHiddenCacheControlBuilder = null;
 
     public static ComponentBuilder from(ComponentClassDetails component) {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className))
@@ -367,22 +363,6 @@ public class ComponentBuilder {
         modulesFields.put(name, FieldSpec.builder(tpName, name, Modifier.PRIVATE, Modifier.FINAL)
                 .initializer(CodeBlock.of("new $T()", tpName)));
 
-        moduleHiddenBuilder = new ModuleBuilder(null, tpName, genCacheControlInterfaceModuleNameMirror(orComponentCl.className))
-                .implementIModule()
-                .addQualifiers(orComponentCl.qualifiers);
-
-        moduleHiddenCacheControlBuilder = new ModuleCacheControlInterfaceBuilder(orComponentCl)
-                .bindMethod()
-                .switchRefMethod()
-                .addQualifiers(orComponentCl.qualifiers);
-
-        for (ClassDetail componentParentCl : orComponentCl.getAllParents(false)) {
-            if (!componentParentCl.hasAnyAnnotation(ComponentAnn.class)) continue;
-            moduleHiddenBuilder.interfaces.add(
-                    genCacheControlInterfaceModuleNameMirror(componentParentCl.className)
-            );
-        }
-
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
         iComponentMethods.add(builder);
         return this;
@@ -497,23 +477,6 @@ public class ComponentBuilder {
         if (m.args != null) for (FieldDetail p : m.args) {
             builder.addParameter(p.type, p.name);
         }
-
-        if (isProvideMethod && orComponentCl.modulesGraph.statementProvideType(null, m.methodName, m.returnType, qFields) == null) {
-            //  bind object not declared in module
-            ItemHolderCodeHelper.ItemCacheType cacheType = ItemHolderCodeHelper.cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
-            ItemHolderCodeHelper itemHolderCodeHelper = ItemHolderCodeHelper.of(m.methodName + moduleHiddenBuilder.cacheFields.size(), m.returnType, qFields, cacheType);
-            moduleHiddenBuilder.bindInstance(m, itemHolderCodeHelper)
-                    .cacheControl(m, itemHolderCodeHelper)
-                    .switchRefFor(itemHolderCodeHelper,
-                            ListUtils.setOf(
-                                    m.gcScopeAnnotations,
-                                    ClassName.get(GcAllScope.class),
-                                    cacheType.getGcScopeClassName()
-                            ));
-
-            moduleHiddenCacheControlBuilder.cacheControlMethod(m.methodName, m.returnType, m.args);
-        }
-
 
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             // bind object declared in module
@@ -828,17 +791,6 @@ public class ComponentBuilder {
     }
 
     public TypeSpec buildAndWrite() {
-        if (moduleHiddenBuilder != null) {
-            TypeSpec typeSpec = moduleHiddenBuilder.buildAndWrite();
-            orComponentCl.modulesGraph.collectFromModule(
-                    MethodDetail.simpleName(hiddenModuleMethodName),
-                    new ClassDetail(moduleHiddenBuilder.className.packageName(), typeSpec)
-            );
-        }
-        if (moduleHiddenCacheControlBuilder != null) {
-            moduleHiddenCacheControlBuilder.buildAndWrite();
-        }
-
         TypeSpec typeSpec = build();
         if (typeSpec != null) {
             CodeFileUtil.writeToJavaFile(className.packageName(), typeSpec);
