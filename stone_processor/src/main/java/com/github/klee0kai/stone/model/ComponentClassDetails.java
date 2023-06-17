@@ -81,7 +81,6 @@ public class ComponentClassDetails extends ClassDetail {
 
     private void genHiddenModule() {
         if (hiddenModule != null) return;
-        hiddenModuleCacheControlInterface = genCacheControlInterfaceModuleNameMirror(className);
         List<MethodDetail> hiddenBindInstanceMethods = ListUtils.filter(
                 getAllMethods(false, false, "<init>"),
                 (i, m) -> {
@@ -95,9 +94,13 @@ public class ComponentClassDetails extends ClassDetail {
         hiddenModule = new ClassDetail(genHiddenModuleNameMirror(className));
         hiddenModule.addAnnotation(new ModuleAnn());
         hiddenModule.methods.addAll(hiddenBindInstanceMethods);
-        for (ClassDetail parent : getAllParents(false)) {
-            if (!parent.hasAnnotations(ComponentAnn.class)) continue;
-            hiddenModule.interfaces.add(new ClassDetail(genCacheControlInterfaceModuleNameMirror(parent.className)));
+        hiddenModuleCacheControlInterface = genCacheControlInterfaceModuleNameMirror(hiddenModule.className);
+
+
+        for (ClassDetail p : getAllParents(false)) {
+            if (p == this || !(p instanceof ComponentClassDetails)) continue;
+            ComponentClassDetails parent = (ComponentClassDetails) p;
+            hiddenModule.interfaces.add(new ClassDetail(parent.hiddenModule));
         }
 
         modulesGraph.collectFromModule(

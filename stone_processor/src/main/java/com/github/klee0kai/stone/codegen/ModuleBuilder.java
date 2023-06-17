@@ -133,10 +133,12 @@ public class ModuleBuilder {
 
     public static ModuleBuilder hiddenModule(ClassDetail hiddenModuleCl, ClassName cacheControlInterface, List<ClassName> allQualifiers) {
         ModuleBuilder builder = new ModuleBuilder(
-                null,
+                hiddenModuleCl,
                 (ClassName) hiddenModuleCl.className,
                 cacheControlInterface
-        ).overridedField()
+        )
+                .factoryField(hiddenModuleCl.className, null)
+                .overridedField()
                 .implementIModule();
         builder.qualifiers.addAll(allQualifiers);
 
@@ -253,8 +255,8 @@ public class ModuleBuilder {
         if (orModuleCl != null) {
             builder
                     // check module class
-                    .beginControlFlow("if ( (or instanceof $T) ) ", genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
-                    .addStatement("$L.set(($T) or)", overridedModuleFieldName, genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
+                    .beginControlFlow("if ( (or instanceof $T) ) ", cacheControlInterface)
+                    .addStatement("$L.set(($T) or)", overridedModuleFieldName, cacheControlInterface)
                     .addStatement("$L = ($T) (($T) or).getFactory() ", factoryFieldName, orModuleCl.className, IModule.class)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
@@ -306,7 +308,8 @@ public class ModuleBuilder {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(initCachesFromMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addParameter(IModule.class, "m");
+                .addParameter(IModule.class, "m")
+                .addStatement("if (m == this) return");
 
         collectRuns.add(() -> {
             if (orModuleCl != null) {
@@ -343,28 +346,34 @@ public class ModuleBuilder {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(updateBindInstancesFrom)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addParameter(IModule.class, "m");
+                .addParameter(IModule.class, "m")
+                .addStatement("if (m == this) return");
 
         collectRuns.add(() -> {
-            if (cacheControlInterface != null) {
-                builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterface)
-                        .addStatement("$T module = ($T) m", cacheControlInterface, cacheControlInterface);
-                for (MethodDetail m : bindInstMethods) {
-                    String protoCacheControlMethodName = cacheControlMethodName(m.methodName);
-                    List<FieldDetail> qFields = ListUtils.filter(m.args,
-                            (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
-                    );
-                    if (!qFields.isEmpty()) {
-                        // TODO https://github.com/klee0kai/stone/issues/42
-                        continue;
+            if (orModuleCl != null) {
+                for (ClassDetail cl : orModuleCl.getAllParents(false)) {
+                    ClassName cacheControlInterfaceCl = genCacheControlInterfaceModuleNameMirror(cl.className);
+                    builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterfaceCl)
+                            .addStatement("$T module = ($T) m", cacheControlInterfaceCl, cacheControlInterfaceCl);
+
+                    for (MethodDetail protoProvideMethod : cl.getAllMethods(false, false, "<init>")) {
+                        String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
+                        List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
+                                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+                        );
+                        if (!qFields.isEmpty()) {
+                            // TODO https://github.com/klee0kai/stone/issues/42
+                            continue;
+                        }
+
+                        builder.addStatement(
+                                "$L( $T.setValueAction( module.$L( null ) ) )",
+                                protoCacheControlMethodName, CacheAction.class, protoCacheControlMethodName
+                        );
                     }
 
-                    builder.addStatement(
-                            "$L( $T.setValueAction( module.$L( null ) ) )",
-                            protoCacheControlMethodName, CacheAction.class, protoCacheControlMethodName
-                    );
+                    builder.endControlFlow();
                 }
-                builder.endControlFlow();
             }
         });
         iModuleMethodBuilders.put(updateBindInstancesFrom, builder);
@@ -681,7 +690,7 @@ public class ModuleBuilder {
 
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
         typeSpecBuilder.addModifiers(Modifier.PUBLIC);
-        if (orModuleCl != null) {
+        if (orModuleCl != null && !Objects.equals(orModuleCl.className, className)) {
             if (orModuleCl.isInterfaceClass())
                 typeSpecBuilder.addSuperinterface(orModuleCl.className);
             else typeSpecBuilder.superclass(orModuleCl.className);
