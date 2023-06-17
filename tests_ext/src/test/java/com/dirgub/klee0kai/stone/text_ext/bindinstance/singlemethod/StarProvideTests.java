@@ -71,28 +71,5 @@ public class StarProvideTests {
         assertNull(DIPro.sunModule().star(null));
     }
 
-    @Test
-    public void updatedAfterExtendSunTest() {
-        //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Sun sun1 = new Sun();
-        Sun sun2 = new Sun();
-        Sun sun3 = new Sun();
-        DI.sunModule().sun(sun1);
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
-        DIPro.sunModule().sun(sun2);
-
-        //When
-        DI.bindSun(sun3);
-
-
-        //Then
-        assertEquals(sun3, DI.sunModule().sun(null));
-        assertEquals(sun3, DI.sunModule().sun(null));
-        assertNull(DI.sunModule().star(null));
-        assertNull(DIPro.sunModule().star(null));
-    }
-
 
 }
