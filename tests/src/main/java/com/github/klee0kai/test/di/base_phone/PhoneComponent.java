@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.di.base_phone;
 
 import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.closed.IComponent;
+import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
@@ -13,7 +13,7 @@ import com.github.klee0kai.test.tech.phone.OnePhone;
 @Component(
         qualifiers = {DataStorageSize.class, RamSize.class, PhoneOsType.class, OperationSystem.class}
 )
-public interface PhoneComponent extends IComponent {
+public interface PhoneComponent extends IPrivateComponent {
 
     TechModule components();
 

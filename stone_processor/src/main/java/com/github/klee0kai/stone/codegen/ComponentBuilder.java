@@ -2,9 +2,8 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.checks.ComponentMethods;
-import com.github.klee0kai.stone.closed.IComponent;
-import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
+import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
@@ -137,7 +136,6 @@ public class ComponentBuilder {
      * Call first
      */
     public ComponentBuilder implementIComponentMethods() {
-        interfaces.add(ClassName.get(IComponent.class));
         interfaces.add(ClassName.get(IPrivateComponent.class));
         ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakLinkedList.class, IPrivateComponent.class);
         fields.put(
@@ -289,11 +287,11 @@ public class ComponentBuilder {
     public ComponentBuilder extOfMethod(boolean override) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(extOfMethodName)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(IComponent.class, "c");
+                .addParameter(IPrivateComponent.class, "c");
         if (override) builder.addAnnotation(Override.class);
 
         for (ClassDetail proto : orComponentCl.getAllParents(false)) {
-            if (Objects.equals(proto.className, ClassName.get(IComponent.class))) continue;
+            if (Objects.equals(proto.className, ClassName.get(IPrivateComponent.class))) continue;
             List<MethodDetail> provideModuleMethods = ListUtils.filter(proto.getAllMethods(false, false),
                     (i, m) -> ComponentMethods.isModuleProvideMethod(m)
             );
@@ -344,7 +342,7 @@ public class ComponentBuilder {
                 .addModifiers(Modifier.PUBLIC);
         for (FieldDetail arg : m.args) {
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-            builder.addStatement("$L( ($T) $L )", extOfMethodName, IComponent.class, arg.name);
+            builder.addStatement("$L( ($T) $L )", extOfMethodName, IPrivateComponent.class, arg.name);
         }
 
         iComponentMethods.add(builder);
