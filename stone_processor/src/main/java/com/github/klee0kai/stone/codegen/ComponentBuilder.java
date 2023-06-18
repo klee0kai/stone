@@ -2,8 +2,8 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.checks.ComponentMethods;
-import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.IModule;
+import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
@@ -31,6 +31,7 @@ import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
 public class ComponentBuilder {
 
@@ -190,7 +191,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder initMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(initMethodName)
+        MethodSpec.Builder builder = methodBuilder(initMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
                 .addParameter(Object[].class, "modules")
                 .varargs(true);
@@ -218,7 +219,7 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder initDependenciesMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(initDepsMethodName)
+        MethodSpec.Builder builder = methodBuilder(initDepsMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
                 .addParameter(Object[].class, "deps")
                 .varargs(true);
@@ -236,7 +237,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder initMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC);
         for (FieldDetail arg : m.args) {
@@ -266,7 +267,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder bindMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
+        MethodSpec.Builder builder = methodBuilder(bindMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
                 .addParameter(Object[].class, "objects")
                 .varargs(true);
@@ -285,7 +286,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder extOfMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(extOfMethodName)
+        MethodSpec.Builder builder = methodBuilder(extOfMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(IPrivateComponent.class, "c");
         if (override) builder.addAnnotation(Override.class);
@@ -337,7 +338,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder extOfMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC);
         for (FieldDetail arg : m.args) {
@@ -351,7 +352,7 @@ public class ComponentBuilder {
 
     public ComponentBuilder hiddenModuleMethod(boolean override) {
         ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(hiddenModuleMethodName)
+        MethodSpec.Builder builder = methodBuilder(hiddenModuleMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(tpName)
                 .addStatement("return this.$L", hiddenModuleFieldName);
@@ -368,7 +369,7 @@ public class ComponentBuilder {
 
     public ComponentBuilder eachModuleMethod(boolean override) {
         ParameterizedTypeName callbackType = ParameterizedTypeName.get(StoneCallback.class, IModule.class);
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(eachModuleMethodName)
+        MethodSpec.Builder builder = methodBuilder(eachModuleMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(callbackType, "callback").build())
                 .addStatement("if ($L) return ", protectRecursiveField)
@@ -398,7 +399,7 @@ public class ComponentBuilder {
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
         ClassName moduleStoneMirror = genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE).initializer("new $T()", moduleStoneMirror));
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(moduleStoneMirror)
@@ -411,7 +412,7 @@ public class ComponentBuilder {
 
     public ComponentBuilder provideDependenciesMethod(String name, ClassDetail depsModule) {
         depsFields.put(name, FieldSpec.builder(depsModule.className, name, Modifier.PRIVATE));
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(depsModule.className)
@@ -423,7 +424,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder provideObjMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType);
@@ -468,7 +469,7 @@ public class ComponentBuilder {
         FieldDetail setValueArg = isProvideMethod ? ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType))
                 : ListUtils.first(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.qualifiers.contains(it.type));
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType);
@@ -504,7 +505,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder injectMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
@@ -630,7 +631,7 @@ public class ComponentBuilder {
     public ComponentBuilder protectInjectedMethod(String name, ClassDetail injectableCl, long timeMillis) {
         timeHolderFields();
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(injectableCl.className, "cl").build())
@@ -666,7 +667,7 @@ public class ComponentBuilder {
             scopesCode.add("$T.class", sc);
         }
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
@@ -710,7 +711,7 @@ public class ComponentBuilder {
             if (inx++ <= 0) scopesCode.add("$T.class", sc);
             else scopesCode.add(", $T.class", sc);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
