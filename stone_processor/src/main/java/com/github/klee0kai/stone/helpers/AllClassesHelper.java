@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.codegen.helpers;
+package com.github.klee0kai.stone.helpers;
 
 import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.closed.IModule;
@@ -69,7 +69,7 @@ public class AllClassesHelper {
                     });
                     if (isScopeAnnotated) {
                         String annClName = ann.getAnnotationType().toString();
-                        ClassDetail annClDetails = ClassDetail.of(typeElementFor(annClName));
+                        ClassDetail annClDetails = new ClassDetail(typeElementFor(annClName));
                         gcScopeAnnotations.put(annClDetails.className.toString(), annClDetails);
                     }
                 }
@@ -107,6 +107,7 @@ public class AllClassesHelper {
 
     /**
      * Find class details of type.
+     * May throw exception
      *
      * @param typeName type name
      * @return {@link ClassDetail} if found
@@ -115,7 +116,7 @@ public class AllClassesHelper {
         try {
             TypeName rawType = ClassNameUtils.rawTypeOf(typeName);
             if (rawType instanceof ClassName) {
-                ClassDetail cl = ClassDetail.of(elements.getTypeElement(((ClassName) rawType).canonicalName()));
+                ClassDetail cl = new ClassDetail(elements.getTypeElement(((ClassName) rawType).canonicalName()));
                 cl.className = typeName;
                 return cl;
             }
@@ -127,6 +128,20 @@ public class AllClassesHelper {
                             .build(),
                     e
             );
+        }
+    }
+
+    /**
+     * Find class details of type.
+     *
+     * @param typeName type name
+     * @return {@link ClassDetail} if found or null
+     */
+    public ClassDetail tryFindForType(TypeName typeName) {
+        try {
+            return findForType(typeName);
+        } catch (Exception e) {
+            return null;
         }
     }
 

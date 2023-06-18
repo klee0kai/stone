@@ -22,5 +22,4 @@ public interface PlanetComponent {
     @BindInstance
     void bindSun(Sun sun);
 
-
 }

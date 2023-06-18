@@ -7,8 +7,8 @@ import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.closed.types.single.WeakItemHolder;
-import com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
+import com.github.klee0kai.stone.helpers.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -25,11 +25,10 @@ import java.util.*;
 
 import static com.github.klee0kai.stone.checks.ModuleMethods.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
-import static com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper.cacheTypeFrom;
-import static com.github.klee0kai.stone.codegen.helpers.ItemHolderCodeHelper.of;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.cacheTypeFrom;
+import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.of;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
-import static com.github.klee0kai.stone.utils.StoneNamingUtils.genModuleNameMirror;
 
 public class ModuleBuilder {
 
@@ -38,6 +37,7 @@ public class ModuleBuilder {
     private static final String appliedLocalFieldName = "applied";
     public static final String initMethodName = "init";
     public static final String initCachesFromMethodName = "initCachesFrom";
+    public static final String updateBindInstancesFrom = "__updateBindInstancesFrom";
     public static final String bindMethodName = "bind";
     public static final String getFactoryMethodName = "getFactory";
     public static final String switchRefMethodName = "switchRef";
@@ -45,7 +45,6 @@ public class ModuleBuilder {
     public final ClassDetail orModuleCl;
 
     public ClassName className;
-
 
     public final Set<TypeName> interfaces = new HashSet<>();
     public final Set<ClassName> qualifiers = new HashSet<>();
@@ -60,19 +59,24 @@ public class ModuleBuilder {
     public final List<FieldSpec.Builder> cacheFields = new LinkedList<>();
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
     public final List<MethodSpec.Builder> cacheControlMethodBuilders = new LinkedList<>();
-
     public final HashMap<Set<TypeName>, CodeBlock.Builder> switchRefStatementBuilders = new HashMap<>();
-
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
 
-    public static ModuleBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
-        ModuleBuilder builder = new ModuleBuilder(factoryBuilder.orFactory, genModuleNameMirror(factoryBuilder.orFactory.className))
-                .factoryField(factoryBuilder.orFactory.className, factoryBuilder.className)
-                .overridedField(genCacheControlInterfaceModuleNameMirror(factoryBuilder.orFactory.className))
+    public static ModuleBuilder from(
+            ClassDetail orModuleCl,
+            ClassName moduleClName,
+            ClassName factoryClName,
+            List<ClassName> allQualifiers
+    ) {
+        ModuleBuilder builder = new ModuleBuilder(
+                orModuleCl,
+                moduleClName)
+                .factoryField(orModuleCl.className, factoryClName)
+                .overridedField()
                 .implementIModule();
         builder.qualifiers.addAll(allQualifiers);
 
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
+        for (MethodDetail m : orModuleCl.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
 
@@ -112,7 +116,7 @@ public class ModuleBuilder {
             } else {
                 throw new IncorrectSignatureException(
                         createErrorMes()
-                                .moduleClass(factoryBuilder.orFactory.className.toString())
+                                .moduleClass(orModuleCl.className.toString())
                                 .method(m.methodName)
                                 .hasIncorrectSignature()
                                 .build()
@@ -124,9 +128,14 @@ public class ModuleBuilder {
     }
 
 
-    public ModuleBuilder(ClassDetail orModuleCl, ClassName className) {
+    public ModuleBuilder(ClassDetail orModuleCl, ClassName moduleCl) {
         this.orModuleCl = orModuleCl;
-        this.className = className;
+        this.className = moduleCl;
+    }
+
+    public ModuleBuilder addQualifiers(Set<ClassName> qualifiers) {
+        this.qualifiers.addAll(qualifiers);
+        return this;
     }
 
     public ModuleBuilder factoryField(TypeName typeName, TypeName initTypeName) {
@@ -137,8 +146,8 @@ public class ModuleBuilder {
         return this;
     }
 
-    public ModuleBuilder overridedField(TypeName typeName) {
-        TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(WeakItemHolder.class), typeName);
+    public ModuleBuilder overridedField() {
+        TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(WeakItemHolder.class), genCacheControlInterfaceModuleNameMirror(orModuleCl.className));
         FieldSpec.Builder builder = FieldSpec.builder(weakHolder, overridedModuleFieldName, Modifier.PRIVATE, Modifier.FINAL)
                 .initializer("new $T()", weakHolder);
         fields.put(overridedModuleFieldName, builder);
@@ -164,6 +173,7 @@ public class ModuleBuilder {
         bindMethod();
         getFactoryMethod();
         switchRefMethod();
+        updateBindInstanceFromModule();
         return this;
     }
 
@@ -231,7 +241,8 @@ public class ModuleBuilder {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(initCachesFromMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addParameter(IModule.class, "m");
+                .addParameter(IModule.class, "m")
+                .addStatement("if (m == this) return");
 
         collectRuns.add(() -> {
             if (orModuleCl != null) for (ClassDetail cl : orModuleCl.getAllParents(false)) {
@@ -265,6 +276,45 @@ public class ModuleBuilder {
             }
         });
         iModuleMethodBuilders.put(initCachesFromMethodName, builder);
+        return this;
+    }
+
+    public ModuleBuilder updateBindInstanceFromModule() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(updateBindInstancesFrom)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addParameter(IModule.class, "m")
+                .addStatement("if (m == this) return");
+
+        collectRuns.add(() -> {
+            if (orModuleCl != null) for (ClassDetail cl : orModuleCl.getAllParents(false)) {
+                ClassName cacheControlInterfaceCl = genCacheControlInterfaceModuleNameMirror(cl.className);
+                builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterfaceCl)
+                        .addStatement("$T module = ($T) m", cacheControlInterfaceCl, cacheControlInterfaceCl);
+
+                for (MethodDetail protoProvideMethod : cl.getAllMethods(false, false, "<init>")) {
+                    if (!protoProvideMethod.hasAnyAnnotation(BindInstanceAnn.class))
+                        continue;
+                    String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
+                    List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
+                            (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+                    );
+                    if (!qFields.isEmpty()) {
+                        // TODO https://github.com/klee0kai/stone/issues/42
+                        continue;
+                    }
+
+                    builder.addStatement(
+                            "$L( $T.setValueAction( module.$L( null ) ) )",
+                            protoCacheControlMethodName, CacheAction.class, protoCacheControlMethodName
+                    );
+
+                }
+
+                builder.endControlFlow();
+            }
+        });
+        iModuleMethodBuilders.put(updateBindInstancesFrom, builder);
         return this;
     }
 
@@ -396,7 +446,6 @@ public class ModuleBuilder {
         return this;
     }
 
-
     public ModuleBuilder provideFactory(MethodDetail m) {
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(m.methodName)
                 .addModifiers(Modifier.PUBLIC)
@@ -420,7 +469,6 @@ public class ModuleBuilder {
         List<FieldDetail> qFields = ListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
-
         cacheFields.add(itemHolderCodeHelper.cachedField());
         MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(m.methodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
@@ -579,7 +627,7 @@ public class ModuleBuilder {
 
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
         typeSpecBuilder.addModifiers(Modifier.PUBLIC);
-        if (orModuleCl != null) {
+        if (orModuleCl != null && !Objects.equals(orModuleCl.className, className)) {
             if (orModuleCl.isInterfaceClass())
                 typeSpecBuilder.addSuperinterface(orModuleCl.className);
             else typeSpecBuilder.superclass(orModuleCl.className);

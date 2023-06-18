@@ -6,7 +6,6 @@ import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
 
@@ -15,7 +14,6 @@ import java.util.*;
 
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.bindMethodName;
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.switchRefMethodName;
-import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 
 public class ModuleCacheControlInterfaceBuilder {
 
@@ -33,13 +31,19 @@ public class ModuleCacheControlInterfaceBuilder {
     public final List<MethodSpec.Builder> methodBuilders = new LinkedList<>();
 
 
-    public static ModuleCacheControlInterfaceBuilder from(ModuleFactoryBuilder factoryBuilder, List<ClassName> allQualifiers) {
-        ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(factoryBuilder.orFactory);
-        builder.qualifiers.addAll(allQualifiers);
-
-        builder.bindMethod()
+    public static ModuleCacheControlInterfaceBuilder from(
+            ClassDetail orModule,
+            ClassName cacheControlCl,
+            List<ClassName> allQualifiers
+    ) {
+        ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(
+                orModule,
+                cacheControlCl
+        ).addQualifiers(allQualifiers)
+                .bindMethod()
                 .switchRefMethod();
-        for (MethodDetail m : factoryBuilder.orFactory.getAllMethods(false, false)) {
+
+        for (MethodDetail m : orModule.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
             builder.provideMethod(m.methodName, m.returnType, m.args)
@@ -48,10 +52,14 @@ public class ModuleCacheControlInterfaceBuilder {
         return builder;
     }
 
-
-    public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl) {
+    public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl, ClassName className) {
         this.orModuleCl = orModuleCl;
-        this.className = genCacheControlInterfaceModuleNameMirror(orModuleCl.className);
+        this.className = className;
+    }
+
+    public ModuleCacheControlInterfaceBuilder addQualifiers(Collection<ClassName> qualifiers) {
+        this.qualifiers.addAll(qualifiers);
+        return this;
     }
 
     public ModuleCacheControlInterfaceBuilder bindMethod() {

@@ -76,7 +76,7 @@ public class ExceptionStringBuilder {
         if (sb.length() > 0) sb.append(" ");
         sb.append("Class not found: ");
         sb.append(className);
-        sb.append("Try import class directly.");
+        sb.append(". Try import class directly.");
         return this;
     }
 

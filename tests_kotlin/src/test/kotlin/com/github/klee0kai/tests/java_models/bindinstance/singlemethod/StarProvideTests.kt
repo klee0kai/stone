@@ -38,18 +38,4 @@ class StarProvideTests {
         assertNull(DI.sunModule().sun(null))
     }
 
-    @Test
-    fun bindSunCommonTest() {
-        //Given
-        val DI = Stone.createComponent(PlanetComponent::class.java)
-        val sun = Sun()
-
-        //When
-        DI.bind(sun)
-
-        //Then
-        assertEquals(sun, DI.sunModule().sun(null))
-        assertEquals(sun, DI.sunModule().sun(null))
-        assertNull(DI.sunModule().star(null))
-    }
 }

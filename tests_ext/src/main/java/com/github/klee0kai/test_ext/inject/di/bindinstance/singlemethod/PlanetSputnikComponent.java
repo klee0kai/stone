@@ -16,6 +16,6 @@ public interface PlanetSputnikComponent extends PlanetComponent {
     Moon moon(Moon moon);
 
     @ExtendOf
-    void extOf(PlanetComponent parent);
+    void extendOf(PlanetComponent parent);
 
 }

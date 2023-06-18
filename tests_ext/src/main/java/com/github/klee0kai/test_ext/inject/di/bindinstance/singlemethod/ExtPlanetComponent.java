@@ -8,6 +8,6 @@ import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;
 public interface ExtPlanetComponent extends PlanetComponent {
 
     @ExtendOf
-    void extOf(PlanetComponent parent);
+    void extendOf(PlanetComponent parent);
 
 }

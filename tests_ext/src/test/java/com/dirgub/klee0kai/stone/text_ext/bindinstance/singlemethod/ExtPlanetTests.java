@@ -21,7 +21,7 @@ public class ExtPlanetTests {
 
         //When
         ExtPlanetComponent DIPro = Stone.createComponent(ExtPlanetComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
 
 
         //Then
@@ -36,7 +36,7 @@ public class ExtPlanetTests {
         // Given
         PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
         ExtPlanetComponent DIPro = Stone.createComponent(ExtPlanetComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
         Earth earth = new Earth();
 
 
@@ -63,7 +63,7 @@ public class ExtPlanetTests {
 
         //When
         ExtPlanetComponent DIPro = Stone.createComponent(ExtPlanetComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
         DIPro.earth(earth2);
 
 
@@ -84,7 +84,7 @@ public class ExtPlanetTests {
         Earth earth3 = new Earth();
         DI.earth(earth1);
         ExtPlanetComponent DIPro = Stone.createComponent(ExtPlanetComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
         DIPro.earth(earth2);
 
 
