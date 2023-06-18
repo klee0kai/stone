@@ -35,12 +35,12 @@ public class ModuleBuilder {
     public static final String overridedModuleFieldName = "overridedModule";
     public static final String factoryFieldName = "factory";
     private static final String appliedLocalFieldName = "applied";
-    public static final String initMethodName = "init";
-    public static final String initCachesFromMethodName = "initCachesFrom";
+    public static final String initMethodName = "__init";
+    public static final String initCachesFromMethodName = "__initCachesFrom";
     public static final String updateBindInstancesFrom = "__updateBindInstancesFrom";
-    public static final String bindMethodName = "bind";
-    public static final String getFactoryMethodName = "getFactory";
-    public static final String switchRefMethodName = "switchRef";
+    public static final String bindMethodName = "__bind";
+    public static final String getFactoryMethodName = "__getFactory";
+    public static final String switchRefMethodName = "__switchRef";
 
     public final ClassDetail orModuleCl;
 
@@ -190,7 +190,7 @@ public class ModuleBuilder {
                     // check module class
                     .beginControlFlow("if ( (or instanceof $T) ) ", genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
                     .addStatement("$L.set(($T) or)", overridedModuleFieldName, genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
-                    .addStatement("$L = ($T) (($T) or).getFactory() ", factoryFieldName, orModuleCl.className, IModule.class)
+                    .addStatement("$L = ($T) (($T) or).$L() ", factoryFieldName, orModuleCl.className, IModule.class, getFactoryMethodName)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
                     // check factory class
@@ -329,7 +329,7 @@ public class ModuleBuilder {
 
         if (fields.containsKey(overridedModuleFieldName))
             builder.beginControlFlow("if ( $L.get() != null )", overridedModuleFieldName)
-                    .addStatement("$L.get().bind(or)", overridedModuleFieldName)
+                    .addStatement("$L.get().$L(or)", overridedModuleFieldName, bindMethodName)
                     .endControlFlow();
 
         iModuleMethodBuilders.put(bindMethodName, builder);

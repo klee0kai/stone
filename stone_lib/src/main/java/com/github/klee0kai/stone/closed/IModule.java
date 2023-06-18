@@ -16,13 +16,13 @@ public interface IModule {
      *           - a factory instance
      *           - a factory class
      */
-    boolean init(Object ob);
+    boolean __init(Object ob);
 
     /**
      * Init caches from module prototype.
      * using in extOf method
      */
-    void initCachesFrom(IModule module);
+    void __initCachesFrom(IModule module);
 
     /**
      * Update values of bindInstance variables
@@ -36,18 +36,18 @@ public interface IModule {
      *
      * @param object - An instance of bindable objects
      */
-    boolean bind(Object object);
+    boolean __bind(Object object);
 
     /**
      * get component's factory
      *
      * @return
      */
-    Object getFactory();
+    Object __getFactory();
 
     /**
      * Switch cache type for scope
      */
-    void switchRef(Set<Class> scopes, SwitchCacheParam param);
+    void __switchRef(Set<Class> scopes, SwitchCacheParam param);
 
 }

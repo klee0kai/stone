@@ -209,8 +209,8 @@ public class ComponentBuilder {
                     .beginControlFlow("else")
                     .addComment("init modules")
                     .addStatement(
-                            "$L( (module) -> { module.init(m); } )",
-                            eachModuleMethodName
+                            "$L( (module) -> { module.$L(m); } )",
+                            eachModuleMethodName, ModuleBuilder.initMethodName
                     )
                     .endControlFlow()
                     .endControlFlow();
@@ -278,8 +278,8 @@ public class ComponentBuilder {
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object ob : objects)")
                     .addStatement(
-                            "$L( (m) -> {  m.bind(ob); } )",
-                            eachModuleMethodName
+                            "$L( (m) -> {  m.$L(ob); } )",
+                            eachModuleMethodName, ModuleBuilder.bindMethodName
                     )
                     .endControlFlow();
         });
@@ -688,14 +688,14 @@ public class ComponentBuilder {
         gcMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             builder.addStatement(
-                            "$L( (m) -> {  m.switchRef(scopes, toWeak); } )",
-                            eachModuleMethodName
+                            "$L( (m) -> {  m.$L(scopes, toWeak); } )",
+                            eachModuleMethodName, ModuleBuilder.switchRefMethodName
                     )
                     .addStatement("$T.gc()", System.class)
                     .addStatement("$L.clearNulls()", relatedComponentsListFieldName)
                     .addStatement(
-                            "$L( (m) -> {  m.switchRef(scopes, toDef); } )",
-                            eachModuleMethodName
+                            "$L( (m) -> {  m.$L(scopes, toDef); } )",
+                            eachModuleMethodName, ModuleBuilder.switchRefMethodName
                     );
 
             if (fields.containsKey(refCollectionGlFieldName))
@@ -741,8 +741,8 @@ public class ComponentBuilder {
                 m.ann(SwitchCacheAnn.class).timeMillis,
                 schedulerInitCode.build()
         ).addStatement(
-                "$L( (m) -> {  m.switchRef(scopes, switchCacheParams); } )",
-                eachModuleMethodName
+                "$L( (m) -> {  m.$L(scopes, switchCacheParams); } )",
+                eachModuleMethodName, ModuleBuilder.switchRefMethodName
         );
 
         switchRefMethods.add(builder);
