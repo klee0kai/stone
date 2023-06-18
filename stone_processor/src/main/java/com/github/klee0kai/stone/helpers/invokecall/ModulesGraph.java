@@ -185,31 +185,28 @@ public class ModulesGraph {
         if (invokeCalls == null || invokeCalls.isEmpty())
             return null;
         Set<TypeName> qualifiersTypes = new HashSet<>(ListUtils.format(qualifiers, (it) -> it.type));
-        int maxUsedQualifiersCount = -1;
-        LinkedList<InvokeCall> bestInvokeCallVariants = new LinkedList<>();
-        for (InvokeCall invokeCall : invokeCalls) {
-            int usedQualifiers = invokeCall.argTypes(qualifiersTypes).size();
-            if (maxUsedQualifiersCount < usedQualifiers) {
-                bestInvokeCallVariants.clear();
-                bestInvokeCallVariants.add(invokeCall);
-                maxUsedQualifiersCount = usedQualifiers;
-            }
-            if (maxUsedQualifiersCount == usedQualifiers) {
-                bestInvokeCallVariants.add(invokeCall);
-            }
-        }
-        if (bestInvokeCallVariants.isEmpty()) {
-            return null;
-        }
-        if (bestInvokeCallVariants.size() == 1) {
-            return bestInvokeCallVariants.get(0);
-        }
-        InvokeCall nameMatchingInvokeCall = provideMethodName != null ? ListUtils.first(bestInvokeCallVariants, (inx, ob) -> {
-            int len = ob.invokeSequence.size();
-            return Objects.equals(provideMethodName, ob.invokeSequence.get(len - 1).methodName);
-        }) : null;
+        invokeCalls.sort((inv1, inv2) -> {
+            // first compare uses qualifiers
+            int usedQualifiers1 = inv1.argTypes(qualifiersTypes).size();
+            int usedQualifiers2 = inv2.argTypes(qualifiersTypes).size();
+            int qCompare = Integer.compare(usedQualifiers2, usedQualifiers1);
+            if (qCompare != 0) return qCompare; // more used qualifies
 
-        return nameMatchingInvokeCall != null ? nameMatchingInvokeCall : bestInvokeCallVariants.get(0);
+            // second compare name equals
+            int len1 = inv1.invokeSequence.size();
+            int name1 = Objects.equals(provideMethodName, inv1.invokeSequence.get(len1 - 1).methodName) ? 1 : 0;
+            int len2 = inv2.invokeSequence.size();
+            int name2 = Objects.equals(provideMethodName, inv2.invokeSequence.get(len2 - 1).methodName) ? 1 : 0;
+            int nameCompare = Integer.compare(name2, name1);
+            if (nameCompare != 0) return nameCompare; // better with name equals
+
+            // low null's using
+            int qualifiers1 = inv1.argTypes(null).size();
+            int qualifiers2 = inv2.argTypes(null).size();
+            qCompare = Integer.compare(qualifiers1, qualifiers2);
+            return qCompare; // less all qualifies
+        });
+        return !invokeCalls.isEmpty() ? invokeCalls.get(0) : null;
     }
 
 }
