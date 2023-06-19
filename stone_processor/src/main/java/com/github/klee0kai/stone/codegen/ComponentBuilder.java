@@ -321,8 +321,8 @@ public class ComponentBuilder {
                 );
             }
 
-            builder.addStatement("c.__init( $L ) ", String.join(",", provideFactories))
-                    .addStatement("c.__init(this)")
+            builder.addStatement("c.$L( $L ) ", ModuleBuilder.initMethodName, String.join(",", provideFactories))
+                    .addStatement("c.$L(this)", ModuleBuilder.initMethodName)
                     .endControlFlow();
 
             builder.beginControlFlow("if (c instanceof $T)", IPrivateComponent.class)
