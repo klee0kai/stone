@@ -29,18 +29,19 @@ import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.create
 import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.cacheTypeFrom;
 import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.of;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
 public class ModuleBuilder {
 
     public static final String overridedModuleFieldName = "overridedModule";
     public static final String factoryFieldName = "factory";
     private static final String appliedLocalFieldName = "applied";
-    public static final String initMethodName = "init";
-    public static final String initCachesFromMethodName = "initCachesFrom";
+    public static final String initMethodName = "__init";
+    public static final String initCachesFromMethodName = "__initCachesFrom";
     public static final String updateBindInstancesFrom = "__updateBindInstancesFrom";
-    public static final String bindMethodName = "bind";
-    public static final String getFactoryMethodName = "getFactory";
-    public static final String switchRefMethodName = "switchRef";
+    public static final String bindMethodName = "__bind";
+    public static final String getFactoryMethodName = "__getFactory";
+    public static final String switchRefMethodName = "__switchRef";
 
     public final ClassDetail orModuleCl;
 
@@ -178,7 +179,7 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder initMethod() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(initMethodName)
+        MethodSpec.Builder builder = methodBuilder(initMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .addAnnotation(Override.class)
                 .returns(boolean.class)
@@ -190,7 +191,7 @@ public class ModuleBuilder {
                     // check module class
                     .beginControlFlow("if ( (or instanceof $T) ) ", genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
                     .addStatement("$L.set(($T) or)", overridedModuleFieldName, genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
-                    .addStatement("$L = ($T) (($T) or).getFactory() ", factoryFieldName, orModuleCl.className, IModule.class)
+                    .addStatement("$L = ($T) (($T) or).$L() ", factoryFieldName, orModuleCl.className, IModule.class, getFactoryMethodName)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
                     // check factory class
@@ -238,7 +239,7 @@ public class ModuleBuilder {
 
 
     public ModuleBuilder initCachesFromModule() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(initCachesFromMethodName)
+        MethodSpec.Builder builder = methodBuilder(initCachesFromMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(IModule.class, "m")
@@ -280,7 +281,7 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder updateBindInstanceFromModule() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(updateBindInstancesFrom)
+        MethodSpec.Builder builder = methodBuilder(updateBindInstancesFrom)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(IModule.class, "m")
@@ -319,7 +320,7 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder bindMethod() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
+        MethodSpec.Builder builder = methodBuilder(bindMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .addAnnotation(BindInstance.class)
                 .addAnnotation(Override.class)
@@ -329,7 +330,7 @@ public class ModuleBuilder {
 
         if (fields.containsKey(overridedModuleFieldName))
             builder.beginControlFlow("if ( $L.get() != null )", overridedModuleFieldName)
-                    .addStatement("$L.get().bind(or)", overridedModuleFieldName)
+                    .addStatement("$L.get().$L(or)", overridedModuleFieldName, bindMethodName)
                     .endControlFlow();
 
         iModuleMethodBuilders.put(bindMethodName, builder);
@@ -342,7 +343,7 @@ public class ModuleBuilder {
 
 
     public ModuleBuilder getFactoryMethod() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(getFactoryMethodName)
+        MethodSpec.Builder builder = methodBuilder(getFactoryMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .returns(Object.class)
@@ -352,7 +353,7 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder switchRefMethod() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(switchRefMethodName)
+        MethodSpec.Builder builder = methodBuilder(switchRefMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
@@ -396,7 +397,7 @@ public class ModuleBuilder {
         );
 
         //provide method
-        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder provideMethodBuilder = methodBuilder(m.methodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(m.returnType);
 
@@ -447,7 +448,7 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder provideFactory(MethodDetail m) {
-        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder provideMethodBuilder = methodBuilder(m.methodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType)
                 .addStatement("return  $L.$L($L)", factoryFieldName, m.methodName,
@@ -470,7 +471,7 @@ public class ModuleBuilder {
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
         cacheFields.add(itemHolderCodeHelper.cachedField());
-        MethodSpec.Builder provideMethodBuilder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder provideMethodBuilder = methodBuilder(m.methodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.SYNCHRONIZED)
                 .returns(m.returnType);
         if (orModuleCl != null) provideMethodBuilder.addAnnotation(Override.class);
@@ -535,7 +536,7 @@ public class ModuleBuilder {
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
 
-        MethodSpec.Builder cacheControldMethodBuilder = MethodSpec.methodBuilder(cacheControlMethodName)
+        MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType)
                 .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build());
@@ -599,7 +600,7 @@ public class ModuleBuilder {
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
 
-        MethodSpec.Builder cacheControldMethodBuilder = MethodSpec.methodBuilder(cacheControlMethodName)
+        MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType)
                 .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build())

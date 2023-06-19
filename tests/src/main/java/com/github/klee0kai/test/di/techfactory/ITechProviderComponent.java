@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.di.techfactory;
 
-import com.github.klee0kai.stone.types.wrappers.IRef;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
@@ -18,7 +18,7 @@ public interface ITechProviderComponent {
 
     LazyProvide<Battery> batteryLazy();
 
-    IRef<Battery> batteryProviderIRef();
+    Ref<Battery> batteryProviderIRef();
 
     PhantomProvide<Battery> batteryPhantomProvider();
 

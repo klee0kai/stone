@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.tech.phone;
 
-import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
+import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.OperationSystem;
@@ -12,7 +12,7 @@ import javax.inject.Inject;
 
 public class GoodPhone extends ATech {
 
-    public IStoneLifeCycleOwner lifeCycleOwner = LifecycleUtils.createFromATech(this);
+    public StoneLifeCycleOwner lifeCycleOwner = LifecycleUtils.createFromATech(this);
 
 
     @Inject

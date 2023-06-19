@@ -16,7 +16,7 @@ class SevenPlanetTests {
         val earth = Earth()
         val mercury = Mercury()
         val planet = Earth()
-        component.bind(earth, mercury)
+        component.__bind(earth, mercury)
         component.bindPlanet(planet)
 
         //When

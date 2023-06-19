@@ -12,7 +12,6 @@ import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.IProvideTypeWrapperHelper;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
 import com.github.klee0kai.stone.helpers.invokecall.InvokeCall;
-import com.github.klee0kai.stone.interfaces.IComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -32,6 +31,7 @@ import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
 public class ComponentBuilder {
 
@@ -47,10 +47,10 @@ public class ComponentBuilder {
     public static final String protectRecursiveField = "__protectRecursive";
     public static final String hiddenModuleMethodName = "__hidden";
     public static final String eachModuleMethodName = "__eachModule";
-    public static final String initMethodName = "init";
-    public static final String initDepsMethodName = "initDependencies";
-    public static final String bindMethodName = "bind";
-    public static final String extOfMethodName = "extOf";
+    public static final String initMethodName = "__init";
+    public static final String initDepsMethodName = "__initDependencies";
+    public static final String bindMethodName = "__bind";
+    public static final String extOfMethodName = "__extOf";
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
@@ -137,7 +137,6 @@ public class ComponentBuilder {
      * Call first
      */
     public ComponentBuilder implementIComponentMethods() {
-        interfaces.add(ClassName.get(IComponent.class));
         interfaces.add(ClassName.get(IPrivateComponent.class));
         ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakLinkedList.class, IPrivateComponent.class);
         fields.put(
@@ -192,7 +191,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder initMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(initMethodName)
+        MethodSpec.Builder builder = methodBuilder(initMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
                 .addParameter(Object[].class, "modules")
                 .varargs(true);
@@ -209,8 +208,8 @@ public class ComponentBuilder {
                     .beginControlFlow("else")
                     .addComment("init modules")
                     .addStatement(
-                            "$L( (module) -> { module.init(m); } )",
-                            eachModuleMethodName
+                            "$L( (module) -> { module.$L(m); } )",
+                            eachModuleMethodName, ModuleBuilder.initMethodName
                     )
                     .endControlFlow()
                     .endControlFlow();
@@ -220,7 +219,7 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder initDependenciesMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(initDepsMethodName)
+        MethodSpec.Builder builder = methodBuilder(initDepsMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
                 .addParameter(Object[].class, "deps")
                 .varargs(true);
@@ -238,7 +237,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder initMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC);
         for (FieldDetail arg : m.args) {
@@ -268,7 +267,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder bindMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(bindMethodName)
+        MethodSpec.Builder builder = methodBuilder(bindMethodName)
                 .addModifiers(Modifier.SYNCHRONIZED, Modifier.PUBLIC)
                 .addParameter(Object[].class, "objects")
                 .varargs(true);
@@ -278,8 +277,8 @@ public class ComponentBuilder {
         collectRuns.execute(null, () -> {
             builder.beginControlFlow("for (Object ob : objects)")
                     .addStatement(
-                            "$L( (m) -> {  m.bind(ob); } )",
-                            eachModuleMethodName
+                            "$L( (m) -> {  m.$L(ob); } )",
+                            eachModuleMethodName, ModuleBuilder.bindMethodName
                     )
                     .endControlFlow();
         });
@@ -287,13 +286,13 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder extOfMethod(boolean override) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(extOfMethodName)
+        MethodSpec.Builder builder = methodBuilder(extOfMethodName)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(IComponent.class, "c");
+                .addParameter(IPrivateComponent.class, "c");
         if (override) builder.addAnnotation(Override.class);
 
         for (ClassDetail proto : orComponentCl.getAllParents(false)) {
-            if (Objects.equals(proto.className, ClassName.get(IComponent.class))) continue;
+            if (Objects.equals(proto.className, ClassName.get(IPrivateComponent.class))) continue;
             List<MethodDetail> provideModuleMethods = ListUtils.filter(proto.getAllMethods(false, false),
                     (i, m) -> ComponentMethods.isModuleProvideMethod(m)
             );
@@ -322,8 +321,8 @@ public class ComponentBuilder {
                 );
             }
 
-            builder.addStatement("c.init( $L ) ", String.join(",", provideFactories))
-                    .addStatement("c.init(this)")
+            builder.addStatement("c.$L( $L ) ", ModuleBuilder.initMethodName, String.join(",", provideFactories))
+                    .addStatement("c.$L(this)", ModuleBuilder.initMethodName)
                     .endControlFlow();
 
             builder.beginControlFlow("if (c instanceof $T)", IPrivateComponent.class)
@@ -339,12 +338,12 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder extOfMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC);
         for (FieldDetail arg : m.args) {
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-            builder.addStatement("$L( ($T) $L )", extOfMethodName, IComponent.class, arg.name);
+            builder.addStatement("$L( ($T) $L )", extOfMethodName, IPrivateComponent.class, arg.name);
         }
 
         iComponentMethods.add(builder);
@@ -353,7 +352,7 @@ public class ComponentBuilder {
 
     public ComponentBuilder hiddenModuleMethod(boolean override) {
         ClassName tpName = genHiddenModuleNameMirror(orComponentCl.className);
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(hiddenModuleMethodName)
+        MethodSpec.Builder builder = methodBuilder(hiddenModuleMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(tpName)
                 .addStatement("return this.$L", hiddenModuleFieldName);
@@ -370,7 +369,7 @@ public class ComponentBuilder {
 
     public ComponentBuilder eachModuleMethod(boolean override) {
         ParameterizedTypeName callbackType = ParameterizedTypeName.get(StoneCallback.class, IModule.class);
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(eachModuleMethodName)
+        MethodSpec.Builder builder = methodBuilder(eachModuleMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(callbackType, "callback").build())
                 .addStatement("if ($L) return ", protectRecursiveField)
@@ -400,7 +399,7 @@ public class ComponentBuilder {
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
         ClassName moduleStoneMirror = genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE).initializer("new $T()", moduleStoneMirror));
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(moduleStoneMirror)
@@ -413,7 +412,7 @@ public class ComponentBuilder {
 
     public ComponentBuilder provideDependenciesMethod(String name, ClassDetail depsModule) {
         depsFields.put(name, FieldSpec.builder(depsModule.className, name, Modifier.PRIVATE));
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(depsModule.className)
@@ -425,7 +424,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder provideObjMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType);
@@ -470,7 +469,7 @@ public class ComponentBuilder {
         FieldDetail setValueArg = isProvideMethod ? ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType))
                 : ListUtils.first(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.qualifiers.contains(it.type));
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType);
@@ -506,7 +505,7 @@ public class ComponentBuilder {
     }
 
     public ComponentBuilder injectMethod(MethodDetail m) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
@@ -632,7 +631,7 @@ public class ComponentBuilder {
     public ComponentBuilder protectInjectedMethod(String name, ClassDetail injectableCl, long timeMillis) {
         timeHolderFields();
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(injectableCl.className, "cl").build())
@@ -668,7 +667,7 @@ public class ComponentBuilder {
             scopesCode.add("$T.class", sc);
         }
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
@@ -688,14 +687,14 @@ public class ComponentBuilder {
         gcMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             builder.addStatement(
-                            "$L( (m) -> {  m.switchRef(scopes, toWeak); } )",
-                            eachModuleMethodName
+                            "$L( (m) -> {  m.$L(scopes, toWeak); } )",
+                            eachModuleMethodName, ModuleBuilder.switchRefMethodName
                     )
                     .addStatement("$T.gc()", System.class)
                     .addStatement("$L.clearNulls()", relatedComponentsListFieldName)
                     .addStatement(
-                            "$L( (m) -> {  m.switchRef(scopes, toDef); } )",
-                            eachModuleMethodName
+                            "$L( (m) -> {  m.$L(scopes, toDef); } )",
+                            eachModuleMethodName, ModuleBuilder.switchRefMethodName
                     );
 
             if (fields.containsKey(refCollectionGlFieldName))
@@ -712,7 +711,7 @@ public class ComponentBuilder {
             if (inx++ <= 0) scopesCode.add("$T.class", sc);
             else scopesCode.add(", $T.class", sc);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(m.methodName)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(void.class);
@@ -741,8 +740,8 @@ public class ComponentBuilder {
                 m.ann(SwitchCacheAnn.class).timeMillis,
                 schedulerInitCode.build()
         ).addStatement(
-                "$L( (m) -> {  m.switchRef(scopes, switchCacheParams); } )",
-                eachModuleMethodName
+                "$L( (m) -> {  m.$L(scopes, switchCacheParams); } )",
+                eachModuleMethodName, ModuleBuilder.switchRefMethodName
         );
 
         switchRefMethods.add(builder);

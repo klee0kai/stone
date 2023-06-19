@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.tech.phone;
 
-import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleListener;
-import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleOwner;
+import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleListener;
+import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.Ram;
@@ -10,7 +10,7 @@ import com.github.klee0kai.test.tech.phone.base.ATechLifecycle;
 
 import javax.inject.Inject;
 
-public class OnePhone extends ATech implements IStoneLifeCycleOwner {
+public class OnePhone extends ATech implements StoneLifeCycleOwner {
 
     @Inject
     public Battery battery;
@@ -21,7 +21,7 @@ public class OnePhone extends ATech implements IStoneLifeCycleOwner {
 
 
     @Override
-    public void subscribe(IStoneLifeCycleListener listener) {
+    public void subscribe(StoneLifeCycleListener listener) {
         super.subscribe(new ATechLifecycle() {
             @Override
             public void onBuy() {

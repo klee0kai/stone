@@ -26,11 +26,11 @@ public interface TechModule {
     DataStorage dataStorage(DataStorageSize size);
 
     @Provide(cache = Provide.CacheType.Weak)
-    Ram ram();
-
-    @Provide(cache = Provide.CacheType.Weak)
     Ram ram(RamSize ramSize);
 
+
+    @Provide(cache = Provide.CacheType.Weak)
+    Ram ram();
 
     @Provide(cache = Provide.CacheType.Weak)
     OperationSystem phoneOs(PhoneOsType osType);

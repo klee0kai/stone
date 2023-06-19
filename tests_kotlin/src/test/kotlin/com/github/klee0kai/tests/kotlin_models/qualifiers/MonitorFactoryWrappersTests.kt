@@ -2,7 +2,7 @@ package com.github.klee0kai.tests.kotlin_models.qualifiers
 
 import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.type.wrappers.getValue
-import com.github.klee0kai.stone.types.wrappers.IRef
+import com.github.klee0kai.stone.types.wrappers.Ref
 import com.github.klee0kai.test_kotlin.di.compfactory.CompFactoryComponent
 import com.github.klee0kai.test_kotlin.tech.components.Monitor
 import org.junit.jupiter.api.Assertions.*
@@ -17,7 +17,7 @@ class MonitorFactoryWrappersTests {
         val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor: IRef<Monitor> = DI.monitorLazy()
+        val monitor: Ref<Monitor> = DI.monitorLazy()
 
         //Then
         assertEquals(
@@ -57,7 +57,7 @@ class MonitorFactoryWrappersTests {
         val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor: IRef<Monitor> = DI.monitorPhantomProvide()
+        val monitor: Ref<Monitor> = DI.monitorPhantomProvide()
 
         //Then
         assertNotEquals(
@@ -72,7 +72,7 @@ class MonitorFactoryWrappersTests {
         val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor: IRef<Monitor> = DI.monitorPhantomProvide()
+        val monitor: Ref<Monitor> = DI.monitorPhantomProvide()
 
         //Then
         assertNotEquals(

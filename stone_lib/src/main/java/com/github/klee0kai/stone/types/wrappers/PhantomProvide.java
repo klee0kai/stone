@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.types.wrappers;
 
-public class PhantomProvide<T> implements IRef<T> {
+public class PhantomProvide<T> implements Ref<T> {
 
     public interface IProvide<T> {
         T provide();

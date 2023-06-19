@@ -22,6 +22,7 @@ import java.util.Set;
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genFactoryNameMirror;
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
 public class ModuleFactoryBuilder {
 
@@ -70,7 +71,7 @@ public class ModuleFactoryBuilder {
 
 
     public ModuleFactoryBuilder provideMethod(String name, TypeName provideCl, List<FieldDetail> args) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .returns(provideCl);
@@ -90,7 +91,7 @@ public class ModuleFactoryBuilder {
     }
 
     public ModuleFactoryBuilder provideNullMethod(String name, TypeName provideCl, List<FieldDetail> args) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(name)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .returns(provideCl)

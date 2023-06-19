@@ -17,7 +17,7 @@ public class EarthCacheMixedTests {
         //Given
         GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Mountain mountain1 = DI.earth().mountainStrong();
@@ -36,7 +36,7 @@ public class EarthCacheMixedTests {
         //Given
         GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Mountain mountain1 = DI.earth().mountainSoft();
@@ -54,7 +54,7 @@ public class EarthCacheMixedTests {
         //Given
         GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Mountain mountain1 = DI.earth().mountainWeak();
@@ -72,7 +72,7 @@ public class EarthCacheMixedTests {
         //Given
         GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Mountain mountain1 = DI.earth().mountainDefaultSoft();
@@ -90,7 +90,7 @@ public class EarthCacheMixedTests {
         //Given
         GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Mountain mountainStrong = DI.earth().mountainStrong();
@@ -109,7 +109,7 @@ public class EarthCacheMixedTests {
         //Given
         GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
 
         //When
         Mountain mountain1 = DI.earth().mountainFactory();
@@ -128,10 +128,10 @@ public class EarthCacheMixedTests {
         //Given
         GcGodComponent DI1 = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro1 = Stone.createComponent(GcGodExtComponent.class);
-        DIPro1.extOf(DI1);
+        DIPro1.__extOf(DI1);
         GcGodComponent DI2 = Stone.createComponent(GcGodComponent.class);
         GcGodExtComponent DIPro2 = Stone.createComponent(GcGodExtComponent.class);
-        DIPro2.extOf(DI2);
+        DIPro2.__extOf(DI2);
 
         //When
         Mountain mountain1 = DI1.earth().mountainStrong();

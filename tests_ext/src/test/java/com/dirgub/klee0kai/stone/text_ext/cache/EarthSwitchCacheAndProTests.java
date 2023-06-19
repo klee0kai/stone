@@ -21,7 +21,7 @@ public class EarthSwitchCacheAndProTests {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
         SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Mountain> mountain = new WeakReference<>(DIPro.earth().mountainStrong());
 
         //When
@@ -37,7 +37,7 @@ public class EarthSwitchCacheAndProTests {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
         SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Mountain> mountainStrong = new WeakReference<>(DIPro.earth().mountainStrong());
         WeakReference<Mountain> mountainSoft = new WeakReference<>(DIPro.earth().mountainSoft());
 
@@ -55,7 +55,7 @@ public class EarthSwitchCacheAndProTests {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
         SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Mountain> mountainWeak = new WeakReference<>(DIPro.earth().mountainWeak());
 
         //When
@@ -79,7 +79,7 @@ public class EarthSwitchCacheAndProTests {
         //Given
         SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
         SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
+        DIPro.__extOf(DI);
         WeakReference<Mountain> mountain = new WeakReference<>(DIPro.earth().mountainStrong());
         WeakReference<River> river = new WeakReference<>(DIPro.earth().riverSoft());
 
