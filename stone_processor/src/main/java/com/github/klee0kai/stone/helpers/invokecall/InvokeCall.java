@@ -25,7 +25,7 @@ public class InvokeCall {
      */
     public static final int INVOKE_PROVIDE_OBJECT_CACHED = 0x1;
 
-    public final List<MethodDetail> invokeSequence = new LinkedList<>();
+    public final List<List<MethodDetail>> invokeSequenceVariants = new LinkedList<>();
     public final int flags;
 
     /**
@@ -34,8 +34,8 @@ public class InvokeCall {
      * @param callSequence ordered methods in invoke sequence
      */
     public InvokeCall(MethodDetail... callSequence) {
-        this.invokeSequence.addAll(Arrays.asList(callSequence));
         this.flags = 0;
+        this.invokeSequenceVariants.add(Arrays.asList(callSequence));
     }
 
     /**
@@ -46,23 +46,45 @@ public class InvokeCall {
      * @param callSequence ordered methods in invoke sequence
      */
     public InvokeCall(int flags, MethodDetail... callSequence) {
-        this.invokeSequence.addAll(Arrays.asList(callSequence));
         this.flags = flags;
+        this.invokeSequenceVariants.add(Arrays.asList(callSequence));
+    }
+
+    /**
+     * Merge variants. All should return same type
+     *
+     * @param variants all variants from best to worse
+     */
+    public InvokeCall(Collection<InvokeCall> variants) {
+        int mergeflag = 0;
+        for (InvokeCall v : variants) {
+            mergeflag |= v.flags;
+            this.invokeSequenceVariants.addAll(v.invokeSequenceVariants);
+        }
+        this.flags = mergeflag;
+    }
+
+
+    public List<MethodDetail> bestSequence() {
+        return invokeSequenceVariants.get(0);
     }
 
     /**
      * Using arguments in invoke sequence
      *
+     * @param single only for best variant
      * @param filter filter arguments by except list. Null of no filter
      * @return collection of all argument's types
      */
-    public Set<TypeName> argTypes(Set<TypeName> filter) {
+    public Set<TypeName> argTypes(boolean single, Set<TypeName> filter) {
         Set<TypeName> argsTypes = new HashSet<>();
-        for (MethodDetail m : invokeSequence) {
-            List<TypeName> types = ListUtils.format(m.args, (it) -> it.type);
-            if (filter != null) types = ListUtils.filter(types, (inx, it) -> filter.contains(it));
-            argsTypes.addAll(types);
-        }
+        List<List<MethodDetail>> vars = single ? Collections.singletonList(bestSequence()) : invokeSequenceVariants;
+        for (List<MethodDetail> invokeSequence : vars)
+            for (MethodDetail m : invokeSequence) {
+                List<TypeName> types = ListUtils.format(m.args, (it) -> it.type);
+                if (filter != null) types = ListUtils.filter(types, (inx, it) -> filter.contains(it));
+                argsTypes.addAll(types);
+            }
         return argsTypes;
     }
 
@@ -72,6 +94,7 @@ public class InvokeCall {
      * @return return type
      */
     public TypeName resultType() {
+        List<MethodDetail> invokeSequence = bestSequence();
         return invokeSequence.get(invokeSequence.size() - 1).returnType;
     }
 
@@ -93,8 +116,7 @@ public class InvokeCall {
 
         CodeBlock.Builder invokeBuilder = CodeBlock.builder();
         int invokeCount = 0;
-        for (MethodDetail m : invokeSequence) {
-
+        for (MethodDetail m : bestSequence()) {
             int argCount = 0;
             CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
             for (FieldDetail arg : m.args) {

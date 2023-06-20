@@ -490,7 +490,7 @@ public class ComponentBuilder {
                                 "$L( (module) -> { module.$L( $L() ); } )",
                                 eachModuleMethodName,
                                 ModuleBuilder.updateBindInstancesFrom,
-                                cacheControlInvoke.invokeSequence.get(0).methodName
+                                cacheControlInvoke.bestSequence().get(0).methodName
                         );
             }
 

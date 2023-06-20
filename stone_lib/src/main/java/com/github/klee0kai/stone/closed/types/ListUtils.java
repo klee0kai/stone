@@ -58,7 +58,7 @@ public class ListUtils {
         return null;
     }
 
-    public static <T> LinkedList<T> filter(List<T> list, IFilter<T> filter) {
+    public static <T> LinkedList<T> filter(Collection<T> list, IFilter<T> filter) {
         LinkedList<T> touts = new LinkedList<>();
         int idx = 0;
         if (list != null) for (T it : list) {
