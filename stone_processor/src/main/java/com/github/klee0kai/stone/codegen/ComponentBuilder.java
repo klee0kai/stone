@@ -6,11 +6,11 @@ import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.IProvideTypeWrapperHelper;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
+import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.invokecall.InvokeCall;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
@@ -438,8 +438,11 @@ public class ComponentBuilder {
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
-            CodeBlock statementBlock = orComponentCl.modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
-            if (statementBlock == null) {
+            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(
+                    null,
+                    provideTypeWrapperHelper.providingType(),
+                    qFields);
+            if (smartCode == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideTypeRequiredIn(
@@ -451,11 +454,9 @@ public class ComponentBuilder {
                         null
                 );
             }
-            builder.addCode(statementBlock)
-                    .addStatement(
-                            "return $L",
-                            provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.provide()"))
-                    );
+            builder.addCode("return ")
+                    .addCode(provideTypeWrapperHelper.provideCode(smartCode.build()))
+                    .addCode(";\n");
         });
         return this;
     }
@@ -495,8 +496,9 @@ public class ComponentBuilder {
             }
 
             if (isProvideMethod) {
-                builder.addCode(orComponentCl.modulesGraph.statementProvideType("gh", m.methodName, m.returnType, qFields))
-                        .addStatement("return gh.provide()");
+                builder.addCode("return ")
+                        .addCode(orComponentCl.modulesGraph.codeProvideType(m.methodName, m.returnType, qFields).build())
+                        .addCode(";\n");
             }
 
         });
@@ -537,8 +539,8 @@ public class ComponentBuilder {
 
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
                     IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                    CodeBlock provideStatement = orComponentCl.modulesGraph.statementProvideType(injectField.name + "Ph", null, provideTypeWrapperHelper.providingType(), qFields);
-                    if (provideStatement == null) {
+                    CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields).build();
+                    if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
                                         .errorProvideTypeRequiredIn(
@@ -550,15 +552,10 @@ public class ComponentBuilder {
                                 null
                         );
                     }
-
-                    builder.addCode(provideStatement)
-                            .addStatement(
-                                    "$L.$L",
-                                    injectableField.name,
-                                    setFieldHelper.codeSetField(
-                                            provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", injectField.name + "Ph"))
-                                    )
-                            );
+                    builder.addCode(injectableField.name)
+                            .addCode(".")
+                            .addCode(setFieldHelper.codeSetField(provideTypeWrapperHelper.provideCode(provideCode)))
+                            .addCode(";\n");
                 }
 
                 for (MethodDetail injectMethod : injectableCl.getAllMethods(false, false, "<init>")) {
@@ -566,12 +563,11 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        String provideFieldName = injectMethod.methodName + "_" + injectField.name;
                         IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                        CodeBlock provideStatement = orComponentCl.modulesGraph.statementProvideType(provideFieldName, null, provideTypeWrapperHelper.providingType(), qFields);
-                        if (provideStatement == null) {
+                        CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields).build();
+                        if (provideCode == null) {
                             throw new ObjectNotProvidedException(
-                                    ExceptionStringBuilder.createErrorMes()
+                                    createErrorMes()
                                             .errorProvideTypeRequiredIn(
                                                     provideTypeWrapperHelper.providingType().toString(),
                                                     injectableCl.className.toString(),
@@ -582,14 +578,14 @@ public class ComponentBuilder {
                             );
                         }
 
-                        builder.addCode(provideStatement);
-
                         if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
-                        providingArgsCode.add(provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", provideFieldName)));
+                        providingArgsCode.add(provideTypeWrapperHelper.provideCode(provideCode));
 
                     }
 
-                    builder.addStatement("$L.$L( $L )", injectableField.name, injectMethod.methodName, providingArgsCode.build());
+                    builder.addCode("$L.$L( ", injectableField.name, injectMethod.methodName)
+                            .addCode(providingArgsCode.build())
+                            .addCode("); \n");
                 }
 
             }

@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.exceptions;
 
+import com.squareup.javapoet.TypeName;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -210,6 +212,15 @@ public class ExceptionStringBuilder {
         sb.append(String.format(Locale.ROOT,
                 "No found public constructor for class: %s with args: %s",
                 className, String.join(", ", argTypes)));
+        return this;
+    }
+
+
+    public ExceptionStringBuilder typeTransformNonSupport(TypeName or, TypeName dest) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(String.format(Locale.ROOT,
+                "Type Transform non support %s -> %s",
+                or.toString(), dest.toString()));
         return this;
     }
 

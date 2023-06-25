@@ -1,9 +1,9 @@
 package com.github.klee0kai.stone.helpers;
 
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;

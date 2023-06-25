@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.squareup.javapoet.CodeBlock;
@@ -9,7 +10,10 @@ import com.squareup.javapoet.TypeName;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.transform;
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
+import static com.github.klee0kai.stone.utils.ClassNameUtils.rawTypeOf;
+import static java.util.Collections.singleton;
 
 /**
  * Invoke sequence or call sequence.
@@ -130,5 +134,41 @@ public class InvokeCall {
         }
         return invokeBuilder.build();
     }
+
+    public final SmartCode invokeBest() {
+        return SmartCode
+                .builder()
+                .providingType(resultType())
+                .withLocals(builder -> {
+                    int invokeCount = 0;
+                    for (MethodDetail m : bestSequence()) {
+                        if (invokeCount++ > 0) builder.add(".");
+                        builder.add(m.methodName)
+                                .add("(");
+
+                        int argCount = 0;
+                        for (FieldDetail arg : m.args) {
+                            if (argCount++ > 0) builder.add(", ");
+                            FieldDetail field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
+                                    Objects.equals(rawTypeOf(f.type), rawTypeOf(arg.type))
+                            );
+
+                            if (field == null) {
+                                builder.add("null", null);
+                            } else {
+                                // unwrap type
+                                builder.add(
+                                        transform(SmartCode.of(field.name, singleton(field.name))
+                                                        .providingType(field.type),
+                                                arg.type
+                                        ));
+                            }
+                        }
+
+                        builder.add(")");
+                    }
+                });
+    }
+
 
 }

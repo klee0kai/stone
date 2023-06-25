@@ -88,7 +88,7 @@ public class ComponentClassDetails extends ClassDetail {
                             (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
                     );
                     boolean isProvide = ComponentMethods.isBindInstanceMethod(m) == ComponentMethods.BindInstanceType.BindInstanceAndProvide;
-                    boolean noInModules = modulesGraph.statementProvideType(null, m.methodName, m.returnType, qFields) == null;
+                    boolean noInModules = modulesGraph.codeProvideType(m.methodName, m.returnType, qFields) == null;
                     return isProvide && noInModules;
                 });
         hiddenModule = new ClassDetail(genHiddenModuleNameMirror(className));
