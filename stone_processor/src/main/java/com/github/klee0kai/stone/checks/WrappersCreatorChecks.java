@@ -1,13 +1,11 @@
 package com.github.klee0kai.stone.checks;
 
+import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.model.annotations.ComponentAnn;
-import com.github.klee0kai.stone.model.annotations.DependenciesAnn;
-import com.github.klee0kai.stone.model.annotations.IAnnotation;
-import com.github.klee0kai.stone.model.annotations.ModuleAnn;
-import com.github.klee0kai.stone.types.wrappers.WrapperCreator;
+import com.github.klee0kai.stone.model.annotations.*;
+import com.github.klee0kai.stone.types.wrappers.Wrapper;
 import com.squareup.javapoet.ClassName;
 
 import javax.lang.model.element.Modifier;
@@ -45,21 +43,24 @@ public class WrappersCreatorChecks {
     }
 
     private static void checkIWrapperCreatorInterface(ClassDetail cl) {
-        ClassName wrClName = ClassName.get(WrapperCreator.class);
+        ClassName wrClName = ClassName.get(Wrapper.class);
         boolean isWrapperCreatorInterface = false;
         for (ClassDetail p : cl.getAllParents(false))
             if (Objects.equals(p.className, wrClName)) {
                 isWrapperCreatorInterface = true;
                 break;
             }
-        if (!isWrapperCreatorInterface) {
+        if (!isWrapperCreatorInterface || !cl.hasAnyAnnotation(WrapperCreatorsAnn.class)) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .wrappersCreatorClass(cl.className.toString())
-                            .shouldImplementInterface(WrapperCreator.class.getCanonicalName())
+                            .shouldImplementInterface(Wrapper.class.getSimpleName())
+                            .add(" and ")
+                            .shouldHaveAnnotations(WrappersCreator.class.getSimpleName())
                             .build()
             );
         }
+
 
         MethodDetail m = cl.findMethod(MethodDetail.constructorMethod(Collections.emptyList()), false);
         if (m == null || !m.modifiers.contains(Modifier.PUBLIC)) {

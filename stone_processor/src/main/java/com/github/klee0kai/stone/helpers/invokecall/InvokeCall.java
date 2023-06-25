@@ -10,9 +10,9 @@ import com.squareup.javapoet.TypeName;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.transform;
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
-import static com.github.klee0kai.stone.utils.ClassNameUtils.rawTypeOf;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.wrappedType;
 import static java.util.Collections.singleton;
 
 /**
@@ -150,7 +150,7 @@ public class InvokeCall {
                         for (FieldDetail arg : m.args) {
                             if (argCount++ > 0) builder.add(", ");
                             FieldDetail field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
-                                    Objects.equals(rawTypeOf(f.type), rawTypeOf(arg.type))
+                                    Objects.equals(wrappedType(f.type), wrappedType(arg.type))
                             );
 
                             if (field == null) {

@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.di;
+package com.github.klee0kai.test.car.di;
 
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.test.car.Bumper;

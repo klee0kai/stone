@@ -5,13 +5,12 @@ import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
-import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
-import com.github.klee0kai.stone.helpers.IProvideTypeWrapperHelper;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.invokecall.InvokeCall;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -30,6 +29,7 @@ import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.wrappedType;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
@@ -41,7 +41,6 @@ public class ComponentBuilder {
 
     public static final String refCollectionGlFieldName = "__refCollection";
     public static final String scheduleGlFieldName = "__scheduler";
-    public static final String provideWrappersGlFieldPrefixName = "__wrapperCreator";
     public static final String hiddenModuleFieldName = "__hiddenModule";
     public static final String relatedComponentsListFieldName = "__related";
     public static final String protectRecursiveField = "__protectRecursive";
@@ -56,7 +55,6 @@ public class ComponentBuilder {
 
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
-    public final LinkedList<WrapperCreatorField> wrapperCreatorFields = new LinkedList<>();
     public final List<MethodSpec.Builder> iComponentMethods = new LinkedList<>();
 
     public final CodeBlock.Builder initDepsCode = CodeBlock.builder();
@@ -81,10 +79,7 @@ public class ComponentBuilder {
     public static ComponentBuilder from(ComponentClassDetails component) {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className))
                 .implementIComponentMethods();
-        for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
-            ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
-            if (wrappedProviderCl != null) componentBuilder.addProvideWrapperField(wrappedProviderCl);
-        }
+
 
         for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
             if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)
@@ -176,17 +171,6 @@ public class ComponentBuilder {
                     FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
                             .initializer("new $T()", RefCollection.class)
             );
-        return this;
-    }
-
-    public ComponentBuilder addProvideWrapperField(ClassDetail provideWrappersCl) {
-        String name = provideWrappersGlFieldPrefixName + wrapperCreatorFields.size();
-        wrapperCreatorFields.add(new WrapperCreatorField(
-                name,
-                provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers,
-                FieldSpec.builder(provideWrappersCl.className, name, Modifier.PRIVATE, Modifier.FINAL)
-                        .initializer("new $T()", provideWrappersCl.className)
-        ));
         return this;
     }
 
@@ -437,16 +421,17 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
-            IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
+            boolean isWrappedReturn = WrapHelper.isSupport(m.returnType);
+            TypeName providingType = isWrappedReturn ? wrappedType(m.returnType) : m.returnType;
             SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(
                     null,
-                    provideTypeWrapperHelper.providingType(),
+                    providingType,
                     qFields);
             if (smartCode == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideTypeRequiredIn(
-                                        provideTypeWrapperHelper.providingType().toString(),
+                                        providingType.toString(),
                                         orComponentCl.className.toString(),
                                         m.methodName
                                 )
@@ -455,7 +440,7 @@ public class ComponentBuilder {
                 );
             }
             builder.addCode("return ")
-                    .addCode(provideTypeWrapperHelper.provideCode(smartCode.build()))
+                    .addCode(WrapHelper.transform(smartCode, m.returnType).build())
                     .addCode(";\n");
         });
         return this;
@@ -536,15 +521,16 @@ public class ComponentBuilder {
 
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
-
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                    CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields).build();
+                    boolean isWrappedReturn = WrapHelper.isSupport(injectField.type);
+                    TypeName providingType = isWrappedReturn ? wrappedType(injectField.type) : injectField.type;
+
+                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, providingType, qFields);
                     if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
                                         .errorProvideTypeRequiredIn(
-                                                provideTypeWrapperHelper.providingType().toString(),
+                                                providingType.toString(),
                                                 injectableCl.className.toString(),
                                                 injectField.name
                                         )
@@ -554,7 +540,7 @@ public class ComponentBuilder {
                     }
                     builder.addCode(injectableField.name)
                             .addCode(".")
-                            .addCode(setFieldHelper.codeSetField(provideTypeWrapperHelper.provideCode(provideCode)))
+                            .addCode(setFieldHelper.codeSetField(WrapHelper.transform(provideCode, injectField.type).build()))
                             .addCode(";\n");
                 }
 
@@ -563,13 +549,15 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                        CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, provideTypeWrapperHelper.providingType(), qFields).build();
+                        boolean isWrappedReturn = WrapHelper.isSupport(injectField.type);
+                        TypeName providingType = isWrappedReturn ? wrappedType(injectField.type) : injectField.type;
+
+                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, providingType, qFields);
                         if (provideCode == null) {
                             throw new ObjectNotProvidedException(
                                     createErrorMes()
                                             .errorProvideTypeRequiredIn(
-                                                    provideTypeWrapperHelper.providingType().toString(),
+                                                    providingType.toString(),
                                                     injectableCl.className.toString(),
                                                     injectField.name
                                             )
@@ -579,7 +567,7 @@ public class ComponentBuilder {
                         }
 
                         if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
-                        providingArgsCode.add(provideTypeWrapperHelper.provideCode(provideCode));
+                        providingArgsCode.add(WrapHelper.transform(provideCode, injectField.type).build());
 
                     }
 
@@ -601,8 +589,7 @@ public class ComponentBuilder {
                     subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
-                        IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                        if (injectHelper.isGenerateWrapper())
+                        if (WrapHelper.isGeneric(injectField.type))
                             //nothing to protect
                             continue;
 
@@ -637,8 +624,7 @@ public class ComponentBuilder {
         collectRuns.execute(createErrorMes().errorImplementMethod(name).build(), () -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
-                IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                if (injectHelper.isGenerateWrapper())
+                if (WrapHelper.isGeneric(injectField.type))
                     //nothing to protect
                     continue;
 
@@ -758,8 +744,6 @@ public class ComponentBuilder {
         for (FieldSpec.Builder field : fields.values())
             typeSpecBuilder.addField(field.build());
 
-        for (WrapperCreatorField field : wrapperCreatorFields)
-            typeSpecBuilder.addField(field.fieldBuilder.build());
 
         for (FieldSpec.Builder field : depsFields.values())
             typeSpecBuilder.addField(field.build());

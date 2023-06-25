@@ -2,7 +2,7 @@ package com.github.klee0kai.stone.types.wrappers;
 
 import javax.inject.Provider;
 
-public interface WrapperCreator {
+public interface Wrapper {
 
     /**
      * Provide wrapped object.
@@ -13,6 +13,9 @@ public interface WrapperCreator {
      * @param <T>              type of providing original object
      * @return wrapped object provider
      */
-    <Wr, T> Wr provideWrapped(Class<Wr> wrapperCl, Provider<T> originalProvider);
+    <Wr, T> Wr wrap(Class<Wr> wrapperCl, Provider<T> originalProvider);
+
+
+    <Wr, T> T unwrap(Wr wrapped);
 
 }

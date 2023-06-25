@@ -11,7 +11,7 @@ import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
-import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.utils.RecursiveDetector;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -23,6 +23,8 @@ import java.util.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.wrappedType;
 import static java.util.Collections.singleton;
 
 public class ModulesGraph {
@@ -89,7 +91,7 @@ public class ModulesGraph {
                 if (isCacheProvide) {
                     localBuilder.localVariable(inv.invokeBest());
                 } else {
-                    TypeName provDep = ParameterizedTypeName.get(ClassName.get(PhantomProvide.IProvide.class), inv.resultType());
+                    TypeName provDep = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
                     localBuilder.localVariable(SmartCode.builder()
                             .providingType(provDep)
                             .add("() -> ")
@@ -101,9 +103,17 @@ public class ModulesGraph {
 
         builder.withLocals(localBuilder -> {
             for (FieldDetail f : localBuilder.getDeclaredFields()) {
-                if (!Objects.equals(f.type, typeName))
+                if (!Objects.equals(wrappedType(f.type), wrappedType(typeName)))
                     continue;
-                localBuilder.add(CodeBlock.of("list.add($L);\n", f.name), singleton(f.name));
+
+                localBuilder.add("list.add( ")
+                        .add(
+                                transform(
+                                        SmartCode.of(f.name, singleton(f.name))
+                                                .providingType(f.type),
+                                        typeName
+                                )
+                        ).add(");\n");
             }
         });
 

@@ -24,6 +24,12 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder cannotCreateWrappersHelper() {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append("Cannot create wrappers helper ");
+        return this;
+    }
+
     public ExceptionStringBuilder cannotCreateModule(String moduleName) {
         if (sb.length() > 0) sb.append(" ");
         sb.append("Cannot create component: ");
@@ -144,6 +150,15 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder shouldHaveAnnotations(String... annotations) {
+        if (sb.length() > 0) sb.append(" ");
+        String annList = String.join(", @", annotations);
+        sb.append(String.format(Locale.ROOT,
+                "should have @%s annotation",
+                annList));
+        return this;
+    }
+
 
     public ExceptionStringBuilder shouldNoHaveQualifier(String qualifier) {
         if (sb.length() > 0) sb.append(" ");
@@ -170,7 +185,7 @@ public class ExceptionStringBuilder {
 
     public ExceptionStringBuilder shouldImplementInterface(String interfaceType) {
         if (sb.length() > 0) sb.append(" ");
-        sb.append("should implement");
+        sb.append("should implement ");
         sb.append(interfaceType);
         return this;
     }

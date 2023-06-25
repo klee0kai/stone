@@ -57,17 +57,6 @@ public class ClassNameUtils {
         return typeName;
     }
 
-    public static TypeName argTypeOf(TypeName typeName) {
-        if (typeName instanceof ParameterizedTypeName) {
-            ParameterizedTypeName t = (ParameterizedTypeName) typeName;
-            if (t.typeArguments != null && !t.typeArguments.isEmpty()) {
-                return argTypeOf(t.typeArguments.get(t.typeArguments.size() - 1));
-            }
-        }
-        return typeName;
-    }
-
-
     public static String simpleName(TypeName typeName) {
         TypeName raw = rawTypeOf(typeName);
         if (raw instanceof ClassName)

@@ -3,16 +3,15 @@ package com.github.klee0kai.stone;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.checks.ComponentChecks;
-import com.github.klee0kai.stone.codegen.ComponentBuilder;
-import com.github.klee0kai.stone.codegen.ModuleBuilder;
-import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
-import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
+import com.github.klee0kai.stone.codegen.*;
 import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
 import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
+import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
+import com.github.klee0kai.stone.utils.StoneNamingUtils;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 
@@ -102,6 +101,35 @@ public class AnnotationProcessor extends AbstractProcessor {
                         e);
             }
         }
+
+        try {
+            WrappersSupportBuilder wrappersBuilder = null;
+            for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
+                ComponentClassDetails component = new ComponentClassDetails((TypeElement) componentEl);
+                if (wrappersBuilder == null) {
+                    ClassName wrapperHelper = StoneNamingUtils.typeWrappersClass(component.className);
+                    wrappersBuilder = new WrappersSupportBuilder(wrapperHelper);
+                }
+
+                for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
+                    ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
+                    if (wrappedProviderCl != null) wrappersBuilder.addProvideWrapperField(wrappedProviderCl);
+                }
+            }
+
+            if (wrappersBuilder != null && !wrappersBuilder.isEmpty()) {
+                wrappersBuilder.buildAndWrite();
+            }
+        } catch (Throwable cause) {
+            throw new StoneException(
+                    createErrorMes()
+                            .cannotCreateWrappersHelper()
+                            .collectCauseMessages(cause)
+                            .build(),
+                    cause
+            );
+        }
+
 
         //create components
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
