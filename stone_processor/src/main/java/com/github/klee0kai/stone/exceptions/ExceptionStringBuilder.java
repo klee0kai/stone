@@ -71,6 +71,14 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder wrapperShouldBeGenericType1(TypeName className) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(String.format(Locale.ROOT,
+                "WrapperClass %s should be genericType with one type argument. Like SmthWrapper<T>.class ",
+                className.toString()));
+        return this;
+    }
+
     public ExceptionStringBuilder method(String methodName) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,

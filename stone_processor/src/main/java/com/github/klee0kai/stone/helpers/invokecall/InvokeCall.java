@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.wrappedType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
 import static java.util.Collections.singleton;
 
 /**
@@ -150,7 +150,7 @@ public class InvokeCall {
                         for (FieldDetail arg : m.args) {
                             if (argCount++ > 0) builder.add(", ");
                             FieldDetail field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
-                                    Objects.equals(wrappedType(f.type), wrappedType(arg.type))
+                                    Objects.equals(paramType(f.type), paramType(arg.type))
                             );
 
                             if (field == null) {

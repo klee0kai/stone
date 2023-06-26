@@ -15,9 +15,7 @@ import javax.inject.Provider;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.utils.ClassNameUtils.rawTypeOf;
@@ -45,7 +43,7 @@ public class WrapHelper {
     }
 
 
-    public static TypeName wrappedType(TypeName typeName) {
+    public static TypeName paramType(TypeName typeName) {
         if (typeName instanceof ParameterizedTypeName) {
             ParameterizedTypeName par = (ParameterizedTypeName) typeName;
             if (isSupport(par.rawType) && par.typeArguments != null && !par.typeArguments.isEmpty())
@@ -54,14 +52,25 @@ public class WrapHelper {
         return typeName;
     }
 
+    public static List<TypeName> allParamTypes(TypeName typeName) {
+        List<TypeName> allParams = new LinkedList<>();
+        while (true) {
+            allParams.add(typeName);
+            ParameterizedTypeName paramType = typeName instanceof ParameterizedTypeName ? (ParameterizedTypeName) typeName : null;
+            if (paramType == null || paramType.typeArguments.isEmpty()) break;
+            typeName = paramType.typeArguments.get(0);
+        }
+        return allParams;
+    }
+
     public static SmartCode transform(SmartCode code, TypeName wannaType) {
         if (code.providingType == null || Objects.equals(code.providingType, wannaType)) {
             return code;
         }
 
-        boolean isUnwrap = Objects.equals(wrappedType(code.providingType), wannaType);
+        boolean isUnwrap = Objects.equals(paramType(code.providingType), wannaType);
         boolean isWrap = wannaType instanceof ParameterizedTypeName
-                && Objects.equals(wrappedType(wannaType), code.providingType);
+                && Objects.equals(paramType(wannaType), code.providingType);
 
 
         if (isWrap && wrapTypes.containsKey(rawTypeOf(wannaType))) {
@@ -103,7 +112,7 @@ public class WrapHelper {
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", Reference.class));
                 if (or.providingType != null)
-                    builder.providingType(wrappedType(or.providingType));
+                    builder.providingType(paramType(or.providingType));
                 return builder;
             };
 
@@ -133,7 +142,7 @@ public class WrapHelper {
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", Ref.class));
                 if (or.providingType != null)
-                    builder.providingType(wrappedType(or.providingType));
+                    builder.providingType(paramType(or.providingType));
                 return builder;
             };
             support(wrapType);

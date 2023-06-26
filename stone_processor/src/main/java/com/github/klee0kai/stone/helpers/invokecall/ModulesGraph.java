@@ -24,7 +24,7 @@ import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuild
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.wrappedType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
 import static java.util.Collections.singleton;
 
 public class ModulesGraph {
@@ -103,7 +103,7 @@ public class ModulesGraph {
 
         builder.withLocals(localBuilder -> {
             for (FieldDetail f : localBuilder.getDeclaredFields()) {
-                if (!Objects.equals(wrappedType(f.type), wrappedType(typeName)))
+                if (!Objects.equals(paramType(f.type), paramType(typeName)))
                     continue;
 
                 localBuilder.add("list.add( ")

@@ -12,7 +12,7 @@ import com.squareup.javapoet.*;
 import javax.lang.model.element.Modifier;
 import java.util.LinkedList;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.wrappedType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
 
 public class WrappersSupportBuilder {
 
@@ -54,7 +54,7 @@ public class WrappersSupportBuilder {
                         .add(or)
                         .add(")");
                 if (or.providingType != null)
-                    builder.providingType(wrappedType(or.providingType));
+                    builder.providingType(paramType(or.providingType));
                 return builder;
             };
 
