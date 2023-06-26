@@ -92,6 +92,20 @@ public class ListUtils {
         return set;
     }
 
+    public static <T> boolean endWith(List<T> parentList, List<T> childList) {
+        if (parentList == null || childList == null) return false;
+        if (childList.size() > parentList.size()) return false;
+        int pSt = parentList.size() - childList.size();
+
+        Iterator<T> ch = childList.listIterator();
+        Iterator<T> p = parentList.listIterator(pSt);
+        while (ch.hasNext() && p.hasNext()) {
+            if (!Objects.equals(p.next(), ch.next()))
+                return false;
+        }
+        return !ch.hasNext() && !p.hasNext();
+    }
+
     public static <T> LinkedList<T> removeDoubles(List<T> list, IEq<T> eqHelper) {
         if (list == null) return null;
         LinkedList<T> out = new LinkedList<>();

@@ -26,6 +26,10 @@ public interface CarBuilding {
 
     WeakReference<Whell> whellWeak();
 
+    Provider<WeakReference<Whell>> whellProviderWeak();
+
+    LazyProvide<Provider<WeakReference<Whell>>> whellLazyProviderWeak();
+
     Provider<Whell> whellProvider();
 
     Car car();

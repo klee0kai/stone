@@ -29,7 +29,7 @@ import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
@@ -422,7 +422,7 @@ public class ComponentBuilder {
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             boolean isWrappedReturn = WrapHelper.isSupport(m.returnType);
-            TypeName providingType = isWrappedReturn ? paramType(m.returnType) : m.returnType;
+            TypeName providingType = isWrappedReturn ? nonWrappedType(m.returnType) : m.returnType;
             SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(
                     null,
                     providingType,
@@ -523,7 +523,7 @@ public class ComponentBuilder {
                     if (!injectField.injectAnnotation) continue;
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
                     boolean isWrappedReturn = WrapHelper.isSupport(injectField.type);
-                    TypeName providingType = isWrappedReturn ? paramType(injectField.type) : injectField.type;
+                    TypeName providingType = isWrappedReturn ? nonWrappedType(injectField.type) : injectField.type;
 
                     SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, providingType, qFields);
                     if (provideCode == null) {
@@ -550,7 +550,7 @@ public class ComponentBuilder {
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
                         boolean isWrappedReturn = WrapHelper.isSupport(injectField.type);
-                        TypeName providingType = isWrappedReturn ? paramType(injectField.type) : injectField.type;
+                        TypeName providingType = isWrappedReturn ? nonWrappedType(injectField.type) : injectField.type;
 
                         SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, providingType, qFields);
                         if (provideCode == null) {

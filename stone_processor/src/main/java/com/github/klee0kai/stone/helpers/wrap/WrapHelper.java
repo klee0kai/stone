@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.NullGet;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
@@ -52,6 +53,15 @@ public class WrapHelper {
         return typeName;
     }
 
+    public static TypeName nonWrappedType(TypeName typeName) {
+        if (typeName instanceof ParameterizedTypeName) {
+            ParameterizedTypeName par = (ParameterizedTypeName) typeName;
+            if (isSupport(par.rawType) && par.typeArguments != null && !par.typeArguments.isEmpty())
+                return nonWrappedType(par.typeArguments.get(0));
+        }
+        return typeName;
+    }
+
     public static List<TypeName> allParamTypes(TypeName typeName) {
         List<TypeName> allParams = new LinkedList<>();
         while (true) {
@@ -68,25 +78,44 @@ public class WrapHelper {
             return code;
         }
 
-        boolean isUnwrap = Objects.equals(paramType(code.providingType), wannaType);
-        boolean isWrap = wannaType instanceof ParameterizedTypeName
-                && Objects.equals(paramType(wannaType), code.providingType);
+        SmartCode smartCode = SmartCode.builder().add(code);
+        LinkedList<TypeName> wannaTypeParams = new LinkedList<>(allParamTypes(wannaType));
+        LinkedList<TypeName> provideTypeParams = new LinkedList<>(allParamTypes(code.providingType));
 
-
-        if (isWrap && wrapTypes.containsKey(rawTypeOf(wannaType))) {
-            return wrapTypes.get(rawTypeOf(wannaType)).wrap.apply(code);
+        while (!ListUtils.endWith(wannaTypeParams, provideTypeParams)) {
+            if (provideTypeParams.isEmpty() || !wrapTypes.containsKey(rawTypeOf(code.providingType))) {
+                throw new StoneException(
+                        createErrorMes()
+                                .typeTransformNonSupport(code.providingType, wannaType)
+                                .classNonFound(rawTypeOf(rawTypeOf(code.providingType)).toString())
+                                .build(),
+                        null
+                );
+            }
+            smartCode = wrapTypes.get(rawTypeOf(code.providingType)).unwrap.apply(smartCode);
+            provideTypeParams.pollFirst();
         }
-        if (isUnwrap && wrapTypes.containsKey(rawTypeOf(code.providingType))) {
-            return wrapTypes.get(rawTypeOf(code.providingType)).unwrap.apply(code);
+
+        List<TypeName> wrappingTypes = wannaTypeParams.subList(0, wannaTypeParams.size() - provideTypeParams.size());
+        Collections.reverse(wrappingTypes);
+
+        Iterator<TypeName> wrIt = wrappingTypes.iterator();
+        while (wrIt.hasNext()) {
+            TypeName wr = wrIt.next();
+            if (!wrapTypes.containsKey(rawTypeOf(wr))) {
+                throw new StoneException(
+                        createErrorMes()
+                                .typeTransformNonSupport(code.providingType, wannaType)
+                                .classNonFound(rawTypeOf(wr).toString())
+                                .build(),
+                        null
+                );
+            }
+
+            smartCode = wrapTypes.get(rawTypeOf(wr)).wrap.apply(smartCode);
         }
 
-
-        throw new StoneException(
-                createErrorMes()
-                        .typeTransformNonSupport(code.providingType, wannaType)
-                        .build(),
-                null
-        );
+        return smartCode;
     }
 
     private static void std() {
