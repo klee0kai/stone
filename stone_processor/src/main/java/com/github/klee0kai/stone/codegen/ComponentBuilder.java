@@ -421,17 +421,15 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
-            boolean isWrappedReturn = WrapHelper.isSupport(m.returnType);
-            TypeName providingType = isWrappedReturn ? nonWrappedType(m.returnType) : m.returnType;
             SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(
                     null,
-                    providingType,
+                    m.returnType,
                     qFields);
             if (smartCode == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideTypeRequiredIn(
-                                        providingType.toString(),
+                                        m.returnType.toString(),
                                         orComponentCl.className.toString(),
                                         m.methodName
                                 )
@@ -440,7 +438,7 @@ public class ComponentBuilder {
                 );
             }
             builder.addCode("return ")
-                    .addCode(WrapHelper.transform(smartCode, m.returnType).build())
+                    .addCode(smartCode.build(m.args))
                     .addCode(";\n");
         });
         return this;
@@ -482,7 +480,8 @@ public class ComponentBuilder {
 
             if (isProvideMethod) {
                 builder.addCode("return ")
-                        .addCode(orComponentCl.modulesGraph.codeProvideType(m.methodName, m.returnType, qFields).build())
+                        .addCode(orComponentCl.modulesGraph.codeProvideType(m.methodName, m.returnType, qFields)
+                                .build(m.args))
                         .addCode(";\n");
             }
 
@@ -540,7 +539,9 @@ public class ComponentBuilder {
                     }
                     builder.addCode(injectableField.name)
                             .addCode(".")
-                            .addCode(setFieldHelper.codeSetField(WrapHelper.transform(provideCode, injectField.type).build()))
+                            .addCode(
+                                    setFieldHelper.codeSetField(WrapHelper.transform(provideCode, injectField.type)
+                                            .build(qFields)))
                             .addCode(";\n");
                 }
 
@@ -567,7 +568,9 @@ public class ComponentBuilder {
                         }
 
                         if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
-                        providingArgsCode.add(WrapHelper.transform(provideCode, injectField.type).build());
+                        providingArgsCode.add(WrapHelper.transform(provideCode, injectField.type)
+                                .build(m.args)
+                        );
 
                     }
 

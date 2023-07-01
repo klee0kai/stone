@@ -20,7 +20,7 @@ public class SmartCode implements ISmartCode {
 
     // code group info
     private int localVariableIndx = 0;
-    private Set<FieldDetail> declaredFields = new HashSet<>();
+    private Set<FieldDetail> declaredFields = Collections.emptySet();
 
     private final LinkedList<ISmartCode> codes = new LinkedList<>();
 
@@ -70,18 +70,12 @@ public class SmartCode implements ISmartCode {
 
     // public methods
 
-    public SmartCode declared(Collection<FieldDetail> declaredFields) {
-        this.declaredFields.addAll(declaredFields);
-        return this;
-    }
-
     public SmartCode withLocals(DelayedCode codeGen) {
         codes.add(codeGen);
         return this;
     }
 
     public SmartCode add(SmartCode code) {
-        code.declaredFields.addAll(declaredFields);
         codes.add(code);
         return this;
     }
@@ -104,8 +98,7 @@ public class SmartCode implements ISmartCode {
     }
 
 
-    public SmartCode localVariable(SmartCode initVariable) {
-        fieldName = "__lc" + localVariableIndx++;
+    public SmartCode localVariable(String fieldName, SmartCode initVariable) {
         providingType = initVariable.providingType;
 
         add(CodeBlock.of("$T $L = ", providingType, fieldName), null);
@@ -114,17 +107,37 @@ public class SmartCode implements ISmartCode {
         return this;
     }
 
+    public SmartCode localVariable(SmartCode initVariable) {
+        return localVariable(genLocalFieldName(), initVariable);
+    }
+
 
     public int genLocalVarIndex() {
         return localVariableIndx++;
+    }
+
+    public String genLocalFieldName() {
+        return "__lc" + localVariableIndx++;
     }
 
     public List<FieldDetail> getDeclaredFields() {
         return new ArrayList<>(declaredFields);
     }
 
-    public CodeBlock build() {
-        collect();
+    public CodeBlock build(Collection<FieldDetail> declaredFields) {
+        clearAllCollectedCodes();
+        return internalBuild(new HashSet<>(declaredFields));
+    }
+
+    private void clearAllCollectedCodes() {
+        collectedCode.clear();
+        for (ISmartCode s : codes) {
+            if (s instanceof SmartCode) ((SmartCode) s).clearAllCollectedCodes();
+        }
+    }
+
+    private CodeBlock internalBuild(HashSet<FieldDetail> declaredFields) {
+        collect(declaredFields);
 
         CodeBlock.Builder builder = CodeBlock.builder();
         if (code != null) builder.add(code);
@@ -132,45 +145,42 @@ public class SmartCode implements ISmartCode {
             if (REMOVE_NON_USED && c.fieldName != null && !usedFields.contains(c.fieldName))
                 continue;
 
-            builder.add(c.build());
+            builder.add(c.internalBuild(declaredFields));
         }
 
         return builder.build();
     }
 
+    private SmartCode collect(HashSet<FieldDetail> declaredFields) {
+        if (!collectedCode.isEmpty()) return this;
 
-    private SmartCode collect() {
-        collectedCode.clear();
-
-        HashSet<FieldDetail> savedDeclared = new HashSet<>(declaredFields);
+        this.declaredFields = declaredFields;
 
         for (ISmartCode c : codes) {
             SmartCode smartCode = null;
             if (c instanceof DelayedCode) {
                 DelayedCode delayedCode = (DelayedCode) c;
-                smartCode = SmartCode.builder()
-                        .declared(declaredFields);
+                smartCode = SmartCode.builder();
 
                 smartCode.localVariableIndx = genLocalVarIndex() + 1;
-                delayedCode.apply(smartCode);
+                smartCode.declaredFields = declaredFields;
+                smartCode = delayedCode.apply(smartCode);
+
+                smartCode.localVariableIndx = genLocalVarIndex() + 1;
+                smartCode.declaredFields = declaredFields;
             } else if (c instanceof SmartCode) {
                 smartCode = (SmartCode) c;
             }
             if (smartCode == null) continue;
-
-            collectedCode.add(
-                    smartCode.declared(declaredFields)
-                            .collect()
-            );
+            collectedCode.add(smartCode.collect(declaredFields));
 
             if (smartCode.fieldName != null && smartCode.providingType != null) {
-                declaredFields.addAll(smartCode.declaredFields);
                 declaredFields.add(FieldDetail.simple(smartCode.fieldName, smartCode.providingType));
             }
             usedFields.addAll(smartCode.usedFields);
         }
 
-        declaredFields = savedDeclared;
+        this.declaredFields = Collections.emptySet();
         return this;
     }
 

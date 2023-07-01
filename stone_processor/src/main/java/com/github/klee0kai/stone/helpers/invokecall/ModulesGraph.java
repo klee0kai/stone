@@ -24,11 +24,13 @@ import java.util.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
 import static java.util.Collections.singleton;
 
 public class ModulesGraph {
+
+    public static boolean SIMPLE_PROVIDE_OPTIMIZING = true;
 
     public final Set<ClassName> allQualifiers = new HashSet<>();
     private final HashMap<TypeName, List<InvokeCall>> provideTypeCodes = new HashMap<>();
@@ -70,27 +72,32 @@ public class ModulesGraph {
         }
     }
 
-    public SmartCode codeProvideType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
-        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(provideMethodName, typeName, qualifiers);
+    public SmartCode codeProvideType(String provideMethodName, TypeName returnType, List<FieldDetail> qualifiers) {
+        boolean isWrappedReturn = WrapHelper.isSupport(returnType);
+        TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
+
+        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(provideMethodName, providingType, qualifiers);
         if (provideTypeInvokes == null || provideTypeInvokes.isEmpty()) {
             return null;
         }
-        SmartCode builder = SmartCode.builder()
-                .declared(qualifiers)
-                .providingType(typeName); // TODO check providing type
 
-        if (provideTypeInvokes.size() == 1) {
+        if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !WrapHelper.isList(returnType)) {
             InvokeCall invokeCall = provideTypeInvokes.get(0);
-            return builder.add(invokeCall.invokeBest())
-                    .providingType(invokeCall.resultType());
+            return WrapHelper.transform(
+                    SmartCode.builder()
+                            .add(invokeCall.invokeBest())
+                            .providingType(invokeCall.resultType()),
+                    returnType);
         }
 
-
-        TypeName provideBuilder = ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), typeName);
+        SmartCode builder = SmartCode.builder();
+        TypeName provideBuilder = ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), providingType);
         builder.add(CodeBlock.of("new $T( ( single, list ) -> { \n", provideBuilder), null);
 
         for (InvokeCall inv : provideTypeInvokes) {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
+
+            // provide single objects
             builder.withLocals(localBuilder -> {
                 if (isCacheProvide) {
                     localBuilder.localVariable(inv.invokeBest());
@@ -102,12 +109,28 @@ public class ModulesGraph {
                             .add(inv.invokeBest())
                     );
                 }
+                return localBuilder;
+            });
+
+            // provide objects to lists
+            builder.withLocals(localBuilder -> {
+                TypeName provDep = ParameterizedTypeName.get(ClassName.get(Ref.class),
+                        ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
+                );
+                localBuilder.localVariable(SmartCode.builder()
+                        .providingType(provDep)
+                        .add("() -> ")
+                        .add(inv.invokeAllToList())
+                );
+
+                return localBuilder;
             });
         }
 
         builder.withLocals(localBuilder -> {
+            boolean singleChecked = false;
             for (FieldDetail f : localBuilder.getDeclaredFields()) {
-                if (!Objects.equals(paramType(f.type), paramType(typeName)))
+                if (!Objects.equals(nonWrappedType(f.type), nonWrappedType(providingType)))
                     continue;
 
                 localBuilder.add("list.add( ")
@@ -115,14 +138,27 @@ public class ModulesGraph {
                                 transform(
                                         SmartCode.of(f.name, singleton(f.name))
                                                 .providingType(f.type),
-                                        typeName
+                                        providingType
                                 )
                         ).add(");\n");
+
+                if (!singleChecked) {
+                    localBuilder.add("if (single) return; \n");
+                    singleChecked = true;
+                }
             }
+            return localBuilder;
         });
 
-        builder.add("\n  }).first() ");
-        return builder;
+        builder.add("\n  })");
+        if (WrapHelper.isList(returnType)) {
+            builder.add(".all() ")
+                    .providingType(ParameterizedTypeName.get(ClassName.get(List.class), providingType));
+        } else {
+            builder.add(".first() ")
+                    .providingType(providingType);
+        }
+        return WrapHelper.transform(builder, returnType);
     }
 
 

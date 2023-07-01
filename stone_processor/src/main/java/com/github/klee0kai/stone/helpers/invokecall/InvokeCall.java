@@ -2,17 +2,21 @@ package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.types.wrappers.Ref;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.*;
 import java.util.function.Function;
 
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
 import static java.util.Collections.singleton;
 
 /**
@@ -99,7 +103,7 @@ public class InvokeCall {
      */
     public TypeName resultType() {
         List<MethodDetail> invokeSequence = bestSequence();
-        return invokeSequence.get(invokeSequence.size() - 1).returnType;
+        return WrapHelper.nonWrappedType(invokeSequence.get(invokeSequence.size() - 1).returnType);
     }
 
     /**
@@ -135,13 +139,36 @@ public class InvokeCall {
         return invokeBuilder.build();
     }
 
-    public final SmartCode invokeBest() {
+    public SmartCode invokeBest() {
         return SmartCode
                 .builder()
                 .providingType(resultType())
+                .withLocals(builder -> transform(invokeSequence(bestSequence()), resultType()));
+    }
+
+    public SmartCode invokeAllToList() {
+        TypeName provType = ParameterizedTypeName.get(ClassName.get(Ref.class), ClassName.get(List.class), resultType());
+        return SmartCode
+                .builder()
+                .providingType(provType)
                 .withLocals(builder -> {
+                    int paramIndex = 0;
+                    builder.add(CodeBlock.of("$T.asList(\n", Arrays.class));
+                    for (List<MethodDetail> sequence : invokeSequenceVariants) {
+                        if (paramIndex++ > 0) builder.add(",\n");
+                        SmartCode seqCode = invokeSequence(sequence);
+                        builder.add(transform(seqCode, resultType()));
+                    }
+                    builder.add(")\n");
+                    return builder;
+                });
+    }
+
+
+    private SmartCode invokeSequence(List<MethodDetail> sequence) {
+        return SmartCode.builder().withLocals(builder -> {
                     int invokeCount = 0;
-                    for (MethodDetail m : bestSequence()) {
+                    for (MethodDetail m : sequence) {
                         if (invokeCount++ > 0) builder.add(".");
                         builder.add(m.methodName)
                                 .add("(");
@@ -167,8 +194,9 @@ public class InvokeCall {
 
                         builder.add(")");
                     }
-                });
+
+                    return builder;
+                })
+                .providingType(sequence.get(sequence.size() - 1).returnType);
     }
-
-
 }

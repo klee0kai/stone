@@ -93,7 +93,7 @@ public class ModuleFactoryBuilder {
                         .add("return ")
                         .add(WrapHelper.transform(genCode, m.returnType))
                         .add(";\n")
-                        .build()
+                        .build(m.args)
         );
 
 

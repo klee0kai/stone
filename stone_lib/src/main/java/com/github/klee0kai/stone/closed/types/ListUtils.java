@@ -50,6 +50,10 @@ public class ListUtils {
         return null;
     }
 
+    public static <T> T first(List<T> list) {
+        return first(list, null);
+    }
+
     public static <T> int indexOf(List<T> list, IFilter<T> filter) {
         int idx = 0;
         if (list != null) for (T it : list) {
