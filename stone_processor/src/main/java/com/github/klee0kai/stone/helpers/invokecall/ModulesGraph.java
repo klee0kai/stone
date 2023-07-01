@@ -30,7 +30,7 @@ import static java.util.Collections.singleton;
 
 public class ModulesGraph {
 
-    public static boolean SIMPLE_PROVIDE_OPTIMIZING = true;
+    public static boolean SIMPLE_PROVIDE_OPTIMIZING = false;
 
     public final Set<ClassName> allQualifiers = new HashSet<>();
     private final HashMap<TypeName, List<InvokeCall>> provideTypeCodes = new HashMap<>();
@@ -74,6 +74,7 @@ public class ModulesGraph {
 
     public SmartCode codeProvideType(String provideMethodName, TypeName returnType, List<FieldDetail> qualifiers) {
         boolean isWrappedReturn = WrapHelper.isSupport(returnType);
+        boolean isListReturn = WrapHelper.isList(returnType);
         TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
 
         List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(provideMethodName, providingType, qualifiers);
@@ -81,7 +82,7 @@ public class ModulesGraph {
             return null;
         }
 
-        if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !WrapHelper.isList(returnType)) {
+        if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !isListReturn) {
             InvokeCall invokeCall = provideTypeInvokes.get(0);
             return WrapHelper.transform(
                     SmartCode.builder()
@@ -92,19 +93,23 @@ public class ModulesGraph {
 
         SmartCode builder = SmartCode.builder();
         TypeName provideBuilder = ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), providingType);
+        TypeName provideBuilderList = ParameterizedTypeName.get(ClassName.get(Collection.class), providingType);
         builder.add(CodeBlock.of("new $T( ( single, list ) -> { \n", provideBuilder), null);
 
         for (InvokeCall inv : provideTypeInvokes) {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
+            FieldDetail singleDepField = FieldDetail.simple(builder.genLocalFieldName(), null);
+            FieldDetail listDepField = FieldDetail.simple(builder.genLocalFieldName(), null);
 
             // provide single objects
             builder.withLocals(localBuilder -> {
                 if (isCacheProvide) {
-                    localBuilder.localVariable(inv.invokeBest());
+                    localBuilder.localVariable(singleDepField.name, inv.invokeBest());
+                    singleDepField.type = inv.resultType();
                 } else {
-                    TypeName provDep = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
-                    localBuilder.localVariable(SmartCode.builder()
-                            .providingType(provDep)
+                    singleDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
+                    localBuilder.localVariable(singleDepField.name, SmartCode.builder()
+                            .providingType(singleDepField.type)
                             .add("() -> ")
                             .add(inv.invokeBest())
                     );
@@ -114,41 +119,48 @@ public class ModulesGraph {
 
             // provide objects to lists
             builder.withLocals(localBuilder -> {
-                TypeName provDep = ParameterizedTypeName.get(ClassName.get(Ref.class),
+                listDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class),
                         ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
                 );
-                localBuilder.localVariable(SmartCode.builder()
-                        .providingType(provDep)
+                localBuilder.localVariable(listDepField.name, SmartCode.builder()
+                        .providingType(listDepField.type)
                         .add("() -> ")
                         .add(inv.invokeAllToList())
                 );
 
                 return localBuilder;
             });
+
+            if (Objects.equals(inv.resultType(), providingType)) {
+                builder.withLocals(localBuilder -> {
+                    if (isListReturn) {
+                        localBuilder.add("list.addAll( ")
+                                .add(
+                                        transform(
+                                                SmartCode.of(listDepField.name, singleton(singleDepField.name))
+                                                        .providingType(listDepField.type),
+                                                provideBuilderList
+                                        )
+                                ).add(");\n");
+                    } else {
+                        localBuilder.add("list.add( ")
+                                .add(
+                                        transform(
+                                                SmartCode.of(singleDepField.name, singleton(singleDepField.name))
+                                                        .providingType(singleDepField.type),
+                                                providingType
+                                        )
+                                ).add(");\n");
+
+                    }
+                    return localBuilder;
+                });
+                if (!isListReturn)
+                    break;
+            }
         }
 
-        builder.withLocals(localBuilder -> {
-            boolean singleChecked = false;
-            for (FieldDetail f : localBuilder.getDeclaredFields()) {
-                if (!Objects.equals(nonWrappedType(f.type), nonWrappedType(providingType)))
-                    continue;
 
-                localBuilder.add("list.add( ")
-                        .add(
-                                transform(
-                                        SmartCode.of(f.name, singleton(f.name))
-                                                .providingType(f.type),
-                                        providingType
-                                )
-                        ).add(");\n");
-
-                if (!singleChecked) {
-                    localBuilder.add("if (single) return; \n");
-                    singleChecked = true;
-                }
-            }
-            return localBuilder;
-        });
 
         builder.add("\n  })");
         if (WrapHelper.isList(returnType)) {

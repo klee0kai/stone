@@ -116,25 +116,31 @@ public class WrapHelper {
             WrapType unwrapType = unwrapPath.get(0);
             if (unwrapType.isList()) {
                 int wrapListIndex = ListUtils.indexOf(wrapPath, (i, it) -> it.isList());
-                if (wrapListIndex > 0) {
+                if (wrapListIndex >= 0) {
                     TypeName unWrapItemType = paramType(unwrapPathNames.get(0));
                     TypeName wrapItemType = paramType(wrapPathNames.get(wrapListIndex));
                     WrapType wrapListType = wrapPath.get(wrapListIndex);
                     smartCode = wrapListType.inListFormat.formatCode(smartCode,
                             listItemCode -> transform(listItemCode.providingType(unWrapItemType), wrapItemType));
 
-                    for (int i = 0; i <= wrapListIndex; i++) wrapPath.pollFirst();
+                    for (int i = 0; i <= wrapListIndex; i++){
+                        wrapPath.pollFirst();
+                        wrapPathNames.pollFirst();
+                    }
                     unwrapPath.clear();
+                    unwrapPathNames.clear();
                     break;
                 }
             }
             smartCode = unwrapType.unwrap.formatCode(smartCode);
             unwrapPath.pollFirst();
+            unwrapPathNames.pollFirst();
         }
 
         while (!wrapPath.isEmpty()) {
             smartCode = wrapPath.get(0).wrap.formatCode(smartCode);
             wrapPath.pollFirst();
+            wrapPathNames.pollFirst();
         }
 
         return smartCode
