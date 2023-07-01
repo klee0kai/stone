@@ -438,7 +438,7 @@ public class ComponentBuilder {
                 );
             }
             builder.addCode("return ")
-                    .addCode(smartCode.build(m.args))
+                    .addCode(smartCode.build(qFields))
                     .addCode(";\n");
         });
         return this;

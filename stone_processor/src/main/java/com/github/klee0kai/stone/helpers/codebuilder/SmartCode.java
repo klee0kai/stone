@@ -99,7 +99,8 @@ public class SmartCode implements ISmartCode {
 
 
     public SmartCode localVariable(String fieldName, SmartCode initVariable) {
-        providingType = initVariable.providingType;
+        this.providingType = initVariable.providingType;
+        this.fieldName = fieldName;
 
         add(CodeBlock.of("$T $L = ", providingType, fieldName), null);
         add(initVariable);
