@@ -15,8 +15,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
 import static java.util.Collections.singleton;
 
@@ -188,9 +187,15 @@ public class InvokeCall {
                         int argCount = 0;
                         for (FieldDetail arg : m.args) {
                             if (argCount++ > 0) builder.add(", ");
-                            FieldDetail field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
-                                    Objects.equals(paramType(f.type), paramType(arg.type))
-                            );
+                            FieldDetail field = isList(arg.type) ? ListUtils.first(builder.getDeclaredFields(), (i, f) ->
+                                    isList(f.type) && Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
+                            ) : null;
+                            if (field == null) {
+                                //non list
+                                field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
+                                        Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
+                                );
+                            }
 
                             if (field == null) {
                                 builder.add("null", null);

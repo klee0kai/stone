@@ -13,7 +13,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import javax.inject.Provider;
-import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -45,7 +44,7 @@ public class WrapHelper {
 
     public static boolean isList(TypeName typeName) {
         return ListUtils.indexOf(allParamTypes(typeName), (i, it) -> {
-            WrapType wrapType = wrapTypes.get(rawTypeOf(typeName));
+            WrapType wrapType = wrapTypes.get(rawTypeOf(it));
             return wrapType != null && wrapType.isList();
         }) >= 0;
     }
@@ -123,7 +122,7 @@ public class WrapHelper {
                     smartCode = wrapListType.inListFormat.formatCode(smartCode,
                             listItemCode -> transform(listItemCode.providingType(unWrapItemType), wrapItemType));
 
-                    for (int i = 0; i <= wrapListIndex; i++){
+                    for (int i = 0; i <= wrapListIndex; i++) {
                         wrapPath.pollFirst();
                         wrapPathNames.pollFirst();
                     }
@@ -185,6 +184,7 @@ public class WrapHelper {
             wrapType.typeName = wrapper;
 
             wrapType.wrap = (or) -> {
+                // TODO sometimes work not well. Need use types directly
                 SmartCode builder = SmartCode.builder()
                         .add(CodeBlock.of("new $T( () -> ", wrapType.isGeneric ? ClassName.get(PhantomProvide.class) : wrapper))
                         .add(or)
@@ -195,6 +195,7 @@ public class WrapHelper {
             };
 
             wrapType.unwrap = (or) -> {
+                // TODO sometimes work not well. Need use types directly
                 SmartCode builder = SmartCode.builder()
                         .add(CodeBlock.of("$T.let( ", NullGet.class))
                         .add(or)
@@ -243,14 +244,18 @@ public class WrapHelper {
                 SmartCode builder = SmartCode.builder();
                 if (needConstructor) builder.add(CodeBlock.of("new $T( ", createType));
 
-                builder.add(CodeBlock.of("$T.format( ", ListUtils.class))
-                        .add(originalListCode)
-                        .add(",  it ->  ")
-                        .add(itemTransformFun.formatCode(
-                                SmartCode.of("it", null)
-                        ))
-                        .add(") ");
+                SmartCode itemTransform = itemTransformFun.formatCode(SmartCode.of("it", null));
+                if (itemTransform.getSize() <= 1) {
+                    //no transforms
+                    builder.add(originalListCode);
+                }else {
+                    builder.add(CodeBlock.of("$T.format( ", ListUtils.class))
+                            .add(originalListCode)
+                            .add(", it ->  ")
+                            .add(itemTransformFun.formatCode(SmartCode.of("it", null)))
+                            .add(") ");
 
+                }
                 if (needConstructor) builder.add(")");
 
                 if (originalListCode.providingType != null)

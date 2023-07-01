@@ -103,8 +103,8 @@ public class ModulesGraph {
             FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), null);
             FieldDetail listDepField = FieldDetail.simple(genLocalFieldName(), null);
 
-            // provide single objects
             builder.withLocals(localBuilder -> {
+                // provide single objects
                 if (isCacheProvide) {
                     localBuilder.localVariable(singleDepField.name, inv.invokeBest());
                     singleDepField.type = inv.resultType();
@@ -116,11 +116,8 @@ public class ModulesGraph {
                             .add(inv.invokeBest())
                     );
                 }
-                return localBuilder;
-            });
 
-            // provide objects to lists
-            builder.withLocals(localBuilder -> {
+                // provide list objects
                 listDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class),
                         ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
                 );
@@ -129,7 +126,6 @@ public class ModulesGraph {
                         .add("() -> ")
                         .add(inv.invokeAllToList())
                 );
-
                 return localBuilder;
             });
 

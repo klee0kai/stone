@@ -6,7 +6,7 @@ public class LocalFieldName {
 
 
     public static String genLocalFieldName() {
-        return "__lc" + localVariableIndx++;
+        return "_lc" + localVariableIndx++;
     }
 
 

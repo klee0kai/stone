@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.car.di.wrappers;
+package com.github.klee0kai.test.car.di_single.wrappers;
 
 import com.github.klee0kai.stone.types.wrappers.Ref;
 

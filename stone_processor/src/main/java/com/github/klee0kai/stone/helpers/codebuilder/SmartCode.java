@@ -19,7 +19,6 @@ public class SmartCode implements ISmartCode {
 
 
     // code group info
-    private int localVariableIndx = 0;
     private Set<FieldDetail> declaredFields = Collections.emptySet();
 
     private final LinkedList<ISmartCode> codes = new LinkedList<>();
@@ -108,11 +107,13 @@ public class SmartCode implements ISmartCode {
         return this;
     }
 
-
-    public int genLocalVarIndex() {
-        return localVariableIndx++;
+    public int getSize() {
+        int size = 1;
+        for (ISmartCode s : codes) {
+            if (s instanceof SmartCode) size += ((SmartCode) s).getSize();
+        }
+        return size;
     }
-
 
     public List<FieldDetail> getDeclaredFields() {
         return new ArrayList<>(declaredFields);
@@ -156,11 +157,9 @@ public class SmartCode implements ISmartCode {
                 DelayedCode delayedCode = (DelayedCode) c;
                 smartCode = SmartCode.builder();
 
-                smartCode.localVariableIndx = genLocalVarIndex() + 1;
                 smartCode.declaredFields = declaredFields;
                 smartCode = delayedCode.apply(smartCode);
 
-                smartCode.localVariableIndx = genLocalVarIndex() + 1;
                 smartCode.declaredFields = declaredFields;
             } else if (c instanceof SmartCode) {
                 smartCode = (SmartCode) c;

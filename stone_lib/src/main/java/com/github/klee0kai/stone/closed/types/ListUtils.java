@@ -41,7 +41,7 @@ public class ListUtils {
         return false;
     }
 
-    public static <T> T first(List<T> list, IFilter<T> filter) {
+    public static <T> T first(Iterable<T> list, IFilter<T> filter) {
         int idx = 0;
         if (list != null) for (T it : list) {
             if (filter == null || filter.filter(idx++, it))
@@ -50,7 +50,7 @@ public class ListUtils {
         return null;
     }
 
-    public static <T> T first(List<T> list) {
+    public static <T> T first(Iterable<T> list) {
         return first(list, null);
     }
 
