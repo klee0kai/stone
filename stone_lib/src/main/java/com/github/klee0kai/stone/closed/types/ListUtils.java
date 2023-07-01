@@ -44,10 +44,20 @@ public class ListUtils {
     public static <T> T first(List<T> list, IFilter<T> filter) {
         int idx = 0;
         if (list != null) for (T it : list) {
-            if (filter.filter(idx++, it))
+            if (filter == null || filter.filter(idx++, it))
                 return it;
         }
         return null;
+    }
+
+    public static <T> int indexOf(List<T> list, IFilter<T> filter) {
+        int idx = 0;
+        if (list != null) for (T it : list) {
+            if (filter.filter(idx, it))
+                return idx;
+            else idx++;
+        }
+        return -1;
     }
 
     public static <Tin, Tout> Tout firstNotNull(List<Tin> list, IFormat<Tin, Tout> format) {

@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -23,8 +24,8 @@ import java.util.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
 import static java.util.Collections.singleton;
 
 public class ModulesGraph {
@@ -43,15 +44,16 @@ public class ModulesGraph {
     public void collectFromModule(MethodDetail provideModuleMethod, ClassDetail module) {
         ClassDetail iModuleInterface = AnnotationProcessor.allClassesHelper.iModule;
         for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
-            if (m.returnType.isPrimitive() || m.returnType == TypeName.VOID)
+            TypeName provTypeName = WrapHelper.nonWrappedType(m.returnType);
+            if (provTypeName.isPrimitive() || provTypeName == TypeName.VOID)
                 continue;
             if (iModuleInterface.findMethod(m, false) != null)
                 continue;
             boolean isCached = !m.hasAnnotations(ProvideAnn.class) || m.ann(ProvideAnn.class).isCachingProvideType();
             int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
 
-            provideTypeCodes.putIfAbsent(m.returnType, new LinkedList<>());
-            provideTypeCodes.get(m.returnType).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
+            provideTypeCodes.putIfAbsent(provTypeName, new LinkedList<>());
+            provideTypeCodes.get(provTypeName).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
 
             MethodDetail cacheControlMethod = new MethodDetail();
             cacheControlMethod.methodName = cacheControlMethodName(m.methodName);
@@ -61,10 +63,10 @@ public class ModulesGraph {
                     continue;
                 cacheControlMethod.args.add(it);
             }
-            cacheControlMethod.returnType = m.returnType;
+            cacheControlMethod.returnType = provTypeName;
 
-            cacheControlTypeCodes.putIfAbsent(m.returnType, new LinkedList<>());
-            cacheControlTypeCodes.get(m.returnType).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
+            cacheControlTypeCodes.putIfAbsent(provTypeName, new LinkedList<>());
+            cacheControlTypeCodes.get(provTypeName).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
         }
     }
 
@@ -75,10 +77,12 @@ public class ModulesGraph {
         }
         SmartCode builder = SmartCode.builder()
                 .declared(qualifiers)
-                .providingType(typeName);
+                .providingType(typeName); // TODO check providing type
 
         if (provideTypeInvokes.size() == 1) {
-            return builder.add(provideTypeInvokes.get(0).invokeBest());
+            InvokeCall invokeCall = provideTypeInvokes.get(0);
+            return builder.add(invokeCall.invokeBest())
+                    .providingType(invokeCall.resultType());
         }
 
 
@@ -134,7 +138,9 @@ public class ModulesGraph {
             TypeName dep = needProvideDeps.pollFirst();
             InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, dep, qualifiers);
             if (invokeCall == null) {
-                if (Objects.equals(dep, typeName)) return null;
+                if (Objects.equals(dep, typeName)) {
+                    return null;
+                }
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideType(dep.toString())

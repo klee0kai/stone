@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.NullGet;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
@@ -78,47 +79,54 @@ public class WrapHelper {
         }
 
         SmartCode smartCode = SmartCode.builder().add(code);
-        LinkedList<TypeName> wrapPath = new LinkedList<>(allParamTypes(wannaType));
-        LinkedList<TypeName> unwrapPath = new LinkedList<>(allParamTypes(code.providingType));
-        Collections.reverse(wrapPath);
-        while (!wrapPath.isEmpty() && !unwrapPath.isEmpty()
-                && Objects.equals(rawTypeOf(unwrapPath.getLast()), rawTypeOf(wrapPath.getFirst()))) {
-            unwrapPath.pollLast();
-            wrapPath.pollFirst();
+        LinkedList<TypeName> wrapPathNames = new LinkedList<>(allParamTypes(wannaType));
+        LinkedList<TypeName> unwrapPathNames = new LinkedList<>(allParamTypes(code.providingType));
+        Collections.reverse(wrapPathNames);
+        while (!wrapPathNames.isEmpty() && !unwrapPathNames.isEmpty()
+                && Objects.equals(rawTypeOf(unwrapPathNames.getLast()), rawTypeOf(wrapPathNames.getFirst()))) {
+            unwrapPathNames.pollLast();
+            wrapPathNames.pollFirst();
         }
 
-        while (!unwrapPath.isEmpty()) {
-            TypeName unWrapTypeName = rawTypeOf(unwrapPath.getFirst());
-            WrapType unWrapType = wrapTypes.get(unWrapTypeName);
-            if (unWrapType == null) {
+        ListUtils.IFormat<TypeName, WrapType> wrapTypeFormat = it -> {
+            WrapType type = wrapTypes.get(rawTypeOf(it));
+            if (type == null) {
                 throw new StoneException(
                         createErrorMes()
                                 .typeTransformNonSupport(code.providingType, wannaType)
-                                .classNonFound(unWrapTypeName.toString())
+                                .classNonFound(it.toString())
                                 .build(),
                         null
                 );
             }
-            if (unWrapType.isList()) {
+            return type;
+        };
 
+        LinkedList<WrapType> unwrapPath = new LinkedList<>(ListUtils.format(unwrapPathNames, wrapTypeFormat));
+        LinkedList<WrapType> wrapPath = new LinkedList<>(ListUtils.format(wrapPathNames, wrapTypeFormat));
+
+        while (!unwrapPath.isEmpty()) {
+            WrapType unwrapType = unwrapPath.get(0);
+            if (unwrapType.isList()) {
+                int wrapListIndex = ListUtils.indexOf(wrapPath, (i, it) -> it.isList());
+                if (wrapListIndex > 0 && unwrapPath.size() > 1) {
+                    WrapType unWrapItemType = unwrapPath.get(1);
+                    WrapType wrapItemType = wrapPath.get(wrapListIndex - 1);
+                    WrapType wrapListType = unwrapPath.get(wrapListIndex);
+                    smartCode = wrapListType.inListFormat.formatCode(smartCode,
+                            listItemCode -> transform(listItemCode.providingType(unWrapItemType.typeName), wrapItemType.typeName));
+
+                    wrapPath = new LinkedList<>(wrapPath.subList(0, wrapListIndex));
+                    unwrapPath.clear();
+                    break;
+                }
             }
-            smartCode = unWrapType.unwrap.formatCode(smartCode);
+            smartCode = unwrapType.unwrap.formatCode(smartCode);
             unwrapPath.pollFirst();
         }
 
         while (!wrapPath.isEmpty()) {
-            TypeName wrapTypeName = rawTypeOf(wrapPath.getFirst());
-            WrapType wrapType = wrapTypes.get(wrapTypeName);
-            if (wrapType == null) {
-                throw new StoneException(
-                        createErrorMes()
-                                .typeTransformNonSupport(code.providingType, wannaType)
-                                .classNonFound(wrapTypeName.toString())
-                                .build(),
-                        null
-                );
-            }
-            smartCode = wrapType.wrap.formatCode(smartCode);
+            smartCode = wrapPath.get(0).wrap.formatCode(smartCode);
             wrapPath.pollFirst();
         }
 
@@ -184,10 +192,48 @@ public class WrapHelper {
             support(wrapType);
         }
 
+        int index = 0;
         for (Class cl : Arrays.asList(LinkedList.class, ArrayList.class, List.class, Collection.class, Iterable.class)) {
             ClassName wrapper = ClassName.get(cl);
+            ClassName createType = index++ <= 0 ? wrapper : ClassName.get(ArrayList.class);
 
             WrapType wrapType = new WrapType();
+            wrapType.typeName = wrapper;
+            wrapType.wrap = (or) -> {
+                SmartCode builder = SmartCode.builder()
+                        .add(CodeBlock.of("new $T( $T.asList( ", createType, Arrays.class))
+                        .add(or)
+                        .add(" ) )");
+                if (or.providingType != null)
+                    builder.providingType(ParameterizedTypeName.get(wrapper, or.providingType));
+                return builder;
+            };
+
+            wrapType.unwrap = (or) -> {
+                SmartCode builder = SmartCode.builder()
+                        .add(CodeBlock.of("$T.first( ", ListUtils.class))
+                        .add(or)
+                        .add(CodeBlock.of(", null) "));
+                if (or.providingType != null)
+                    builder.providingType(paramType(or.providingType));
+                return builder;
+            };
+
+            wrapType.inListFormat = (originalListCode, itemTransformFun) -> {
+                SmartCode builder = SmartCode.builder()
+                        .add(CodeBlock.of("new $T( $T.format( ", createType, ListUtils.class))
+                        .add(originalListCode)
+                        .add(",  it ->  ")
+                        .add(itemTransformFun.formatCode(
+                                SmartCode.of("it", null)
+                        ))
+                        .add(")");
+
+                if (originalListCode.providingType != null)
+                    builder.providingType(rawTypeOf(originalListCode.providingType));
+                return builder;
+            };
+            support(wrapType);
 
         }
     }
