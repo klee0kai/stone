@@ -26,6 +26,7 @@ import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.create
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
 import static java.util.Collections.singleton;
 
 public class ModulesGraph {
@@ -94,12 +95,13 @@ public class ModulesGraph {
         SmartCode builder = SmartCode.builder();
         TypeName provideBuilder = ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), providingType);
         TypeName provideBuilderList = ParameterizedTypeName.get(ClassName.get(Collection.class), providingType);
-        builder.add(CodeBlock.of("new $T( ( single, list ) -> { \n", provideBuilder), null);
+        String listFieldName = genLocalFieldName();
+        builder.add(CodeBlock.of("new $T( ( $L ) -> { \n", provideBuilder, listFieldName), null);
 
         for (InvokeCall inv : provideTypeInvokes) {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
-            FieldDetail singleDepField = FieldDetail.simple(builder.genLocalFieldName(), null);
-            FieldDetail listDepField = FieldDetail.simple(builder.genLocalFieldName(), null);
+            FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), null);
+            FieldDetail listDepField = FieldDetail.simple(genLocalFieldName(), null);
 
             // provide single objects
             builder.withLocals(localBuilder -> {
@@ -134,7 +136,9 @@ public class ModulesGraph {
             if (Objects.equals(inv.resultType(), providingType)) {
                 builder.withLocals(localBuilder -> {
                     if (isListReturn) {
-                        localBuilder.add("list.addAll( ")
+                        localBuilder
+                                .add(listFieldName)
+                                .add(".addAll( ")
                                 .add(
                                         transform(
                                                 SmartCode.of(listDepField.name, singleton(singleDepField.name))
@@ -143,7 +147,9 @@ public class ModulesGraph {
                                         )
                                 ).add(");\n");
                     } else {
-                        localBuilder.add("list.add( ")
+                        localBuilder
+                                .add(listFieldName)
+                                .add(".add( ")
                                 .add(
                                         transform(
                                                 SmartCode.of(singleDepField.name, singleton(singleDepField.name))
@@ -159,7 +165,6 @@ public class ModulesGraph {
                     break;
             }
         }
-
 
 
         builder.add("\n  })");

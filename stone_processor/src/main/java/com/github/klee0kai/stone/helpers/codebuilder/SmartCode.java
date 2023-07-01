@@ -108,18 +108,11 @@ public class SmartCode implements ISmartCode {
         return this;
     }
 
-    public SmartCode localVariable(SmartCode initVariable) {
-        return localVariable(genLocalFieldName(), initVariable);
-    }
-
 
     public int genLocalVarIndex() {
         return localVariableIndx++;
     }
 
-    public String genLocalFieldName() {
-        return "__lc" + localVariableIndx++;
-    }
 
     public List<FieldDetail> getDeclaredFields() {
         return new ArrayList<>(declaredFields);

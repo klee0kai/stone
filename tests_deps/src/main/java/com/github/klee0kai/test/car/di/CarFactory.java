@@ -32,4 +32,6 @@ public interface CarFactory {
 
     List<Window> windows();
 
+    Window window();
+
 }

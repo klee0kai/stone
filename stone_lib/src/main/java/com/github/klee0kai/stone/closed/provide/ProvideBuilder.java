@@ -6,7 +6,7 @@ import java.util.List;
 public class ProvideBuilder<T> {
 
     public interface ProvideBody<T> {
-        void provide(boolean onlyFirst, LinkedList<T> consumer);
+        void provide(LinkedList<T> consumer);
 
     }
 
@@ -19,13 +19,13 @@ public class ProvideBuilder<T> {
 
     public T first() {
         LinkedList<T> list = new LinkedList<>();
-        provideBody.provide(true, list);
+        provideBody.provide(list);
         return list.isEmpty() ? null : list.getFirst();
     }
 
     public List<T> all() {
         LinkedList<T> list = new LinkedList<>();
-        provideBody.provide(false, list);
+        provideBody.provide(list);
         return list;
     }
 }

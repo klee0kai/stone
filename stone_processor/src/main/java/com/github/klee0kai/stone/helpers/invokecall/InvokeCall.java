@@ -1,11 +1,11 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
+import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
-import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -17,6 +17,7 @@ import java.util.function.Function;
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
 import static java.util.Collections.singleton;
 
 /**
@@ -147,19 +148,30 @@ public class InvokeCall {
     }
 
     public SmartCode invokeAllToList() {
-        TypeName provType = ParameterizedTypeName.get(ClassName.get(Ref.class), ClassName.get(List.class), resultType());
+        TypeName provType = ParameterizedTypeName.get(ClassName.get(List.class), resultType());
         return SmartCode
                 .builder()
                 .providingType(provType)
                 .withLocals(builder -> {
-                    int paramIndex = 0;
-                    builder.add(CodeBlock.of("$T.asList(\n", Arrays.class));
+                    String listFieldName = genLocalFieldName();
+                    builder.add(CodeBlock.of("new $T( ( $L ) -> { \n",
+                            ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), resultType()), listFieldName
+                    ));
                     for (List<MethodDetail> sequence : invokeSequenceVariants) {
-                        if (paramIndex++ > 0) builder.add(",\n");
                         SmartCode seqCode = invokeSequence(sequence);
-                        builder.add(transform(seqCode, resultType()));
+                        if (WrapHelper.isList(seqCode.providingType)) {
+                            builder.add(listFieldName)
+                                    .add(".addAll(")
+                                    .add(transform(seqCode, provType))
+                                    .add(");\n");
+                        } else {
+                            builder.add(listFieldName)
+                                    .add(".add(")
+                                    .add(transform(seqCode, resultType()))
+                                    .add(");\n");
+                        }
                     }
-                    builder.add(")\n");
+                    builder.add(" }).all() ");
                     return builder;
                 });
     }
