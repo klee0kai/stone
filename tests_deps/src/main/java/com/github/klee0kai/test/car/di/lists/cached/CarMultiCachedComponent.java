@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.car.di_lists;
+package com.github.klee0kai.test.car.di.lists.cached;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.types.wrappers.Ref;
@@ -12,9 +12,9 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 @Component
-public interface CarMultiComponent {
+public interface CarMultiCachedComponent {
 
-    CarMultiFactory factory();
+    CarMultiCachedModule factory();
 
     Ref<Bumper> singleBumper();
 

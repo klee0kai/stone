@@ -73,6 +73,38 @@ public class AnnotationProcessor extends AbstractProcessor {
             }
         }
 
+
+        try {
+            WrappersSupportBuilder wrappersBuilder = null;
+            for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
+                ClassDetail component = new ClassDetail((TypeElement) componentEl);
+                if (wrappersBuilder == null) {
+                    ClassName wrapperHelper = StoneNamingUtils.typeWrappersClass(component.className);
+                    wrappersBuilder = new WrappersSupportBuilder(wrapperHelper);
+                }
+
+                for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
+                    ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
+                    if (wrappedProviderCl != null) wrappersBuilder.addProvideWrapperField(wrappedProviderCl);
+                }
+            }
+
+            if (wrappersBuilder != null && !wrappersBuilder.isEmpty()) {
+                wrappersBuilder.buildAndWrite();
+            }
+        } catch (Throwable cause) {
+            throw new StoneException(
+                    createErrorMes()
+                            .cannotCreateWrappersHelper()
+                            .collectCauseMessages(cause)
+                            .build(),
+                    cause
+            );
+        }
+
+
+
+
         for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
             try {
                 ClassDetail module = new ClassDetail((TypeElement) moduleEl);
@@ -101,35 +133,6 @@ public class AnnotationProcessor extends AbstractProcessor {
                         e);
             }
         }
-
-        try {
-            WrappersSupportBuilder wrappersBuilder = null;
-            for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
-                ComponentClassDetails component = new ComponentClassDetails((TypeElement) componentEl);
-                if (wrappersBuilder == null) {
-                    ClassName wrapperHelper = StoneNamingUtils.typeWrappersClass(component.className);
-                    wrappersBuilder = new WrappersSupportBuilder(wrapperHelper);
-                }
-
-                for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
-                    ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
-                    if (wrappedProviderCl != null) wrappersBuilder.addProvideWrapperField(wrappedProviderCl);
-                }
-            }
-
-            if (wrappersBuilder != null && !wrappersBuilder.isEmpty()) {
-                wrappersBuilder.buildAndWrite();
-            }
-        } catch (Throwable cause) {
-            throw new StoneException(
-                    createErrorMes()
-                            .cannotCreateWrappersHelper()
-                            .collectCauseMessages(cause)
-                            .build(),
-                    cause
-            );
-        }
-
 
         //create components
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {

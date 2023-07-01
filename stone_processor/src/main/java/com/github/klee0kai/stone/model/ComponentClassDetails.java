@@ -35,7 +35,6 @@ public class ComponentClassDetails extends ClassDetail {
     public ComponentClassDetails(TypeElement owner) {
         super(owner);
         collectComponentInfo();
-
     }
 
     public ComponentClassDetails(String packageName, TypeSpec owner) {
