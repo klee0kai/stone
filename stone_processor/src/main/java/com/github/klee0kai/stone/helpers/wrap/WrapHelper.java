@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.NullGet;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
@@ -79,40 +78,48 @@ public class WrapHelper {
         }
 
         SmartCode smartCode = SmartCode.builder().add(code);
-        LinkedList<TypeName> wannaTypeParams = new LinkedList<>(allParamTypes(wannaType));
-        LinkedList<TypeName> provideTypeParams = new LinkedList<>(allParamTypes(code.providingType));
-
-        while (!ListUtils.endWith(wannaTypeParams, provideTypeParams)) {
-            if (provideTypeParams.isEmpty() || !wrapTypes.containsKey(rawTypeOf(code.providingType))) {
-                throw new StoneException(
-                        createErrorMes()
-                                .typeTransformNonSupport(code.providingType, wannaType)
-                                .classNonFound(rawTypeOf(rawTypeOf(code.providingType)).toString())
-                                .build(),
-                        null
-                );
-            }
-            smartCode = wrapTypes.get(rawTypeOf(code.providingType)).unwrap.apply(smartCode);
-            provideTypeParams.pollFirst();
+        LinkedList<TypeName> wrapPath = new LinkedList<>(allParamTypes(wannaType));
+        LinkedList<TypeName> unwrapPath = new LinkedList<>(allParamTypes(code.providingType));
+        Collections.reverse(wrapPath);
+        while (!wrapPath.isEmpty() && !unwrapPath.isEmpty()
+                && Objects.equals(rawTypeOf(unwrapPath.getLast()), rawTypeOf(wrapPath.getFirst()))) {
+            unwrapPath.pollLast();
+            wrapPath.pollFirst();
         }
 
-        List<TypeName> wrappingTypes = wannaTypeParams.subList(0, wannaTypeParams.size() - provideTypeParams.size());
-        Collections.reverse(wrappingTypes);
-
-        Iterator<TypeName> wrIt = wrappingTypes.iterator();
-        while (wrIt.hasNext()) {
-            TypeName wr = wrIt.next();
-            if (!wrapTypes.containsKey(rawTypeOf(wr))) {
+        while (!unwrapPath.isEmpty()) {
+            TypeName unWrapTypeName = rawTypeOf(unwrapPath.getFirst());
+            WrapType unWrapType = wrapTypes.get(unWrapTypeName);
+            if (unWrapType == null) {
                 throw new StoneException(
                         createErrorMes()
                                 .typeTransformNonSupport(code.providingType, wannaType)
-                                .classNonFound(rawTypeOf(wr).toString())
+                                .classNonFound(unWrapTypeName.toString())
                                 .build(),
                         null
                 );
             }
+            if (unWrapType.isList()) {
 
-            smartCode = wrapTypes.get(rawTypeOf(wr)).wrap.apply(smartCode);
+            }
+            smartCode = unWrapType.unwrap.formatCode(smartCode);
+            unwrapPath.pollFirst();
+        }
+
+        while (!wrapPath.isEmpty()) {
+            TypeName wrapTypeName = rawTypeOf(wrapPath.getFirst());
+            WrapType wrapType = wrapTypes.get(wrapTypeName);
+            if (wrapType == null) {
+                throw new StoneException(
+                        createErrorMes()
+                                .typeTransformNonSupport(code.providingType, wannaType)
+                                .classNonFound(wrapTypeName.toString())
+                                .build(),
+                        null
+                );
+            }
+            smartCode = wrapType.wrap.formatCode(smartCode);
+            wrapPath.pollFirst();
         }
 
         return smartCode;
@@ -175,6 +182,13 @@ public class WrapHelper {
                 return builder;
             };
             support(wrapType);
+        }
+
+        for (Class cl : Arrays.asList(LinkedList.class, ArrayList.class, List.class, Collection.class, Iterable.class)) {
+            ClassName wrapper = ClassName.get(cl);
+
+            WrapType wrapType = new WrapType();
+
         }
     }
 
