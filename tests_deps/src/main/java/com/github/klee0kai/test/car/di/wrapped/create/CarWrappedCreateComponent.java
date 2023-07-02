@@ -2,8 +2,8 @@ package com.github.klee0kai.test.car.di.wrapped.create;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
-import com.github.klee0kai.test.car.di.wrapped.create.wrappers.CarWrappes2;
 import com.github.klee0kai.test.car.di.wrapped.create.wrappers.CarWrappers;
+import com.github.klee0kai.test.car.di.wrapped.create.wrappers.CarWrappes2;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;

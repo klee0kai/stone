@@ -8,7 +8,7 @@ import java.util.*;
 
 public class SmartCode implements ISmartCode {
 
-    private static final boolean REMOVE_NON_USED = false;
+    private static final boolean REMOVE_NON_USED = true;
 
     // atom meta info
     private CodeBlock code = null;
@@ -137,8 +137,9 @@ public class SmartCode implements ISmartCode {
         CodeBlock.Builder builder = CodeBlock.builder();
         if (code != null) builder.add(code);
         for (SmartCode c : collectedCode) {
-            if (REMOVE_NON_USED && c.fieldName != null && !usedFields.contains(c.fieldName))
+            if (REMOVE_NON_USED && c.fieldName != null && !usedFields.contains(c.fieldName)) {
                 continue;
+            }
 
             builder.add(c.internalBuild(declaredFields));
         }

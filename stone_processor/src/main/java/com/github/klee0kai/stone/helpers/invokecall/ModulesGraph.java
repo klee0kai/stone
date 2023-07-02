@@ -116,7 +116,10 @@ public class ModulesGraph {
                             .add(inv.invokeBest())
                     );
                 }
+                return localBuilder;
+            });
 
+            builder.withLocals(localBuilder -> {
                 // provide list objects
                 listDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class),
                         ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
@@ -137,7 +140,7 @@ public class ModulesGraph {
                                 .add(".addAll( ")
                                 .add(
                                         transform(
-                                                SmartCode.of(listDepField.name, singleton(singleDepField.name))
+                                                SmartCode.of(listDepField.name, singleton(listDepField.name))
                                                         .providingType(listDepField.type),
                                                 provideBuilderList
                                         )
