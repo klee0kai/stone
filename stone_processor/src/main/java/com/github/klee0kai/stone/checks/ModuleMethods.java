@@ -3,6 +3,7 @@ package com.github.klee0kai.stone.checks;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
@@ -21,6 +22,17 @@ public class ModuleMethods {
                             .method(m.methodName)
                             .hasIncorrectSignature()
                             .shouldHaveOnlyAnnotations(Provide.class.getSimpleName())
+                            .build()
+            );
+        }
+
+        if (WrapHelper.isNonCachingWrapper(m.returnType)) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .hasIncorrectSignature()
+                            .add(" Not support caching, because return type wrapper is non support caching.\n")
+                            .add(" You Should use annotation @Provide(cache = Provide.CacheType.Factory)")
                             .build()
             );
         }

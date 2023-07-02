@@ -187,7 +187,7 @@ public class ModulesGraph {
 
         // provide dependencies while not provide all
         while (!needProvideDeps.isEmpty()) {
-            TypeName dep = needProvideDeps.pollFirst();
+            TypeName dep = nonWrappedType(needProvideDeps.pollFirst());
             InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, dep, qualifiers);
             if (invokeCall == null) {
                 if (Objects.equals(dep, typeName)) {
@@ -205,7 +205,8 @@ public class ModulesGraph {
             List<TypeName> newDeps = ListUtils.filter(invokeCall.argTypes(true, null), (indx, it) -> {
                 if (Objects.equals(dep, it)) return false; // bind instance case
                 // qualifies not need to provide
-                return it instanceof ClassName && !allQualifiers.contains(it) && !argTypes.contains(it);
+                TypeName argNonWrapped = nonWrappedType(it);
+                return argNonWrapped instanceof ClassName && !allQualifiers.contains(argNonWrapped) && !argTypes.contains(argNonWrapped);
             });
 
             needProvideDeps.addAll(newDeps);

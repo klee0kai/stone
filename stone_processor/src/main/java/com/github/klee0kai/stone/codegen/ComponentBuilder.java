@@ -422,7 +422,7 @@ public class ComponentBuilder {
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(
-                    null,
+                    m.methodName,
                     m.returnType,
                     qFields);
             if (smartCode == null) {
@@ -592,7 +592,7 @@ public class ComponentBuilder {
                     subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
-                        if (WrapHelper.isGeneric(injectField.type))
+                        if (WrapHelper.isNonCachingWrapper(injectField.type))
                             //nothing to protect
                             continue;
 
@@ -627,7 +627,7 @@ public class ComponentBuilder {
         collectRuns.execute(createErrorMes().errorImplementMethod(name).build(), () -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
-                if (WrapHelper.isGeneric(injectField.type))
+                if (WrapHelper.isNonCachingWrapper(injectField.type))
                     //nothing to protect
                     continue;
 

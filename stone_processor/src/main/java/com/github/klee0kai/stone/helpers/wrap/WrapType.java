@@ -6,7 +6,7 @@ public class WrapType {
 
     public TypeName typeName;
 
-    public boolean isGeneric = false;
+    public boolean isNoCachingWrapper = false;
 
     public FormatSimple unwrap;
 

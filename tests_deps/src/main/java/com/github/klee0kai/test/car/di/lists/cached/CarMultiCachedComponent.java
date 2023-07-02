@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 public interface CarMultiCachedComponent {
 
-    CarMultiCachedModule factory();
+    CarMultiCachedModule cachedModule();
 
     Ref<Bumper> singleBumper();
 
@@ -27,9 +27,5 @@ public interface CarMultiCachedComponent {
     List<Provider<List<Window>>> windowsProviding();
 
     List<Car> cars();
-
-    Provider<Car> blueCar();
-
-    WeakReference<Car> redCar();
 
 }

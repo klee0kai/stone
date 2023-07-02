@@ -37,7 +37,7 @@ public class WrappersSupportBuilder {
 
         for (ClassName wrapper : provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers) {
             WrapType wrapType = new WrapType();
-            wrapType.isGeneric = false;
+            wrapType.isNoCachingWrapper = false;
             wrapType.typeName = wrapper;
             wrapType.wrap = (or -> {
                 SmartCode builder = SmartCode.builder()

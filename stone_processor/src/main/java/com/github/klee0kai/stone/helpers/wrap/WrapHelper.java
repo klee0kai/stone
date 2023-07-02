@@ -37,9 +37,13 @@ public class WrapHelper {
         return wrapTypes.containsKey(rawTypeOf(typeName));
     }
 
-    public static boolean isGeneric(TypeName typeName) {
-        WrapType wrapType = wrapTypes.get(typeName);
-        return wrapType != null && wrapType.isGeneric;
+    public static boolean isNonCachingWrapper(TypeName typeName) {
+        for (TypeName t : allParamTypes(typeName)) {
+            WrapType wrapType = wrapTypes.get(rawTypeOf(t));
+            if (wrapType != null && wrapType.isNoCachingWrapper)
+                return true;
+        }
+        return false;
     }
 
     public static boolean isList(TypeName typeName) {
@@ -151,7 +155,7 @@ public class WrapHelper {
             ClassName wrapper = ClassName.get(cl);
 
             WrapType wrapType = new WrapType();
-            wrapType.isGeneric = false;
+            wrapType.isNoCachingWrapper = false;
             wrapType.typeName = wrapper;
             wrapType.wrap = (or) -> {
                 SmartCode builder = SmartCode.builder()
@@ -180,13 +184,13 @@ public class WrapHelper {
             ClassName wrapper = ClassName.get(cl);
 
             WrapType wrapType = new WrapType();
-            wrapType.isGeneric = !Objects.equals(cl, LazyProvide.class);
+            wrapType.isNoCachingWrapper = !Objects.equals(cl, LazyProvide.class);
             wrapType.typeName = wrapper;
 
             wrapType.wrap = (or) -> {
                 // TODO sometimes work not well. Need use types directly
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("new $T( () -> ", wrapType.isGeneric ? ClassName.get(PhantomProvide.class) : wrapper))
+                        .add(CodeBlock.of("new $T( () -> ", wrapType.isNoCachingWrapper ? ClassName.get(PhantomProvide.class) : wrapper))
                         .add(or)
                         .add(" )");
                 if (or.providingType != null)
@@ -248,7 +252,7 @@ public class WrapHelper {
                 if (itemTransform.getSize() <= 1) {
                     //no transforms
                     builder.add(originalListCode);
-                }else {
+                } else {
                     builder.add(CodeBlock.of("$T.format( ", ListUtils.class))
                             .add(originalListCode)
                             .add(", it ->  ")

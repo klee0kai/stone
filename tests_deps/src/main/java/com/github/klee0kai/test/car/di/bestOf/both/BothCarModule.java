@@ -1,4 +1,4 @@
-package com.github.klee0kai.test.car.di.lists.cached;
+package com.github.klee0kai.test.car.di.bestOf.both;
 
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Module
-public abstract class CarMultiCachedModule {
+public abstract class BothCarModule {
 
     @Provide(cache = Provide.CacheType.Weak)
     public List<Wheel> fourWheels() {

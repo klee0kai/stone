@@ -26,6 +26,7 @@ public class Car {
 
 
     public Car(List<Bumper> bumpers, List<Wheel> wheels, List<Window> windows) {
+        createCount++;
         this.bumpers = bumpers;
         this.wheels = wheels;
         this.windows = windows;
