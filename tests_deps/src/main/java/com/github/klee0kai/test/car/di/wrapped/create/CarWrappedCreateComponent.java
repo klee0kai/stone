@@ -18,13 +18,13 @@ public interface CarWrappedCreateComponent {
 
     CarWrappedCreateModule factory();
 
-    Wheel whell();
+    Wheel wheel();
 
-    Provider<Wheel> whellProvide();
+    Provider<Wheel> wheelProvide();
 
-    LazyProvide<Wheel> whellLazy();
+    LazyProvide<Wheel> wheelLazy();
 
-    WeakReference<Wheel> whellWeak();
+    WeakReference<Wheel> wheelWeak();
 
     Provider<WeakReference<Wheel>> whellProviderWeak();
 

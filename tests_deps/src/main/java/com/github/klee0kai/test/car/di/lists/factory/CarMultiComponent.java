@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 public interface CarMultiComponent {
 
-    CarMultiModule factory();
+    CarMultiModule module();
 
     Ref<Bumper> singleBumper();
 
