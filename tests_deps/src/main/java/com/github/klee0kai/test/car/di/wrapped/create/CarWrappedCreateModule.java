@@ -15,15 +15,12 @@ import java.lang.ref.WeakReference;
 @Module
 public interface CarWrappedCreateModule {
 
-
     LazyProvide<Wheel> whell();
 
     @Provide(cache = Provide.CacheType.Factory)
     Provider<WeakReference<Bumper>> bumper();
 
-
     CarLazy<Window> window();
-
 
     Car car(Bumper bumper, Wheel wheel, Window window);
 

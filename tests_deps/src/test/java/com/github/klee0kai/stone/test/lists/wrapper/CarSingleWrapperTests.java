@@ -7,16 +7,30 @@ import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.inject.Provider;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CarSingleWrapperTests {
+
+    public static long startTime = 0;
+
+    @BeforeAll
+    public static void measurePerfStart() {
+        startTime = System.currentTimeMillis();
+    }
+
+    @AfterAll
+    public static void measurePerfEnd() {
+        long endTime = System.currentTimeMillis();
+        long spendTime = endTime - startTime;
+        System.out.println("test time: " + spendTime + " ms");
+        assertTrue(spendTime < 500, "Spend time " + spendTime + " ms");
+    }
 
     @BeforeEach
     public void init() {
@@ -26,7 +40,8 @@ public class CarSingleWrapperTests {
         Car.createCount = 0;
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void wheelSimpleTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -41,7 +56,8 @@ public class CarSingleWrapperTests {
         assertEquals(wheel1.uuid, wheel2.uuid);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void wheelProvideTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -56,7 +72,8 @@ public class CarSingleWrapperTests {
         assertEquals(1, Wheel.createCount);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void wheelLazyTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -72,7 +89,8 @@ public class CarSingleWrapperTests {
     }
 
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void wheelWeakTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -88,7 +106,8 @@ public class CarSingleWrapperTests {
     }
 
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void wheelProvideWeakTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -104,7 +123,8 @@ public class CarSingleWrapperTests {
     }
 
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void wheelLazyProvideWeakTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -120,7 +140,8 @@ public class CarSingleWrapperTests {
     }
 
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void wheelProviderTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -136,7 +157,8 @@ public class CarSingleWrapperTests {
     }
 
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void carLayTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -151,7 +173,8 @@ public class CarSingleWrapperTests {
         assertEquals(1, Car.createCount);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void carProvideTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -167,7 +190,8 @@ public class CarSingleWrapperTests {
     }
 
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void carWeakTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -182,7 +206,8 @@ public class CarSingleWrapperTests {
         assertEquals(car1.get().uuid, car2.get().uuid);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void windowTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
@@ -197,7 +222,8 @@ public class CarSingleWrapperTests {
         assertEquals(window1.uuid, window2.uuid);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void carTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);

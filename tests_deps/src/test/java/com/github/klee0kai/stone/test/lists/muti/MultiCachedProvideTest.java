@@ -8,18 +8,33 @@ import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MultiCachedProvideTest {
+
+    public static long startTime = 0;
+
+    @BeforeAll
+    public static void measurePerfStart() {
+        startTime = System.currentTimeMillis();
+    }
+
+    @AfterAll
+    public static void measurePerfEnd() {
+        long endTime = System.currentTimeMillis();
+        long spendTime = endTime - startTime;
+        System.out.println("test time: " + spendTime + " ms");
+        assertTrue(spendTime < 500, "Spend time " + spendTime + " ms");
+    }
 
     @BeforeEach
     public void init() {
@@ -29,7 +44,8 @@ public class MultiCachedProvideTest {
         Car.createCount = 0;
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void firstBumperFromCollection() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -45,7 +61,8 @@ public class MultiCachedProvideTest {
         assertNotNull(bumper.uuid);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void cachedBumperFromCollection() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -63,7 +80,8 @@ public class MultiCachedProvideTest {
         assertEquals(bumper1.uuid, bumper3.uuid);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void fourWheelsAndSpare() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -82,7 +100,8 @@ public class MultiCachedProvideTest {
         assertEquals(5, wheelsUid.size());
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void fourWheelsAndSpareCached() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -102,7 +121,8 @@ public class MultiCachedProvideTest {
         assertEquals(wheelsUuid1, wheelsUuid3);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void oneWheelFromList() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -116,7 +136,8 @@ public class MultiCachedProvideTest {
         assertEquals(wheel1.uuid, wheel2.uuid);
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void allWindowsInCar() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -134,7 +155,8 @@ public class MultiCachedProvideTest {
         assertEquals(4, windowUuid.size());
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void allWindowsInCarFactory() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -148,7 +170,8 @@ public class MultiCachedProvideTest {
         assertEquals(8, Window.createCount, "Windows creating over provide wrappers. Should recreate each time");
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void allWindowsInCarProvideWrapper() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -167,7 +190,8 @@ public class MultiCachedProvideTest {
         assertEquals(4, windowUuid.size());
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void createCarsWithDeps() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
@@ -188,7 +212,8 @@ public class MultiCachedProvideTest {
         assertNotEquals(car.get(0).windows.size(), car.get(1).windows.size(), "Red use single deps and Blue car use listed deps");
     }
 
-    @Test
+    @RepeatedTest(100)
+    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
     public void cacheCreatedCar() {
         //Given
         CarMultiCachedComponent DI = Stone.createComponent(CarMultiCachedComponent.class);
