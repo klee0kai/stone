@@ -29,7 +29,6 @@ import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
@@ -521,15 +520,12 @@ public class ComponentBuilder {
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    boolean isWrappedReturn = WrapHelper.isSupport(injectField.type);
-                    TypeName providingType = isWrappedReturn ? nonWrappedType(injectField.type) : injectField.type;
-
-                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, providingType, qFields);
+                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, qFields);
                     if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
                                         .errorProvideTypeRequiredIn(
-                                                providingType.toString(),
+                                                injectField.type.toString(),
                                                 injectableCl.className.toString(),
                                                 injectField.name
                                         )
@@ -539,9 +535,7 @@ public class ComponentBuilder {
                     }
                     builder.addCode(injectableField.name)
                             .addCode(".")
-                            .addCode(
-                                    setFieldHelper.codeSetField(WrapHelper.transform(provideCode, injectField.type)
-                                            .build(qFields)))
+                            .addCode(setFieldHelper.codeSetField(provideCode.build(qFields)))
                             .addCode(";\n");
                 }
 
@@ -550,15 +544,12 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        boolean isWrappedReturn = WrapHelper.isSupport(injectField.type);
-                        TypeName providingType = isWrappedReturn ? nonWrappedType(injectField.type) : injectField.type;
-
-                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, providingType, qFields);
+                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, qFields);
                         if (provideCode == null) {
                             throw new ObjectNotProvidedException(
                                     createErrorMes()
                                             .errorProvideTypeRequiredIn(
-                                                    providingType.toString(),
+                                                    injectField.type.toString(),
                                                     injectableCl.className.toString(),
                                                     injectField.name
                                             )
@@ -568,10 +559,7 @@ public class ComponentBuilder {
                         }
 
                         if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
-                        providingArgsCode.add(WrapHelper.transform(provideCode, injectField.type)
-                                .build(m.args)
-                        );
-
+                        providingArgsCode.add(provideCode.build(m.args));
                     }
 
                     builder.addCode("$L.$L( ", injectableField.name, injectMethod.methodName)
