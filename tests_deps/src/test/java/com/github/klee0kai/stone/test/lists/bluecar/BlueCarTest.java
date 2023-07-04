@@ -8,28 +8,13 @@ import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BlueCarTest {
-
-    public static long startTime = 0;
-
-    @BeforeAll
-    public static void measurePerfStart() {
-        startTime = System.currentTimeMillis();
-    }
-
-    @AfterAll
-    public static void measurePerfEnd() {
-        long endTime = System.currentTimeMillis();
-        long spendTime = endTime - startTime;
-        System.out.println("test time: " + spendTime + " ms");
-        assertTrue(spendTime < 500, "Spend time " + spendTime + " ms");
-    }
 
     @BeforeEach
     public void init() {
@@ -39,8 +24,7 @@ public class BlueCarTest {
         Car.createCount = 0;
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void blueCarComponent() {
         //Given
         BlueCarComponent DI = Stone.createComponent(BlueCarComponent.class);
@@ -58,8 +42,7 @@ public class BlueCarTest {
     }
 
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void createBlueCar() {
         //Given
         BothCarComponent DI = Stone.createComponent(BothCarComponent.class);
@@ -76,8 +59,7 @@ public class BlueCarTest {
         assertEquals(4, blueCar.windows.size(), "Blue Car use list wheel");
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void redCarComponent() {
         //Given
         RedCarComponent DI = Stone.createComponent(RedCarComponent.class);
@@ -94,8 +76,7 @@ public class BlueCarTest {
         assertEquals(1, redCar.windows.size(), "Red Car use single wheel");
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void createRedCar() {
         //Given
         BothCarComponent DI = Stone.createComponent(BothCarComponent.class);

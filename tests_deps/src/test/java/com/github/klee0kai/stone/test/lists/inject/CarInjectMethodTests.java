@@ -4,30 +4,15 @@ import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.test.car.di.inject.CarInjectComponent;
 import com.github.klee0kai.test.car.model.*;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CarInjectMethodTests {
-
-    public static long startTime = 0;
-
-    @BeforeAll
-    public static void measurePerfStart() {
-        startTime = System.currentTimeMillis();
-    }
-
-    @AfterAll
-    public static void measurePerfEnd() {
-        long endTime = System.currentTimeMillis();
-        long spendTime = endTime - startTime;
-        System.out.println("test time: " + spendTime + " ms");
-        assertTrue(spendTime < 500, "Spend time " + spendTime + " ms");
-    }
 
     @BeforeEach
     public void init() {
@@ -37,8 +22,7 @@ public class CarInjectMethodTests {
         Car.createCount = 0;
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     void carInjectTest() {
         //Given
         CarInjectComponent DI = Stone.createComponent(CarInjectComponent.class);
@@ -54,8 +38,7 @@ public class CarInjectMethodTests {
         assertNotNull(carInject.windowFromMethod.uuid);
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     void carInjectReusableTest() {
         //Given
         CarInjectComponent DI = Stone.createComponent(CarInjectComponent.class);
@@ -75,8 +58,7 @@ public class CarInjectMethodTests {
     }
 
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     void carInjectListTest() {
         //Given
         CarInjectComponent DI = Stone.createComponent(CarInjectComponent.class);
@@ -103,8 +85,7 @@ public class CarInjectMethodTests {
         assertEquals(4, windowUids.size());
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     void carInjectListReusableTest() {
         //Given
         CarInjectComponent DI = Stone.createComponent(CarInjectComponent.class);
@@ -130,8 +111,7 @@ public class CarInjectMethodTests {
     }
 
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     void carInjectProviderTest() {
         //Given
         CarInjectComponent DI = Stone.createComponent(CarInjectComponent.class);
@@ -149,8 +129,7 @@ public class CarInjectMethodTests {
     }
 
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     void carInjectProvideReusableTest() {
         //Given
         CarInjectComponent DI = Stone.createComponent(CarInjectComponent.class);

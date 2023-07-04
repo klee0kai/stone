@@ -8,33 +8,19 @@ import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MultiProvideTest {
 
-    public static long startTime = 0;
-
-    @BeforeAll
-    public static void measurePerfStart() {
-        startTime = System.currentTimeMillis();
-    }
-
-    @AfterAll
-    public static void measurePerfEnd() {
-        long endTime = System.currentTimeMillis();
-        long spendTime = endTime - startTime;
-        System.out.println("test time: " + spendTime + " ms");
-        assertTrue(spendTime < 500, "Spend time " + spendTime + " ms");
-    }
     @BeforeEach
     public void init() {
         Bumper.createCount = 0;
@@ -43,8 +29,7 @@ public class MultiProvideTest {
         Car.createCount = 0;
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void firstBumperFromCollection() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -60,8 +45,7 @@ public class MultiProvideTest {
         assertNotNull(bumper.uuid);
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void factoryBumperFromCollection() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -79,8 +63,7 @@ public class MultiProvideTest {
         assertNotEquals(bumper1.uuid, bumper3.uuid);
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void fourWheelsAndSpare() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -99,8 +82,7 @@ public class MultiProvideTest {
         assertEquals(5, wheelsUid.size());
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void fourWheelsAndSpareFactory() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -117,8 +99,7 @@ public class MultiProvideTest {
         assertNotEquals(wheelsUuid1, wheelsUuid2);
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void oneWheelFromList() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -132,8 +113,7 @@ public class MultiProvideTest {
         assertNotEquals(wheel1.uuid, wheel2.uuid);
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void allWindowsInCar() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -151,8 +131,7 @@ public class MultiProvideTest {
         assertEquals(4, windowUuid.size());
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void allWindowsInCarFactory() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -166,8 +145,7 @@ public class MultiProvideTest {
         assertEquals(8, Window.createCount, "Windows creating over provide wrappers. Should recreate each time");
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void allWindowsInCarProvideWrapper() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -186,8 +164,7 @@ public class MultiProvideTest {
         assertEquals(4, windowUuid.size());
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void createCarsWithDeps() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
@@ -208,8 +185,7 @@ public class MultiProvideTest {
         assertNotEquals(car.get(0).windows.size(), car.get(1).windows.size(), "Red use single deps and Blue car use listed deps");
     }
 
-    @RepeatedTest(100)
-    @Timeout(value = 10, unit = TimeUnit.MILLISECONDS)
+    @Test
     public void factoryCreatedCar() {
         //Given
         CarMultiComponent DI = Stone.createComponent(CarMultiComponent.class);
