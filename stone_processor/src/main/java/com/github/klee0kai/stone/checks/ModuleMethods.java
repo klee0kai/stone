@@ -3,12 +3,13 @@ package com.github.klee0kai.stone.checks;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
-import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
 
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.isAsyncProvider;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.isNonCachingWrapper;
 
 public class ModuleMethods {
 
@@ -26,7 +27,7 @@ public class ModuleMethods {
             );
         }
 
-        if (WrapHelper.isNonCachingWrapper(m.returnType)) {
+        if (isNonCachingWrapper(m.returnType) || isAsyncProvider(m.returnType)) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .method(m.methodName)

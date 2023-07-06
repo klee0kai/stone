@@ -46,6 +46,15 @@ public class WrapHelper {
         return false;
     }
 
+    public static boolean isAsyncProvider(TypeName typeName) {
+        for (TypeName t : allParamTypes(typeName)) {
+            WrapType wrapType = wrapTypes.get(rawTypeOf(t));
+            if (wrapType != null && wrapType.isAsyncProvider)
+                return true;
+        }
+        return false;
+    }
+
     public static boolean isList(TypeName typeName) {
         return ListUtils.indexOf(allParamTypes(typeName), (i, it) -> {
             WrapType wrapType = wrapTypes.get(rawTypeOf(it));
@@ -185,6 +194,7 @@ public class WrapHelper {
 
             WrapType wrapType = new WrapType();
             wrapType.isNoCachingWrapper = !Objects.equals(cl, LazyProvide.class);
+            wrapType.isAsyncProvider = true;
             wrapType.typeName = wrapper;
 
             wrapType.wrap = (or) -> {
