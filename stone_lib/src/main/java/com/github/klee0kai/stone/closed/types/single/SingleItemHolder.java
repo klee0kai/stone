@@ -62,6 +62,12 @@ public abstract class SingleItemHolder<T> implements Ref<T> {
         }
     }
 
+    public void setListIfNull(List<T> ob) {
+        if (get() == null) {
+            setList(ob);
+        }
+    }
+
     public void setStrong(T ob) {
         refType = TYPE_OBJECT;
         refHolder = ob;
