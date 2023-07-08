@@ -6,7 +6,9 @@ import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcBumperScope;
 import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcWheelScope;
 import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcWindowScope;
 
-@Component
+@Component(
+        qualifiers = {String.class, Integer.class}
+)
 public abstract class CarGcComponent {
 
     public abstract BumperGcModule bumpersModule();
@@ -14,6 +16,10 @@ public abstract class CarGcComponent {
     public abstract WheelGcModule wheelsModule();
 
     public abstract WindowGcModule windowsModule();
+
+    public abstract WindowMappedGcModule windowsMappedModule();
+
+    public abstract WindowMultiMappedGcModule windowsMultiMappedModule();
 
     @GcAllScope
     public abstract void gcAll();
