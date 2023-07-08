@@ -15,6 +15,10 @@ public abstract class CarGcComponent {
 
     public abstract WheelGcModule wheelsModule();
 
+    public abstract WheelMappedGcModule wheelMappedModule();
+
+    public abstract WheelMultiMappedGcModule wheelMultiMappedModule();
+
     public abstract WindowGcModule windowsModule();
 
     public abstract WindowMappedGcModule windowsMappedModule();

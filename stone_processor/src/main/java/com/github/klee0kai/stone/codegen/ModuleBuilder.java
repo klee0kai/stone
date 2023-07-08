@@ -45,6 +45,7 @@ public class ModuleBuilder {
     public static final String bindMethodName = "__bind";
     public static final String getFactoryMethodName = "__getFactory";
     public static final String switchRefMethodName = "__switchRef";
+    public static final String clearNullsMethodName = "__clearNulls";
 
     public final ClassDetail orModuleCl;
 
@@ -105,6 +106,8 @@ public class ModuleBuilder {
                                         ClassName.get(GcAllScope.class),
                                         cacheType.getGcScopeClassName()
                                 ));
+
+                builder.iModuleMethodBuilders.get(clearNullsMethodName).addCode(itemHolderCodeHelper.clearNullsStatement());
             } else if (isBindInstanceMethod(m)) {
                 ItemCacheType cacheType = cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
                 ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
@@ -116,6 +119,8 @@ public class ModuleBuilder {
                                         ClassName.get(GcAllScope.class),
                                         cacheType.getGcScopeClassName()
                                 ));
+
+                builder.iModuleMethodBuilders.get(clearNullsMethodName).addCode(itemHolderCodeHelper.clearNullsStatement());
             } else {
                 throw new IncorrectSignatureException(
                         createErrorMes()
@@ -177,6 +182,7 @@ public class ModuleBuilder {
         getFactoryMethod();
         switchRefMethod();
         updateBindInstanceFromModule();
+        clearNullsMethod();
         return this;
     }
 
@@ -380,6 +386,16 @@ public class ModuleBuilder {
                         .endControlFlow();
             }
         });
+        return this;
+    }
+
+    public ModuleBuilder clearNullsMethod() {
+        MethodSpec.Builder builder = methodBuilder(clearNullsMethodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .returns(void.class);
+
+        iModuleMethodBuilders.put(clearNullsMethodName, builder);
         return this;
     }
 

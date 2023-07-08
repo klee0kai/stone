@@ -56,6 +56,8 @@ public interface ItemHolderCodeHelper {
 
     FieldSpec.Builder cachedField();
 
+    CodeBlock clearNullsStatement();
+
     CodeBlock codeGetCachedValue();
 
     CodeBlock codeSetCachedValue(CodeBlock value, boolean onlyIfNull);

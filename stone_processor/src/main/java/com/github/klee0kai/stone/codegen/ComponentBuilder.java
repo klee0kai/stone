@@ -666,7 +666,8 @@ public class ComponentBuilder {
                     .addStatement("$T.gc()", System.class)
                     .addStatement("$L.clearNulls()", relatedComponentsListFieldName)
                     .addStatement(
-                            "$L( (m) -> {  m.$L(scopes, toDef); } )",
+
+                            "$L( (m) -> {  m.__clearNulls(); m.$L(scopes, toDef); } )",
                             eachModuleMethodName, ModuleBuilder.switchRefMethodName
                     );
 

@@ -30,6 +30,14 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     }
 
     @Override
+    public CodeBlock clearNullsStatement() {
+        return CodeBlock.builder()
+                .addStatement("$L.clearNulls()", fieldName)
+                .build();
+    }
+
+
+    @Override
     public CodeBlock codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
         return transform(

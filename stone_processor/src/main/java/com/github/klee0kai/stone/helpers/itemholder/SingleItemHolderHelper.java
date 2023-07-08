@@ -29,6 +29,11 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
     }
 
     @Override
+    public CodeBlock clearNullsStatement() {
+        return CodeBlock.of("");
+    }
+
+    @Override
     public CodeBlock codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
         return transform(

@@ -128,7 +128,7 @@ public class MapItemHolder<Key, T> {
         } else {
             HashMap<Key, T> itemMap = new HashMap<>();
             for (Key key : refMap.keySet()) itemMap.put(key, get(key));
-            curRefType = refType.forList();
+            curRefType = refType.forSingle();
             for (Key key : itemMap.keySet()) set(key, () -> itemMap.get(key), false);
         }
     }
@@ -148,8 +148,16 @@ public class MapItemHolder<Key, T> {
     public void clearNulls() {
         Set<Key> keys = new HashSet<>(refMap.keySet());
         for (Key key : keys) {
-            if (get(key) == null)
-                remove(key);
+            if (!curRefType.isList()) {
+                if (get(key) == null) {
+                    refMap.remove(key);
+                }
+            } else {
+                List<T> list = getList(key);
+                if (!ListUtils.contains(list, (i, it) -> it != null)) {
+                    refMap.remove(key);
+                }
+            }
         }
     }
 
