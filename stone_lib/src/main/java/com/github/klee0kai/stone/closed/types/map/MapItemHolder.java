@@ -60,8 +60,9 @@ public class MapItemHolder<Key, T> {
     }
 
     public void set(Key key, Ref<T> creator, boolean onlyIfNull) {
+        Object refHolder = refMap.get(key);
         if (Objects.equals(curRefType, StrongObject)) {
-            if (onlyIfNull && refMap.get(key) != null) return;
+            if (onlyIfNull && refHolder != null) return;
             refMap.put(key, creator.get());
             return;
         }
@@ -70,27 +71,43 @@ public class MapItemHolder<Key, T> {
         if (!onlyIfNull) {
             //switch ref type case
             refMap.put(key, formatter.format(creator.get()));
+            return;
         }
 
-        Reference<T> ref = (Reference<T>) refMap.get(key);
+        Reference<T> ref = (Reference<T>) refHolder;
         if (ref == null || ref.get() == null) {
             refMap.put(key, formatter.format(creator.get()));
         }
     }
 
     public void setList(Key key, Ref<List<T>> creator, boolean onlyIfNull) {
+        Object refHolder = refMap.get(key);
         if (Objects.equals(curRefType, ListObject)) {
-            if (onlyIfNull && refMap.get(key) != null) return;
-            refMap.put(key, creator.get());
+            if (!onlyIfNull || refHolder == null) {
+                refMap.put(key, creator.get());
+                return;
+            }
+
+            // init nulls if needed
+            List<T> created = null;
+            List<T> refList = (List<T>) refHolder;
+            for (int i = 0; i < refList.size(); i++) {
+                if (refList.get(i) == null) {
+                    if (created == null) created = creator.get();
+                    refList.set(i, created.get(i));
+                }
+            }
             return;
         }
         ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
         if (formatter == null) return;
-        List<Reference<T>> refList = (List<Reference<T>>) refMap.get(key);
-        if (refList == null || !onlyIfNull) {
+        if (!onlyIfNull || refHolder == null) {
+            //switch ref type case
             refMap.put(key, ListUtils.format(creator.get(), formatter));
             return;
         }
+
+        List<Reference<T>> refList = (List<Reference<T>>) refHolder;
         List<T> created = null;
         for (int i = 0; i < refList.size(); i++) {
             if (refList.get(i) == null || refList.get(i).get() == null) {

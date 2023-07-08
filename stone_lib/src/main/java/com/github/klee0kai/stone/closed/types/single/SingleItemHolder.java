@@ -66,6 +66,7 @@ public class SingleItemHolder<T> {
         if (!onlyIfNull) {
             //switch ref type case
             refHolder = formatter.format(creator.get());
+            return;
         }
 
         Reference<T> ref = (Reference<T>) refHolder;
@@ -76,8 +77,20 @@ public class SingleItemHolder<T> {
 
     public synchronized void setList(Ref<List<T>> creator, boolean onlyIfNull) {
         if (Objects.equals(curRefType, ListObject)) {
-            if (onlyIfNull && refHolder != null) return;
-            refHolder = creator.get();
+            if (!onlyIfNull || refHolder == null) {
+                refHolder = creator.get();
+                return;
+            }
+
+            // init nulls if needed
+            List<T> created = null;
+            List<T> list = (List<T>) refHolder;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i) == null) {
+                    if (created == null) created = creator.get();
+                    list.set(i, created.get(i));
+                }
+            }
             return;
         }
         ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
@@ -87,6 +100,8 @@ public class SingleItemHolder<T> {
             refHolder = ListUtils.format(creator.get(), formatter);
             return;
         }
+
+        // init nulls if needed
         List<T> created = null;
         for (int i = 0; i < refList.size(); i++) {
             if (refList.get(i) == null || refList.get(i).get() == null) {
