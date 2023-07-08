@@ -25,6 +25,7 @@ public class ListUtils {
     }
 
     public static <Tin, Tout> List<Tout> format(Iterable<Tin> list, IFormat<Tin, Tout> format) {
+        if (list == null) return null;
         LinkedList<Tout> touts = new LinkedList<>();
         if (list != null) for (Tin it : list) {
             touts.add(format.format(it));
@@ -73,6 +74,7 @@ public class ListUtils {
     }
 
     public static <T> LinkedList<T> filter(Collection<T> list, IFilter<T> filter) {
+        if (list == null) return null;
         LinkedList<T> touts = new LinkedList<>();
         int idx = 0;
         if (list != null) for (T it : list) {

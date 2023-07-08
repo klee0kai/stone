@@ -31,6 +31,25 @@ public class WheelGcTests {
     }
 
     @Test
+    public void createAfterGcWorkCorrect() {
+        // Given
+        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        DI.gcAll();
+
+        //When
+        WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
+        WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
+        WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
+        WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
+
+        //Then
+        assertNotNull(wheelFactory.get());
+        assertNotNull(wheelWeak.get());
+        assertNotNull(wheelSoft.get());
+        assertNotNull(wheelStrong.get());
+    }
+
+    @Test
     public void gcAllTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);

@@ -31,6 +31,25 @@ public class WindowGcTests {
         assertEquals(3, nonNullCount(windowStrong));
     }
 
+    @Test
+    public void createAfterGcWorkCorrect() {
+        // Given
+        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        DI.gcAll();
+
+        //When
+        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+
+        //Then
+        assertEquals(3, nonNullCount(windowsFactory));
+        assertEquals(3, nonNullCount(windowWeak));
+        assertEquals(3, nonNullCount(windowSoft));
+        assertEquals(3, nonNullCount(windowStrong));
+    }
+
 
     @Test
     public void gcAllTest() {
@@ -187,7 +206,6 @@ public class WindowGcTests {
         assertEquals(3, nonNullCount(windowSoft));
         assertEquals(3, nonNullCount(windowStrong));
     }
-
 
 
     private int nonNullCount(List<WeakReference<Window>> list) {

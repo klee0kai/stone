@@ -8,6 +8,7 @@ import com.github.klee0kai.test.car.model.Window;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 @Module
 public class WindowMappedGcModule {
@@ -32,7 +33,7 @@ public class WindowMappedGcModule {
 
     @GcWindowScope
     @Provide(cache = Provide.CacheType.Strong)
-    public WeakReference<Collection<Window>> windowStrong(String qualifier) {
+    public WeakReference<List<Window>> windowStrong(String qualifier) {
         return new WeakReference<>(Arrays.asList(new Window(), new Window(), new Window()));
     }
 
