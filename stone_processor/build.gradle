@@ -8,6 +8,10 @@ java {
     withJavadocJar()
 }
 
+javadoc {
+    enabled(false)
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
