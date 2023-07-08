@@ -24,7 +24,7 @@ public class ListUtils {
         boolean eq(T it1, T it2);
     }
 
-    public static <Tin, Tout> List<Tout> format(List<Tin> list, IFormat<Tin, Tout> format) {
+    public static <Tin, Tout> List<Tout> format(Iterable<Tin> list, IFormat<Tin, Tout> format) {
         LinkedList<Tout> touts = new LinkedList<>();
         if (list != null) for (Tin it : list) {
             touts.add(format.format(it));

@@ -222,7 +222,7 @@ public class WrapHelper {
         }
 
         int index = 0;
-        for (Class cl : Arrays.asList(LinkedList.class, ArrayList.class, List.class, Collection.class, Iterable.class)) {
+        for (Class cl : Arrays.asList(LinkedList.class, ArrayList.class, List.class, Collection.class)) {
             ClassName wrapper = ClassName.get(cl);
             boolean needConstructor = Arrays.asList(LinkedList.class, ArrayList.class).contains(cl);
             ClassName createType = index++ <= 0 ? wrapper : ClassName.get(ArrayList.class);
