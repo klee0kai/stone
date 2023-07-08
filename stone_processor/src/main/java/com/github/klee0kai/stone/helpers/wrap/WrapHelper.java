@@ -256,7 +256,10 @@ public class WrapHelper {
 
             wrapType.inListFormat = (originalListCode, itemTransformFun) -> {
                 SmartCode builder = SmartCode.builder();
-                if (needConstructor) builder.add(CodeBlock.of("new $T( ", createType));
+                boolean isListNeedConstructor = needConstructor
+                        || originalListCode.providingType != null && !Objects.equals(wrapper, originalListCode.providingType);
+
+                if (isListNeedConstructor) builder.add(CodeBlock.of("new $T( ", createType));
 
                 SmartCode itemTransform = itemTransformFun.formatCode(SmartCode.of("it", null));
                 if (itemTransform.getSize() <= 1) {
@@ -270,7 +273,7 @@ public class WrapHelper {
                             .add(") ");
 
                 }
-                if (needConstructor) builder.add(")");
+                if (isListNeedConstructor) builder.add(")");
 
                 if (originalListCode.providingType != null)
                     builder.providingType(rawTypeOf(originalListCode.providingType));

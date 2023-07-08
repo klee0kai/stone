@@ -111,9 +111,9 @@ public class ModulesGraph {
                 } else {
                     singleDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
                     localBuilder.localVariable(singleDepField.name, SmartCode.builder()
-                            .providingType(singleDepField.type)
                             .add("() -> ")
                             .add(inv.invokeBest())
+                            .providingType(singleDepField.type)
                     );
                 }
                 return localBuilder;
@@ -125,9 +125,9 @@ public class ModulesGraph {
                         ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
                 );
                 localBuilder.localVariable(listDepField.name, SmartCode.builder()
-                        .providingType(listDepField.type)
                         .add("() -> ")
                         .add(inv.invokeAllToList())
+                        .providingType(listDepField.type)
                 );
                 return localBuilder;
             });

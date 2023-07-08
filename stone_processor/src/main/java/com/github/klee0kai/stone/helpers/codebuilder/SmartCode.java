@@ -40,6 +40,14 @@ public class SmartCode implements ISmartCode {
         return builder;
     }
 
+    public static SmartCode of(CodeBlock code) {
+        return of(code, null);
+    }
+
+    public static SmartCode of(String code) {
+        return of(code, null);
+    }
+
     // delayed code block
     private SmartCode() {
 
@@ -76,6 +84,7 @@ public class SmartCode implements ISmartCode {
 
     public SmartCode add(SmartCode code) {
         codes.add(code);
+        if (providingType == null) providingType = code.providingType;
         return this;
     }
 
@@ -121,7 +130,7 @@ public class SmartCode implements ISmartCode {
 
     public CodeBlock build(Collection<FieldDetail> declaredFields) {
         clearAllCollectedCodes();
-        return internalBuild(new HashSet<>(declaredFields));
+        return internalBuild(declaredFields == null ? new HashSet<>() : new HashSet<>(declaredFields));
     }
 
     private void clearAllCollectedCodes() {

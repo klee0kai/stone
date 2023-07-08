@@ -8,7 +8,8 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.closed.types.single.WeakItemHolder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
-import com.github.klee0kai.stone.helpers.ItemHolderCodeHelper;
+import com.github.klee0kai.stone.helpers.itemholder.ItemCacheType;
+import com.github.klee0kai.stone.helpers.itemholder.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -26,8 +27,8 @@ import java.util.*;
 import static com.github.klee0kai.stone.checks.ModuleMethods.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
-import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.cacheTypeFrom;
-import static com.github.klee0kai.stone.helpers.ItemHolderCodeHelper.of;
+import static com.github.klee0kai.stone.helpers.itemholder.ItemCacheType.cacheTypeFrom;
+import static com.github.klee0kai.stone.helpers.itemholder.ItemHolderCodeHelper.of;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
@@ -92,8 +93,7 @@ public class ModuleBuilder {
                         .mockControl(m);
             } else if (isProvideCachedObject(m)) {
                 ProvideAnn ann = m.ann(ProvideAnn.class);
-                ItemHolderCodeHelper.ItemCacheType cacheType = ann != null
-                        ? cacheTypeFrom(ann.cacheType) : ItemHolderCodeHelper.ItemCacheType.Soft;
+                ItemCacheType cacheType = ann != null ? cacheTypeFrom(ann.cacheType) : ItemCacheType.Soft;
                 ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
                 builder.provideCached(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
@@ -104,7 +104,7 @@ public class ModuleBuilder {
                                         cacheType.getGcScopeClassName()
                                 ));
             } else if (isBindInstanceMethod(m)) {
-                ItemHolderCodeHelper.ItemCacheType cacheType = cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
+                ItemCacheType cacheType = cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
                 ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, qFields, cacheType);
                 builder.bindInstance(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
@@ -500,7 +500,7 @@ public class ModuleBuilder {
 
         //  check cached
         provideMethodBuilder
-                .addCode("if ( $L != null )", itemHolderCodeHelper.codeGetCachedValue())
+                .addCode("if ( $L )", itemHolderCodeHelper.nonNullCheck())
                 .addStatement("return $L ", itemHolderCodeHelper.codeGetCachedValue());
 
         if (fields.containsKey(overridedModuleFieldName)) {
@@ -516,14 +516,10 @@ public class ModuleBuilder {
         }
 
         // gen new and return
-        provideMethodBuilder.addStatement("return $L", itemHolderCodeHelper.codeSetCachedValue(
-                CodeBlock.of(
-                        "$L.$L($L)",
-                        factoryFieldName, m.methodName,
-                        String.join(",", ListUtils.format(m.args, (it) -> it.name))
-                )
-        ));
-
+        provideMethodBuilder.addStatement("$T created = $L.$L($L)", m.returnType, factoryFieldName, m.methodName,
+                        String.join(",", ListUtils.format(m.args, (it) -> it.name)))
+                .addStatement(itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("created")))
+                .addStatement("return created");
 
         provideMethodBuilders.add(provideMethodBuilder);
         return this;

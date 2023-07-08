@@ -3,13 +3,11 @@ package com.github.klee0kai.stone.test.lists.inject;
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.car.di.inject.CarInjectComponent;
 import com.github.klee0kai.test.car.model.CarInject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@Disabled("TODO")
 public class CarProtectInjectedTests {
 
     @Test
