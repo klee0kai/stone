@@ -70,7 +70,6 @@ public class WindowMappedReusableGcTests {
         assertNotEquals(windowStrong2, windowStrong2Reuse);
     }
 
-
     @Test
     public void gcWeakTest() {
         // Given
@@ -142,7 +141,6 @@ public class WindowMappedReusableGcTests {
         assertEquals(windowStrong1, windowStrong1Reuse);
         assertEquals(windowStrong2, windowStrong2Reuse);
     }
-
 
     @Test
     public void gcStrongTest() {

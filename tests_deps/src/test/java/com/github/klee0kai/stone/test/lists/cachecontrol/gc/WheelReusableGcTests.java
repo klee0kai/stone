@@ -32,7 +32,6 @@ public class WheelReusableGcTests {
         assertNotEquals(wheelStrong1, wheelStrong2);
     }
 
-
     @Test
     public void gcWeakTest() {
         // Given
@@ -78,7 +77,6 @@ public class WheelReusableGcTests {
         assertNotEquals(wheelSoft1, wheelSoft2);
         assertEquals(wheelStrong1, wheelStrong2);
     }
-
 
     @Test
     public void gcStrongTest() {

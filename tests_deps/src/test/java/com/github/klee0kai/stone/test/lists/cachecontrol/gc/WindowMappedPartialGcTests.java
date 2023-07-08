@@ -27,7 +27,6 @@ public class WindowMappedPartialGcTests {
         assertEquals(3, nonNullCount(windowStrong2));
     }
 
-
     @Test
     public void holdInListTest() {
         // Given
@@ -85,7 +84,6 @@ public class WindowMappedPartialGcTests {
         assertNotEquals(uids3.get(1), uids3Reused.get(1));
         assertEquals(uids3.get(2), uids3Reused.get(2));
     }
-
 
     private int nonNullCount(List<WeakReference<Window>> list) {
         int count = 0;

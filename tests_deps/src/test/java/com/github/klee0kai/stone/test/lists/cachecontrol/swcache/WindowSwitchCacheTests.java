@@ -1,8 +1,8 @@
-package com.github.klee0kai.stone.test.lists.cachecontrol.gc;
+package com.github.klee0kai.stone.test.lists.cachecontrol.swcache;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent;
+import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent;
 import com.github.klee0kai.test.car.model.Window;
 import org.junit.jupiter.api.Test;
 
@@ -11,76 +11,62 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class WindowGcTests {
+public class WindowSwitchCacheTests {
 
     @Test
-    public void createWorkCorrect() {
+    public void allWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-
-        //When
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
         List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
-        //Then
-        assertEquals(3, nonNullCount(windowsFactory));
+
+        //When
+        DI.allWeak();
+        System.gc();
+
+        // Then
+        assertEquals(0, nonNullCount(windowsFactory));
+        assertEquals(0, nonNullCount(windowWeak));
+        assertEquals(0, nonNullCount(windowSoft));
+        assertEquals(0, nonNullCount(windowStrong));
+    }
+
+    @Test
+    public void weakToStrongTest() {
+        // Given
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
+        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+
+        //When
+        DI.weakToStrongFewMillis();
+        System.gc();
+
+        // Then
+        assertEquals(0, nonNullCount(windowsFactory));
         assertEquals(3, nonNullCount(windowWeak));
         assertEquals(3, nonNullCount(windowSoft));
         assertEquals(3, nonNullCount(windowStrong));
     }
 
     @Test
-    public void createAfterGcWorkCorrect() {
+    public void weakToStrongAfterFewMillisTest() throws InterruptedException {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        DI.gcAll();
-
-        //When
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
-
-        //Then
-        assertEquals(3, nonNullCount(windowsFactory));
-        assertEquals(3, nonNullCount(windowWeak));
-        assertEquals(3, nonNullCount(windowSoft));
-        assertEquals(3, nonNullCount(windowStrong));
-    }
-
-    @Test
-    public void gcAllTest() {
-        // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
-
-
-        //When
-        DI.gcAll();
-
-        // Then
-        assertEquals(0, nonNullCount(windowsFactory));
-        assertEquals(0, nonNullCount(windowWeak));
-        assertEquals(0, nonNullCount(windowSoft));
-        assertEquals(0, nonNullCount(windowStrong));
-    }
-
-    @Test
-    public void gcWeakTest() {
-        // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
         List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
-        DI.gcWeak();
+        DI.weakToStrongFewMillis();
+        Thread.sleep(150);
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(windowsFactory));
@@ -90,16 +76,17 @@ public class WindowGcTests {
     }
 
     @Test
-    public void gcSoftTest() {
+    public void softToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
         List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
-        DI.gcSoft();
+        DI.softToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(windowsFactory));
@@ -109,16 +96,17 @@ public class WindowGcTests {
     }
 
     @Test
-    public void gcStrongTest() {
+    public void strongToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
         List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
-        DI.gcStrong();
+        DI.strongToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(windowsFactory));
@@ -128,16 +116,17 @@ public class WindowGcTests {
     }
 
     @Test
-    public void gcWindows() {
+    public void windowsToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
         List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
-        DI.gcWindows();
+        DI.windowsToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(windowsFactory));
@@ -147,16 +136,17 @@ public class WindowGcTests {
     }
 
     @Test
-    public void gcWindowsAndWheels() {
+    public void windowsAndWheelsToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
         List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
-        DI.gcWindowsAndWheels();
+        DI.windowsAndWheelsToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(windowsFactory));
@@ -166,9 +156,9 @@ public class WindowGcTests {
     }
 
     @Test
-    public void gcWheelsTest() {
+    public void wheelsToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
@@ -176,7 +166,8 @@ public class WindowGcTests {
 
 
         //When
-        DI.gcWheels();
+        DI.wheelsToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(windowsFactory));
@@ -186,16 +177,17 @@ public class WindowGcTests {
     }
 
     @Test
-    public void gcNothing() {
+    public void weakNothingTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
         List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
         List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
         List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
-        DI.gcNothing();
+        DI.nothingToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(windowsFactory));
@@ -203,7 +195,6 @@ public class WindowGcTests {
         assertEquals(3, nonNullCount(windowSoft));
         assertEquals(3, nonNullCount(windowStrong));
     }
-
 
     private int nonNullCount(List<WeakReference<Window>> list) {
         int count = 0;

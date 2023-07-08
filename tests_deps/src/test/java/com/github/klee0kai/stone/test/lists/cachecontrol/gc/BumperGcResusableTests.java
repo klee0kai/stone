@@ -35,7 +35,6 @@ public class BumperGcResusableTests {
         assertNotEquals(bumperStrongUids1, bumperStrongUids2);
     }
 
-
     @Test
     public void gcWeakTest() {
         // Given
@@ -81,7 +80,6 @@ public class BumperGcResusableTests {
         assertNotEquals(bumperSoftUids1, bumperSoftUids2);
         assertEquals(bumperStrongUids1, bumperStrongUids2);
     }
-
 
     @Test
     public void gcStrongTest() {

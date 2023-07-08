@@ -1,7 +1,7 @@
-package com.github.klee0kai.stone.test.lists.cachecontrol.gc;
+package com.github.klee0kai.stone.test.lists.cachecontrol.swcache;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent;
+import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent;
 import com.github.klee0kai.test.car.model.Wheel;
 import org.junit.jupiter.api.Test;
 
@@ -10,75 +10,104 @@ import java.lang.ref.WeakReference;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class WheelGcTests {
+public class WheelSwitchCacheTests {
 
     @Test
-    public void createWorkCorrect() {
+    public void allWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-
-        //When
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
-        //Then
-        assertNotNull(wheelFactory.get());
+        //When
+        DI.allWeak();
+        System.gc();
+
+        // Then
+        assertNull(wheelFactory.get());
+        assertNull(wheelWeak.get());
+        assertNull(wheelSoft.get());
+        assertNull(wheelStrong.get());
+    }
+
+    @Test
+    public void weakToStrongTest() {
+        // Given
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
+        WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
+        WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
+        WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
+        WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
+
+        //When
+        DI.weakToStrongFewMillis();
+        System.gc();
+
+        // Then
+        assertNull(wheelFactory.get());
         assertNotNull(wheelWeak.get());
         assertNotNull(wheelSoft.get());
         assertNotNull(wheelStrong.get());
     }
 
     @Test
-    public void createAfterGcWorkCorrect() {
+    public void weakToStrongAfterFewMillisTest() throws InterruptedException {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        DI.gcAll();
-
-        //When
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
-        //Then
-        assertNotNull(wheelFactory.get());
+        //When
+        DI.weakToStrongFewMillis();
+        Thread.sleep(150);
+        System.gc();
+
+
+        // Then
+        assertNull(wheelFactory.get());
+        assertNull(wheelWeak.get());
+        assertNotNull(wheelSoft.get());
+        assertNotNull(wheelStrong.get());
+    }
+
+    @Test
+    public void weakToSoftTest() {
+        // Given
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
+        WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
+        WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
+        WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
+        WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
+
+        //When
+        DI.weakToSoftFewMillis();
+        System.gc();
+
+        // Then
+        assertNull(wheelFactory.get());
         assertNotNull(wheelWeak.get());
         assertNotNull(wheelSoft.get());
         assertNotNull(wheelStrong.get());
     }
 
     @Test
-    public void gcAllTest() {
+    public void weakToSoftAfterFewMillisTest() throws InterruptedException {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
         //When
-        DI.gcAll();
+        DI.weakToSoftFewMillis();
+        Thread.sleep(150);
+        System.gc();
 
-        // Then
-        assertNull(wheelFactory.get());
-        assertNull(wheelWeak.get());
-        assertNull(wheelSoft.get());
-        assertNull(wheelStrong.get());
-    }
-
-    @Test
-    public void gcWeakTest() {
-        // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
-        WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
-        WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
-        WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
-
-        //When
-        DI.gcWeak();
 
         // Then
         assertNull(wheelFactory.get());
@@ -88,16 +117,17 @@ public class WheelGcTests {
     }
 
     @Test
-    public void gcSoftTest() {
+    public void softToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
         //When
-        DI.gcSoft();
+        DI.softToWeak();
+        System.gc();
 
         // Then
         assertNull(wheelFactory.get());
@@ -107,16 +137,17 @@ public class WheelGcTests {
     }
 
     @Test
-    public void gcStrongTest() {
+    public void strongToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
         //When
-        DI.gcStrong();
+        DI.strongToWeak();
+        System.gc();
 
         // Then
         assertNull(wheelFactory.get());
@@ -126,16 +157,17 @@ public class WheelGcTests {
     }
 
     @Test
-    public void gcWheelsTest() {
+    public void wheelsToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
         //When
-        DI.gcWheels();
+        DI.wheelsToWeak();
+        System.gc();
 
         // Then
         assertNull(wheelFactory.get());
@@ -145,16 +177,17 @@ public class WheelGcTests {
     }
 
     @Test
-    public void gcNothing() {
+    public void nothinToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
         //When
-        DI.gcNothing();
+        DI.nothingToWeak();
+        System.gc();
 
         // Then
         assertNull(wheelFactory.get());
@@ -164,16 +197,17 @@ public class WheelGcTests {
     }
 
     @Test
-    public void gcWindows() {
+    public void windowsToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
         //When
-        DI.gcWindows();
+        DI.windowsToWeak();
+        System.gc();
 
         // Then
         assertNull(wheelFactory.get());
@@ -183,16 +217,17 @@ public class WheelGcTests {
     }
 
     @Test
-    public void gcWindowsAndWheels() {
+    public void windowAndWheelsToWeak() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         WeakReference<Wheel> wheelFactory = DI.wheelsModule().wheelFactory();
         WeakReference<Wheel> wheelWeak = DI.wheelsModule().wheelWeak();
         WeakReference<Wheel> wheelSoft = DI.wheelsModule().wheelSoft();
         WeakReference<Wheel> wheelStrong = DI.wheelsModule().wheelStrong();
 
         //When
-        DI.gcWindowsAndWheels();
+        DI.windowsAndWheelsToWeak();
+        System.gc();
 
         // Then
         assertNull(wheelFactory.get());

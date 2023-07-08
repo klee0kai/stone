@@ -1,8 +1,8 @@
-package com.github.klee0kai.stone.test.lists.cachecontrol.gc;
+package com.github.klee0kai.stone.test.lists.cachecontrol.swcache;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent;
+import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent;
 import com.github.klee0kai.test.car.model.Bumper;
 import org.junit.jupiter.api.Test;
 
@@ -11,56 +11,61 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BumperGcTests {
+public class BumperSwitchCacheTests {
 
     @Test
-    public void createWorkCorrect() {
+    public void allWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-
-        //When
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
-        //Then
-        assertEquals(3, nonNullCount(bumperFactory));
+        //When
+        DI.allWeak();
+        System.gc();
+
+        // Then
+        assertEquals(0, nonNullCount(bumperFactory));
+        assertEquals(0, nonNullCount(bumperWeak));
+        assertEquals(0, nonNullCount(bumperSoft));
+        assertEquals(0, nonNullCount(bumperStrong));
+    }
+
+    @Test
+    public void weakToStrongTest() {
+        // Given
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
+        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+
+        //When
+        DI.weakToStrongFewMillis();
+        System.gc();
+
+        // Then
+        assertEquals(0, nonNullCount(bumperFactory));
         assertEquals(3, nonNullCount(bumperWeak));
         assertEquals(3, nonNullCount(bumperSoft));
         assertEquals(3, nonNullCount(bumperStrong));
     }
 
     @Test
-    public void gcAllTest() {
+    public void weakToStrongAfterFewMillisTest() throws InterruptedException {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
-        DI.gcAll();
-
-        // Then
-        assertEquals(0, nonNullCount(bumperFactory));
-        assertEquals(0, nonNullCount(bumperWeak));
-        assertEquals(0, nonNullCount(bumperSoft));
-        assertEquals(0, nonNullCount(bumperStrong));
-    }
-
-    @Test
-    public void gcWeakTest() {
-        // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
-
-        //When
-        DI.gcWeak();
+        DI.weakToStrongFewMillis();
+        Thread.sleep(150);
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -70,16 +75,17 @@ public class BumperGcTests {
     }
 
     @Test
-    public void gcSoftTest() {
+    public void softToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
-        DI.gcSoft();
+        DI.softToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -89,16 +95,17 @@ public class BumperGcTests {
     }
 
     @Test
-    public void gcStrongTest() {
+    public void strongToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
-        DI.gcStrong();
+        DI.strongToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -108,16 +115,17 @@ public class BumperGcTests {
     }
 
     @Test
-    public void gcBumpers() {
+    public void bumpersToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
-        DI.gcBumpers();
+        DI.bumpersToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -127,16 +135,17 @@ public class BumperGcTests {
     }
 
     @Test
-    public void gcRedBumpers() {
+    public void redBumpersToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
-        DI.gcRedBumpers();
+        DI.redBumpersToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -146,16 +155,17 @@ public class BumperGcTests {
     }
 
     @Test
-    public void gcRedBumpers2() {
+    public void redBumpersToWeak2Test() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
-        DI.gcRedBumpers2();
+        DI.redBumpersToWeak2();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -165,9 +175,9 @@ public class BumperGcTests {
     }
 
     @Test
-    public void gcWheelsTest() {
+    public void wheelsToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
@@ -175,7 +185,8 @@ public class BumperGcTests {
 
 
         //When
-        DI.gcWheels();
+        DI.wheelsToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -185,16 +196,17 @@ public class BumperGcTests {
     }
 
     @Test
-    public void gcNothing() {
+    public void nothingToWeakTest() {
         // Given
-        CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
+        CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
         List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
         List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
         List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
         List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
-        DI.gcNothing();
+        DI.nothingToWeak();
+        System.gc();
 
         // Then
         assertEquals(0, nonNullCount(bumperFactory));
@@ -202,7 +214,6 @@ public class BumperGcTests {
         assertEquals(3, nonNullCount(bumperSoft));
         assertEquals(3, nonNullCount(bumperStrong));
     }
-
 
     private int nonNullCount(List<WeakReference<Bumper>> list) {
         int count = 0;
@@ -211,6 +222,5 @@ public class BumperGcTests {
         }
         return count;
     }
-
 
 }
