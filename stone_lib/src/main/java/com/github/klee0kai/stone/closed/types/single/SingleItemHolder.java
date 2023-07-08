@@ -6,162 +6,132 @@ import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.types.wrappers.Ref;
 
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.github.klee0kai.stone.closed.types.single.ItemRefType.ListObject;
+import static com.github.klee0kai.stone.closed.types.single.ItemRefType.StrongObject;
 
 /**
  * Stone Private class
  */
-public abstract class SingleItemHolder<T> implements Ref<T> {
+public class SingleItemHolder<T> {
 
-    private static final int TYPE_OBJECT = 756;
-    private static final int TYPE_REF_OBJECT = 23;
-    private static final int TYPE_LIST_OBJECT = 432;
-    private static final int TYPE_LIST_REF_OBJECT = 2;
+    private final ItemRefType defType;
+    private ItemRefType curRefType;
 
-    private int refType = 0;
     private Object refHolder = null;
     private final AtomicInteger shedTaskCount = new AtomicInteger(0);
 
+    public SingleItemHolder(ItemRefType defType) {
+        this.defType = defType;
+        this.curRefType = defType;
+    }
 
-    abstract public T set(T ob);
-
-    abstract public List<T> setList(List<T> ob);
-
-
-    abstract public void defRef();
-
-    @Override
-    public T get() {
-        switch (refType) {
-            case TYPE_OBJECT:
+    public synchronized T get() {
+        switch (curRefType) {
+            case StrongObject:
                 return (T) refHolder;
-            case TYPE_REF_OBJECT:
-                return ((Reference<T>) refHolder).get();
+            case WeakObject:
+            case SoftObject:
+                Reference<T> ref = ((Reference<T>) refHolder);
+                return ref != null ? ref.get() : null;
             default:
                 return null;
         }
     }
 
-    public List<T> getList() {
-        switch (refType) {
-            case TYPE_LIST_OBJECT:
+    public synchronized List<T> getList() {
+        switch (curRefType) {
+            case ListObject:
                 return (List<T>) refHolder;
-            case TYPE_LIST_REF_OBJECT:
+            case ListWeakObject:
+            case ListSoftObject:
                 return ListUtils.format((List<Reference<T>>) refHolder, Reference::get);
             default:
                 return null;
         }
     }
 
-    public void setIfNull(T ob) {
-        if (get() == null) {
-            set(ob);
+
+    public synchronized void set(Ref<T> creator, boolean onlyIfNull) {
+        if (Objects.equals(curRefType, StrongObject)) {
+            if (refHolder != null && onlyIfNull) return;
+            refHolder = creator.get();
+            return;
+        }
+        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        if (formatter == null) return;
+        if (!onlyIfNull) {
+            //switch ref type case
+            refHolder = formatter.format(creator.get());
+        }
+
+        Reference<T> ref = (Reference<T>) refHolder;
+        if (ref == null || ref.get() == null) {
+            refHolder = formatter.format(creator.get());
         }
     }
 
-    public void setListIfNull(List<T> ob) {
-        if (get() == null) {
-            setList(ob);
+    public synchronized void setList(Ref<List<T>> creator, boolean onlyIfNull) {
+        if (Objects.equals(curRefType, ListObject)) {
+            if (onlyIfNull && refHolder != null) return;
+            refHolder = creator.get();
+            return;
+        }
+        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        if (formatter == null) return;
+        List<Reference<T>> refList = (List<Reference<T>>) refHolder;
+        if (refList == null || !onlyIfNull) {
+            refHolder = ListUtils.format(creator.get(), formatter);
+            return;
+        }
+        List<T> created = null;
+        for (int i = 0; i < refList.size(); i++) {
+            if (refList.get(i) == null || refList.get(i).get() == null) {
+                if (created == null) created = creator.get();
+                refList.set(i, formatter.format(created.get(i)));
+            }
         }
     }
 
-    public void setStrong(T ob) {
-        refType = TYPE_OBJECT;
-        refHolder = ob;
-    }
-
-    public void setSoft(T ob) {
-        refType = TYPE_REF_OBJECT;
-        refHolder = new SoftReference<>(ob);
-    }
-
-    public void setWeak(T ob) {
-        refType = TYPE_REF_OBJECT;
-        refHolder = new WeakReference<>(ob);
-    }
-
-
-    public void setStrongList(List<T> ob) {
-        refType = TYPE_LIST_OBJECT;
-        refHolder = ob;
-    }
-
-    public void setSoftList(List<T> ob) {
-        refType = TYPE_LIST_REF_OBJECT;
-        refHolder = ListUtils.format(ob, SoftReference::new);
-    }
-
-    public void setWeakList(List<T> ob) {
-        refType = TYPE_LIST_REF_OBJECT;
-        refHolder = ListUtils.format(ob, WeakReference::new);
-    }
-
-    public void strong() {
-        switch (refType) {
-            case TYPE_OBJECT:
-            case TYPE_REF_OBJECT:
-                setStrong(get());
-                break;
-            case TYPE_LIST_OBJECT:
-            case TYPE_LIST_REF_OBJECT:
-                setStrongList(getList());
-        }
-    }
-
-    public void soft() {
-        switch (refType) {
-            case TYPE_OBJECT:
-            case TYPE_REF_OBJECT:
-                setSoft(get());
-                break;
-            case TYPE_LIST_OBJECT:
-            case TYPE_LIST_REF_OBJECT:
-                setSoftList(getList());
-        }
-    }
-
-    public void weak() {
-        switch (refType) {
-            case TYPE_OBJECT:
-            case TYPE_REF_OBJECT:
-                setWeak(get());
-                break;
-            case TYPE_LIST_OBJECT:
-            case TYPE_LIST_REF_OBJECT:
-                setWeakList(getList());
+    public synchronized void setRefType(ItemRefType refType) {
+        if (curRefType == refType) return;
+        if (defType.isList()) {
+            List<T> ob = getList();
+            curRefType = refType.forList();
+            setList(() -> ob, false);
+        } else {
+            T ob = get();
+            curRefType = refType.forSingle();
+            set(() -> ob, false);
         }
     }
 
 
-    public void reset() {
-        refType = 0;
+    public synchronized void reset() {
+        curRefType = defType;
         refHolder = null;
     }
 
-    public boolean isList() {
-        return refType == TYPE_LIST_OBJECT || refType == TYPE_LIST_REF_OBJECT;
-    }
 
-
-    public void switchCache(SwitchCacheParam args) {
+    public synchronized void switchCache(SwitchCacheParam args) {
         switch (args.cache) {
             case Default:
-                defRef();
+                setRefType(defType);
                 break;
             case Reset:
                 reset();
-                break;
+                return;
             case Weak:
-                weak();
+                setRefType(ItemRefType.WeakObject);
                 break;
             case Soft:
-                soft();
+                setRefType(ItemRefType.SoftObject);
                 break;
             case Strong:
-                strong();
+                setRefType(ItemRefType.StrongObject);
                 break;
         }
 
@@ -170,8 +140,7 @@ public abstract class SingleItemHolder<T> implements Ref<T> {
             args.scheduler.schedule(new ScheduleTask(args.time) {
                 @Override
                 public void run() {
-                    if (shedTaskCount.decrementAndGet() <= 0)
-                        defRef();
+                    if (shedTaskCount.decrementAndGet() <= 0) setRefType(defType);
                 }
             });
         }

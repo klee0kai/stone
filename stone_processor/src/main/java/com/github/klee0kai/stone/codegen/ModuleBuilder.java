@@ -6,7 +6,8 @@ import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
-import com.github.klee0kai.stone.closed.types.single.WeakItemHolder;
+import com.github.klee0kai.stone.closed.types.single.ItemRefType;
+import com.github.klee0kai.stone.closed.types.single.SingleItemHolder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.itemholder.ItemCacheType;
 import com.github.klee0kai.stone.helpers.itemholder.ItemHolderCodeHelper;
@@ -16,6 +17,7 @@ import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.model.annotations.ModuleAnn;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.squareup.javapoet.*;
@@ -148,9 +150,9 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder overridedField() {
-        TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(WeakItemHolder.class), genCacheControlInterfaceModuleNameMirror(orModuleCl.className));
+        TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(SingleItemHolder.class), genCacheControlInterfaceModuleNameMirror(orModuleCl.className));
         FieldSpec.Builder builder = FieldSpec.builder(weakHolder, overridedModuleFieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T()", weakHolder);
+                .initializer("new $T($T.WeakObject)", weakHolder, ItemRefType.class);
         fields.put(overridedModuleFieldName, builder);
         return this;
     }
@@ -190,7 +192,7 @@ public class ModuleBuilder {
             builder
                     // check module class
                     .beginControlFlow("if ( (or instanceof $T) ) ", genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
-                    .addStatement("$L.set(($T) or)", overridedModuleFieldName, genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
+                    .addStatement("$L.set(() -> ($T) or, false)", overridedModuleFieldName, genCacheControlInterfaceModuleNameMirror(orModuleCl.className))
                     .addStatement("$L = ($T) (($T) or).$L() ", factoryFieldName, orModuleCl.className, IModule.class, getFactoryMethodName)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
@@ -427,7 +429,7 @@ public class ModuleBuilder {
         }
         if (setValueArg != null) {
             provideMethodBuilder.beginControlFlow("if ($L != null)", setValueArg.name)
-                    .addStatement(itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("$L", setValueArg.name)))
+                    .addStatement(itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("$L", setValueArg.name), false))
                     .endControlFlow();
         }
         provideMethodBuilder.addStatement("return $L", itemHolderCodeHelper.codeGetCachedValue());
@@ -439,7 +441,7 @@ public class ModuleBuilder {
         if (bindMethodBuilder != null) {
             bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, ClassNameUtils.rawTypeOf(m.returnType))
                     .addStatement(itemHolderCodeHelper.codeSetCachedValue(
-                            CodeBlock.of("($T) or", m.returnType)
+                            CodeBlock.of("($T) or", m.returnType), false
                     ))
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow();
@@ -498,28 +500,23 @@ public class ModuleBuilder {
                     .endControlFlow();
         }
 
-        //  check cached
+        // set value if null
+        String argStrList = String.join(",", ListUtils.format(m.args, (it) -> it.name));
         provideMethodBuilder
-                .addCode("if ( $L )", itemHolderCodeHelper.nonNullCheck())
+                .addCode("$T creator = () -> ", ParameterizedTypeName.get(ClassName.get(Ref.class), m.returnType))
+                .addCode(" $L.get() != null ? ", overridedModuleFieldName)
+                .addCode(
+                        " $L.get().$L( $L ) ",
+                        overridedModuleFieldName, m.methodName, argStrList)
+                .addCode(":")
+                .addCode(" $L.$L($L)", factoryFieldName, m.methodName, argStrList)
+                .addCode(";\n")
+                .addStatement(
+                        itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("creator.get()"), true)
+                )
+                //get cached value
                 .addStatement("return $L ", itemHolderCodeHelper.codeGetCachedValue());
 
-        if (fields.containsKey(overridedModuleFieldName)) {
-            // return from overrided module
-            provideMethodBuilder
-                    .beginControlFlow("if ($L.get() != null) ", overridedModuleFieldName)
-                    .addStatement(
-                            "return $L.get().$L( $L ) ",
-                            overridedModuleFieldName, m.methodName,
-                            String.join(",", ListUtils.format(m.args, (it) -> it.name))
-                    )
-                    .endControlFlow();
-        }
-
-        // gen new and return
-        provideMethodBuilder.addStatement("$T created = $L.$L($L)", m.returnType, factoryFieldName, m.methodName,
-                        String.join(",", ListUtils.format(m.args, (it) -> it.name)))
-                .addStatement(itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("created")))
-                .addStatement("return created");
 
         provideMethodBuilders.add(provideMethodBuilder);
         return this;
@@ -563,7 +560,7 @@ public class ModuleBuilder {
                 .beginControlFlow("case SET_VALUE:")
                 .beginControlFlow("if (__action.value instanceof $T)", ClassNameUtils.rawTypeOf(m.returnType))
                 .addStatement(itemHolderCodeHelper.codeSetCachedValue(
-                        CodeBlock.of("( $T ) __action.value", m.returnType)
+                        CodeBlock.of(" ( $T ) __action.value", m.returnType), false
                 ))
                 .endControlFlow()
                 .addStatement("break")
@@ -571,8 +568,8 @@ public class ModuleBuilder {
                 //set if null value
                 .beginControlFlow("case SET_IF_NULL:")
                 .beginControlFlow("if (__action.value instanceof $T)", ClassNameUtils.rawTypeOf(m.returnType))
-                .addStatement(itemHolderCodeHelper.codeSetCachedIfNullValue(
-                        CodeBlock.of("( $T ) __action.value", m.returnType)
+                .addStatement(itemHolderCodeHelper.codeSetCachedValue(
+                        CodeBlock.of(" ( $T ) __action.value", m.returnType), true
                 ))
                 .endControlFlow()
                 .addStatement("break")

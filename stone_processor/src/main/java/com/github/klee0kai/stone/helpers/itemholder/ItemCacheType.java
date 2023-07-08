@@ -5,6 +5,7 @@ import com.github.klee0kai.stone.annotations.component.GcStrongScope;
 import com.github.klee0kai.stone.annotations.component.GcWeakScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.closed.types.single.ItemRefType;
 import com.squareup.javapoet.ClassName;
 
 public enum ItemCacheType {
@@ -46,6 +47,32 @@ public enum ItemCacheType {
                 return ItemCacheType.Soft;
         }
         return ItemCacheType.Soft;
+    }
+
+    public ItemRefType toRefTypeSingle() {
+        switch (this) {
+            case Strong:
+                return ItemRefType.StrongObject;
+            case Soft:
+                return ItemRefType.SoftObject;
+            case Weak:
+                return ItemRefType.WeakObject;
+            default:
+                return null;
+        }
+    }
+
+    public ItemRefType toRefTypeList() {
+        switch (this) {
+            case Strong:
+                return ItemRefType.ListObject;
+            case Soft:
+                return ItemRefType.ListSoftObject;
+            case Weak:
+                return ItemRefType.ListWeakObject;
+            default:
+                return null;
+        }
     }
 
 }

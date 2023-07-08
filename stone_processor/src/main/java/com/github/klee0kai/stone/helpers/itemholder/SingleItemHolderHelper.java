@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
+import com.github.klee0kai.stone.closed.types.single.ItemRefType;
+import com.github.klee0kai.stone.closed.types.single.SingleItemHolder;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.squareup.javapoet.*;
 
@@ -14,21 +16,16 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
     public TypeName nonWrappedType;
 
     public TypeName returnType;
-    public ClassName holderType;
 
+    public ItemRefType defRefType;
     public boolean isListCaching;
+
 
     @Override
     public FieldSpec.Builder cachedField() {
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(holderType, nonWrappedType);
+        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(SingleItemHolder.class), nonWrappedType);
         return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T()", cacheType);
-    }
-
-    @Override
-    public CodeBlock nonNullCheck() {
-        String getMethod = isListCaching ? "getList" : "get";
-        return CodeBlock.of("$L.$L() != null ", fieldName, getMethod);
+                .initializer("new $T($T.$L)", cacheType, ItemRefType.class, defRefType.toString());
     }
 
     @Override
@@ -41,27 +38,16 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
     }
 
     @Override
-    public CodeBlock codeSetCachedValue(CodeBlock value) {
+    public CodeBlock codeSetCachedValue(CodeBlock value, boolean onlyIfNull) {
         String setMethod = isListCaching ? "setList" : "set";
         return SmartCode.builder()
-                .add(CodeBlock.of("$L.$L(", fieldName, setMethod))
+                .add(CodeBlock.of("$L.$L( ()-> ", fieldName, setMethod))
                 .add(transform(
                         SmartCode.of(value).providingType(returnType),
                         providingType()
-                )).add(")")
+                ))
+                .add(CodeBlock.of(", $L)", onlyIfNull))
                 .providingType(providingType())
-                .build(null);
-    }
-
-    @Override
-    public CodeBlock codeSetCachedIfNullValue(CodeBlock value) {
-        String setMethod = isListCaching ? "setListIfNull" : "setIfNull";
-        return SmartCode.builder()
-                .add(CodeBlock.of("$L.$L(", fieldName, setMethod))
-                .add(transform(
-                        SmartCode.of(value).providingType(returnType),
-                        providingType()
-                )).add(")")
                 .build(null);
     }
 

@@ -1,6 +1,8 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.map.MapItemHolder;
+import com.github.klee0kai.stone.closed.types.single.ItemRefType;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
@@ -14,27 +16,17 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
 
     public String fieldName;
     public TypeName nonWrappedType;
-
     public TypeName returnType;
-    public ClassName holderType;
-
+    public ItemRefType defRefType;
     public List<FieldDetail> keyArgs;
-
     public boolean isListCaching;
 
 
     @Override
     public FieldSpec.Builder cachedField() {
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(holderType, multiKeyClassName, nonWrappedType);
+        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(MapItemHolder.class), multiKeyClassName, nonWrappedType);
         return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T()", cacheType);
-    }
-
-    @Override
-    public CodeBlock nonNullCheck() {
-        String getMethod = isListCaching ? "getList" : "get";
-        return CodeBlock.of("$L.$L(new $T($L) ) != null", fieldName, getMethod, multiKeyClassName,
-                String.join(",", ListUtils.format(keyArgs, (k) -> k.name)));
+                .initializer("new $T($T.$L)", cacheType, ItemRefType.class, defRefType.toString());
     }
 
     @Override
@@ -48,28 +40,16 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     }
 
     @Override
-    public CodeBlock codeSetCachedValue(CodeBlock value) {
+    public CodeBlock codeSetCachedValue(CodeBlock value, boolean isOnlyIfNeed) {
         String setMethod = isListCaching ? "setList" : "set";
         return SmartCode.builder()
-                .add(CodeBlock.of("$L.$L( new $T( $L ), ", fieldName, setMethod, multiKeyClassName,
+                .add(CodeBlock.of("$L.$L( new $T( $L ), () ->  ", fieldName, setMethod, multiKeyClassName,
                         String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
                 .add(transform(
                         SmartCode.of(value).providingType(returnType),
                         providingType()
-                )).add(")")
-                .build(null);
-    }
-
-    @Override
-    public CodeBlock codeSetCachedIfNullValue(CodeBlock value) {
-        String setMethod = isListCaching ? "setListIfNull" : "setIfNull";
-        return SmartCode.builder()
-                .add(CodeBlock.of("$L.$L( new $T( $L ), ", fieldName, setMethod, multiKeyClassName,
-                        String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
-                .add(transform(
-                        SmartCode.of(value).providingType(returnType),
-                        providingType()
-                )).add(")")
+                ))
+                .add(CodeBlock.of(", $L )", isOnlyIfNeed))
                 .build(null);
     }
 

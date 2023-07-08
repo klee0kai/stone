@@ -3,48 +3,45 @@ package com.github.klee0kai.stone.closed.types.map;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.ScheduleTask;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
+import com.github.klee0kai.stone.closed.types.single.ItemRefType;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.github.klee0kai.stone.closed.types.single.ItemRefType.ListObject;
+import static com.github.klee0kai.stone.closed.types.single.ItemRefType.StrongObject;
 
 /**
  * Stone Private class
  */
-public abstract class MapItemHolder<Key, T> {
+public class MapItemHolder<Key, T> {
 
+    private final ItemRefType defType;
 
-    private static final int TYPE_OBJECT = 756;
-    private static final int TYPE_REF_OBJECT = 23;
-    private static final int TYPE_LIST_OBJECT = 432;
-    private static final int TYPE_LIST_REF_OBJECT = 2;
+    private ItemRefType curRefType;
 
-    private int refType = 0;
 
     private final HashMap<Key, Object> refMap = new HashMap<>();
     private final AtomicInteger shedTaskCount = new AtomicInteger(0);
 
 
-    abstract public T set(Key key, T ob);
-
-    abstract public List<T> setList(Key key, List<T> ob);
-
-
-    abstract public void defRef();
+    public MapItemHolder(ItemRefType defType) {
+        this.defType = defType;
+        this.curRefType = defType;
+    }
 
     public T get(Key key) {
         Object holder = refMap.get(key);
         if (holder == null) return null;
-        switch (refType) {
-            case TYPE_OBJECT:
+        switch (curRefType) {
+            case StrongObject:
                 return (T) holder;
-            case TYPE_REF_OBJECT:
-                return ((Reference<T>) holder).get();
+            case WeakObject:
+            case SoftObject:
+                Reference<T> ref = ((Reference<T>) holder);
+                return ref != null ? ref.get() : null;
         }
         return null;
     }
@@ -52,107 +49,81 @@ public abstract class MapItemHolder<Key, T> {
     public List<T> getList(Key key) {
         Object holder = refMap.get(key);
         if (holder == null) return null;
-        switch (refType) {
-            case TYPE_LIST_OBJECT:
+        switch (curRefType) {
+            case ListObject:
                 return (List<T>) holder;
-            case TYPE_LIST_REF_OBJECT:
+            case ListWeakObject:
+            case ListSoftObject:
                 return ListUtils.format((List<Reference<T>>) holder, Reference::get);
         }
         return null;
     }
 
-    public void setIfNull(Key key, T ob) {
-        if (get(key) == null) {
-            set(key, ob);
+    public void set(Key key, Ref<T> creator, boolean onlyIfNull) {
+        if (Objects.equals(curRefType, StrongObject)) {
+            if (onlyIfNull && refMap.get(key) != null) return;
+            refMap.put(key, creator.get());
+            return;
+        }
+        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        if (formatter == null) return;
+        if (!onlyIfNull) {
+            //switch ref type case
+            refMap.put(key, formatter.format(creator.get()));
+        }
+
+        Reference<T> ref = (Reference<T>) refMap.get(key);
+        if (ref == null || ref.get() == null) {
+            refMap.put(key, formatter.format(creator.get()));
         }
     }
 
-    public void setListIfNull(Key key, List<T> ob) {
-        if (get(key) == null) {
-            setList(key, ob);
+    public void setList(Key key, Ref<List<T>> creator, boolean onlyIfNull) {
+        if (Objects.equals(curRefType, ListObject)) {
+            if (onlyIfNull && refMap.get(key) != null) return;
+            refMap.put(key, creator.get());
+            return;
+        }
+        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        if (formatter == null) return;
+        List<Reference<T>> refList = (List<Reference<T>>) refMap.get(key);
+        if (refList == null || !onlyIfNull) {
+            refMap.put(key, ListUtils.format(creator.get(), formatter));
+            return;
+        }
+        List<T> created = null;
+        for (int i = 0; i < refList.size(); i++) {
+            if (refList.get(i) == null || refList.get(i).get() == null) {
+                if (created == null) created = creator.get();
+                refList.set(i, formatter.format(created.get(i)));
+            }
         }
     }
 
-    public void setStrong(Key key, T ob) {
-        refType = TYPE_OBJECT;
-        refMap.put(key, ob);
+
+    public void setRefType(ItemRefType refType) {
+        if (curRefType == refType) return;
+        if (defType.isList()) {
+            HashMap<Key, List<T>> listMap = new HashMap<>();
+            for (Key key : refMap.keySet()) listMap.put(key, getList(key));
+            curRefType = refType.forList();
+            for (Key key : listMap.keySet()) setList(key, () -> listMap.get(key), false);
+        } else {
+            HashMap<Key, T> itemMap = new HashMap<>();
+            for (Key key : refMap.keySet()) itemMap.put(key, get(key));
+            curRefType = refType.forList();
+            for (Key key : itemMap.keySet()) set(key, () -> itemMap.get(key), false);
+        }
     }
 
-    public void setSoft(Key key, T ob) {
-        refType = TYPE_REF_OBJECT;
-        refMap.put(key, new SoftReference<>(ob));
-    }
-
-    public void setWeak(Key key, T ob) {
-        refType = TYPE_REF_OBJECT;
-        refMap.put(key, new WeakReference<>(ob));
-    }
-
-
-    public void setStrongList(Key key, List<T> ob) {
-        refType = TYPE_LIST_OBJECT;
-        refMap.put(key, ob);
-    }
-
-    public void setSoftList(Key key, List<T> ob) {
-        refType = TYPE_LIST_REF_OBJECT;
-        refMap.put(key, ListUtils.format(ob, SoftReference::new));
-    }
-
-    public void setWeakList(Key key, List<T> ob) {
-        refType = TYPE_LIST_REF_OBJECT;
-        refMap.put(key, ListUtils.format(ob, WeakReference::new));
-    }
 
     public void remove(Key key) {
-        refType = 0;
         refMap.remove(key);
     }
 
-    public void strong() {
-        switch (refType) {
-            case TYPE_OBJECT:
-            case TYPE_REF_OBJECT:
-                for (Key k : refMap.keySet())
-                    setStrong(k, get(k));
-                break;
-            case TYPE_LIST_OBJECT:
-            case TYPE_LIST_REF_OBJECT:
-                for (Key k : refMap.keySet())
-                    setStrongList(k, getList(k));
-        }
-    }
-
-    public void soft() {
-        switch (refType) {
-            case TYPE_OBJECT:
-            case TYPE_REF_OBJECT:
-                for (Key k : refMap.keySet())
-                    setSoft(k, get(k));
-                break;
-            case TYPE_LIST_OBJECT:
-            case TYPE_LIST_REF_OBJECT:
-                for (Key k : refMap.keySet())
-                    setSoftList(k, getList(k));
-        }
-    }
-
-    public void weak() {
-        switch (refType) {
-            case TYPE_OBJECT:
-            case TYPE_REF_OBJECT:
-                for (Key k : refMap.keySet())
-                    setWeak(k, get(k));
-                break;
-            case TYPE_LIST_OBJECT:
-            case TYPE_LIST_REF_OBJECT:
-                for (Key k : refMap.keySet())
-                    setWeakList(k, getList(k));
-        }
-    }
 
     public void reset() {
-        refType = 0;
+        curRefType = defType;
         refMap.clear();
     }
 
@@ -166,32 +137,31 @@ public abstract class MapItemHolder<Key, T> {
     }
 
 
-    public void switchCache(SwitchCacheParam params) {
-        switch (params.cache) {
+    public void switchCache(SwitchCacheParam args) {
+        switch (args.cache) {
             case Default:
-                defRef();
+                setRefType(defType);
                 break;
             case Reset:
                 reset();
-                break;
+                return;
             case Weak:
-                weak();
+                setRefType(ItemRefType.WeakObject);
                 break;
             case Soft:
-                soft();
+                setRefType(ItemRefType.SoftObject);
                 break;
             case Strong:
-                strong();
+                setRefType(ItemRefType.StrongObject);
                 break;
         }
 
-        if (params.time > 0) {
+        if (args.time > 0) {
             shedTaskCount.incrementAndGet();
-            params.scheduler.schedule(new ScheduleTask(params.time) {
+            args.scheduler.schedule(new ScheduleTask(args.time) {
                 @Override
                 public void run() {
-                    if (shedTaskCount.decrementAndGet() <= 0)
-                        defRef();
+                    if (shedTaskCount.decrementAndGet() <= 0) setRefType(defType);
                 }
             });
         }
