@@ -15,7 +15,6 @@ import java.util.function.Function;
 
 public class GenArgumentFunctions {
 
-
     /**
      * Simple unwrap argument from wrapped type (WeakReference and other).
      * If you have arguments like <br>
@@ -45,9 +44,5 @@ public class GenArgumentFunctions {
             return null;
         };
     }
-
-
-
-
 
 }

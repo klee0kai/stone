@@ -6,7 +6,6 @@ public class ProvideBuilder<T> {
 
     public interface ProvideBody<T> {
         void provide(ProvideConsumer<T> consumer);
-
     }
 
     private ProvideBody<T> provideBody;
@@ -14,7 +13,6 @@ public class ProvideBuilder<T> {
     public ProvideBuilder(ProvideBody<T> provideBody) {
         this.provideBody = provideBody;
     }
-
 
     public T first() {
         ProvideConsumer<T> consumer = new ProvideConsumer<>();

@@ -421,10 +421,7 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
-            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(
-                    m.methodName,
-                    m.returnType,
-                    qFields);
+            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(m.methodName, m.returnType, qFields);
             if (smartCode == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()

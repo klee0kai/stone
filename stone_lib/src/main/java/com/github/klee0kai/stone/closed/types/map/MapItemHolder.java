@@ -147,18 +147,21 @@ public class MapItemHolder<Key, T> {
 
     public void clearNulls() {
         Set<Key> keys = new HashSet<>(refMap.keySet());
-        for (Key key : keys) {
-            if (!curRefType.isList()) {
+        if (!curRefType.isList()) {
+            for (Key key : keys) {
                 if (get(key) == null) {
                     refMap.remove(key);
                 }
-            } else {
+            }
+        } else {
+            for (Key key : keys) {
                 List<T> list = getList(key);
                 if (!ListUtils.contains(list, (i, it) -> it != null)) {
                     refMap.remove(key);
                 }
             }
         }
+
     }
 
 
@@ -166,7 +169,7 @@ public class MapItemHolder<Key, T> {
         switch (args.cache) {
             case Default:
                 setRefType(defType);
-                break;
+                return;
             case Reset:
                 reset();
                 return;

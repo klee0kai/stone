@@ -37,6 +37,7 @@ public class WrappersSupportBuilder {
 
         for (ClassName wrapper : provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers) {
             WrapType wrapType = new WrapType();
+            //TODO https://github.com/klee0kai/stone/issues/68
             wrapType.isNoCachingWrapper = false;
             wrapType.typeName = wrapper;
             wrapType.wrap = (or -> {

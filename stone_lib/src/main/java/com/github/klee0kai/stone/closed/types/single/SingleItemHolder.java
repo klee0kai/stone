@@ -135,7 +135,7 @@ public class SingleItemHolder<T> {
         switch (args.cache) {
             case Default:
                 setRefType(defType);
-                break;
+                return;
             case Reset:
                 reset();
                 return;

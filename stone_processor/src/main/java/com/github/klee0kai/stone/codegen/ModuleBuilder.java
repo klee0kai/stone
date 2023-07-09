@@ -529,9 +529,7 @@ public class ModuleBuilder {
         provideMethodBuilder
                 .addCode("$T creator = () -> ", ParameterizedTypeName.get(ClassName.get(Ref.class), m.returnType))
                 .addCode(" $L.get() != null ? ", overridedModuleFieldName)
-                .addCode(
-                        " $L.get().$L( $L ) ",
-                        overridedModuleFieldName, m.methodName, argStrList)
+                .addCode(" $L.get().$L( $L ) ", overridedModuleFieldName, m.methodName, argStrList)
                 .addCode(":")
                 .addCode(" $L.$L($L)", factoryFieldName, m.methodName, argStrList)
                 .addCode(";\n")

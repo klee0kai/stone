@@ -18,8 +18,8 @@ open class KotlinWrappersStone : Wrapper {
         }
     }
 
-    override fun <Wr : Any?, T : Any?> unwrap(wrapped: Wr): T {
-        TODO("Not yet implemented")
+    override fun <Wr : Any?, T : Any?> unwrap(wrapped: Wr): T? {
+        return (wrapped as? Lazy<T>)?.value
     }
 
 }

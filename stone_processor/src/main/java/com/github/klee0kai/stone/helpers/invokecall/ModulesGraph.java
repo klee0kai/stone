@@ -30,7 +30,7 @@ import static java.util.Collections.singleton;
 
 public class ModulesGraph {
 
-    public static boolean SIMPLE_PROVIDE_OPTIMIZING = false;
+    public static boolean SIMPLE_PROVIDE_OPTIMIZING = true;
 
     public final Set<ClassName> allQualifiers = new HashSet<>();
     private final HashMap<TypeName, List<InvokeCall>> provideTypeCodes = new HashMap<>();

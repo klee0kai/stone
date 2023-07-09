@@ -23,7 +23,7 @@ public class WrappersCreatorChecks {
     public static void checkWrapperClass(ClassDetail cl) {
         try {
             checkClassAnnotations(cl);
-            checkIWrapperCreatorInterface(cl);
+            checkWrapperCreatorInterface(cl);
             checkWrappingClasses(cl);
         } catch (Exception e) {
             throw new IncorrectSignatureException(
@@ -47,7 +47,7 @@ public class WrappersCreatorChecks {
         }
     }
 
-    private static void checkIWrapperCreatorInterface(ClassDetail cl) {
+    private static void checkWrapperCreatorInterface(ClassDetail cl) {
         ClassName wrClName = ClassName.get(Wrapper.class);
         boolean isWrapperCreatorInterface = false;
         for (ClassDetail p : cl.getAllParents(false))
