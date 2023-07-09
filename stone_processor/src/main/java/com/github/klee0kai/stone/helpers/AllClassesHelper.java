@@ -2,9 +2,9 @@ package com.github.klee0kai.stone.helpers;
 
 import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.closed.IModule;
+import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
-import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
@@ -165,6 +165,10 @@ public class AllClassesHelper {
      */
     public TypeElement typeElementFor(String canonicalName) {
         return elements.getTypeElement(canonicalName);
+    }
+
+    public TypeElement typeElementFor(ClassName canonicalName) {
+        return elements.getTypeElement(canonicalName.canonicalName());
     }
 
 }

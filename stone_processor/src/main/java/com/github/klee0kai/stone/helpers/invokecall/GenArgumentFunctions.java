@@ -30,8 +30,6 @@ public class GenArgumentFunctions {
             if (it.type instanceof ParameterizedTypeName) {
                 ParameterizedTypeName type = (ParameterizedTypeName) it.type;
                 TypeName orType = type.typeArguments.get(type.typeArguments.size() - 1);
-                if (Objects.equals(type.rawType, ClassName.get(PhantomProvide.IProvide.class)))
-                    return new Pair<>(orType, it.name + ".provide()");
                 if (Objects.equals(type.rawType, ClassName.get(PhantomProvide.class)))
                     return new Pair<>(orType, it.name + ".get()");
             }
@@ -46,6 +44,5 @@ public class GenArgumentFunctions {
             return null;
         };
     }
-
 
 }

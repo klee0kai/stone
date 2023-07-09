@@ -48,7 +48,6 @@ public class ClassDetail implements Cloneable {
      * Take class details from compile type element
      *
      * @param owner original element
-     * @return new ClassDetail object of this element
      */
     public ClassDetail(TypeElement owner) {
         className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());

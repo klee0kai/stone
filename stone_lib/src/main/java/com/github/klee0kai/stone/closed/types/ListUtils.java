@@ -24,7 +24,8 @@ public class ListUtils {
         boolean eq(T it1, T it2);
     }
 
-    public static <Tin, Tout> List<Tout> format(List<Tin> list, IFormat<Tin, Tout> format) {
+    public static <Tin, Tout> List<Tout> format(Iterable<Tin> list, IFormat<Tin, Tout> format) {
+        if (list == null) return null;
         LinkedList<Tout> touts = new LinkedList<>();
         if (list != null) for (Tin it : list) {
             touts.add(format.format(it));
@@ -41,13 +42,27 @@ public class ListUtils {
         return false;
     }
 
-    public static <T> T first(List<T> list, IFilter<T> filter) {
+    public static <T> T first(Iterable<T> list, IFilter<T> filter) {
         int idx = 0;
         if (list != null) for (T it : list) {
-            if (filter.filter(idx++, it))
+            if (filter == null || filter.filter(idx++, it))
                 return it;
         }
         return null;
+    }
+
+    public static <T> T first(Iterable<T> list) {
+        return first(list, null);
+    }
+
+    public static <T> int indexOf(List<T> list, IFilter<T> filter) {
+        int idx = 0;
+        if (list != null) for (T it : list) {
+            if (filter.filter(idx, it))
+                return idx;
+            else idx++;
+        }
+        return -1;
     }
 
     public static <Tin, Tout> Tout firstNotNull(List<Tin> list, IFormat<Tin, Tout> format) {
@@ -58,7 +73,8 @@ public class ListUtils {
         return null;
     }
 
-    public static <T> LinkedList<T> filter(List<T> list, IFilter<T> filter) {
+    public static <T> LinkedList<T> filter(Collection<T> list, IFilter<T> filter) {
+        if (list == null) return null;
         LinkedList<T> touts = new LinkedList<>();
         int idx = 0;
         if (list != null) for (T it : list) {
@@ -90,6 +106,20 @@ public class ListUtils {
         set.addAll(list);
         set.addAll(Arrays.asList(items));
         return set;
+    }
+
+    public static <T> boolean endWith(List<T> parentList, List<T> childList) {
+        if (parentList == null || childList == null) return false;
+        if (childList.size() > parentList.size()) return false;
+        int pSt = parentList.size() - childList.size();
+
+        Iterator<T> ch = childList.listIterator();
+        Iterator<T> p = parentList.listIterator(pSt);
+        while (ch.hasNext() && p.hasNext()) {
+            if (!Objects.equals(p.next(), ch.next()))
+                return false;
+        }
+        return !ch.hasNext() && !p.hasNext();
     }
 
     public static <T> LinkedList<T> removeDoubles(List<T> list, IEq<T> eqHelper) {

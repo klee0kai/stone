@@ -14,6 +14,7 @@ import java.util.*;
 
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.bindMethodName;
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.switchRefMethodName;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
 public class ModuleCacheControlInterfaceBuilder {
@@ -107,7 +108,7 @@ public class ModuleCacheControlInterfaceBuilder {
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                .returns(typeName)
+                .returns(listWrapTypeIfNeed(typeName))
                 .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build());
         for (FieldDetail q : qFields) {
             cacheControldMethodBuilder.addParameter(q.type, q.name);

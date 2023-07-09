@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.exceptions;
 
+import com.squareup.javapoet.TypeName;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -19,6 +21,12 @@ public class ExceptionStringBuilder {
         if (sb.length() > 0) sb.append(" ");
         sb.append("Cannot create component: ");
         sb.append(componentName);
+        return this;
+    }
+
+    public ExceptionStringBuilder cannotCreateWrappersHelper() {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append("Cannot create wrappers helper ");
         return this;
     }
 
@@ -60,6 +68,14 @@ public class ExceptionStringBuilder {
         sb.append(String.format(Locale.ROOT,
                 "WrappersCreator's class %s",
                 className));
+        return this;
+    }
+
+    public ExceptionStringBuilder wrapperShouldBeGenericType1(TypeName className) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(String.format(Locale.ROOT,
+                "WrapperClass %s should be genericType with one type argument. Like SmthWrapper<T>.class ",
+                className.toString()));
         return this;
     }
 
@@ -142,6 +158,15 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder shouldHaveAnnotations(String... annotations) {
+        if (sb.length() > 0) sb.append(" ");
+        String annList = String.join(", @", annotations);
+        sb.append(String.format(Locale.ROOT,
+                "should have @%s annotation",
+                annList));
+        return this;
+    }
+
 
     public ExceptionStringBuilder shouldNoHaveQualifier(String qualifier) {
         if (sb.length() > 0) sb.append(" ");
@@ -168,7 +193,7 @@ public class ExceptionStringBuilder {
 
     public ExceptionStringBuilder shouldImplementInterface(String interfaceType) {
         if (sb.length() > 0) sb.append(" ");
-        sb.append("should implement");
+        sb.append("should implement ");
         sb.append(interfaceType);
         return this;
     }
@@ -210,6 +235,15 @@ public class ExceptionStringBuilder {
         sb.append(String.format(Locale.ROOT,
                 "No found public constructor for class: %s with args: %s",
                 className, String.join(", ", argTypes)));
+        return this;
+    }
+
+
+    public ExceptionStringBuilder typeTransformNonSupport(TypeName or, TypeName dest) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(String.format(Locale.ROOT,
+                "Type Transform non support %s -> %s",
+                or.toString(), dest.toString()));
         return this;
     }
 

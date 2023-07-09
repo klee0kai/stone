@@ -3,9 +3,9 @@ package com.github.klee0kai.stone.types.wrappers;
 public class LazyProvide<T> implements Ref<T> {
 
     private T value = null;
-    private PhantomProvide.IProvide<T> call;
+    private Ref<T> call;
 
-    public LazyProvide(PhantomProvide.IProvide<T> call) {
+    public LazyProvide(Ref<T> call) {
         this.call = call;
     }
 
@@ -13,6 +13,6 @@ public class LazyProvide<T> implements Ref<T> {
     public T get() {
         if (value != null)
             return value;
-        return value = call.provide();
+        return value = call.get();
     }
 }

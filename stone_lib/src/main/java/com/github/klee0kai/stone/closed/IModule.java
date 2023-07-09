@@ -50,4 +50,11 @@ public interface IModule {
      */
     void __switchRef(Set<Class> scopes, SwitchCacheParam param);
 
+    /**
+     * Clear null refs.
+     * Useful after gc
+     */
+    void __clearNulls();
+
+
 }

@@ -1,15 +1,23 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
+import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import java.util.*;
 import java.util.function.Function;
 
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
+import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
+import static java.util.Collections.singleton;
 
 /**
  * Invoke sequence or call sequence.
@@ -25,7 +33,7 @@ public class InvokeCall {
      */
     public static final int INVOKE_PROVIDE_OBJECT_CACHED = 0x1;
 
-    public final List<MethodDetail> invokeSequence = new LinkedList<>();
+    public final List<List<MethodDetail>> invokeSequenceVariants = new LinkedList<>();
     public final int flags;
 
     /**
@@ -34,8 +42,8 @@ public class InvokeCall {
      * @param callSequence ordered methods in invoke sequence
      */
     public InvokeCall(MethodDetail... callSequence) {
-        this.invokeSequence.addAll(Arrays.asList(callSequence));
         this.flags = 0;
+        this.invokeSequenceVariants.add(Arrays.asList(callSequence));
     }
 
     /**
@@ -46,23 +54,45 @@ public class InvokeCall {
      * @param callSequence ordered methods in invoke sequence
      */
     public InvokeCall(int flags, MethodDetail... callSequence) {
-        this.invokeSequence.addAll(Arrays.asList(callSequence));
         this.flags = flags;
+        this.invokeSequenceVariants.add(Arrays.asList(callSequence));
+    }
+
+    /**
+     * Merge variants. All should return same type
+     *
+     * @param variants all variants from best to worse
+     */
+    public InvokeCall(Collection<InvokeCall> variants) {
+        int mergeflag = 0;
+        for (InvokeCall v : variants) {
+            mergeflag |= v.flags;
+            this.invokeSequenceVariants.addAll(v.invokeSequenceVariants);
+        }
+        this.flags = mergeflag;
+    }
+
+
+    public List<MethodDetail> bestSequence() {
+        return invokeSequenceVariants.get(0);
     }
 
     /**
      * Using arguments in invoke sequence
      *
+     * @param single only for best variant
      * @param filter filter arguments by except list. Null of no filter
      * @return collection of all argument's types
      */
-    public Set<TypeName> argTypes(Set<TypeName> filter) {
+    public Set<TypeName> argTypes(boolean single, Set<TypeName> filter) {
         Set<TypeName> argsTypes = new HashSet<>();
-        for (MethodDetail m : invokeSequence) {
-            List<TypeName> types = ListUtils.format(m.args, (it) -> it.type);
-            if (filter != null) types = ListUtils.filter(types, (inx, it) -> filter.contains(it));
-            argsTypes.addAll(types);
-        }
+        List<List<MethodDetail>> vars = single ? Collections.singletonList(bestSequence()) : invokeSequenceVariants;
+        for (List<MethodDetail> invokeSequence : vars)
+            for (MethodDetail m : invokeSequence) {
+                List<TypeName> types = ListUtils.format(m.args, (it) -> it.type);
+                if (filter != null) types = ListUtils.filter(types, (inx, it) -> filter.contains(it));
+                argsTypes.addAll(types);
+            }
         return argsTypes;
     }
 
@@ -72,6 +102,11 @@ public class InvokeCall {
      * @return return type
      */
     public TypeName resultType() {
+        return nonWrappedType(rawReturnType());
+    }
+
+    public TypeName rawReturnType() {
+        List<MethodDetail> invokeSequence = bestSequence();
         return invokeSequence.get(invokeSequence.size() - 1).returnType;
     }
 
@@ -93,8 +128,7 @@ public class InvokeCall {
 
         CodeBlock.Builder invokeBuilder = CodeBlock.builder();
         int invokeCount = 0;
-        for (MethodDetail m : invokeSequence) {
-
+        for (MethodDetail m : bestSequence()) {
             int argCount = 0;
             CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
             for (FieldDetail arg : m.args) {
@@ -109,4 +143,81 @@ public class InvokeCall {
         return invokeBuilder.build();
     }
 
+    public SmartCode invokeBest() {
+        return SmartCode
+                .builder()
+                .providingType(resultType())
+                .withLocals(builder -> transform(invokeSequence(bestSequence()), resultType()));
+    }
+
+    public SmartCode invokeAllToList() {
+        TypeName provType = ParameterizedTypeName.get(ClassName.get(List.class), resultType());
+        return SmartCode
+                .builder()
+                .providingType(provType)
+                .withLocals(builder -> {
+                    String listFieldName = genLocalFieldName();
+                    builder.add(CodeBlock.of("new $T( ( $L ) -> { \n",
+                            ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), resultType()), listFieldName
+                    ));
+                    for (List<MethodDetail> sequence : invokeSequenceVariants) {
+                        SmartCode seqCode = invokeSequence(sequence);
+                        if (WrapHelper.isList(seqCode.providingType)) {
+                            builder.add(listFieldName)
+                                    .add(".addAll(")
+                                    .add(transform(seqCode, provType))
+                                    .add(");\n");
+                        } else {
+                            builder.add(listFieldName)
+                                    .add(".add(")
+                                    .add(transform(seqCode, resultType()))
+                                    .add(");\n");
+                        }
+                    }
+                    builder.add(" }).all() ");
+                    return builder;
+                });
+    }
+
+
+    private SmartCode invokeSequence(List<MethodDetail> sequence) {
+        return SmartCode.builder().withLocals(builder -> {
+                    int invokeCount = 0;
+                    for (MethodDetail m : sequence) {
+                        if (invokeCount++ > 0) builder.add(".");
+                        builder.add(m.methodName)
+                                .add("(");
+
+                        int argCount = 0;
+                        for (FieldDetail arg : m.args) {
+                            if (argCount++ > 0) builder.add(", ");
+                            FieldDetail field = isList(arg.type) ? ListUtils.first(builder.getDeclaredFields(), (i, f) ->
+                                    isList(f.type) && Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
+                            ) : null;
+                            if (field == null) {
+                                //non list
+                                field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
+                                        Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
+                                );
+                            }
+
+                            if (field == null) {
+                                builder.add("null", null);
+                            } else {
+                                // unwrap type
+                                builder.add(
+                                        transform(SmartCode.of(field.name, singleton(field.name))
+                                                        .providingType(field.type),
+                                                arg.type
+                                        ));
+                            }
+                        }
+
+                        builder.add(")");
+                    }
+
+                    return builder;
+                })
+                .providingType(sequence.get(sequence.size() - 1).returnType);
+    }
 }

@@ -3,16 +3,15 @@ package com.github.klee0kai.stone;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.checks.ComponentChecks;
-import com.github.klee0kai.stone.codegen.ComponentBuilder;
-import com.github.klee0kai.stone.codegen.ModuleBuilder;
-import com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder;
-import com.github.klee0kai.stone.codegen.ModuleFactoryBuilder;
+import com.github.klee0kai.stone.codegen.*;
 import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
 import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
+import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
+import com.github.klee0kai.stone.utils.StoneNamingUtils;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 
@@ -37,11 +36,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     public static final String PROJECT_URL = "https://github.com/klee0kai/stone";
     public static final AllClassesHelper allClassesHelper = new AllClassesHelper();
-
+    private static final String DEBUG_PKG = null;
 
     public static ProcessingEnvironment env;
     public static Messager messager;
-
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
@@ -74,9 +72,43 @@ public class AnnotationProcessor extends AbstractProcessor {
             }
         }
 
+
+        try {
+            WrappersSupportBuilder wrappersBuilder = null;
+            for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
+                ClassDetail component = new ClassDetail((TypeElement) componentEl);
+                if (wrappersBuilder == null) {
+                    ClassName wrapperHelper = StoneNamingUtils.typeWrappersClass(component.className);
+                    wrappersBuilder = new WrappersSupportBuilder(wrapperHelper);
+                }
+
+                for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
+                    ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
+                    if (wrappedProviderCl != null) wrappersBuilder.addProvideWrapperField(wrappedProviderCl);
+                }
+            }
+
+            if (wrappersBuilder != null && !wrappersBuilder.isEmpty()) {
+                wrappersBuilder.buildAndWrite();
+            }
+        } catch (Throwable cause) {
+            throw new StoneException(
+                    createErrorMes()
+                            .cannotCreateWrappersHelper()
+                            .collectCauseMessages(cause)
+                            .build(),
+                    cause
+            );
+        }
+
+
         for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
             try {
                 ClassDetail module = new ClassDetail((TypeElement) moduleEl);
+                if (DEBUG_PKG != null && !((ClassName) module.className).packageName().contains(DEBUG_PKG)) {
+                    System.out.println("module skipped for debug " + module.className);
+                    continue;
+                }
 
                 ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
                 factoryBuilder.buildAndWrite();
@@ -107,6 +139,11 @@ public class AnnotationProcessor extends AbstractProcessor {
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
                 ComponentClassDetails component = new ComponentClassDetails((TypeElement) componentEl);
+                if (DEBUG_PKG != null && !((ClassName) component.className).packageName().contains(DEBUG_PKG)) {
+                    System.out.println("Component skipped for debug " + component.className);
+                    continue;
+                }
+
                 ComponentChecks.checkComponentClass(component);
 
                 ComponentBuilder.from(component)

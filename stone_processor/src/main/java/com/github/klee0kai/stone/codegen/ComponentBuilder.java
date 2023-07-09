@@ -5,13 +5,12 @@ import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
-import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
-import com.github.klee0kai.stone.exceptions.ExceptionStringBuilder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
-import com.github.klee0kai.stone.helpers.IProvideTypeWrapperHelper;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
+import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.invokecall.InvokeCall;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -30,6 +29,7 @@ import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
@@ -41,7 +41,6 @@ public class ComponentBuilder {
 
     public static final String refCollectionGlFieldName = "__refCollection";
     public static final String scheduleGlFieldName = "__scheduler";
-    public static final String provideWrappersGlFieldPrefixName = "__wrapperCreator";
     public static final String hiddenModuleFieldName = "__hiddenModule";
     public static final String relatedComponentsListFieldName = "__related";
     public static final String protectRecursiveField = "__protectRecursive";
@@ -56,7 +55,6 @@ public class ComponentBuilder {
 
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
-    public final LinkedList<WrapperCreatorField> wrapperCreatorFields = new LinkedList<>();
     public final List<MethodSpec.Builder> iComponentMethods = new LinkedList<>();
 
     public final CodeBlock.Builder initDepsCode = CodeBlock.builder();
@@ -81,10 +79,7 @@ public class ComponentBuilder {
     public static ComponentBuilder from(ComponentClassDetails component) {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className))
                 .implementIComponentMethods();
-        for (ClassName wrappedProvider : component.ann(ComponentAnn.class).wrapperProviders) {
-            ClassDetail wrappedProviderCl = allClassesHelper.findForType(wrappedProvider);
-            if (wrappedProviderCl != null) componentBuilder.addProvideWrapperField(wrappedProviderCl);
-        }
+
 
         for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
             if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)
@@ -176,17 +171,6 @@ public class ComponentBuilder {
                     FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
                             .initializer("new $T()", RefCollection.class)
             );
-        return this;
-    }
-
-    public ComponentBuilder addProvideWrapperField(ClassDetail provideWrappersCl) {
-        String name = provideWrappersGlFieldPrefixName + wrapperCreatorFields.size();
-        wrapperCreatorFields.add(new WrapperCreatorField(
-                name,
-                provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers,
-                FieldSpec.builder(provideWrappersCl.className, name, Modifier.PRIVATE, Modifier.FINAL)
-                        .initializer("new $T()", provideWrappersCl.className)
-        ));
         return this;
     }
 
@@ -437,13 +421,12 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
-            IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(m.returnType, wrapperCreatorFields);
-            CodeBlock statementBlock = orComponentCl.modulesGraph.statementProvideType("ph", null, provideTypeWrapperHelper.providingType(), qFields);
-            if (statementBlock == null) {
+            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(m.methodName, m.returnType, qFields);
+            if (smartCode == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideTypeRequiredIn(
-                                        provideTypeWrapperHelper.providingType().toString(),
+                                        m.returnType.toString(),
                                         orComponentCl.className.toString(),
                                         m.methodName
                                 )
@@ -451,11 +434,9 @@ public class ComponentBuilder {
                         null
                 );
             }
-            builder.addCode(statementBlock)
-                    .addStatement(
-                            "return $L",
-                            provideTypeWrapperHelper.provideCode(CodeBlock.of("ph.provide()"))
-                    );
+            builder.addCode("return ")
+                    .addCode(smartCode.build(qFields))
+                    .addCode(";\n");
         });
         return this;
     }
@@ -465,9 +446,9 @@ public class ComponentBuilder {
         List<FieldDetail> qFields = ListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type)
         );
-        boolean isProvideMethod = !(m.returnType.isPrimitive() || m.returnType.isBoxedPrimitive() || Objects.equals(m.returnType, TypeName.VOID));
-        FieldDetail setValueArg = isProvideMethod ? ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType))
-                : ListUtils.first(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.qualifiers.contains(it.type));
+        FieldDetail setValueArg = ListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.qualifiers.contains(it.type));
+        TypeName nonWrappedBindType = nonWrappedType(setValueArg.type);
+        boolean isProvideMethod = Objects.equals(nonWrappedType(m.returnType), nonWrappedBindType);
 
         MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
@@ -479,24 +460,35 @@ public class ComponentBuilder {
 
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             // bind object declared in module
-            if (setValueArg != null) {
-                InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(m.methodName, setValueArg.type, qFields);
-                builder.addStatement(cacheControlInvoke.invokeCode(qFields,
-                                typeName -> CodeBlock.of(
-                                        "$T.setValueAction( $L )",
-                                        CacheAction.class, setValueArg.name
-                                )))
-                        .addStatement(
-                                "$L( (module) -> { module.$L( $L() ); } )",
-                                eachModuleMethodName,
-                                ModuleBuilder.updateBindInstancesFrom,
-                                cacheControlInvoke.invokeSequence.get(0).methodName
-                        );
-            }
+            InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(m.methodName, nonWrappedBindType, qFields);
+            boolean isListCache = isList(cacheControlInvoke.rawReturnType());
+            TypeName cacheControlType = isListCache ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedBindType) : nonWrappedBindType;
+            builder.addStatement(cacheControlInvoke.invokeCode(qFields,
+                            typeName -> SmartCode.builder()
+                                    .add(CodeBlock.of("$T.setValueAction(", CacheAction.class))
+                                    .add(transform(
+                                            SmartCode.of(setValueArg.name).providingType(setValueArg.type),
+                                            cacheControlType
+                                    ))
+                                    .add(")")
+                                    .build(null)
+                    ))
+                    .addStatement(
+                            "$L( (module) -> { module.$L( $L() ); } )",
+                            eachModuleMethodName,
+                            ModuleBuilder.updateBindInstancesFrom,
+                            cacheControlInvoke.bestSequence().get(0).methodName
+                    );
+
 
             if (isProvideMethod) {
-                builder.addCode(orComponentCl.modulesGraph.statementProvideType("gh", m.methodName, m.returnType, qFields))
-                        .addStatement("return gh.provide()");
+                builder.addCode("return ")
+                        .addCode(
+                                transform(
+                                        orComponentCl.modulesGraph.codeProvideType(m.methodName, nonWrappedBindType, qFields),
+                                        m.returnType
+                                ).build(m.args))
+                        .addCode(";\n");
             }
 
         });
@@ -534,15 +526,13 @@ public class ComponentBuilder {
 
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
-
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                    CodeBlock provideStatement = orComponentCl.modulesGraph.statementProvideType(injectField.name + "Ph", null, provideTypeWrapperHelper.providingType(), qFields);
-                    if (provideStatement == null) {
+                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, qFields);
+                    if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
                                         .errorProvideTypeRequiredIn(
-                                                provideTypeWrapperHelper.providingType().toString(),
+                                                injectField.type.toString(),
                                                 injectableCl.className.toString(),
                                                 injectField.name
                                         )
@@ -550,15 +540,10 @@ public class ComponentBuilder {
                                 null
                         );
                     }
-
-                    builder.addCode(provideStatement)
-                            .addStatement(
-                                    "$L.$L",
-                                    injectableField.name,
-                                    setFieldHelper.codeSetField(
-                                            provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", injectField.name + "Ph"))
-                                    )
-                            );
+                    builder.addCode(injectableField.name)
+                            .addCode(".")
+                            .addCode(setFieldHelper.codeSetField(provideCode.build(qFields)))
+                            .addCode(";\n");
                 }
 
                 for (MethodDetail injectMethod : injectableCl.getAllMethods(false, false, "<init>")) {
@@ -566,14 +551,12 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        String provideFieldName = injectMethod.methodName + "_" + injectField.name;
-                        IProvideTypeWrapperHelper provideTypeWrapperHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                        CodeBlock provideStatement = orComponentCl.modulesGraph.statementProvideType(provideFieldName, null, provideTypeWrapperHelper.providingType(), qFields);
-                        if (provideStatement == null) {
+                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, qFields);
+                        if (provideCode == null) {
                             throw new ObjectNotProvidedException(
-                                    ExceptionStringBuilder.createErrorMes()
+                                    createErrorMes()
                                             .errorProvideTypeRequiredIn(
-                                                    provideTypeWrapperHelper.providingType().toString(),
+                                                    injectField.type.toString(),
                                                     injectableCl.className.toString(),
                                                     injectField.name
                                             )
@@ -582,14 +565,13 @@ public class ComponentBuilder {
                             );
                         }
 
-                        builder.addCode(provideStatement);
-
                         if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
-                        providingArgsCode.add(provideTypeWrapperHelper.provideCode(CodeBlock.of("$L.provide()", provideFieldName)));
-
+                        providingArgsCode.add(provideCode.build(m.args));
                     }
 
-                    builder.addStatement("$L.$L( $L )", injectableField.name, injectMethod.methodName, providingArgsCode.build());
+                    builder.addCode("$L.$L( ", injectableField.name, injectMethod.methodName)
+                            .addCode(providingArgsCode.build())
+                            .addCode("); \n");
                 }
 
             }
@@ -605,8 +587,7 @@ public class ComponentBuilder {
                     subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
-                        IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                        if (injectHelper.isGenerateWrapper())
+                        if (WrapHelper.isNonCachingWrapper(injectField.type))
                             //nothing to protect
                             continue;
 
@@ -641,8 +622,7 @@ public class ComponentBuilder {
         collectRuns.execute(createErrorMes().errorImplementMethod(name).build(), () -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
-                IProvideTypeWrapperHelper injectHelper = IProvideTypeWrapperHelper.findHelper(injectField.type, wrapperCreatorFields);
-                if (injectHelper.isGenerateWrapper())
+                if (WrapHelper.isNonCachingWrapper(injectField.type))
                     //nothing to protect
                     continue;
 
@@ -693,7 +673,8 @@ public class ComponentBuilder {
                     .addStatement("$T.gc()", System.class)
                     .addStatement("$L.clearNulls()", relatedComponentsListFieldName)
                     .addStatement(
-                            "$L( (m) -> {  m.$L(scopes, toDef); } )",
+
+                            "$L( (m) -> {  m.__clearNulls(); m.$L(scopes, toDef); } )",
                             eachModuleMethodName, ModuleBuilder.switchRefMethodName
                     );
 
@@ -762,8 +743,6 @@ public class ComponentBuilder {
         for (FieldSpec.Builder field : fields.values())
             typeSpecBuilder.addField(field.build());
 
-        for (WrapperCreatorField field : wrapperCreatorFields)
-            typeSpecBuilder.addField(field.fieldBuilder.build());
 
         for (FieldSpec.Builder field : depsFields.values())
             typeSpecBuilder.addField(field.build());
