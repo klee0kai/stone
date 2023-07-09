@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
 import com.github.klee0kai.stone.closed.types.MultiKey;
+import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -58,7 +59,7 @@ public interface ItemHolderCodeHelper {
 
     CodeBlock clearNullsStatement();
 
-    CodeBlock codeGetCachedValue();
+    SmartCode codeGetCachedValue();
 
     CodeBlock codeSetCachedValue(CodeBlock value, boolean onlyIfNull);
 

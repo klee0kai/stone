@@ -7,9 +7,8 @@ import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
-import java.util.List;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
 
 public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
 
@@ -39,12 +38,10 @@ public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
     }
 
     @Override
-    public CodeBlock codeGetCachedValue() {
+    public SmartCode codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
-        return transform(
-                SmartCode.of(CodeBlock.of("$L.$L($L)", fieldName, getMethod, keyParam.name))
-                        .providingType(providingType()),
-                returnType).build(null);
+        return SmartCode.of(CodeBlock.of("$L.$L($L)", fieldName, getMethod, keyParam.name))
+                .providingType(listWrapTypeIfNeed(returnType));
     }
 
     @Override
@@ -52,10 +49,7 @@ public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
         String setMethod = isListCaching ? "setList" : "set";
         return SmartCode.builder()
                 .add(CodeBlock.of("$L.$L( $L, () -> ", fieldName, setMethod, keyParam.name))
-                .add(transform(
-                        SmartCode.of(value).providingType(returnType),
-                        providingType()
-                ))
+                .add(value)
                 .add(CodeBlock.of(", $L )", isOnlyIfNeed))
                 .build(null);
     }
@@ -65,10 +59,6 @@ public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
         return CodeBlock.builder()
                 .addStatement("$L.switchCache($L)", fieldName, paramsCode)
                 .build();
-    }
-
-    private TypeName providingType() {
-        return isListCaching ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedType) : nonWrappedType;
     }
 
 

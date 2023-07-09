@@ -13,6 +13,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
 import javax.inject.Provider;
+import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -79,6 +80,12 @@ public class WrapHelper {
                 return nonWrappedType(par.typeArguments.get(0));
         }
         return typeName;
+    }
+
+    public static TypeName listWrapTypeIfNeed(TypeName typeName) {
+        if (isList(typeName))
+            return ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedType(typeName));
+        return nonWrappedType(typeName);
     }
 
     public static List<TypeName> allParamTypes(TypeName typeName) {
@@ -160,17 +167,18 @@ public class WrapHelper {
     }
 
     private static void std() {
-        for (Class cl : Arrays.asList(WeakReference.class, SoftReference.class)) {
+        for (Class cl : Arrays.asList(WeakReference.class, SoftReference.class, Reference.class)) {
             ClassName wrapper = ClassName.get(cl);
+            ClassName creator = !Objects.equals(cl, Reference.class) ? wrapper : ClassName.get(WeakReference.class);
 
             WrapType wrapType = new WrapType();
             wrapType.isNoCachingWrapper = false;
             wrapType.typeName = wrapper;
             wrapType.wrap = (or) -> {
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("new $T( ", wrapper))
+                        .add(CodeBlock.of("$T.let(", NullGet.class))
                         .add(or)
-                        .add(" )");
+                        .add(CodeBlock.of(", $T::new )", creator));
                 if (or.providingType != null)
                     builder.providingType(ParameterizedTypeName.get(wrapper, or.providingType));
                 return builder;
@@ -232,13 +240,13 @@ public class WrapHelper {
             wrapType.wrap = (or) -> {
                 SmartCode builder = SmartCode.builder();
                 if (needConstructor)
-                    builder.add(CodeBlock.of("new $T( ", createType));
+                    builder.add(CodeBlock.of("$T.let( ", NullGet.class));
 
-                builder.add(CodeBlock.of("$T.asList( ", Arrays.class))
+                builder.add(CodeBlock.of("$T.list( ", NullGet.class))
                         .add(or)
                         .add(")");
 
-                if (needConstructor) builder.add(")");
+                if (needConstructor) builder.add(CodeBlock.of(", $T::new)", createType));
                 if (or.providingType != null)
                     builder.providingType(ParameterizedTypeName.get(wrapper, or.providingType));
                 return builder;
@@ -257,9 +265,9 @@ public class WrapHelper {
             wrapType.inListFormat = (originalListCode, itemTransformFun) -> {
                 SmartCode builder = SmartCode.builder();
                 boolean isListNeedConstructor = needConstructor
-                        || originalListCode.providingType != null && !Objects.equals(wrapper, originalListCode.providingType);
+                        || originalListCode.providingType != null && !Objects.equals(rawTypeOf(wrapper), rawTypeOf(originalListCode.providingType));
 
-                if (isListNeedConstructor) builder.add(CodeBlock.of("new $T( ", createType));
+                if (isListNeedConstructor) builder.add(CodeBlock.of("$T.let( ", NullGet.class));
 
                 SmartCode itemTransform = itemTransformFun.formatCode(SmartCode.of("it", null));
                 if (itemTransform.getSize() <= 1) {
@@ -273,7 +281,7 @@ public class WrapHelper {
                             .add(") ");
 
                 }
-                if (isListNeedConstructor) builder.add(")");
+                if (isListNeedConstructor) builder.add(CodeBlock.of(", $T::new)", createType));
 
                 if (originalListCode.providingType != null)
                     builder.providingType(rawTypeOf(originalListCode.providingType));

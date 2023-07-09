@@ -24,8 +24,7 @@ import java.util.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
 import static java.util.Collections.singleton;
 
@@ -47,7 +46,7 @@ public class ModulesGraph {
     public void collectFromModule(MethodDetail provideModuleMethod, ClassDetail module) {
         ClassDetail iModuleInterface = AnnotationProcessor.allClassesHelper.iModule;
         for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
-            TypeName provTypeName = WrapHelper.nonWrappedType(m.returnType);
+            TypeName provTypeName = nonWrappedType(m.returnType);
             if (provTypeName.isPrimitive() || provTypeName == TypeName.VOID)
                 continue;
             if (iModuleInterface.findMethod(m, false) != null)
@@ -66,7 +65,7 @@ public class ModulesGraph {
                     continue;
                 cacheControlMethod.args.add(it);
             }
-            cacheControlMethod.returnType = provTypeName;
+            cacheControlMethod.returnType = listWrapTypeIfNeed(m.returnType);
 
             cacheControlTypeCodes.putIfAbsent(provTypeName, new LinkedList<>());
             cacheControlTypeCodes.get(provTypeName).add(new InvokeCall(provideModuleMethod, cacheControlMethod));

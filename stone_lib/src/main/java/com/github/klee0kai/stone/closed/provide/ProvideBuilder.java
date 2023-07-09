@@ -1,12 +1,11 @@
 package com.github.klee0kai.stone.closed.provide;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class ProvideBuilder<T> {
 
     public interface ProvideBody<T> {
-        void provide(LinkedList<T> consumer);
+        void provide(ProvideConsumer<T> consumer);
 
     }
 
@@ -18,14 +17,14 @@ public class ProvideBuilder<T> {
 
 
     public T first() {
-        LinkedList<T> list = new LinkedList<>();
-        provideBody.provide(list);
-        return list.isEmpty() ? null : list.getFirst();
+        ProvideConsumer<T> consumer = new ProvideConsumer<>();
+        provideBody.provide(consumer);
+        return consumer.getFirst();
     }
 
     public List<T> all() {
-        LinkedList<T> list = new LinkedList<>();
-        provideBody.provide(list);
-        return list;
+        ProvideConsumer<T> consumer = new ProvideConsumer<>();
+        provideBody.provide(consumer);
+        return consumer.getList();
     }
 }

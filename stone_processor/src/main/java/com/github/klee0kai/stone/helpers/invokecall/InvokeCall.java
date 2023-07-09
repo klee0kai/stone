@@ -102,8 +102,12 @@ public class InvokeCall {
      * @return return type
      */
     public TypeName resultType() {
+        return nonWrappedType(rawReturnType());
+    }
+
+    public TypeName rawReturnType() {
         List<MethodDetail> invokeSequence = bestSequence();
-        return WrapHelper.nonWrappedType(invokeSequence.get(invokeSequence.size() - 1).returnType);
+        return invokeSequence.get(invokeSequence.size() - 1).returnType;
     }
 
     /**

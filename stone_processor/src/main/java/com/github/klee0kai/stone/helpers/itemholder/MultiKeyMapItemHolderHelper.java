@@ -10,7 +10,7 @@ import com.squareup.javapoet.*;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
 
 public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
 
@@ -38,13 +38,11 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
 
 
     @Override
-    public CodeBlock codeGetCachedValue() {
+    public SmartCode codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
-        return transform(
-                SmartCode.of(CodeBlock.of("$L.$L(new $T($L) )", fieldName, getMethod, multiKeyClassName,
-                                String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
-                        .providingType(providingType()),
-                returnType).build(null);
+        return SmartCode.of(CodeBlock.of("$L.$L(new $T($L) )", fieldName, getMethod, multiKeyClassName,
+                        String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
+                .providingType(listWrapTypeIfNeed(returnType));
     }
 
     @Override
@@ -53,10 +51,7 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
         return SmartCode.builder()
                 .add(CodeBlock.of("$L.$L( new $T( $L ), () ->  ", fieldName, setMethod, multiKeyClassName,
                         String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
-                .add(transform(
-                        SmartCode.of(value).providingType(returnType),
-                        providingType()
-                ))
+                .add(value)
                 .add(CodeBlock.of(", $L )", isOnlyIfNeed))
                 .build(null);
     }
@@ -66,10 +61,6 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
         return CodeBlock.builder()
                 .addStatement("$L.switchCache($L)", fieldName, paramsCode)
                 .build();
-    }
-
-    private TypeName providingType() {
-        return isListCaching ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedType) : nonWrappedType;
     }
 
 

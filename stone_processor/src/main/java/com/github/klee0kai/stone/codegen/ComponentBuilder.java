@@ -29,6 +29,7 @@ import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.*;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
@@ -448,9 +449,9 @@ public class ComponentBuilder {
         List<FieldDetail> qFields = ListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type)
         );
-        boolean isProvideMethod = !(m.returnType.isPrimitive() || m.returnType.isBoxedPrimitive() || Objects.equals(m.returnType, TypeName.VOID));
-        FieldDetail setValueArg = isProvideMethod ? ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType))
-                : ListUtils.first(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.qualifiers.contains(it.type));
+        FieldDetail setValueArg = ListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.qualifiers.contains(it.type));
+        TypeName nonWrappedBindType = nonWrappedType(setValueArg.type);
+        boolean isProvideMethod = Objects.equals(nonWrappedType(m.returnType), nonWrappedBindType);
 
         MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
@@ -462,25 +463,34 @@ public class ComponentBuilder {
 
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             // bind object declared in module
-            if (setValueArg != null) {
-                InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(m.methodName, setValueArg.type, qFields);
-                builder.addStatement(cacheControlInvoke.invokeCode(qFields,
-                                typeName -> CodeBlock.of(
-                                        "$T.setValueAction( $L )",
-                                        CacheAction.class, setValueArg.name
-                                )))
-                        .addStatement(
-                                "$L( (module) -> { module.$L( $L() ); } )",
-                                eachModuleMethodName,
-                                ModuleBuilder.updateBindInstancesFrom,
-                                cacheControlInvoke.bestSequence().get(0).methodName
-                        );
-            }
+            InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(m.methodName, nonWrappedBindType, qFields);
+            boolean isListCache = isList(cacheControlInvoke.rawReturnType());
+            TypeName cacheControlType = isListCache ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedBindType) : nonWrappedBindType;
+            builder.addStatement(cacheControlInvoke.invokeCode(qFields,
+                            typeName -> SmartCode.builder()
+                                    .add(CodeBlock.of("$T.setValueAction(", CacheAction.class))
+                                    .add(transform(
+                                            SmartCode.of(setValueArg.name).providingType(setValueArg.type),
+                                            cacheControlType
+                                    ))
+                                    .add(")")
+                                    .build(null)
+                    ))
+                    .addStatement(
+                            "$L( (module) -> { module.$L( $L() ); } )",
+                            eachModuleMethodName,
+                            ModuleBuilder.updateBindInstancesFrom,
+                            cacheControlInvoke.bestSequence().get(0).methodName
+                    );
+
 
             if (isProvideMethod) {
                 builder.addCode("return ")
-                        .addCode(orComponentCl.modulesGraph.codeProvideType(m.methodName, m.returnType, qFields)
-                                .build(m.args))
+                        .addCode(
+                                transform(
+                                        orComponentCl.modulesGraph.codeProvideType(m.methodName, nonWrappedBindType, qFields),
+                                        m.returnType
+                                ).build(m.args))
                         .addCode(";\n");
             }
 

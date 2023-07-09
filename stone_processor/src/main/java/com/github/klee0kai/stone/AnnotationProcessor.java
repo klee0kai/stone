@@ -36,11 +36,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     public static final String PROJECT_URL = "https://github.com/klee0kai/stone";
     public static final AllClassesHelper allClassesHelper = new AllClassesHelper();
-
+    private static final String DEBUG_PKG = null;
 
     public static ProcessingEnvironment env;
     public static Messager messager;
-
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
@@ -103,11 +102,13 @@ public class AnnotationProcessor extends AbstractProcessor {
         }
 
 
-
-
         for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
             try {
                 ClassDetail module = new ClassDetail((TypeElement) moduleEl);
+                if (DEBUG_PKG != null && !((ClassName) module.className).packageName().contains(DEBUG_PKG)) {
+                    System.out.println("module skipped for debug " + module.className);
+                    continue;
+                }
 
                 ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
                 factoryBuilder.buildAndWrite();
@@ -138,6 +139,11 @@ public class AnnotationProcessor extends AbstractProcessor {
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
                 ComponentClassDetails component = new ComponentClassDetails((TypeElement) componentEl);
+                if (DEBUG_PKG != null && !((ClassName) component.className).packageName().contains(DEBUG_PKG)) {
+                    System.out.println("Component skipped for debug " + component.className);
+                    continue;
+                }
+
                 ComponentChecks.checkComponentClass(component);
 
                 ComponentBuilder.from(component)

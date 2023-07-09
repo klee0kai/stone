@@ -6,9 +6,8 @@ import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
-import java.util.List;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
 
 public class SingleItemHolderHelper implements ItemHolderCodeHelper {
 
@@ -34,12 +33,10 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
     }
 
     @Override
-    public CodeBlock codeGetCachedValue() {
+    public SmartCode codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
-        return transform(
-                SmartCode.of(CodeBlock.of("$L.$L()", fieldName, getMethod))
-                        .providingType(providingType()),
-                returnType).build(null);
+        return SmartCode.of(CodeBlock.of("$L.$L()", fieldName, getMethod))
+                .providingType(listWrapTypeIfNeed(returnType));
     }
 
     @Override
@@ -47,12 +44,9 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
         String setMethod = isListCaching ? "setList" : "set";
         return SmartCode.builder()
                 .add(CodeBlock.of("$L.$L( ()-> ", fieldName, setMethod))
-                .add(transform(
-                        SmartCode.of(value).providingType(returnType),
-                        providingType()
-                ))
+                .add(value)
                 .add(CodeBlock.of(", $L)", onlyIfNull))
-                .providingType(providingType())
+                .providingType(listWrapTypeIfNeed(returnType))
                 .build(null);
     }
 
@@ -63,8 +57,5 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
                 .build();
     }
 
-    private TypeName providingType() {
-        return isListCaching ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedType) : nonWrappedType;
-    }
 
 }
