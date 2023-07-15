@@ -36,7 +36,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     public static final String PROJECT_URL = "https://github.com/klee0kai/stone";
     public static final AllClassesHelper allClassesHelper = new AllClassesHelper();
-    private static final String DEBUG_PKG = "com.github.klee0kai.test.car.di.qualifiers";
+    private static final String DEBUG_PKG = null;
 
     public static ProcessingEnvironment env;
     public static Messager messager;
