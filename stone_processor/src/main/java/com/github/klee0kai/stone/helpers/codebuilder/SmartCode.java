@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.helpers.codebuilder;
 
 import com.github.klee0kai.stone.model.FieldDetail;
+import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
@@ -13,6 +14,7 @@ public class SmartCode implements ISmartCode {
     // atom meta info
     private CodeBlock code = null;
     public String fieldName;
+    public Set<QualifierAnn> qualifierAnns = new HashSet<>();
     public TypeName providingType;
 
     public LinkedList<String> usedFields = new LinkedList<>();
@@ -57,18 +59,7 @@ public class SmartCode implements ISmartCode {
         return new SmartCode();
     }
 
-    public static SmartCode fieldDeclare(String name, TypeName typeName) {
-        return SmartCode.of(CodeBlock.of("$T $L = ", typeName, name), null)
-                .asFieldDeclare(name, typeName);
-    }
-
     //meta info
-
-    public SmartCode asFieldDeclare(String name, TypeName typeName) {
-        fieldName = name;
-        providingType = typeName;
-        return this;
-    }
 
     public SmartCode providingType(TypeName typeName) {
         providingType = typeName;
@@ -106,9 +97,10 @@ public class SmartCode implements ISmartCode {
     }
 
 
-    public SmartCode localVariable(String fieldName, SmartCode initVariable) {
+    public SmartCode localVariable(String fieldName, Set<QualifierAnn> qualifiers, SmartCode initVariable) {
         this.providingType = initVariable.providingType;
         this.fieldName = fieldName;
+        this.qualifierAnns.addAll(qualifiers);
 
         add(CodeBlock.of("$T $L = ", providingType, fieldName), null);
         add(initVariable);
@@ -178,7 +170,9 @@ public class SmartCode implements ISmartCode {
             collectedCode.add(smartCode.collect(declaredFields));
 
             if (smartCode.fieldName != null && smartCode.providingType != null) {
-                declaredFields.add(FieldDetail.simple(smartCode.fieldName, smartCode.providingType));
+                FieldDetail field = FieldDetail.simple(smartCode.fieldName, smartCode.providingType);
+                field.qualifierAnns = smartCode.qualifierAnns;
+                declaredFields.add(field);
             }
             usedFields.addAll(smartCode.usedFields);
         }

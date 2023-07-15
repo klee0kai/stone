@@ -2,23 +2,45 @@ package com.github.klee0kai.test.car.di.qualifiers;
 
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.test.car.di.qualifiers.qualifiers.BumperQualifier;
+import com.github.klee0kai.test.car.di.qualifiers.qualifiers.WheelCount;
 import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.List;
 
 @Module
-public interface CarQPModule {
+public abstract class CarQPModule {
 
     @Provide(cache = Provide.CacheType.Factory)
-    Wheel wheel();
+    public abstract Wheel wheel();
+
+    @WheelCount(count = 4)
+    @Provide(cache = Provide.CacheType.Factory)
+    public List<Wheel> fourWheel() {
+        return Arrays.asList(new Wheel(), new Wheel(), new Wheel(), new Wheel());
+    }
+
+    @BumperQualifier(type = BumperQualifier.BumperType.Simple)
+    @Provide(cache = Provide.CacheType.Factory)
+    public WeakReference<Bumper> bumperSimple() {
+        Bumper bumper = new Bumper();
+        bumper.qualifier = "simple";
+        return new WeakReference<>(bumper);
+    }
+
+    @BumperQualifier(type = BumperQualifier.BumperType.Reinforced)
+    @Provide(cache = Provide.CacheType.Factory)
+    public WeakReference<Bumper> bumper() {
+        Bumper bumper = new Bumper();
+        bumper.qualifier = "reinforced";
+        return new WeakReference<>(bumper);
+    }
 
     @Provide(cache = Provide.CacheType.Factory)
-    WeakReference<Bumper> bumper();
-
-    @Provide(cache = Provide.CacheType.Factory)
-    WeakReference<List<Window>> windows();
+    public abstract WeakReference<List<Window>> windows();
 
 }

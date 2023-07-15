@@ -2,9 +2,7 @@ package com.github.klee0kai.test.car.di.qualifiers;
 
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifier;
-import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierMulti;
-import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierWithString;
+import com.github.klee0kai.test.car.di.qualifiers.qualifiers.*;
 import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
@@ -20,29 +18,29 @@ import java.util.List;
 public class CarQCModule {
 
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carSimple(Wheel wheel, Bumper bumper, Window window) {
+    public Car carSimple(Wheel wheel, @BumperQualifier Bumper bumper, Window window) {
         return new Car(bumper, wheel, window);
     }
 
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carProvider(Provider<Bumper> bumper, Provider<Wheel> wheel, Provider<Window> window) {
+    public Car carProvider(@BumperQualifier Provider<Bumper> bumper, Provider<Wheel> wheel, Provider<Window> window) {
         return new Car(bumper.get(), wheel.get(), window.get());
     }
 
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carRef(WeakReference<Bumper> bumper, Reference<Wheel> wheel, Reference<Window> window) {
+    public Car carRef(@BumperQualifier WeakReference<Bumper> bumper, Reference<Wheel> wheel, Reference<Window> window) {
         return new Car(bumper.get(), wheel.get(), window.get());
     }
 
 
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carList(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carList(@BumperQualifier List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
         return new Car(bumper, wheel, window);
     }
 
     @Named()
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carNamedEmpty(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carNamedEmpty(@BumperQualifier List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "named_empty";
         return car;
@@ -51,7 +49,11 @@ public class CarQCModule {
 
     @Named("a")
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carNamedA(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carNamedA(
+            @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) List<Bumper> bumper,
+            List<Wheel> wheel,
+            List<Window> window
+    ) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "named_a";
         return car;
@@ -60,7 +62,7 @@ public class CarQCModule {
 
     @MyQualifier
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carMyQualifier(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carMyQualifier(@BumperQualifier List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "my_qualifier";
         return car;
@@ -69,7 +71,7 @@ public class CarQCModule {
 
     @MyQualifierWithString()
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carIdQualifier(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carIdQualifier(@BumperQualifier List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "my_qualifier_with_string";
         return car;
@@ -78,7 +80,11 @@ public class CarQCModule {
 
     @MyQualifierWithString(id = "a")
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carIdQualifierA(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carIdQualifierA(
+            @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) List<Bumper> bumper,
+            @WheelCount(count = 4) List<Wheel> wheel,
+            List<Window> window
+    ) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "my_qualifier_a";
         return car;
@@ -87,7 +93,7 @@ public class CarQCModule {
 
     @MyQualifierWithString(id = "b")
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carIdQualifierB(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carIdQualifierB(@BumperQualifier List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "my_qualifier_b";
         return car;
@@ -96,7 +102,11 @@ public class CarQCModule {
 
     @MyQualifierMulti()
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carQualifierMulti(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carQualifierMulti(
+            @BumperQualifier List<Bumper> bumper,
+            @WheelCount(count = 4) List<Wheel> wheel,
+            List<Window> window
+    ) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "qualifier_multi";
         return car;
@@ -105,7 +115,7 @@ public class CarQCModule {
 
     @MyQualifierMulti(id = "a", indx = 1)
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carQualifierMultiA1(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carQualifierMultiA1(@BumperQualifier List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "qualifier_multi_a1";
         return car;
@@ -113,7 +123,11 @@ public class CarQCModule {
 
     @MyQualifierMulti(id = "a", indx = 2)
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carQualifierMultiA2(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carQualifierMultiA2(
+            @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) List<Bumper> bumper,
+            @WheelCount(count = 4) List<Wheel> wheel,
+            List<Window> window
+    ) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "qualifier_multi_a2";
         return car;
@@ -122,7 +136,11 @@ public class CarQCModule {
 
     @MyQualifierMulti(id = "a", indx = 2, type = MyQualifierMulti.Type.HARD)
     @Provide(cache = Provide.CacheType.Factory)
-    public Car carQualifierMultiA2Hard(List<Bumper> bumper, List<Wheel> wheel, List<Window> window) {
+    public Car carQualifierMultiA2Hard(
+            @BumperQualifier(type = BumperQualifier.BumperType.Simple) List<Bumper> bumper,
+            @WheelCount(count = 4) List<Wheel> wheel,
+            List<Window> window
+    ) {
         Car car = new Car(bumper, wheel, window);
         car.qualifier = "qualifier_multi_a2_hard";
         return car;

@@ -78,14 +78,22 @@ public class InvokeCall {
         return invokeSequenceVariants.get(0);
     }
 
-    public Set<QualifierAnn> qualifierAnnotations() {
-        Set<QualifierAnn> qualifiers = new HashSet<>();
+    public Set<QualifierAnn> qualifierAnnotations(boolean crossing) {
+        List<Set<QualifierAnn>> allQualifiersLists = new LinkedList<>(new HashSet<>());
         for (List<MethodDetail> variant : invokeSequenceVariants) {
-            for (MethodDetail m : variant) {
-                qualifiers.addAll(m.qualifierAnns);
-            }
+            Set<QualifierAnn> qualifiers = new HashSet<>();
+            for (MethodDetail m : variant) qualifiers.addAll(m.qualifierAnns);
+            allQualifiersLists.add(qualifiers);
         }
-        return qualifiers;
+        if (allQualifiersLists.isEmpty()) return Collections.emptySet();
+
+        Set<QualifierAnn> allQualifiers = allQualifiersLists.get(0);
+        if (crossing) {
+            for (Set<QualifierAnn> q : allQualifiersLists) allQualifiers.retainAll(q);
+        } else {
+            for (Set<QualifierAnn> q : allQualifiersLists) allQualifiers.addAll(q);
+        }
+        return allQualifiers;
     }
 
     /**
@@ -198,14 +206,16 @@ public class InvokeCall {
                         int argCount = 0;
                         for (FieldDetail arg : m.args) {
                             if (argCount++ > 0) builder.add(", ");
-                            FieldDetail field = isList(arg.type) ? ListUtils.first(builder.getDeclaredFields(), (i, f) ->
-                                    isList(f.type) && Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
+                            boolean isList = isList(arg.type);
+                            List<FieldDetail> typeFields = ListUtils.filter(builder.getDeclaredFields(), (i, f) ->
+                                    Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type)));
+
+                            FieldDetail field = isList ? ListUtils.first(typeFields, (i, f) ->
+                                    isList(f.type) && Objects.equals(f.qualifierAnns, arg.qualifierAnns)
                             ) : null;
                             if (field == null) {
                                 //non list
-                                field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
-                                        Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
-                                );
+                                field = ListUtils.first(typeFields, (i, f) -> Objects.equals(f.qualifierAnns, arg.qualifierAnns));
                             }
 
                             if (field == null) {
@@ -222,7 +232,6 @@ public class InvokeCall {
 
                         builder.add(")");
                     }
-
                     return builder;
                 })
                 .providingType(sequence.get(sequence.size() - 1).returnType);
@@ -231,11 +240,11 @@ public class InvokeCall {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (QualifierAnn qualifierAnn : qualifierAnnotations()) {
-            builder.append("@")
-                    .append(qualifierAnn.qualifierClStr)
-                    .append("    ");
-        }
+        if (invokeSequenceVariants.size() <= 1)
+            for (QualifierAnn qualifierAnn : qualifierAnnotations(false)) {
+                builder.append(qualifierAnn.toString())
+                        .append("    ");
+            }
         int variantIndx = 0;
         for (List<MethodDetail> variant : invokeSequenceVariants) {
             if (variantIndx++ > 0) builder.append(";\n");

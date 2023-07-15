@@ -1,5 +1,10 @@
 package com.github.klee0kai.stone.model.annotations;
 
+import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.MethodDetail;
+import com.squareup.javapoet.ClassName;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
@@ -7,6 +12,8 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
 public class QualifierAnn implements Cloneable, IAnnotation {
 
@@ -29,6 +36,14 @@ public class QualifierAnn implements Cloneable, IAnnotation {
         Map<? extends ExecutableElement, ? extends AnnotationValue> elementMap = annMirror.getElementValues();
         if (elementMap != null) for (ExecutableElement k : elementMap.keySet())
             qualifier.values.putIfAbsent(k.getSimpleName().toString(), elementMap.get(k).getValue());
+
+        ClassDetail annCl = allClassesHelper.tryFindForType(ClassName.get(annMirror.getAnnotationType()));
+        if (annCl != null) {
+            for (MethodDetail m : annCl.getAllMethods(false, false)) {
+                if (m.defValue != null) qualifier.values.putIfAbsent(m.methodName, m.defValue);
+            }
+        }
+
         return qualifier;
     }
 
@@ -55,5 +70,17 @@ public class QualifierAnn implements Cloneable, IAnnotation {
         return (QualifierAnn) super.clone();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("@");
+        builder.append(qualifierClStr);
+        if (!values.isEmpty()) {
+            builder.append("(")
+                    .append(String.join(",", ListUtils.format(values.values(), Object::toString)))
+                    .append(")");
 
+        }
+        return builder.toString();
+    }
 }

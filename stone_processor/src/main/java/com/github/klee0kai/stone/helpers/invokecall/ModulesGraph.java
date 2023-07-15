@@ -78,8 +78,8 @@ public class ModulesGraph {
     }
 
     public SmartCode codeProvideType(String methodName, TypeName returnType, Set<QualifierAnn> qualifierAnns) {
-        boolean isWrappedReturn = WrapHelper.isSupport(returnType);
-        boolean isListReturn = WrapHelper.isList(returnType);
+        boolean isWrappedReturn = isSupport(returnType);
+        boolean isListReturn = isList(returnType);
         TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
 
         List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(new ProvideDep(methodName, returnType, qualifierAnns));
@@ -106,15 +106,16 @@ public class ModulesGraph {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
             FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), null);
             FieldDetail listDepField = FieldDetail.simple(genLocalFieldName(), null);
+            boolean isListInv = inv.invokeSequenceVariants.size() > 1;
 
             builder.withLocals(localBuilder -> {
                 // provide single objects
                 if (isCacheProvide) {
-                    localBuilder.localVariable(singleDepField.name, inv.invokeBest());
+                    localBuilder.localVariable(singleDepField.name, inv.qualifierAnnotations(true), inv.invokeBest());
                     singleDepField.type = inv.resultType();
                 } else {
                     singleDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
-                    localBuilder.localVariable(singleDepField.name, SmartCode.builder()
+                    localBuilder.localVariable(singleDepField.name, inv.qualifierAnnotations(true), SmartCode.builder()
                             .add("() -> ")
                             .add(inv.invokeBest())
                             .providingType(singleDepField.type)
@@ -128,7 +129,7 @@ public class ModulesGraph {
                 listDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class),
                         ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
                 );
-                localBuilder.localVariable(listDepField.name, SmartCode.builder()
+                localBuilder.localVariable(listDepField.name, inv.qualifierAnnotations(true), SmartCode.builder()
                         .add("() -> ")
                         .add(inv.invokeAllToList())
                         .providingType(listDepField.type)
@@ -207,7 +208,7 @@ public class ModulesGraph {
                 );
             }
 
-            List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (indx, it) -> {
+            List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (i, it) -> {
                 if (Objects.equals(provideDep.typeName, it.typeName)) return false; // bind instance case
                 // qualifies not need to provide
                 TypeName argNonWrapped = nonWrappedType(it.typeName);
@@ -236,9 +237,10 @@ public class ModulesGraph {
             }
 
             provideTypeInvokes.add(invokeCall);
-            provideTypeInvokes = ListUtils.removeDoublesRight(provideTypeInvokes, (it1, it2) ->
-                    Objects.equals(it1.resultType(), it2.resultType())
-                            && Objects.equals(it1.qualifierAnnotations(), it2.qualifierAnnotations()));
+            provideTypeInvokes = ListUtils.removeDoublesRight(provideTypeInvokes, (it1, it2) -> {
+                return Objects.equals(it1.resultType(), it2.resultType())
+                        && Objects.equals(it1.qualifierAnnotations(true), it2.qualifierAnnotations(true));
+            });
 
         }
         Collections.reverse(provideTypeInvokes);
@@ -268,7 +270,7 @@ public class ModulesGraph {
         if (invokeCalls == null || invokeCalls.isEmpty())
             return null;
         List<InvokeCall> filtered = !listVariants || qualifierAnns != null && !qualifierAnns.isEmpty()
-                ? ListUtils.filter(invokeCalls, (i, it) -> Objects.equals(it.qualifierAnnotations(), qualifierAnns))
+                ? ListUtils.filter(invokeCalls, (i, it) -> Objects.equals(it.qualifierAnnotations(false), qualifierAnns))
                 : new LinkedList<>(invokeCalls);
 
         filtered = provideMethodName != null ? ListUtils.filter(filtered, (i, it) -> {

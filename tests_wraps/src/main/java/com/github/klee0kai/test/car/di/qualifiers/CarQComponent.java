@@ -31,7 +31,6 @@ public interface CarQComponent {
     @MyQualifierWithString
     Car carMyQualifierString();
 
-
     @MyQualifierWithString(id = "a")
     Car carMyQualifierStringA();
 
@@ -58,7 +57,6 @@ public interface CarQComponent {
 
     @MyQualifierMulti(type = MyQualifierMulti.Type.HARD, indx = 2, id = "a")
     List<Car> carsMyQualifierMultiA2Hard();
-
 
     void inject(CarsInjectQualifiers carInject);
 }

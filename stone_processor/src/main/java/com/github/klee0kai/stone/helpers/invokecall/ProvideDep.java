@@ -22,7 +22,7 @@ public class ProvideDep {
 
     public ProvideDep(String methodName, TypeName typeName, Set<QualifierAnn> qualifierAnns) {
         this.methodName = methodName;
-        this.typeName = typeName;
+        this.typeName = listWrapTypeIfNeed(typeName);
         this.qualifierAnns = qualifierAnns;
     }
 

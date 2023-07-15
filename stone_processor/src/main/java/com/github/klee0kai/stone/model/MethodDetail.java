@@ -7,6 +7,8 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
+import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Symbol;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,6 +38,8 @@ public class MethodDetail implements Cloneable {
     public Map<Class<? extends IAnnotation>, IAnnotation> annotations = new HashMap<>();
     public LinkedList<TypeName> gcScopeAnnotations = new LinkedList<>();
     public Set<QualifierAnn> qualifierAnns = new HashSet<>();
+
+    public Object defValue = null;
 
     /**
      * Take method details from compile element
@@ -79,6 +83,11 @@ public class MethodDetail implements Cloneable {
             );
             methodDetail.args.add(FieldDetail.of(v, getAnnotationsEl));
         }
+        if (element instanceof Symbol.MethodSymbol) {
+            Attribute defValue = ((Symbol.MethodSymbol) element).defaultValue;
+            methodDetail.defValue = defValue != null ? defValue.getValue() : null;
+        }
+
         return methodDetail;
     }
 
