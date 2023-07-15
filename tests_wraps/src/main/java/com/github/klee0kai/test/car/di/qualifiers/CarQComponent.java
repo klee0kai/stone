@@ -5,6 +5,7 @@ import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifier;
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierMulti;
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierWithString;
 import com.github.klee0kai.test.car.model.Car;
+import com.github.klee0kai.test.car.model.CarsInjectQualifiers;
 
 import javax.inject.Named;
 import java.util.List;
@@ -59,4 +60,5 @@ public interface CarQComponent {
     List<Car> carsMyQualifierMultiA2Hard();
 
 
+    void inject(CarsInjectQualifiers carInject);
 }
