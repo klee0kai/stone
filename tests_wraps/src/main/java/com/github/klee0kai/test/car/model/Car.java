@@ -13,6 +13,8 @@ public class Car {
     public List<Wheel> wheels;
     public List<Window> windows;
 
+    public String qualifier = null;
+
     public Car(
             Bumper bumper,
             Wheel wheel,
