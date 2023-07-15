@@ -4,17 +4,19 @@ import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
-import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.helpers.SetFieldHelper.capitalized;
 
 /**
  * Collected class details of compile type or type specs.
@@ -62,8 +64,13 @@ public class ClassDetail implements Cloneable {
         for (Element el : owner.getEnclosedElements()) {
             if (el instanceof ExecutableElement)
                 methods.add(MethodDetail.of((ExecutableElement) el));
-            else if (el instanceof VariableElement)
-                fields.add(FieldDetail.of((VariableElement) el));
+            else if (el instanceof VariableElement) {
+                String getAnnotationsElName = "get" + capitalized(el.getSimpleName().toString()) + "$annotations";
+                Element getAnnotationsEl = ListUtils.first(owner.getEnclosedElements(), (i, it) ->
+                        Objects.equals(it.getSimpleName().toString(), getAnnotationsElName)
+                );
+                fields.add(FieldDetail.of((VariableElement) el, getAnnotationsEl));
+            }
         }
         if (owner.getSuperclass() instanceof DeclaredType) {
             if (((DeclaredType) owner.getSuperclass()).asElement() instanceof TypeElement)
@@ -73,34 +80,6 @@ public class ClassDetail implements Cloneable {
         for (TypeMirror tp : owner.getInterfaces()) {
             if (tp instanceof DeclaredType && ((DeclaredType) tp).asElement() instanceof TypeElement)
                 interfaces.add(new ClassDetail((TypeElement) ((DeclaredType) tp).asElement()));
-        }
-    }
-
-    /**
-     * Take class details from type specs.
-     * Annotations not supported.
-     * May ignore some interfaces and classes that are not yet in the project
-     */
-    public ClassDetail(String packageName, TypeSpec owner) {
-        className = ClassName.get(packageName, owner.name);
-        modifiers = owner.modifiers;
-        kind = TypeKindDetails.of(owner.kind);
-
-        addAnnotation(ComponentAnn.findFrom(owner.annotations));
-        addAnnotation(ModuleAnn.findFrom(owner.annotations));
-        addAnnotation(DependenciesAnn.findFrom(owner.annotations));
-        addAnnotation(WrapperCreatorsAnn.findFrom(owner.annotations));
-
-        for (MethodSpec m : owner.methodSpecs)
-            methods.add(MethodDetail.of(m));
-
-        for (FieldSpec f : owner.fieldSpecs)
-            fields.add(FieldDetail.of(f));
-
-        superClass = allClassesHelper.tryFindForType(owner.superclass);
-        for (TypeName t : owner.superinterfaces) {
-            ClassDetail inf = allClassesHelper.tryFindForType(t);
-            if (inf != null) interfaces.add(inf);
         }
     }
 

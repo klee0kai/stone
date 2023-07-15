@@ -9,14 +9,19 @@ import com.github.klee0kai.test.tech.phone.base.ATech;
 import com.github.klee0kai.test.tech.phone.base.ATechLifecycle;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class OnePhone extends ATech implements StoneLifeCycleOwner {
 
     @Inject
     public Battery battery;
+
     @Inject
+    @Named("null_args")
     public DataStorage dataStorage;
+
     @Inject
+    @Named("null_args")
     public Ram ram;
 
 

@@ -5,13 +5,20 @@ import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
+import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsVersion;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
 import com.github.klee0kai.test.tech.components.OperationSystem;
 import com.github.klee0kai.test.tech.phone.GoodPhone;
 import com.github.klee0kai.test.tech.phone.OnePhone;
 
 @Component(
-        qualifiers = {DataStorageSize.class, RamSize.class, PhoneOsType.class, OperationSystem.class}
+        qualifiers = {
+                DataStorageSize.class,
+                RamSize.class,
+                PhoneOsType.class,
+                OperationSystem.class,
+                PhoneOsVersion.class
+        }
 )
 public interface PhoneComponent extends IPrivateComponent {
 

@@ -1,21 +1,21 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.lang.model.element.*;
 import java.lang.annotation.Annotation;
 import java.util.*;
+
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.helpers.SetFieldHelper.capitalized;
 
 /**
  * Collected method details of compile element or method specs.
@@ -35,6 +35,7 @@ public class MethodDetail implements Cloneable {
 
     public Map<Class<? extends IAnnotation>, IAnnotation> annotations = new HashMap<>();
     public LinkedList<TypeName> gcScopeAnnotations = new LinkedList<>();
+    public Set<QualifierAnn> qualifierAnns = new HashSet<>();
 
     /**
      * Take method details from compile element
@@ -56,7 +57,6 @@ public class MethodDetail implements Cloneable {
         methodDetail.addAnnotation(ProtectInjectedAnn.of(element.getAnnotation(ProtectInjected.class)));
         methodDetail.addAnnotation(SwitchCacheAnn.of(element.getAnnotation(SwitchCache.class)));
         methodDetail.addAnnotation(InjectAnn.of(element.getAnnotation(Inject.class)));
-        methodDetail.addAnnotation(NamedAnn.of(element.getAnnotation(Named.class)));
         methodDetail.addAnnotation(SingletonAnn.of(element.getAnnotation(Singleton.class)));
 
         List<Class<? extends Annotation>> scClasses = Arrays.asList(GcAllScope.class, GcWeakScope.class, GcSoftScope.class, GcStrongScope.class);
@@ -66,38 +66,19 @@ public class MethodDetail implements Cloneable {
 
         for (AnnotationMirror ann : element.getAnnotationMirrors()) {
             String clName = ann.getAnnotationType().toString();
-            ClassDetail annClDet = AnnotationProcessor.allClassesHelper.findGcScopeAnnotation(clName);
-            if (annClDet != null) methodDetail.gcScopeAnnotations.add(annClDet.className);
+            ClassDetail gcAnn = allClassesHelper.findGcScopeAnnotation(clName);
+            if (gcAnn != null) methodDetail.gcScopeAnnotations.add(gcAnn.className);
+
+            ClassDetail qualifierAnn = allClassesHelper.findQualifierAnnotation(clName);
+            if (qualifierAnn != null) methodDetail.qualifierAnns.add(QualifierAnn.of(ann));
         }
-        for (VariableElement v : element.getParameters())
-            methodDetail.args.add(FieldDetail.of(v));
-        return methodDetail;
-    }
-
-    /**
-     * Take method details from method spec
-     *
-     * @param methodSpec original method specs
-     * @return new MethodDetail object os specs
-     */
-    public static MethodDetail of(MethodSpec methodSpec) {
-        MethodDetail methodDetail = new MethodDetail();
-        methodDetail.methodName = methodSpec.name;
-        methodDetail.returnType = methodSpec.returnType;
-        methodDetail.modifiers = methodSpec.modifiers;
-        methodDetail.args = ListUtils.format(methodSpec.parameters, FieldDetail::of);
-
-        methodDetail.addAnnotation(InitAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(ExtOfAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(ProvideAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(BindInstanceAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(ProtectInjectedAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(SwitchCacheAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(InjectAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(NamedAnn.findFrom(methodSpec.annotations));
-        methodDetail.addAnnotation(SingletonAnn.findFrom(methodSpec.annotations));
-
-
+        for (VariableElement v : element.getParameters()) {
+            String getAnnotationsElName = "get" + capitalized(v.getSimpleName().toString()) + "$annotations";
+            Element getAnnotationsEl = ListUtils.first(element.getParameters(), (i, it) ->
+                    Objects.equals(it.getSimpleName().toString(), getAnnotationsElName)
+            );
+            methodDetail.args.add(FieldDetail.of(v, getAnnotationsEl));
+        }
         return methodDetail;
     }
 
@@ -253,13 +234,14 @@ public class MethodDetail implements Cloneable {
      * @return true if class has exact same annotations list
      */
     @SafeVarargs
-    public final boolean hasOnlyAnnotations(boolean allowGsScopeAnnotations, Class<? extends IAnnotation>... aClasses) {
+    public final boolean hasOnlyAnnotations(boolean allowGsScopeAnnotations, boolean allowQualifierAnnotations, Class<? extends IAnnotation>... aClasses) {
         if (annotations.size() > aClasses.length) return false;
         List<Class<? extends IAnnotation>> availableClasses = Arrays.asList(aClasses);
         for (Class<? extends IAnnotation> annotation : annotations.keySet()) {
             if (!availableClasses.contains(annotation)) return false;
         }
-        return allowGsScopeAnnotations || gcScopeAnnotations.isEmpty();
+        return (allowGsScopeAnnotations || gcScopeAnnotations.isEmpty())
+                && (allowQualifierAnnotations || qualifierAnns.isEmpty());
     }
 
 
@@ -273,7 +255,10 @@ public class MethodDetail implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MethodDetail that = (MethodDetail) o;
-        return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType) && Objects.equals(modifiers, that.modifiers) && elementKind == that.elementKind && Objects.equals(args, that.args) && Objects.equals(annotations, that.annotations) && Objects.equals(gcScopeAnnotations, that.gcScopeAnnotations);
+        return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType)
+                && Objects.equals(modifiers, that.modifiers) && elementKind == that.elementKind
+                && Objects.equals(args, that.args) && Objects.equals(annotations, that.annotations)
+                && Objects.equals(gcScopeAnnotations, that.gcScopeAnnotations);
     }
 
     @Override

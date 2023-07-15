@@ -145,7 +145,7 @@ public class ModuleCacheControlInterfaceBuilder {
 
 
     public static String cacheControlMethodName(String factoryMethodName) {
-        return "__" + factoryMethodName + "_cache";
+        return factoryMethodName != null ? "__" + factoryMethodName + "_cache" : null;
     }
 
 }

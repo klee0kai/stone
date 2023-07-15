@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 public class CarBoxedInject {
 
-
     @Inject
     public CarBox<Bumper> bumper;
 

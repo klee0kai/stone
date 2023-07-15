@@ -11,6 +11,8 @@ import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
+import javax.inject.Named;
+import javax.inject.Qualifier;
 import javax.inject.Scope;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -28,6 +30,7 @@ public class AllClassesHelper {
     private Elements elements;
     private final Set<TypeName> lifeCycleOwners = new HashSet<>();
     private final Map<String, ClassDetail> gcScopeAnnotations = new HashMap<>();
+    private final Map<String, ClassDetail> qualifierAnnotations = new HashMap<>();
 
     public ClassDetail iComponentClassDetails;
     public ClassDetail iModule;
@@ -35,6 +38,9 @@ public class AllClassesHelper {
 
     public TypeElement scopeAnnotationElement;
     public TypeElement gcScopeAnnotationElement;
+
+    public TypeElement qualifierAnnotationElement;
+
 
     /**
      * Index common classes using in lib
@@ -49,6 +55,10 @@ public class AllClassesHelper {
 
         scopeAnnotationElement = typeElementFor(ClassName.get(Scope.class));
         gcScopeAnnotationElement = typeElementFor(ClassName.get(GcScopeAnnotation.class));
+        qualifierAnnotationElement = typeElementFor(ClassName.get(Qualifier.class));
+
+        TypeName namedType = ClassName.get(Named.class);
+        qualifierAnnotations.putIfAbsent(namedType.toString(), findForType(namedType));
     }
 
     /**
@@ -57,12 +67,13 @@ public class AllClassesHelper {
      *
      * @param classDetail component's ClassDetail object
      */
-    public void deepExtractGcAnnotations(ClassDetail classDetail) {
+    public void deepExtractGcAndQualifierAnnotations(ClassDetail classDetail) {
         for (ClassDetail parent : classDetail.getAllParents(false)) {
             TypeElement parentEl = typeElementFor(parent.className);
             for (Element methodEl : parentEl.getEnclosedElements()) {
                 for (AnnotationMirror ann : methodEl.getAnnotationMirrors()) {
                     List<? extends AnnotationMirror> methodAnnotations = ann.getAnnotationType().asElement().getAnnotationMirrors();
+                    // add as GC Scope
                     boolean isScopeAnnotated = ListUtils.contains(methodAnnotations, (inx, it) -> {
                         Element annEl = it.getAnnotationType().asElement();
                         return Objects.equals(annEl, scopeAnnotationElement) || Objects.equals(annEl, gcScopeAnnotationElement);
@@ -72,10 +83,22 @@ public class AllClassesHelper {
                         ClassDetail annClDetails = new ClassDetail(typeElementFor(annClName));
                         gcScopeAnnotations.put(annClDetails.className.toString(), annClDetails);
                     }
+
+                    // add as Qualifier Annotation
+                    boolean isQualifierAnnotated = ListUtils.contains(methodAnnotations, (inx, it) -> {
+                        Element annEl = it.getAnnotationType().asElement();
+                        return Objects.equals(annEl, qualifierAnnotationElement);
+                    });
+                    if (isQualifierAnnotated) {
+                        String annClName = ann.getAnnotationType().toString();
+                        ClassDetail annClDetails = new ClassDetail(typeElementFor(annClName));
+                        qualifierAnnotations.put(annClDetails.className.toString(), annClDetails);
+                    }
                 }
             }
         }
     }
+
 
     /**
      * Get annotation details for annotation name
@@ -85,6 +108,10 @@ public class AllClassesHelper {
      */
     public ClassDetail findGcScopeAnnotation(String annTypeName) {
         return gcScopeAnnotations.getOrDefault(annTypeName, null);
+    }
+
+    public ClassDetail findQualifierAnnotation(String annTypeName) {
+        return qualifierAnnotations.getOrDefault(annTypeName, null);
     }
 
     /**

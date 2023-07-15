@@ -6,6 +6,7 @@ import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -77,20 +78,26 @@ public class InvokeCall {
         return invokeSequenceVariants.get(0);
     }
 
+    public Set<QualifierAnn> qualifierAnnotations() {
+        Set<QualifierAnn> qualifiers = new HashSet<>();
+        for (List<MethodDetail> variant : invokeSequenceVariants) {
+            for (MethodDetail m : variant) {
+                qualifiers.addAll(m.qualifierAnns);
+            }
+        }
+        return qualifiers;
+    }
+
     /**
      * Using arguments in invoke sequence
      *
-     * @param single only for best variant
-     * @param filter filter arguments by except list. Null of no filter
      * @return collection of all argument's types
      */
-    public Set<TypeName> argTypes(boolean single, Set<TypeName> filter) {
-        Set<TypeName> argsTypes = new HashSet<>();
-        List<List<MethodDetail>> vars = single ? Collections.singletonList(bestSequence()) : invokeSequenceVariants;
-        for (List<MethodDetail> invokeSequence : vars)
+    public Set<ProvideDep> argDeps() {
+        Set<ProvideDep> argsTypes = new HashSet<>();
+        for (List<MethodDetail> invokeSequence : invokeSequenceVariants)
             for (MethodDetail m : invokeSequence) {
-                List<TypeName> types = ListUtils.format(m.args, (it) -> it.type);
-                if (filter != null) types = ListUtils.filter(types, (inx, it) -> filter.contains(it));
+                List<ProvideDep> types = ListUtils.format(m.args, (it) -> new ProvideDep(it.type, it.qualifierAnns));
                 argsTypes.addAll(types);
             }
         return argsTypes;
@@ -219,5 +226,42 @@ public class InvokeCall {
                     return builder;
                 })
                 .providingType(sequence.get(sequence.size() - 1).returnType);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (QualifierAnn qualifierAnn : qualifierAnnotations()) {
+            builder.append("@")
+                    .append(qualifierAnn.qualifierClStr)
+                    .append("    ");
+        }
+        int variantIndx = 0;
+        for (List<MethodDetail> variant : invokeSequenceVariants) {
+            if (variantIndx++ > 0) builder.append(";\n");
+            int secIndx = 0;
+            for (MethodDetail m : variant) {
+                if (secIndx++ > 0) builder.append(".");
+                builder.append(m.methodName)
+                        .append("(")
+                        .append(String.join(",", ListUtils.format(m.args, f -> f.type.toString())))
+                        .append(")");
+            }
+        }
+        return builder.toString();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InvokeCall that = (InvokeCall) o;
+        return Objects.equals(invokeSequenceVariants, that.invokeSequenceVariants);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(invokeSequenceVariants);
     }
 }

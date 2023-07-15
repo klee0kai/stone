@@ -96,7 +96,7 @@ public class ComponentChecks {
     }
 
     private static void checkMethodSignature(MethodDetail m) {
-        IAnnotation prohibitedAnn = m.anyAnnotation(ProvideAnn.class, NamedAnn.class, SingletonAnn.class);
+        IAnnotation prohibitedAnn = m.anyAnnotation(ProvideAnn.class, QualifierAnn.class, SingletonAnn.class);
         if (prohibitedAnn != null) {
             throw new IncorrectSignatureException(
                     createErrorMes()

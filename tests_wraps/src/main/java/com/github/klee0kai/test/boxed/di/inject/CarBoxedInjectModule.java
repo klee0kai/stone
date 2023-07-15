@@ -8,6 +8,7 @@ import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import java.util.List;
 @Module
 public class CarBoxedInjectModule {
 
+    @Named("fourWheels")
     @Provide(cache = Provide.CacheType.Weak)
     public List<CarBox<Wheel>> fourWheels() {
         return Arrays.asList(
@@ -37,11 +39,13 @@ public class CarBoxedInjectModule {
         return () -> new CarBox<>(new Window());
     }
 
+    @Named()
     @Provide(cache = Provide.CacheType.Factory)
     public Provider<WeakReference<CarBox<Window>>> backWindow() {
         return () -> new WeakReference<>(new CarBox<>(new Window()));
     }
 
+    @Named()
     @Provide(cache = Provide.CacheType.Factory)
     public List<Ref<CarBox<Window>>> passengerWindows() {
         return Arrays.asList(() -> new CarBox<>(new Window()), () -> new CarBox<>(new Window()));
