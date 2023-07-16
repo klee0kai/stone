@@ -7,8 +7,6 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Symbol;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,6 +51,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.returnType = TypeName.get(element.getReturnType());
         methodDetail.modifiers = element.getModifiers();
         methodDetail.elementKind = element.getKind();
+        methodDetail.defValue = element.getDefaultValue() != null ? element.getDefaultValue().getValue() : null;
 
         methodDetail.addAnnotation(InitAnn.of(element.getAnnotation(Init.class)));
         methodDetail.addAnnotation(ExtOfAnn.of(element.getAnnotation(ExtendOf.class)));
@@ -82,10 +81,6 @@ public class MethodDetail implements Cloneable {
                     Objects.equals(it.getSimpleName().toString(), getAnnotationsElName)
             );
             methodDetail.args.add(FieldDetail.of(v, getAnnotationsEl));
-        }
-        if (element instanceof Symbol.MethodSymbol) {
-            Attribute defValue = ((Symbol.MethodSymbol) element).defaultValue;
-            methodDetail.defValue = defValue != null ? defValue.getValue() : null;
         }
 
         return methodDetail;
