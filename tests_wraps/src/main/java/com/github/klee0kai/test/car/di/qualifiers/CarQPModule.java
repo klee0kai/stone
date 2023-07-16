@@ -2,13 +2,13 @@ package com.github.klee0kai.test.car.di.qualifiers;
 
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.BumperQualifier;
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.WheelCount;
 import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
 
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,21 +26,21 @@ public abstract class CarQPModule {
 
     @BumperQualifier(type = BumperQualifier.BumperType.Simple)
     @Provide(cache = Provide.CacheType.Factory)
-    public WeakReference<Bumper> bumperSimple() {
+    public Bumper bumperSimple() {
         Bumper bumper = new Bumper();
         bumper.qualifier = "simple";
-        return new WeakReference<>(bumper);
+        return bumper;
     }
 
     @BumperQualifier(type = BumperQualifier.BumperType.Reinforced)
     @Provide(cache = Provide.CacheType.Factory)
-    public WeakReference<Bumper> bumper() {
+    public Bumper bumper() {
         Bumper bumper = new Bumper();
         bumper.qualifier = "reinforced";
-        return new WeakReference<>(bumper);
+        return bumper;
     }
 
     @Provide(cache = Provide.CacheType.Factory)
-    public abstract WeakReference<List<Window>> windows();
+    public abstract Ref<List<Window>> windows();
 
 }
