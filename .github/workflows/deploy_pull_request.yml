@@ -2,7 +2,7 @@ name: Deploy Pull Request
 
 on:
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    types: [opened, synchronize, reopened]
 
 jobs:
   wf_meta:
@@ -18,22 +18,18 @@ jobs:
           name: wf-meta
           path: |
             github.json 
-  
+            
 
   tests:
-    strategy:
-      matrix:
-        java_version: [ 8, 11, 17 ]
-        java_distribution: [ "temurin", "oracle","corretto" ]
+    name: Run Unit Tests
     runs-on: ubuntu-latest
-    name: Run Unit Tests on Java ${{ matrix.java_distribution }} ${{ matrix.java_version }}
     steps:
       - uses: actions/checkout@v3
       - name: set up JDK 11
         uses: actions/setup-java@v3
         with:
-          java-version: ${{ matrix.java_version }}
-          distribution: ${{ matrix.java_distribution }}
+          java-version: '11'
+          distribution: 'temurin'
           cache: gradle
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
