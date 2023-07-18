@@ -7,11 +7,12 @@ import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.CarsInjectQualifiers;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CarInjectMethodWithQualifiersTest {
+public class CarInjectAllMethodsWithQualifiersTest {
 
     @Test
     void namedEmptyProvideTest() {
@@ -21,10 +22,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarNamedEmpty;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "named_empty"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("named_empty", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -37,10 +39,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarNamedA;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "named_a"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("named_a", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("reinforced", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -53,10 +56,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifier;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -69,10 +73,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifierString;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_with_string"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier_with_string", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -85,10 +90,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifierA;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier_a", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("reinforced", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size(), "four wheel +1");
     }
@@ -101,10 +107,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifierB;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_b"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier_b", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -117,10 +124,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifierMulti;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size());
     }
@@ -133,10 +141,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifierMultiA1;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a1"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi_a1", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -150,10 +159,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifierMultiA2;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi_a2", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("reinforced", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size());
     }
@@ -166,10 +176,11 @@ public class CarInjectMethodWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        Car car = carInject.methodCarMyQualifierMultiA2Hard;
+        List<Car> filtered = ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi_a2_hard", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size());
     }
@@ -188,35 +199,6 @@ public class CarInjectMethodWithQualifiersTest {
         assertEquals(1, ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
         assertEquals(1, ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
         assertEquals(1, ListUtils.filter(carInject.methodAllCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
-    }
-
-
-    @Test
-    void provideCarsNamedEmptyTest() {
-        //Given
-        CarQComponent DI = Stone.createComponent(CarQComponent.class);
-        CarsInjectQualifiers carInject = new CarsInjectQualifiers();
-
-        //When
-        DI.inject(carInject);
-
-        //Then
-        assertEquals(1, carInject.methodCarsNamedEmpty.size());
-        assertEquals("named_empty", carInject.methodCarsNamedEmpty.get(0).qualifier);
-    }
-
-    @Test
-    void carsMyQualifierMultiA2HardTest() {
-        //Given
-        CarQComponent DI = Stone.createComponent(CarQComponent.class);
-        CarsInjectQualifiers carInject = new CarsInjectQualifiers();
-
-        //When
-        DI.inject(carInject);
-
-        //Then
-        assertEquals(1, carInject.methodCarsMyQualifierMultiA2Hard.size());
-        assertEquals("qualifier_multi_a2_hard", carInject.methodCarsMyQualifierMultiA2Hard.get(0).qualifier);
     }
 
 }
