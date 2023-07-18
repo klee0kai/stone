@@ -1,24 +1,30 @@
 package com.github.klee0kai.stone.test.car.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.test.car.di.qualifiers.CarQComponent;
 import com.github.klee0kai.test.car.model.Car;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CarProvideWithQualifiersTests {
+public class CarProvideAllWithQualifiersTests {
 
     @Test
     void namedEmptyProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carNamedEmpty();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "named_empty"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("named_empty", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -27,12 +33,14 @@ public class CarProvideWithQualifiersTests {
     void namedAProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carNameA();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "named_a"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("named_a", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("reinforced", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -41,12 +49,14 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifier();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -55,12 +65,14 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierStringProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifierString();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_with_string"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier_with_string", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -69,12 +81,14 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierStringAProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifierStringA();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier_a", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("reinforced", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size(), "four wheel +1");
     }
@@ -83,12 +97,14 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierStringBProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifierStringB();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_b"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("my_qualifier_b", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -97,12 +113,14 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierMultiProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifierMulti();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size());
     }
@@ -111,12 +129,14 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierMultiA1ProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifierMultiA1();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a1"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi_a1", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(5, car.wheels.size(), "four wheel +1");
     }
@@ -126,12 +146,14 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierMultiA2ProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifierMultiA2();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi_a2", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("reinforced", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size());
     }
@@ -140,14 +162,32 @@ public class CarProvideWithQualifiersTests {
     void carMyQualifierMultiA2HardProvideTest() {
         //Given
         CarQComponent DI = Stone.createComponent(CarQComponent.class);
+        List<Car> cars = DI.allCars();
 
         //When
-        Car car = DI.carMyQualifierMultiA2Hard();
+        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard"));
+        Car car = filtered.get(0);
 
         //Then
-        assertEquals("qualifier_multi_a2_hard", car.qualifier);
+        assertEquals(1, filtered.size());
         assertEquals("simple", car.bumpers.get(0).qualifier);
         assertEquals(4, car.wheels.size());
     }
+
+    @Test
+    void allCarsProvideTest() {
+        //Given
+        CarQComponent DI = Stone.createComponent(CarQComponent.class);
+
+        //When
+        List<Car> cars = DI.allCars();
+
+        //Then
+        assertEquals(14, cars.size());
+        assertEquals(1, ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
+        assertEquals(1, ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
+        assertEquals(1, ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
+    }
+
 
 }
