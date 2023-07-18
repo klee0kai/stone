@@ -209,7 +209,10 @@ public class ModulesGraph {
             }
 
             List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (i, it) -> {
-                if (Objects.equals(provideDep.typeName, it.typeName)) return false; // bind instance case
+                if (Objects.equals(provideDep.typeName, it.typeName) && Objects.equals(rawDep.typeName, it.typeName)) {
+                    // bind instance case. Argument and return type are equals
+                    return false;
+                }
                 // qualifies not need to provide
                 TypeName argNonWrapped = nonWrappedType(it.typeName);
                 return argNonWrapped instanceof ClassName && !allQualifiers.contains(argNonWrapped);

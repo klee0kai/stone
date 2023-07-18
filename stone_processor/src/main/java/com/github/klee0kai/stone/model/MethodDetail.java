@@ -76,6 +76,7 @@ public class MethodDetail implements Cloneable {
             if (qualifierAnn != null) methodDetail.qualifierAnns.add(QualifierAnn.of(ann));
         }
         for (VariableElement v : element.getParameters()) {
+            // get<Field>$annotations not checked for method's arguments
             String getAnnotationsElName = "get" + capitalized(v.getSimpleName().toString()) + "$annotations";
             Element getAnnotationsEl = ListUtils.first(element.getParameters(), (i, it) ->
                     Objects.equals(it.getSimpleName().toString(), getAnnotationsElName)
