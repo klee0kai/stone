@@ -12,6 +12,10 @@ public class SetFieldHelper {
     private final FieldDetail fieldDetail;
     private MethodDetail kotlinGetMethod = null, kotlinSetMethod = null;
 
+    public static String capitalized(String str) {
+        return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1);
+    }
+
     /**
      * @param fieldDetail
      * @param fieldOwner  class where field is declare
@@ -20,8 +24,7 @@ public class SetFieldHelper {
         this.fieldDetail = fieldDetail;
 
         // check kotlin field
-        String capitalizedName = fieldDetail.name.substring(0, 1).toUpperCase(Locale.ROOT)
-                + fieldDetail.name.substring(1);
+        String capitalizedName = capitalized(fieldDetail.name);
         MethodDetail getMethod = fieldOwner.findMethod(
                 MethodDetail.simpleGetMethod("get" + capitalizedName, fieldDetail.type),
                 true

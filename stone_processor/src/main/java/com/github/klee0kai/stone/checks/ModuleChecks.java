@@ -32,7 +32,7 @@ public class ModuleChecks {
 
 
     public static void checkModuleMethodSignature(MethodDetail m) {
-        IAnnotation prohibitedAnn = m.anyAnnotation(InjectAnn.class, ProtectInjectedAnn.class, SwitchCacheAnn.class, NamedAnn.class, SingletonAnn.class);
+        IAnnotation prohibitedAnn = m.anyAnnotation(InjectAnn.class, ProtectInjectedAnn.class, SwitchCacheAnn.class, QualifierAnn.class, SingletonAnn.class);
         if (prohibitedAnn != null) {
             throw new IncorrectSignatureException(
                     createErrorMes()

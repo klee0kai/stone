@@ -55,7 +55,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
                 ClassDetail component = new ClassDetail((TypeElement) componentEl);
-                allClassesHelper.deepExtractGcAnnotations(component);
+                allClassesHelper.deepExtractGcAndQualifierAnnotations(component);
 
                 for (ClassDetail componentParentCl : component.getAllParents(false)) {
                     ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
@@ -69,6 +69,19 @@ public class AnnotationProcessor extends AbstractProcessor {
                                 .build(),
                         cause
                 );
+            }
+        }
+        for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
+            try {
+                ClassDetail module = new ClassDetail((TypeElement) moduleEl);
+                allClassesHelper.deepExtractGcAndQualifierAnnotations(module);
+            } catch (Throwable e) {
+                throw new CreateStoneModuleException(
+                        createErrorMes()
+                                .cannotCreateModule(moduleEl.toString())
+                                .collectCauseMessages(e)
+                                .build(),
+                        e);
             }
         }
 

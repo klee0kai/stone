@@ -17,7 +17,7 @@ public class ModuleMethods {
         if (m.hasAnyAnnotation(BindInstanceAnn.class)) return false;
         if (isProvideFactoryObject(m)) return false;
 
-        if (!m.hasOnlyAnnotations(true, ProvideAnn.class)) {
+        if (!m.hasOnlyAnnotations(true, true, ProvideAnn.class)) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .method(m.methodName)
@@ -46,7 +46,7 @@ public class ModuleMethods {
         ProvideAnn ann = m.ann(ProvideAnn.class);
         if (ann == null || ann.cacheType != Provide.CacheType.Factory) return false;
 
-        if (!m.hasOnlyAnnotations(true, ProvideAnn.class)) {
+        if (!m.hasOnlyAnnotations(true, true, ProvideAnn.class)) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .method(m.methodName)
@@ -62,7 +62,7 @@ public class ModuleMethods {
     public static boolean isBindInstanceMethod(MethodDetail m) {
         if (!m.hasAnyAnnotation(BindInstanceAnn.class)) return false;
 
-        if (!m.hasOnlyAnnotations(true, BindInstanceAnn.class)) {
+        if (!m.hasOnlyAnnotations(true, true, BindInstanceAnn.class)) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .method(m.methodName)

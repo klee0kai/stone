@@ -7,6 +7,7 @@ import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
 import com.github.klee0kai.test.car.model.Window;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -28,8 +29,10 @@ public interface CarMultiComponent {
 
     List<Car> cars();
 
+    @Named("blueCar")
     Provider<Car> blueCar();
 
+    @Named("redCar")
     WeakReference<Car> redCar();
 
 }

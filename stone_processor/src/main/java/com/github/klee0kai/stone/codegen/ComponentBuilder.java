@@ -421,7 +421,7 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
-            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(m.methodName, m.returnType, qFields);
+            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns);
             if (smartCode == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
@@ -449,6 +449,7 @@ public class ComponentBuilder {
         FieldDetail setValueArg = ListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.qualifiers.contains(it.type));
         TypeName nonWrappedBindType = nonWrappedType(setValueArg.type);
         boolean isProvideMethod = Objects.equals(nonWrappedType(m.returnType), nonWrappedBindType);
+        String hidingProvideName = isProvideMethod ? m.methodName : null;
 
         MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
@@ -460,7 +461,8 @@ public class ComponentBuilder {
 
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
             // bind object declared in module
-            InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(m.methodName, nonWrappedBindType, qFields);
+            InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(hidingProvideName, nonWrappedBindType, m.qualifierAnns);
+
             boolean isListCache = isList(cacheControlInvoke.rawReturnType());
             TypeName cacheControlType = isListCache ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedBindType) : nonWrappedBindType;
             builder.addStatement(cacheControlInvoke.invokeCode(qFields,
@@ -485,7 +487,7 @@ public class ComponentBuilder {
                 builder.addCode("return ")
                         .addCode(
                                 transform(
-                                        orComponentCl.modulesGraph.codeProvideType(m.methodName, nonWrappedBindType, qFields),
+                                        orComponentCl.modulesGraph.codeProvideType(hidingProvideName, nonWrappedBindType, m.qualifierAnns),
                                         m.returnType
                                 ).build(m.args))
                         .addCode(";\n");
@@ -527,7 +529,7 @@ public class ComponentBuilder {
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, qFields);
+                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns);
                     if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
@@ -551,7 +553,7 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, qFields);
+                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns);
                         if (provideCode == null) {
                             throw new ObjectNotProvidedException(
                                     createErrorMes()

@@ -6,6 +6,7 @@ import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -77,20 +78,34 @@ public class InvokeCall {
         return invokeSequenceVariants.get(0);
     }
 
+    public Set<QualifierAnn> qualifierAnnotations(boolean crossing) {
+        List<Set<QualifierAnn>> allQualifiersLists = new LinkedList<>(new HashSet<>());
+        for (List<MethodDetail> variant : invokeSequenceVariants) {
+            Set<QualifierAnn> qualifiers = new HashSet<>();
+            for (MethodDetail m : variant) qualifiers.addAll(m.qualifierAnns);
+            allQualifiersLists.add(qualifiers);
+        }
+        if (allQualifiersLists.isEmpty()) return Collections.emptySet();
+
+        Set<QualifierAnn> allQualifiers = allQualifiersLists.get(0);
+        if (crossing) {
+            for (Set<QualifierAnn> q : allQualifiersLists) allQualifiers.retainAll(q);
+        } else {
+            for (Set<QualifierAnn> q : allQualifiersLists) allQualifiers.addAll(q);
+        }
+        return allQualifiers;
+    }
+
     /**
      * Using arguments in invoke sequence
      *
-     * @param single only for best variant
-     * @param filter filter arguments by except list. Null of no filter
      * @return collection of all argument's types
      */
-    public Set<TypeName> argTypes(boolean single, Set<TypeName> filter) {
-        Set<TypeName> argsTypes = new HashSet<>();
-        List<List<MethodDetail>> vars = single ? Collections.singletonList(bestSequence()) : invokeSequenceVariants;
-        for (List<MethodDetail> invokeSequence : vars)
+    public Set<ProvideDep> argDeps() {
+        Set<ProvideDep> argsTypes = new HashSet<>();
+        for (List<MethodDetail> invokeSequence : invokeSequenceVariants)
             for (MethodDetail m : invokeSequence) {
-                List<TypeName> types = ListUtils.format(m.args, (it) -> it.type);
-                if (filter != null) types = ListUtils.filter(types, (inx, it) -> filter.contains(it));
+                List<ProvideDep> types = ListUtils.format(m.args, (it) -> new ProvideDep(it.type, it.qualifierAnns));
                 argsTypes.addAll(types);
             }
         return argsTypes;
@@ -191,14 +206,16 @@ public class InvokeCall {
                         int argCount = 0;
                         for (FieldDetail arg : m.args) {
                             if (argCount++ > 0) builder.add(", ");
-                            FieldDetail field = isList(arg.type) ? ListUtils.first(builder.getDeclaredFields(), (i, f) ->
-                                    isList(f.type) && Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
+                            boolean isList = isList(arg.type);
+                            List<FieldDetail> typeFields = ListUtils.filter(builder.getDeclaredFields(), (i, f) ->
+                                    Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type)));
+
+                            FieldDetail field = isList ? ListUtils.first(typeFields, (i, f) ->
+                                    isList(f.type) && Objects.equals(f.qualifierAnns, arg.qualifierAnns)
                             ) : null;
                             if (field == null) {
                                 //non list
-                                field = ListUtils.first(builder.getDeclaredFields(), (i, f) ->
-                                        Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type))
-                                );
+                                field = ListUtils.first(typeFields, (i, f) -> Objects.equals(f.qualifierAnns, arg.qualifierAnns));
                             }
 
                             if (field == null) {
@@ -215,9 +232,45 @@ public class InvokeCall {
 
                         builder.add(")");
                     }
-
                     return builder;
                 })
                 .providingType(sequence.get(sequence.size() - 1).returnType);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (invokeSequenceVariants.size() <= 1)
+            for (QualifierAnn qualifierAnn : qualifierAnnotations(false)) {
+                builder.append(qualifierAnn.toString())
+                        .append("    ");
+            }
+        int variantIndx = 0;
+        for (List<MethodDetail> variant : invokeSequenceVariants) {
+            if (variantIndx++ > 0) builder.append(";\n");
+            int secIndx = 0;
+            for (MethodDetail m : variant) {
+                if (secIndx++ > 0) builder.append(".");
+                builder.append(m.methodName)
+                        .append("(")
+                        .append(String.join(",", ListUtils.format(m.args, f -> f.type.toString())))
+                        .append(")");
+            }
+        }
+        return builder.toString();
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InvokeCall that = (InvokeCall) o;
+        return Objects.equals(invokeSequenceVariants, that.invokeSequenceVariants);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(invokeSequenceVariants);
     }
 }

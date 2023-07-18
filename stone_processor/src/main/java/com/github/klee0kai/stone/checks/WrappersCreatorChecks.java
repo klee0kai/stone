@@ -7,8 +7,6 @@ import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.types.wrappers.Wrapper;
 import com.squareup.javapoet.ClassName;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -81,8 +79,7 @@ public class WrappersCreatorChecks {
     private static void checkWrappingClasses(ClassDetail cl) {
         for (ClassName wrClName : cl.ann(WrapperCreatorsAnn.class).wrappers) {
             TypeElement wrCl = allClassesHelper.typeElementFor(wrClName);
-            Type wrType = ((Symbol.ClassSymbol) wrCl).type;
-            if (wrType.getTypeArguments().size() != 1) {
+            if (wrCl.getTypeParameters().size() != 1) {
                 throw new IncorrectSignatureException(
                         createErrorMes()
                                 .wrapperShouldBeGenericType1(cl.className)

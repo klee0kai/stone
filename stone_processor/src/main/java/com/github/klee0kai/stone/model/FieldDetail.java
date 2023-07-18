@@ -1,14 +1,21 @@
 package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 
 import javax.inject.Inject;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 
 /**
  * Collected field details of compile element or field specs.
@@ -20,6 +27,8 @@ public class FieldDetail {
 
     public TypeName type;
 
+    public Set<QualifierAnn> qualifierAnns = new HashSet<>();
+
     public boolean injectAnnotation = false;
 
     /**
@@ -28,11 +37,23 @@ public class FieldDetail {
      * @param p original element
      * @return new FieldDetails object of this element
      */
-    public static FieldDetail of(VariableElement p) {
+    public static FieldDetail of(VariableElement p, Element annotationsEl) {
         FieldDetail fieldDetail = new FieldDetail();
         fieldDetail.type = TypeName.get(p.asType());
         fieldDetail.name = p.getSimpleName().toString();
         fieldDetail.injectAnnotation = p.getAnnotation(Inject.class) != null;
+
+        for (AnnotationMirror ann : p.getAnnotationMirrors()) {
+            String clName = ann.getAnnotationType().toString();
+            ClassDetail qualifierAnn = allClassesHelper.findQualifierAnnotation(clName);
+            if (qualifierAnn != null) fieldDetail.qualifierAnns.add(QualifierAnn.of(ann));
+        }
+        if (annotationsEl != null)
+            for (AnnotationMirror ann : annotationsEl.getAnnotationMirrors()) {
+                String clName = ann.getAnnotationType().toString();
+                ClassDetail qualifierAnn = allClassesHelper.findQualifierAnnotation(clName);
+                if (qualifierAnn != null) fieldDetail.qualifierAnns.add(QualifierAnn.of(ann));
+            }
         return fieldDetail;
     }
 

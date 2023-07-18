@@ -4,14 +4,17 @@ import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
 import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;
+import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
+import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.utils.RecursiveDetector;
 import com.squareup.javapoet.ClassName;
@@ -31,10 +34,11 @@ import static java.util.Collections.singleton;
 public class ModulesGraph {
 
     public static boolean SIMPLE_PROVIDE_OPTIMIZING = true;
+    public static int MAX_PROVIDE_RESOLVE_COUNT = 10_000;
 
     public final Set<ClassName> allQualifiers = new HashSet<>();
-    private final HashMap<TypeName, List<InvokeCall>> provideTypeCodes = new HashMap<>();
-    private final HashMap<TypeName, List<InvokeCall>> cacheControlTypeCodes = new HashMap<>();
+    private final HashMap<TypeName, Set<InvokeCall>> provideTypeCodes = new HashMap<>();
+    private final HashMap<TypeName, Set<InvokeCall>> cacheControlTypeCodes = new HashMap<>();
 
 
     /**
@@ -54,7 +58,7 @@ public class ModulesGraph {
             boolean isCached = !m.hasAnnotations(ProvideAnn.class) || m.ann(ProvideAnn.class).isCachingProvideType();
             int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
 
-            provideTypeCodes.putIfAbsent(provTypeName, new LinkedList<>());
+            provideTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
             provideTypeCodes.get(provTypeName).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
 
             MethodDetail cacheControlMethod = new MethodDetail();
@@ -66,18 +70,19 @@ public class ModulesGraph {
                 cacheControlMethod.args.add(it);
             }
             cacheControlMethod.returnType = listWrapTypeIfNeed(m.returnType);
+            cacheControlMethod.qualifierAnns = m.qualifierAnns;
 
-            cacheControlTypeCodes.putIfAbsent(provTypeName, new LinkedList<>());
+            cacheControlTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
             cacheControlTypeCodes.get(provTypeName).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
         }
     }
 
-    public SmartCode codeProvideType(String provideMethodName, TypeName returnType, List<FieldDetail> qualifiers) {
-        boolean isWrappedReturn = WrapHelper.isSupport(returnType);
-        boolean isListReturn = WrapHelper.isList(returnType);
+    public SmartCode codeProvideType(String methodName, TypeName returnType, Set<QualifierAnn> qualifierAnns) {
+        boolean isWrappedReturn = isSupport(returnType);
+        boolean isListReturn = isList(returnType);
         TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
 
-        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(provideMethodName, providingType, qualifiers);
+        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(new ProvideDep(methodName, returnType, qualifierAnns));
         if (provideTypeInvokes == null || provideTypeInvokes.isEmpty()) {
             return null;
         }
@@ -101,15 +106,16 @@ public class ModulesGraph {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
             FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), null);
             FieldDetail listDepField = FieldDetail.simple(genLocalFieldName(), null);
+            boolean isListInv = inv.invokeSequenceVariants.size() > 1;
 
             builder.withLocals(localBuilder -> {
                 // provide single objects
                 if (isCacheProvide) {
-                    localBuilder.localVariable(singleDepField.name, inv.invokeBest());
+                    localBuilder.localVariable(singleDepField.name, inv.qualifierAnnotations(true), inv.invokeBest());
                     singleDepField.type = inv.resultType();
                 } else {
                     singleDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
-                    localBuilder.localVariable(singleDepField.name, SmartCode.builder()
+                    localBuilder.localVariable(singleDepField.name, inv.qualifierAnnotations(true), SmartCode.builder()
                             .add("() -> ")
                             .add(inv.invokeBest())
                             .providingType(singleDepField.type)
@@ -123,7 +129,7 @@ public class ModulesGraph {
                 listDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class),
                         ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
                 );
-                localBuilder.localVariable(listDepField.name, SmartCode.builder()
+                localBuilder.localVariable(listDepField.name, inv.qualifierAnnotations(true), SmartCode.builder()
                         .add("() -> ")
                         .add(inv.invokeAllToList())
                         .providingType(listDepField.type)
@@ -177,21 +183,23 @@ public class ModulesGraph {
     }
 
 
-    public List<InvokeCall> provideInvokesWithDeps(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
-        Set<TypeName> argTypes = new HashSet<>(ListUtils.format(qualifiers, it -> it.type));
+    public List<InvokeCall> provideInvokesWithDeps(ProvideDep provideDep) {
         LinkedList<InvokeCall> provideTypeInvokes = new LinkedList<>();
-        LinkedList<TypeName> needProvideDeps = new LinkedList<>();
+        LinkedList<ProvideDep> needProvideDeps = new LinkedList<>();
         RecursiveDetector<Integer> needProvideDepsRecursiveDetector = new RecursiveDetector<>();
-        needProvideDeps.add(typeName);
+        needProvideDeps.add(provideDep);
+        int loopCount = 0;
 
         // provide dependencies while not provide all
         while (!needProvideDeps.isEmpty()) {
-            TypeName dep = nonWrappedType(needProvideDeps.pollFirst());
-            InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, provideMethodName, dep, qualifiers);
+            ProvideDep rawDep = needProvideDeps.pollFirst();
+            TypeName dep = nonWrappedType(rawDep.typeName);
+            InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, dep, rawDep.qualifierAnns, rawDep.methodName, isList(rawDep.typeName));
             if (invokeCall == null) {
-                if (Objects.equals(dep, typeName)) {
+                if (Objects.equals(provideDep, rawDep)) {
                     return null;
                 }
+
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideType(dep.toString())
@@ -199,13 +207,15 @@ public class ModulesGraph {
                         null
                 );
             }
-            provideMethodName = null;
 
-            List<TypeName> newDeps = ListUtils.filter(invokeCall.argTypes(true, null), (indx, it) -> {
-                if (Objects.equals(dep, it)) return false; // bind instance case
+            List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (i, it) -> {
+                if (Objects.equals(provideDep.typeName, it.typeName) && Objects.equals(rawDep.typeName, it.typeName)) {
+                    // bind instance case. Argument and return type are equals
+                    return false;
+                }
                 // qualifies not need to provide
-                TypeName argNonWrapped = nonWrappedType(it);
-                return argNonWrapped instanceof ClassName && !allQualifiers.contains(argNonWrapped) && !argTypes.contains(argNonWrapped);
+                TypeName argNonWrapped = nonWrappedType(it.typeName);
+                return argNonWrapped instanceof ClassName && !allQualifiers.contains(argNonWrapped);
             });
 
             needProvideDeps.addAll(newDeps);
@@ -214,15 +224,26 @@ public class ModulesGraph {
             if (recursiveDetected) {
                 throw new RecurciveProviding(
                         createErrorMes()
+                                .errorProvideType(provideDep.typeName.toString())
                                 .recursiveProviding()
+                                .build()
+                );
+            }
+            if (loopCount++ > MAX_PROVIDE_RESOLVE_COUNT) {
+                throw new StoneException(
+                        createErrorMes()
+                                .errorProvideType(provideDep.typeName.toString())
+                                .add("long providing loop for type. Stone library Error.")
                                 .build(),
                         null
                 );
             }
 
             provideTypeInvokes.add(invokeCall);
-            provideTypeInvokes = ListUtils.removeDoublesRight(provideTypeInvokes,
-                    (it1, it2) -> Objects.equals(it1.resultType(), it2.resultType()));
+            provideTypeInvokes = ListUtils.removeDoublesRight(provideTypeInvokes, (it1, it2) -> {
+                return Objects.equals(it1.resultType(), it2.resultType())
+                        && Objects.equals(it1.qualifierAnnotations(true), it2.qualifierAnnotations(true));
+            });
 
         }
         Collections.reverse(provideTypeInvokes);
@@ -234,46 +255,42 @@ public class ModulesGraph {
      *
      * @param provideMethodName predefined method name
      * @param typeName          the name of the type whose cache needs to be changed
-     * @param qualifiers        method's arguments
      * @return cache control invoke call
      */
-    public InvokeCall invokeControlCacheForType(String provideMethodName, TypeName typeName, List<FieldDetail> qualifiers) {
+    public InvokeCall invokeControlCacheForType(String provideMethodName, TypeName typeName, Set<QualifierAnn> qualifierAnns) {
         String cacheControlMethodName = cacheControlMethodName(provideMethodName);
-        return provideTypeInvokeCall(cacheControlTypeCodes, cacheControlMethodName, typeName, qualifiers);
+        return provideTypeInvokeCall(cacheControlTypeCodes, typeName, qualifierAnns, cacheControlMethodName, false);
     }
 
     private InvokeCall provideTypeInvokeCall(
-            HashMap<TypeName, List<InvokeCall>> provideTypeCodes,
-            String provideMethodName,
+            HashMap<TypeName, Set<InvokeCall>> provideTypeCodes,
             TypeName typeName,
-            List<FieldDetail> qualifiers
+            Set<QualifierAnn> qualifierAnns,
+            String provideMethodName,
+            boolean listVariants
     ) {
-        List<InvokeCall> invokeCalls = provideTypeCodes.getOrDefault(typeName, null);
+        Set<InvokeCall> invokeCalls = provideTypeCodes.getOrDefault(typeName, null);
         if (invokeCalls == null || invokeCalls.isEmpty())
             return null;
-        Set<TypeName> qualifiersTypes = new HashSet<>(ListUtils.format(qualifiers, (it) -> it.type));
-        invokeCalls.sort((inv1, inv2) -> {
-            // first compare uses qualifiers
-            int usedQualifiers1 = inv1.argTypes(true, qualifiersTypes).size();
-            int usedQualifiers2 = inv2.argTypes(true, qualifiersTypes).size();
-            int qCompare = Integer.compare(usedQualifiers2, usedQualifiers1);
-            if (qCompare != 0) return qCompare; // more used qualifies
+        List<InvokeCall> filtered = !listVariants || qualifierAnns != null && !qualifierAnns.isEmpty()
+                ? ListUtils.filter(invokeCalls, (i, it) -> Objects.equals(it.qualifierAnnotations(false), qualifierAnns))
+                : new LinkedList<>(invokeCalls);
 
-            // second compare name equals
-            int len1 = inv1.bestSequence().size();
-            int name1 = Objects.equals(provideMethodName, inv1.bestSequence().get(len1 - 1).methodName) ? 1 : 0;
-            int len2 = inv2.bestSequence().size();
-            int name2 = Objects.equals(provideMethodName, inv2.bestSequence().get(len2 - 1).methodName) ? 1 : 0;
-            int nameCompare = Integer.compare(name2, name1);
-            if (nameCompare != 0) return nameCompare; // better with name equals
+        filtered = provideMethodName != null ? ListUtils.filter(filtered, (i, it) -> {
+            int len = it.bestSequence().size();
+            String mName = it.bestSequence().get(len - 1).methodName;
+            return Objects.equals(provideMethodName, mName);
+        }) : filtered;
 
-            // low null's using
-            int qualifiers1 = inv1.argTypes(true, null).size();
-            int qualifiers2 = inv2.argTypes(true, null).size();
-            qCompare = Integer.compare(qualifiers1, qualifiers2);
-            return qCompare; // less all qualifies
-        });
-        return !invokeCalls.isEmpty() ? new InvokeCall(invokeCalls) : null;
+        if (!listVariants && filtered.size() > 1) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .errorProvideType(typeName.toString())
+                            .add(": is bound multi times.\n")
+                            .add(String.join(" and \n", ListUtils.format(filtered, InvokeCall::toString)))
+                            .build());
+        }
+        return !filtered.isEmpty() ? new InvokeCall(filtered) : null;
     }
 
 }

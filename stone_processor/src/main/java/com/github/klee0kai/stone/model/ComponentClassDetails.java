@@ -7,7 +7,6 @@ import com.github.klee0kai.stone.helpers.invokecall.ModulesGraph;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
 import com.github.klee0kai.stone.model.annotations.ModuleAnn;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.TypeElement;
 import java.util.HashSet;
@@ -34,11 +33,6 @@ public class ComponentClassDetails extends ClassDetail {
 
     public ComponentClassDetails(TypeElement owner) {
         super(owner);
-        collectComponentInfo();
-    }
-
-    public ComponentClassDetails(String packageName, TypeSpec owner) {
-        super(packageName, owner);
         collectComponentInfo();
     }
 
@@ -83,13 +77,11 @@ public class ComponentClassDetails extends ClassDetail {
         List<MethodDetail> hiddenBindInstanceMethods = ListUtils.filter(
                 getAllMethods(false, false, "<init>"),
                 (i, m) -> {
-                    List<FieldDetail> qFields = ListUtils.filter(m.args,
-                            (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
-                    );
-                    boolean isProvide = ComponentMethods.isBindInstanceMethod(m) == ComponentMethods.BindInstanceType.BindInstanceAndProvide;
-                    boolean noInModules = modulesGraph.codeProvideType(m.methodName, m.returnType, qFields) == null;
-                    return isProvide && noInModules;
+                    boolean isBindAndProvide = ComponentMethods.isBindInstanceMethod(m) == ComponentMethods.BindInstanceType.BindInstanceAndProvide;
+                    boolean noInModules = isBindAndProvide && modulesGraph.codeProvideType(m.methodName, m.returnType, m.qualifierAnns) == null;
+                    return isBindAndProvide && noInModules;
                 });
+
         hiddenModule = new ClassDetail(genHiddenModuleNameMirror(className));
         hiddenModule.addAnnotation(new ModuleAnn());
         hiddenModule.methods.addAll(hiddenBindInstanceMethods);

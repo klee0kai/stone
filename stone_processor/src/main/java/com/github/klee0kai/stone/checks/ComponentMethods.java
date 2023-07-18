@@ -73,7 +73,7 @@ public class ComponentMethods {
                         .componentInitMethodSignatureIncorrect(m.methodName, Init.class.getSimpleName())
                         .build()
         );
-        if (!m.hasOnlyAnnotations(false, InitAnn.class)
+        if (!m.hasOnlyAnnotations(false, false, InitAnn.class)
                 || m.args.isEmpty() || m.returnType != TypeName.VOID)
             throw ex;
 
@@ -101,7 +101,7 @@ public class ComponentMethods {
                         .componentExtOfMethodSignatureIncorrect(m.methodName, ExtendOf.class.getSimpleName())
                         .build()
         );
-        if (!m.hasOnlyAnnotations(false, ExtOfAnn.class)
+        if (!m.hasOnlyAnnotations(false, false, ExtOfAnn.class)
                 || m.args.size() != 1 || m.returnType != TypeName.VOID)
             throw ex;
         ClassDetail parentComponent = allClassesHelper.findForType(m.args.get(0).type);
@@ -119,7 +119,7 @@ public class ComponentMethods {
                         .componentBindInstanceMethodSignatureIncorrect(m.methodName, BindInstance.class.getSimpleName())
                         .build()
         );
-        if (!m.hasOnlyAnnotations(true, BindInstanceAnn.class)) throw ex;
+        if (!m.hasOnlyAnnotations(true, true, BindInstanceAnn.class)) throw ex;
         if (m.args.size() != 1) throw ex;
         TypeName typeName = m.args.get(0).type;
         if (typeName.isPrimitive() || typeName.isBoxedPrimitive()) throw ex;
@@ -134,7 +134,7 @@ public class ComponentMethods {
     }
 
     public static boolean isGcMethod(MethodDetail m) {
-        if (m.gcScopeAnnotations.isEmpty() || !m.hasOnlyAnnotations(true)) return false;
+        if (m.gcScopeAnnotations.isEmpty() || !m.hasOnlyAnnotations(true, false)) return false;
         if (m.returnType != TypeName.VOID) {
             throw new IncorrectSignatureException(
                     createErrorMes()
@@ -154,7 +154,7 @@ public class ComponentMethods {
                         .componentSwitchCacheMethodSignatureIncorrect(m.methodName, SwitchCache.class.getSimpleName())
                         .build()
         );
-        if (!m.hasOnlyAnnotations(true, SwitchCacheAnn.class)) throw ex;
+        if (!m.hasOnlyAnnotations(true, false, SwitchCacheAnn.class)) throw ex;
         if (m.returnType != TypeName.VOID || !m.args.isEmpty()) throw ex;
         checkMethodBusy(m);
 
@@ -162,7 +162,7 @@ public class ComponentMethods {
     }
 
     public static boolean isInjectMethod(MethodDetail m) {
-        if (!m.hasOnlyAnnotations(false) || m.returnType != TypeName.VOID || m.args.size() < 1)
+        if (!m.hasOnlyAnnotations(false, false) || m.returnType != TypeName.VOID || m.args.size() < 1)
             return false;
         checkMethodBusy(m);
 
@@ -176,7 +176,7 @@ public class ComponentMethods {
                         .componentProtectInjectedMethodSignatureIncorrect(m.methodName, ProtectInjected.class.getSimpleName())
                         .build()
         );
-        if (!m.hasOnlyAnnotations(false, ProtectInjectedAnn.class) || m.returnType != TypeName.VOID || m.args.size() != 1)
+        if (!m.hasOnlyAnnotations(false, false, ProtectInjectedAnn.class) || m.returnType != TypeName.VOID || m.args.size() != 1)
             throw ex;
         TypeName typeName = m.args.get(0).type;
         if (typeName.isPrimitive() || typeName.isBoxedPrimitive())
@@ -190,7 +190,7 @@ public class ComponentMethods {
         return !m.returnType.isPrimitive()
                 && !m.returnType.isBoxedPrimitive()
                 && m.returnType != TypeName.VOID
-                && m.hasOnlyAnnotations(false);
+                && m.hasOnlyAnnotations(false, true);
     }
 
 

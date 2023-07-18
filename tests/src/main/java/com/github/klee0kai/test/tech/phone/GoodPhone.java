@@ -17,8 +17,11 @@ public class GoodPhone extends ATech {
 
     @Inject
     public Battery battery;
+
     @Inject
     public DataStorage dataStorage;
+
+
     @Inject
     public Ram ram;
 
