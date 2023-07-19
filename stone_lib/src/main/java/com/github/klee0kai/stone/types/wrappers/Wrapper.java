@@ -1,21 +1,16 @@
 package com.github.klee0kai.stone.types.wrappers;
 
-import javax.inject.Provider;
-
 public interface Wrapper {
 
     /**
      * Provide wrapped object.
      *
-     * @param wrapperCl        type of wrapper
-     * @param originalProvider original object provider
-     * @param <Wr>             type of wrapper
-     * @param <T>              type of providing original object
+     * @param wrapperCl type of wrapper
+     * @param original  original object
+     * @param <Wr>      type of wrapper
+     * @param <T>       type of providing original object
      * @return wrapped object provider
      */
-    <Wr, T> Wr wrap(Class<Wr> wrapperCl, Provider<T> originalProvider);
-
-
-    <Wr, T> T unwrap(Wr wrapped);
+    <Wr, T> Wr wrap(Class<Wr> wrapperCl, T original);
 
 }

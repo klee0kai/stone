@@ -146,6 +146,7 @@ public class CarSingleWrapperTests {
         LazyProvide<Car> car2 = DI.carLazy();
 
         // Then
+        assertEquals(0, Car.createCount);
         assertNotNull(car1.get().uuid);
         assertEquals(car1.get().uuid, car2.get().uuid);
         assertEquals(1, Car.createCount);
@@ -161,6 +162,7 @@ public class CarSingleWrapperTests {
         Provider<Car> car2 = DI.carProvider();
 
         // Then
+        assertEquals(0, Car.createCount);
         assertNotNull(car1.get().uuid);
         assertEquals(car1.get().uuid, car2.get().uuid);
         assertEquals(1, Car.createCount);

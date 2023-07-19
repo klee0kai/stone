@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.types.wrappers;
 public class LazyProvide<T> implements Ref<T> {
 
     private T value = null;
-    private Ref<T> call;
+    private final Ref<T> call;
 
     public LazyProvide(Ref<T> call) {
         this.call = call;
