@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.*;
-import com.github.klee0kai.stone.types.wrappers.AsyncWrapper;
+import com.github.klee0kai.stone.types.wrappers.ProviderWrapper;
 import com.github.klee0kai.stone.types.wrappers.Wrapper;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -22,7 +22,7 @@ import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.create
 public class WrappersCreatorChecks {
 
     public static final ClassName wrapperClName = ClassName.get(Wrapper.class);
-    public static final ClassName asyncWrapperClName = ClassName.get(AsyncWrapper.class);
+    public static final ClassName asyncWrapperClName = ClassName.get(ProviderWrapper.class);
 
     public static void checkWrapperClass(ClassDetail cl) {
         try {

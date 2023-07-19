@@ -6,7 +6,7 @@ import com.github.klee0kai.test.car.model.Car;
 
 @Component(
         wrapperProviders = {
-                CarAsyncWrapper.class,
+                CarProviderWrapper.class,
                 CarWrapper.class,
         }
 )

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone
 
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator
-import com.github.klee0kai.stone.types.wrappers.AsyncWrapper
+import com.github.klee0kai.stone.types.wrappers.ProviderWrapper
 import javax.inject.Provider
 
 @WrappersCreator(
@@ -9,7 +9,7 @@ import javax.inject.Provider
         Lazy::class
     ]
 )
-open class KotlinWrappersStone : AsyncWrapper {
+open class KotlinWrappersStone : ProviderWrapper {
 
     override fun <Wr : Any?, T : Any?> wrap(wrapperCl: Class<Wr>, originalProvider: Provider<T>): Wr? {
         return when {
