@@ -1,6 +1,7 @@
 package com.github.klee0kai.test.car.di.wrapped.create;
 
 import com.github.klee0kai.stone.annotations.component.Component;
+import com.github.klee0kai.stone.types.wrappers.AsyncProvide;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.Wheel;
@@ -37,5 +38,7 @@ public interface CarWrappedCreateComponent {
     Window window();
 
     Car car();
+
+    AsyncProvide<Car> carAsync();
 
 }

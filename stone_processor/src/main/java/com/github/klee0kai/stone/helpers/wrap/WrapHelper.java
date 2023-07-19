@@ -4,6 +4,7 @@ import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.NullGet;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
+import com.github.klee0kai.stone.types.wrappers.AsyncProvide;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
 import com.github.klee0kai.stone.types.wrappers.Ref;
@@ -197,11 +198,11 @@ public class WrapHelper {
             support(wrapType);
         }
 
-        for (Class cl : Arrays.asList(PhantomProvide.class, Ref.class, Provider.class, LazyProvide.class)) {
+        for (Class cl : Arrays.asList(PhantomProvide.class, Ref.class, Provider.class, LazyProvide.class, AsyncProvide.class)) {
             ClassName wrapper = ClassName.get(cl);
 
             WrapType wrapType = new WrapType();
-            wrapType.isNoCachingWrapper = !Objects.equals(cl, LazyProvide.class);
+            wrapType.isNoCachingWrapper = !Objects.equals(cl, LazyProvide.class) && !Objects.equals(cl, AsyncProvide.class);
             wrapType.isAsyncProvider = true;
             wrapType.typeName = wrapper;
 
