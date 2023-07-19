@@ -5,18 +5,24 @@ import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.*;
+import com.github.klee0kai.stone.types.wrappers.ProviderWrapper;
 import com.github.klee0kai.stone.types.wrappers.Wrapper;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Objects;
+import java.util.List;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 public class WrappersCreatorChecks {
+
+    public static final ClassName wrapperClName = ClassName.get(Wrapper.class);
+    public static final ClassName asyncWrapperClName = ClassName.get(ProviderWrapper.class);
 
     public static void checkWrapperClass(ClassDetail cl) {
         try {
@@ -46,10 +52,11 @@ public class WrappersCreatorChecks {
     }
 
     private static void checkWrapperCreatorInterface(ClassDetail cl) {
-        ClassName wrClName = ClassName.get(Wrapper.class);
+
+        List<TypeName> wrapperClasses = Arrays.asList(wrapperClName, asyncWrapperClName);
         boolean isWrapperCreatorInterface = false;
         for (ClassDetail p : cl.getAllParents(false))
-            if (Objects.equals(p.className, wrClName)) {
+            if (wrapperClasses.contains(p.className)) {
                 isWrapperCreatorInterface = true;
                 break;
             }
@@ -57,7 +64,9 @@ public class WrappersCreatorChecks {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .wrappersCreatorClass(cl.className.toString())
-                            .shouldImplementInterface(Wrapper.class.getSimpleName())
+                            .shouldImplementInterface(wrapperClName.canonicalName())
+                            .add(" or ")
+                            .shouldImplementInterface(asyncWrapperClName.canonicalName())
                             .add(" and ")
                             .shouldHaveAnnotations(WrappersCreator.class.getSimpleName())
                             .build()

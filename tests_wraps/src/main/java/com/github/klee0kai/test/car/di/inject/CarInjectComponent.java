@@ -2,14 +2,13 @@ package com.github.klee0kai.test.car.di.inject;
 
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.ProtectInjected;
-import com.github.klee0kai.test.car.di.wrapped.create.wrappers.CarWrappers;
-import com.github.klee0kai.test.car.di.wrapped.create.wrappers.CarWrappes2;
+import com.github.klee0kai.test.car.di.wrapped.custom.wrappers.CarProviderWrapper;
 import com.github.klee0kai.test.car.model.CarInject;
 import com.github.klee0kai.test.car.model.CarInjectLists;
 import com.github.klee0kai.test.car.model.CarInjectProvider;
 
 @Component(
-        wrapperProviders = {CarWrappers.class, CarWrappes2.class}
+        wrapperProviders = {CarProviderWrapper.class}
 )
 public abstract class CarInjectComponent {
 

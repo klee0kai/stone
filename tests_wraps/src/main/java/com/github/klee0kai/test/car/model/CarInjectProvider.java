@@ -2,7 +2,7 @@ package com.github.klee0kai.test.car.model;
 
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.stone.types.wrappers.Ref;
-import com.github.klee0kai.test.car.di.wrapped.create.wrappers.CarLazy;
+import com.github.klee0kai.test.car.di.wrapped.custom.wrappers.CarLazy;
 
 import javax.inject.Inject;
 

@@ -1,6 +1,7 @@
 package com.github.klee0kai.stone.test.car.wrapper;
 
 import com.github.klee0kai.stone.Stone;
+import com.github.klee0kai.stone.types.wrappers.AsyncProvide;
 import com.github.klee0kai.stone.types.wrappers.LazyProvide;
 import com.github.klee0kai.test.car.di.wrapped.create.CarWrappedCreateComponent;
 import com.github.klee0kai.test.car.model.Bumper;
@@ -137,7 +138,7 @@ public class CarSingleWrapperTests {
 
 
     @Test
-    public void carLayTest() {
+    public void carLazyTest() {
         //Given
         CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
 
@@ -146,10 +147,27 @@ public class CarSingleWrapperTests {
         LazyProvide<Car> car2 = DI.carLazy();
 
         // Then
+        assertEquals(0, Car.createCount);
         assertNotNull(car1.get().uuid);
         assertEquals(car1.get().uuid, car2.get().uuid);
         assertEquals(1, Car.createCount);
     }
+
+    @Test
+    public void carAsyncTest() {
+        //Given
+        CarWrappedCreateComponent DI = Stone.createComponent(CarWrappedCreateComponent.class);
+
+        //When
+        AsyncProvide<Car> car1 = DI.carAsync();
+        AsyncProvide<Car> car2 = DI.carAsync();
+
+        // Then
+        assertNotNull(car1.get().uuid);
+        assertEquals(car1.get().uuid, car2.get().uuid);
+        assertEquals(1, Car.createCount);
+    }
+
 
     @Test
     public void carProvideTest() {
@@ -161,6 +179,7 @@ public class CarSingleWrapperTests {
         Provider<Car> car2 = DI.carProvider();
 
         // Then
+        assertEquals(0, Car.createCount);
         assertNotNull(car1.get().uuid);
         assertEquals(car1.get().uuid, car2.get().uuid);
         assertEquals(1, Car.createCount);

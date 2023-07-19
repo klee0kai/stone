@@ -1,6 +1,8 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
+import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.helpers.wrap.WrapType;
@@ -11,8 +13,11 @@ import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
 import java.util.LinkedList;
+import java.util.Objects;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.paramType;
+import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.asyncWrapperClName;
+import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.wrapperClName;
+import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 public class WrappersSupportBuilder {
 
@@ -35,28 +40,41 @@ public class WrappersSupportBuilder {
                         .initializer("new $T()", provideWrappersCl.className)
         ));
 
+
+        boolean isSimpleWrapper = ListUtils.first(provideWrappersCl.getAllParents(false),
+                (i, it) -> Objects.equals(it.className, wrapperClName)) != null;
+
+        boolean isAsyncWrapper = ListUtils.first(provideWrappersCl.getAllParents(false),
+                (i, it) -> Objects.equals(it.className, asyncWrapperClName)) != null;
+
         for (ClassName wrapper : provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers) {
             WrapType wrapType = new WrapType();
-            //TODO https://github.com/klee0kai/stone/issues/68
-            wrapType.isNoCachingWrapper = false;
+            wrapType.isNoCachingWrapper = !isAsyncWrapper;
             wrapType.typeName = wrapper;
-            wrapType.wrap = (or -> {
-                SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.$L.wrap( $T.class , () -> ", className, name, wrapper))
-                        .add(or)
-                        .add(")");
+            wrapType.wrap = or -> {
+                SmartCode builder = SmartCode.builder();
+
+                if (isSimpleWrapper) {
+                    builder.add(CodeBlock.of("$T.$L.wrap( $T.class , ", className, name, wrapper))
+                            .add(or)
+                            .add(")");
+                } else if (isAsyncWrapper) {
+                    builder.add(CodeBlock.of("$T.$L.wrap( $T.class , () -> ", className, name, wrapper))
+                            .add(or)
+                            .add(")");
+                } else {
+                    throw new IncorrectSignatureException(createErrorMes()
+                            .typeTransformNonSupport(or.providingType, wrapper)
+                            .build());
+                }
                 if (or.providingType != null)
                     builder.providingType(ParameterizedTypeName.get(wrapper, or.providingType));
                 return builder;
-            });
-            wrapType.unwrap = (or) -> {
-                SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.$L.unwrap( ", className, name))
-                        .add(or)
-                        .add(")");
-                if (or.providingType != null)
-                    builder.providingType(paramType(or.providingType));
-                return builder;
+            };
+            wrapType.unwrap = or -> {
+                throw new IncorrectSignatureException(createErrorMes()
+                        .typeTransformNonSupport(or.providingType, wrapper)
+                        .build());
             };
 
             WrapHelper.support(wrapType);

@@ -1,11 +1,11 @@
-package com.github.klee0kai.test.car.di.wrapped.create.wrappers;
+package com.github.klee0kai.test.car.di.wrapped.custom.wrappers;
 
 import com.github.klee0kai.stone.types.wrappers.Ref;
 
 public class CarLazy<T> {
 
     private T value = null;
-    private Ref<T> call;
+    private final Ref<T> call;
 
     public CarLazy(Ref<T> call) {
         this.call = call;
