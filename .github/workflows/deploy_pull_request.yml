@@ -24,8 +24,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - java_version: 8
-            java_distribution: "temurin"
           - java_version: 11
             java_distribution: "temurin"
           - java_version: 17
