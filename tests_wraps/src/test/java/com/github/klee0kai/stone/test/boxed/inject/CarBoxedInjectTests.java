@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.boxed.inject;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponent;
 import com.github.klee0kai.test.boxed.model.CarBox;
 import com.github.klee0kai.test.boxed.model.CarBoxedInject;

@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.closed.provide;
+package com.github.klee0kai.stone._hidden_.provide;
 
 import java.util.List;
 

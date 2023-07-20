@@ -1,7 +1,7 @@
-package com.github.klee0kai.stone.closed.types.holders;
+package com.github.klee0kai.stone._hidden_.types.holders;
 
-import com.github.klee0kai.stone.closed.types.StListUtils;
-import com.github.klee0kai.stone.closed.types.StThr;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StThr;
 
 import java.util.LinkedList;
 import java.util.concurrent.ThreadPoolExecutor;

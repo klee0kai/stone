@@ -1,15 +1,12 @@
-package com.github.klee0kai.stone.closed.types.holders;
+package com.github.klee0kai.stone._hidden_.types.holders;
 
-import com.github.klee0kai.stone.closed.types.StListUtils;
-import com.github.klee0kai.stone.closed.types.StSwitchCache;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StSwitchCache;
 import com.github.klee0kai.stone.types.wrappers.Ref;
 
 import java.lang.ref.Reference;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.klee0kai.stone.closed.types.holders.StRefType.ListObject;
-import static com.github.klee0kai.stone.closed.types.holders.StRefType.StrongObject;
 
 /**
  * Stone Private class
@@ -59,7 +56,7 @@ public class StMapItemHolder<Key, T> {
 
     public void set(Key key, Ref<T> creator, boolean onlyIfNull) {
         Object refHolder = refMap.get(key);
-        if (Objects.equals(curRefType, StrongObject)) {
+        if (Objects.equals(curRefType, StRefType.StrongObject)) {
             if (onlyIfNull && refHolder != null) return;
             refMap.put(key, creator.get());
             return;
@@ -80,7 +77,7 @@ public class StMapItemHolder<Key, T> {
 
     public void setList(Key key, Ref<List<T>> creator, boolean onlyIfNull) {
         Object refHolder = refMap.get(key);
-        if (Objects.equals(curRefType, ListObject)) {
+        if (Objects.equals(curRefType, StRefType.ListObject)) {
             if (!onlyIfNull || refHolder == null) {
                 refMap.put(key, creator.get());
                 return;

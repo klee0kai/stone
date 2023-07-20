@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
-import com.github.klee0kai.stone.closed.types.StListUtils;
-import com.github.klee0kai.stone.closed.types.StNl;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StNl;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.types.wrappers.AsyncProvide;

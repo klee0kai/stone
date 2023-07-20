@@ -1,9 +1,9 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
-import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
-import com.github.klee0kai.stone.closed.types.StCacheAction;
-import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.provide.ProvideBuilder;
+import com.github.klee0kai.stone._hidden_.types.StCacheAction;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;

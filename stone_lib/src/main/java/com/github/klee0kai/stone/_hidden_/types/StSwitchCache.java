@@ -1,7 +1,7 @@
-package com.github.klee0kai.stone.closed.types;
+package com.github.klee0kai.stone._hidden_.types;
 
+import com.github.klee0kai.stone._hidden_.types.holders.StTimeScheduler;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
-import com.github.klee0kai.stone.closed.types.holders.StTimeScheduler;
 
 /**
  * Stone Private class

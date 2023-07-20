@@ -1,12 +1,12 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone._hidden_.IModule;
+import com.github.klee0kai.stone._hidden_.IPrivateComponent;
+import com.github.klee0kai.stone._hidden_.types.*;
+import com.github.klee0kai.stone._hidden_.types.holders.StTimeHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.StTimeScheduler;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.checks.ComponentMethods;
-import com.github.klee0kai.stone.closed.IModule;
-import com.github.klee0kai.stone.closed.IPrivateComponent;
-import com.github.klee0kai.stone.closed.types.*;
-import com.github.klee0kai.stone.closed.types.holders.StTimeHolder;
-import com.github.klee0kai.stone.closed.types.holders.StTimeScheduler;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;

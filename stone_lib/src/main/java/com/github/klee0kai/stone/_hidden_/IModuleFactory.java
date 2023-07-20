@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.closed;
+package com.github.klee0kai.stone._hidden_;
 
 /**
  * Stone Private class

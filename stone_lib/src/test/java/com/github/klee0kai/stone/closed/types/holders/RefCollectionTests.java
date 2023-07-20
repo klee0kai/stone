@@ -1,6 +1,8 @@
 package com.github.klee0kai.stone.closed.types.holders;
 
-import com.github.klee0kai.stone.closed.types.StRefCollection;
+import com.github.klee0kai.stone._hidden_.types.StRefCollection;
+import com.github.klee0kai.stone._hidden_.types.holders.StTimeHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.StTimeScheduler;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

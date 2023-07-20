@@ -1,6 +1,6 @@
-package com.github.klee0kai.stone.closed.provide;
+package com.github.klee0kai.stone._hidden_.provide;
 
-import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 
 import java.util.Collection;
 import java.util.LinkedList;

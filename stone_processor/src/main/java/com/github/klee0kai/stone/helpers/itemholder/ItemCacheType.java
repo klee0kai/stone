@@ -1,11 +1,11 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
+import com.github.klee0kai.stone._hidden_.types.holders.StRefType;
 import com.github.klee0kai.stone.annotations.component.GcSoftScope;
 import com.github.klee0kai.stone.annotations.component.GcStrongScope;
 import com.github.klee0kai.stone.annotations.component.GcWeakScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.stone.closed.types.holders.StRefType;
 import com.squareup.javapoet.ClassName;
 
 public enum ItemCacheType {

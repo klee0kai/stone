@@ -2,7 +2,7 @@
 package com.github.klee0kai.stone.test.car.cachecontrol.swcache;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent;
 import com.github.klee0kai.test.car.model.Window;
 import org.junit.jupiter.api.Test;

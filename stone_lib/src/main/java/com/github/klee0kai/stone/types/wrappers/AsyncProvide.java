@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.types.wrappers;
 
-import com.github.klee0kai.stone.closed.types.StThr;
+import com.github.klee0kai.stone._hidden_.types.StThr;
 
 import java.util.concurrent.ExecutorService;
 

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.muti;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.test.car.di.lists.factory.CarMultiComponent;
 import com.github.klee0kai.test.car.model.Bumper;

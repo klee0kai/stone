@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.di.gcforest;
 
+import com.github.klee0kai.stone._hidden_.IPrivateComponent;
 import com.github.klee0kai.stone.annotations.component.*;
-import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope;
 import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope;
 

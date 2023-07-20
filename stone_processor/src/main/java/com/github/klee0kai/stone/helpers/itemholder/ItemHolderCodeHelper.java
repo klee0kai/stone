@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone.closed.types.StMultiKey;
+import com.github.klee0kai.stone._hidden_.types.StMultiKey;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.ClassName;

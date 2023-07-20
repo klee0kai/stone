@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
-import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.Pair;
 import com.github.klee0kai.stone.types.wrappers.PhantomProvide;

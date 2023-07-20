@@ -1,6 +1,6 @@
-package com.github.klee0kai.stone.closed;
+package com.github.klee0kai.stone._hidden_;
 
-import com.github.klee0kai.stone.closed.types.StSwitchCache;
+import com.github.klee0kai.stone._hidden_.types.StSwitchCache;
 
 import java.util.Set;
 

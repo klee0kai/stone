@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.closed.types.StCacheAction;
-import com.github.klee0kai.stone.closed.types.StListUtils;
-import com.github.klee0kai.stone.closed.types.StSwitchCache;
+import com.github.klee0kai.stone._hidden_.types.StCacheAction;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StSwitchCache;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;

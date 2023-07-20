@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
-import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
-import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.provide.ProvideBuilder;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;

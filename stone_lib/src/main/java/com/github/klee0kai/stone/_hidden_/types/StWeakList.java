@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.closed.types;
+package com.github.klee0kai.stone._hidden_.types;
 
 
 import java.lang.ref.Reference;

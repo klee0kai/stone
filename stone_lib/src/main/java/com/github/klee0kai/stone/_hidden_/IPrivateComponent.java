@@ -1,7 +1,7 @@
-package com.github.klee0kai.stone.closed;
+package com.github.klee0kai.stone._hidden_;
 
 
-import com.github.klee0kai.stone.closed.types.StoneCallback;
+import com.github.klee0kai.stone._hidden_.types.StoneCallback;
 
 /**
  * Private Stone class

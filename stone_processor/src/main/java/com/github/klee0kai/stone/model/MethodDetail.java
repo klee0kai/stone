@@ -1,9 +1,9 @@
 package com.github.klee0kai.stone.model;
 
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;

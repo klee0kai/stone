@@ -1,13 +1,13 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone._hidden_.IModule;
+import com.github.klee0kai.stone._hidden_.types.StCacheAction;
+import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.StSwitchCache;
+import com.github.klee0kai.stone._hidden_.types.holders.StRefType;
+import com.github.klee0kai.stone._hidden_.types.holders.StSingleItemHolder;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.stone.closed.IModule;
-import com.github.klee0kai.stone.closed.types.StCacheAction;
-import com.github.klee0kai.stone.closed.types.StListUtils;
-import com.github.klee0kai.stone.closed.types.StSwitchCache;
-import com.github.klee0kai.stone.closed.types.holders.StRefType;
-import com.github.klee0kai.stone.closed.types.holders.StSingleItemHolder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.itemholder.ItemCacheType;
