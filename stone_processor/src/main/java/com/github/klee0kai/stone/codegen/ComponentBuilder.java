@@ -663,8 +663,8 @@ public class ComponentBuilder {
                         Arrays.class,
                         scopesCode.build()
                 )
-                .addStatement("$T toWeak = $T.toWeak()", StSwitchCache.class, StSwitchCache.class)
-                .addStatement("$T toDef = $T.toDef()", StSwitchCache.class, StSwitchCache.class);
+                .addStatement("$T toWeak = $T.toWeak()", SwitchCacheParams.class, SwitchCacheParams.class)
+                .addStatement("$T toDef = $T.toDef()", SwitchCacheParams.class, SwitchCacheParams.class);
 
 
         gcMethods.add(builder);
@@ -719,7 +719,7 @@ public class ComponentBuilder {
         }
         builder.addStatement(
                 "$T switchCacheParams = new $T( $T.$L , $L, $L )",
-                StSwitchCache.class, StSwitchCache.class,
+                SwitchCacheParams.class, SwitchCacheParams.class,
                 SwitchCache.CacheType.class, m.ann(SwitchCacheAnn.class).cache.name(),
                 m.ann(SwitchCacheAnn.class).timeMillis,
                 schedulerInitCode.build()

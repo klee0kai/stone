@@ -8,10 +8,10 @@ import com.github.klee0kai.stone.annotations.component.SwitchCache;
 public class CacheAction {
 
     public final ActionType type;
-    public final StSwitchCache swCacheParams;
+    public final SwitchCacheParams swCacheParams;
     public final Object value;
 
-    public CacheAction(ActionType type, StSwitchCache swCacheParams, Object value) {
+    public CacheAction(ActionType type, SwitchCacheParams swCacheParams, Object value) {
         this.type = type;
         this.swCacheParams = swCacheParams;
         this.value = value;
@@ -30,13 +30,13 @@ public class CacheAction {
         return new CacheAction(ActionType.SET_IF_NULL, null, value);
     }
 
-    public static CacheAction switchCacheValueAction(StSwitchCache param) {
+    public static CacheAction switchCacheValueAction(SwitchCacheParams param) {
         return new CacheAction(ActionType.SWITCH_CACHE, param, null);
     }
 
     public static CacheAction switchCacheToDefAction() {
         return new CacheAction(ActionType.SWITCH_CACHE,
-                new StSwitchCache(SwitchCache.CacheType.Default, 0, null),
+                new SwitchCacheParams(SwitchCache.CacheType.Default, 0, null),
                 null
         );
     }
