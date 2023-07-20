@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.types.lifecycle;
+package com.github.klee0kai.stone.lifecycle;
 
 public interface StoneLifeCycleOwner {
 

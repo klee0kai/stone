@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone._hidden_.types;
 
-import com.github.klee0kai.stone.types.wrappers.Ref;
+import com.github.klee0kai.stone.wrappers.Ref;
 
 import java.util.Iterator;
 import java.util.LinkedList;

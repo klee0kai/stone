@@ -5,8 +5,8 @@ import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.*;
-import com.github.klee0kai.stone.types.wrappers.ProviderWrapper;
-import com.github.klee0kai.stone.types.wrappers.Wrapper;
+import com.github.klee0kai.stone.wrappers.creators.ProviderWrapper;
+import com.github.klee0kai.stone.wrappers.creators.Wrapper;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 

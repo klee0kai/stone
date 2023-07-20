@@ -1,7 +1,7 @@
 package com.github.klee0kai.test_kotlin.di.base_comp
 
 import com.github.klee0kai.stone.annotations.component.Component
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.Company
 import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.KConnectType
 import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.MonitorSize

@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.helpers.invokecall;
 import com.github.klee0kai.stone._hidden_.types.StListUtils;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.Pair;
-import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.wrappers.PhantomProvide;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;

@@ -18,8 +18,8 @@ import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.model.annotations.ModuleAnn;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
-import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;

@@ -1,7 +1,7 @@
 package com.github.klee0kai.tests.java_models.qualifiers
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone.types.wrappers.Ref
+import com.github.klee0kai.stone.wrappers.Ref
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponent
 import com.github.klee0kai.test.tech.components.Battery
 import org.junit.jupiter.api.Assertions.*

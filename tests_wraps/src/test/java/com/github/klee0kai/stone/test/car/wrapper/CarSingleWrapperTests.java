@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.test.car.wrapper;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.types.wrappers.AsyncProvide;
-import com.github.klee0kai.stone.types.wrappers.LazyProvide;
+import com.github.klee0kai.stone.wrappers.AsyncProvide;
+import com.github.klee0kai.stone.wrappers.LazyProvide;
 import com.github.klee0kai.test.car.di.wrapped.create.CarWrappedCreateComponent;
 import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Car;

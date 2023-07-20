@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.types.wrappers;
+package com.github.klee0kai.stone.wrappers;
 
 public class PhantomProvide<T> implements Ref<T> {
 

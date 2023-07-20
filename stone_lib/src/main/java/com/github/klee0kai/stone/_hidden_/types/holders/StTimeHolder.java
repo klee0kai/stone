@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone._hidden_.types.holders;
 
-import com.github.klee0kai.stone.types.wrappers.Ref;
+import com.github.klee0kai.stone.wrappers.Ref;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;

@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.tech.phone.base;
 
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
 
 public class LifecycleUtils {
 

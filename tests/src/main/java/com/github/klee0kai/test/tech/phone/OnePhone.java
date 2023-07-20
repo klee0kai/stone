@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.tech.phone;
 
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleListener;
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleListener;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.Ram;

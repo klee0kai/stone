@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.car.di.wrapped.custom.wrappers;
 
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
-import com.github.klee0kai.stone.types.wrappers.ProviderWrapper;
+import com.github.klee0kai.stone.wrappers.creators.ProviderWrapper;
 
 import javax.inject.Provider;
 

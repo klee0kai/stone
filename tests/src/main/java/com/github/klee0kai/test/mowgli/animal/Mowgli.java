@@ -1,8 +1,8 @@
 package com.github.klee0kai.test.mowgli.animal;
 
-import com.github.klee0kai.stone.types.wrappers.Ref;
-import com.github.klee0kai.stone.types.wrappers.LazyProvide;
-import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.wrappers.LazyProvide;
+import com.github.klee0kai.stone.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.github.klee0kai.test.mowgli.body.Blood;
 import com.github.klee0kai.test.mowgli.community.History;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;

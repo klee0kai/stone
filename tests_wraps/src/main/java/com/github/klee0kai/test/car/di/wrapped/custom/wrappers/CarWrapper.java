@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.car.di.wrapped.custom.wrappers;
 
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
-import com.github.klee0kai.stone.types.wrappers.Wrapper;
+import com.github.klee0kai.stone.wrappers.creators.Wrapper;
 
 @WrappersCreator(wrappers = {CarRef.class})
 public class CarWrapper implements Wrapper {

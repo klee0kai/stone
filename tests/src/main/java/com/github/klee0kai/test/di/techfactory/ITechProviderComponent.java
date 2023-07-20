@@ -1,8 +1,8 @@
 package com.github.klee0kai.test.di.techfactory;
 
-import com.github.klee0kai.stone.types.wrappers.LazyProvide;
-import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
-import com.github.klee0kai.stone.types.wrappers.Ref;
+import com.github.klee0kai.stone.wrappers.LazyProvide;
+import com.github.klee0kai.stone.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
 import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsVersion;
 import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
