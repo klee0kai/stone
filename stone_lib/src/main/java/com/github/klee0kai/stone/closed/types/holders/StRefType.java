@@ -6,7 +6,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
-public enum ItemRefType {
+public enum StRefType {
     StrongObject,
     WeakObject,
     SoftObject,
@@ -28,7 +28,7 @@ public enum ItemRefType {
         return false;
     }
 
-    public ItemRefType forList() {
+    public StRefType forList() {
         switch (this) {
             case StrongObject:
                 return ListObject;
@@ -42,7 +42,7 @@ public enum ItemRefType {
     }
 
 
-    public ItemRefType forSingle() {
+    public StRefType forSingle() {
         switch (this) {
             case ListObject:
                 return StrongObject;

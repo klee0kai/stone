@@ -9,21 +9,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.klee0kai.stone.closed.types.holders.ItemRefType.ListObject;
-import static com.github.klee0kai.stone.closed.types.holders.ItemRefType.StrongObject;
+import static com.github.klee0kai.stone.closed.types.holders.StRefType.ListObject;
+import static com.github.klee0kai.stone.closed.types.holders.StRefType.StrongObject;
 
 /**
  * Stone Private class
  */
-public class SingleItemHolder<T> {
+public class StSingleItemHolder<T> {
 
-    private final ItemRefType defType;
-    private ItemRefType curRefType;
+    private final StRefType defType;
+    private StRefType curRefType;
 
     private Object refHolder = null;
     private final AtomicInteger shedTaskCount = new AtomicInteger(0);
 
-    public SingleItemHolder(ItemRefType defType) {
+    public StSingleItemHolder(StRefType defType) {
         this.defType = defType;
         this.curRefType = defType;
     }
@@ -110,7 +110,7 @@ public class SingleItemHolder<T> {
         }
     }
 
-    public synchronized void setRefType(ItemRefType refType) {
+    public synchronized void setRefType(StRefType refType) {
         if (curRefType == refType) return;
         if (defType.isList()) {
             List<T> ob = getList();
@@ -139,19 +139,19 @@ public class SingleItemHolder<T> {
                 reset();
                 return;
             case Weak:
-                setRefType(ItemRefType.WeakObject);
+                setRefType(StRefType.WeakObject);
                 break;
             case Soft:
-                setRefType(ItemRefType.SoftObject);
+                setRefType(StRefType.SoftObject);
                 break;
             case Strong:
-                setRefType(ItemRefType.StrongObject);
+                setRefType(StRefType.StrongObject);
                 break;
         }
 
         if (args.time > 0) {
             shedTaskCount.incrementAndGet();
-            args.scheduler.schedule(new ScheduleTask(args.time) {
+            args.scheduler.schedule(new StScheduleTask(args.time) {
                 @Override
                 public void run() {
                     if (shedTaskCount.decrementAndGet() <= 0) setRefType(defType);

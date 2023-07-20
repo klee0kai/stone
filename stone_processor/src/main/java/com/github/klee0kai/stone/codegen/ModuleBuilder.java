@@ -6,8 +6,8 @@ import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.types.CacheAction;
 import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
-import com.github.klee0kai.stone.closed.types.holders.ItemRefType;
-import com.github.klee0kai.stone.closed.types.holders.SingleItemHolder;
+import com.github.klee0kai.stone.closed.types.holders.StRefType;
+import com.github.klee0kai.stone.closed.types.holders.StSingleItemHolder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.itemholder.ItemCacheType;
@@ -157,9 +157,9 @@ public class ModuleBuilder {
     }
 
     public ModuleBuilder overridedField() {
-        TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(SingleItemHolder.class), genCacheControlInterfaceModuleNameMirror(orModuleCl.className));
+        TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(StSingleItemHolder.class), genCacheControlInterfaceModuleNameMirror(orModuleCl.className));
         FieldSpec.Builder builder = FieldSpec.builder(weakHolder, overridedModuleFieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T($T.WeakObject)", weakHolder, ItemRefType.class);
+                .initializer("new $T($T.WeakObject)", weakHolder, StRefType.class);
         fields.put(overridedModuleFieldName, builder);
         return this;
     }

@@ -9,23 +9,23 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Stone Private class
  */
-public class TimeScheduler {
+public class StTimeScheduler {
 
     private static final int MAX_VALUE_AWAIT_TIME = 30;
     private static final int MIN_AWAIT_TIME = 3;
 
     private final ThreadPoolExecutor secThread = Threads.singleThreadExecutor("stone time scheduler");
 
-    private final DataAwait<ScheduleTask> timeTaskAwait = new DataAwait<>();
+    private final StDataAwait<StScheduleTask> timeTaskAwait = new StDataAwait<>();
 
-    public synchronized void schedule(ScheduleTask timerTask) {
+    public synchronized void schedule(StScheduleTask timerTask) {
         timeTaskAwait.trySend(timerTask);
         if (secThread.getQueue().isEmpty())
             secThread.submit(() -> {
-                LinkedList<ScheduleTask> timers = new LinkedList<>();
+                LinkedList<StScheduleTask> timers = new LinkedList<>();
 
                 //get first task
-                ScheduleTask task = timeTaskAwait.await(MAX_VALUE_AWAIT_TIME);
+                StScheduleTask task = timeTaskAwait.await(MAX_VALUE_AWAIT_TIME);
                 if (task != null) timers.add(task);
 
                 while (timers.size() > 0) {

@@ -12,15 +12,15 @@ public class RefCollectionTests {
 
     @Test
     public void clearNullTest() throws InterruptedException {
-        TimeScheduler timeScheduler = new TimeScheduler();
+        StTimeScheduler timeScheduler = new StTimeScheduler();
         RefCollection refCollection = new RefCollection();
 
-        refCollection.add(new TimeHolder(timeScheduler, 10, 40));
-        refCollection.add(new TimeHolder(timeScheduler, 12, 100));
-        refCollection.add(new TimeHolder(timeScheduler, null, 100));
-        refCollection.add(new TimeHolder(timeScheduler, null, 100));
-        refCollection.add(new TimeHolder(timeScheduler, 1, 100));
-        refCollection.add(new TimeHolder(timeScheduler, 3, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, 10, 40));
+        refCollection.add(new StTimeHolder(timeScheduler, 12, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, 1, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, 3, 100));
 
 
         refCollection.clearNulls();
@@ -41,15 +41,15 @@ public class RefCollectionTests {
 
     @Test
     public void clearNullTest2() throws InterruptedException {
-        TimeScheduler timeScheduler = new TimeScheduler();
+        StTimeScheduler timeScheduler = new StTimeScheduler();
         RefCollection refCollection = new RefCollection();
 
-        refCollection.add(new TimeHolder(timeScheduler, 10, 50));
-        refCollection.add(new TimeHolder(timeScheduler, 12, 10));
-        refCollection.add(new TimeHolder(timeScheduler, 1, 50));
-        refCollection.add(new TimeHolder(timeScheduler, 3, 100));
-        refCollection.add(new TimeHolder(timeScheduler, null, 100));
-        refCollection.add(new TimeHolder(timeScheduler, null, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, 10, 50));
+        refCollection.add(new StTimeHolder(timeScheduler, 12, 10));
+        refCollection.add(new StTimeHolder(timeScheduler, 1, 50));
+        refCollection.add(new StTimeHolder(timeScheduler, 3, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
+        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
 
 
         refCollection.clearNulls();
