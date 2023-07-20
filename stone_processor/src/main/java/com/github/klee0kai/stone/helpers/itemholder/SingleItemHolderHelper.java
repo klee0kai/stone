@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone.closed.types.single.ItemRefType;
-import com.github.klee0kai.stone.closed.types.single.SingleItemHolder;
+import com.github.klee0kai.stone.closed.types.holders.ItemRefType;
+import com.github.klee0kai.stone.closed.types.holders.SingleItemHolder;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.squareup.javapoet.*;
 

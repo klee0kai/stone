@@ -1,11 +1,11 @@
-package com.github.klee0kai.stone.closed.types;
+package com.github.klee0kai.stone.closed.types.holders;
 
 import java.util.LinkedList;
 
 /**
  * Stone Private class
  */
-public class DataAwait<T> {
+class DataAwait<T> {
 
     private final LinkedList<T> values = new LinkedList<>();
     private int awaitCount = 0;

@@ -1,7 +1,6 @@
-package com.github.klee0kai.stone.closed.types.single;
+package com.github.klee0kai.stone.closed.types.holders;
 
 import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.ScheduleTask;
 import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
 import com.github.klee0kai.stone.types.wrappers.Ref;
 
@@ -10,8 +9,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.klee0kai.stone.closed.types.single.ItemRefType.ListObject;
-import static com.github.klee0kai.stone.closed.types.single.ItemRefType.StrongObject;
+import static com.github.klee0kai.stone.closed.types.holders.ItemRefType.ListObject;
+import static com.github.klee0kai.stone.closed.types.holders.ItemRefType.StrongObject;
 
 /**
  * Stone Private class

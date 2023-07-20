@@ -1,10 +1,10 @@
-package com.github.klee0kai.stone.closed.types;
+package com.github.klee0kai.stone.closed.types.holders;
 
 /**
  * Stone Private class
  */
 
-public abstract class ScheduleTask {
+abstract class ScheduleTask {
 
     private final long execTime;
 

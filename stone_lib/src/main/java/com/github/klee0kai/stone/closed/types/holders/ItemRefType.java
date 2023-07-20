@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.closed.types.single;
+package com.github.klee0kai.stone.closed.types.holders;
 
 import com.github.klee0kai.stone.closed.types.ListUtils;
 

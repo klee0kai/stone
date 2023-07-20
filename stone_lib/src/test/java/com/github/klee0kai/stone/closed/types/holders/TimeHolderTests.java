@@ -1,7 +1,5 @@
-package com.github.klee0kai.stone.test.types;
+package com.github.klee0kai.stone.closed.types.holders;
 
-import com.github.klee0kai.stone.closed.types.TimeHolder;
-import com.github.klee0kai.stone.closed.types.TimeScheduler;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNull;

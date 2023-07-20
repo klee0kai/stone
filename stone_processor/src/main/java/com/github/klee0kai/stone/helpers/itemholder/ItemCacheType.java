@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.annotations.component.GcStrongScope;
 import com.github.klee0kai.stone.annotations.component.GcWeakScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.stone.closed.types.single.ItemRefType;
+import com.github.klee0kai.stone.closed.types.holders.ItemRefType;
 import com.squareup.javapoet.ClassName;
 
 public enum ItemCacheType {

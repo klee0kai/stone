@@ -5,6 +5,8 @@ import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
 import com.github.klee0kai.stone.closed.types.*;
+import com.github.klee0kai.stone.closed.types.holders.TimeHolder;
+import com.github.klee0kai.stone.closed.types.holders.TimeScheduler;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
