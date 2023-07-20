@@ -4,7 +4,7 @@ import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.house.simple.HouseComponent;
 import com.github.klee0kai.test.house.House;
 import com.github.klee0kai.test.house.kitchen.storagearea.Sanitizers;
-import com.github.klee0kai.test.house.qualifiers.StoreAreaType;
+import com.github.klee0kai.test.house.identifiers.StoreAreaType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +27,7 @@ public class HouseTests {
     }
 
     @Test
-    public void qualifiersTest() {
+    public void identifiersTest() {
         //Given
         HouseComponent di = Stone.createComponent(HouseComponent.class);
 
@@ -39,7 +39,7 @@ public class HouseTests {
     }
 
     @Test
-    public void qualifiersNullTest() {
+    public void identifiersNullTest() {
         //Given
         HouseComponent di = Stone.createComponent(HouseComponent.class);
 

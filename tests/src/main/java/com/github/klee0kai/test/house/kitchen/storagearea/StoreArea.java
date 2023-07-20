@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.house.kitchen.storagearea;
 
-import com.github.klee0kai.test.house.qualifiers.StoreAreaType;
+import com.github.klee0kai.test.house.identifiers.StoreAreaType;
 
 public class StoreArea {
 

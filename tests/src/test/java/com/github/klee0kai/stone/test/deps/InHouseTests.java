@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.test.deps;
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.house.simple.HouseComponent;
 import com.github.klee0kai.test.house.InHouse;
-import com.github.klee0kai.test.house.qualifiers.StoreAreaType;
+import com.github.klee0kai.test.house.identifiers.StoreAreaType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +28,7 @@ public class InHouseTests {
     }
 
     @Test
-    public void qualifiersTest() {
+    public void identifiersTest() {
         //Given
         HouseComponent di = Stone.createComponent(HouseComponent.class);
         InHouse inHouse = new InHouse();
@@ -42,7 +42,7 @@ public class InHouseTests {
     }
 
     @Test
-    public void qualifiersNullTest() {
+    public void identifiersNullTest() {
         //Given
         HouseComponent di = Stone.createComponent(HouseComponent.class);
         InHouse inHouse = new InHouse();

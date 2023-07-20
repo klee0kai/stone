@@ -26,7 +26,7 @@ public class ModuleCacheControlInterfaceBuilder {
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
-    public Set<ClassName> qualifiers = new HashSet<>();
+    public Set<ClassName> identifiers = new HashSet<>();
     public final HashMap<String, MethodSpec.Builder> iModuleMethodBuilders = new HashMap<>();
 
     // ---------------------- provide fields and method  ----------------------------------
@@ -36,12 +36,12 @@ public class ModuleCacheControlInterfaceBuilder {
     public static ModuleCacheControlInterfaceBuilder from(
             ClassDetail orModule,
             ClassName cacheControlCl,
-            List<ClassName> allQualifiers
+            List<ClassName> allIdentifiers
     ) {
         ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(
                 orModule,
                 cacheControlCl
-        ).addQualifiers(allQualifiers)
+        ).addIdentifiers(allIdentifiers)
                 .bindMethod()
                 .switchRefMethod();
 
@@ -59,8 +59,8 @@ public class ModuleCacheControlInterfaceBuilder {
         this.className = className;
     }
 
-    public ModuleCacheControlInterfaceBuilder addQualifiers(Collection<ClassName> qualifiers) {
-        this.qualifiers.addAll(qualifiers);
+    public ModuleCacheControlInterfaceBuilder addIdentifiers(Collection<ClassName> identifiers) {
+        this.identifiers.addAll(identifiers);
         return this;
     }
 
@@ -103,7 +103,7 @@ public class ModuleCacheControlInterfaceBuilder {
     public ModuleCacheControlInterfaceBuilder cacheControlMethod(String name, TypeName typeName, List<FieldDetail> args) {
         String cacheControlMethodName = cacheControlMethodName(name);
         List<FieldDetail> qFields = ListUtils.filter(args,
-                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && identifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)

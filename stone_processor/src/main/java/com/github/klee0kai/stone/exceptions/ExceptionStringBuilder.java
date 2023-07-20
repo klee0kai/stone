@@ -168,11 +168,11 @@ public class ExceptionStringBuilder {
     }
 
 
-    public ExceptionStringBuilder shouldNoHaveQualifier(String qualifier) {
+    public ExceptionStringBuilder shouldNoHaveIdentifiers(String identifier) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,
-                "should not have %s qualifier",
-                qualifier));
+                "should not have %s identifiers",
+                identifier));
         return this;
     }
 

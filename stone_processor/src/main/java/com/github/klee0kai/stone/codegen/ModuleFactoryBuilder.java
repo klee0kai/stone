@@ -36,11 +36,11 @@ public class ModuleFactoryBuilder {
     public boolean needBuild = false;
 
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
-    public final Set<ClassName> qualifiers = new HashSet<>();
+    public final Set<ClassName> identifiers = new HashSet<>();
 
-    public static ModuleFactoryBuilder fromModule(ClassDetail module, List<ClassName> allQualifiers) {
+    public static ModuleFactoryBuilder fromModule(ClassDetail module, List<ClassName> allIdentifiers) {
         ModuleFactoryBuilder builder = new ModuleFactoryBuilder(module);
-        builder.qualifiers.addAll(allQualifiers);
+        builder.identifiers.addAll(allIdentifiers);
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
         if (builder.needBuild) {
             builder.className = genFactoryNameMirror(module.className);

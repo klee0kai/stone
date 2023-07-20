@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.tech.components;
 
-import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsType;
-import com.github.klee0kai.test.di.base_phone.qualifiers.PhoneOsVersion;
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType;
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion;
 
 import java.util.UUID;
 

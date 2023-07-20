@@ -2,14 +2,14 @@ package com.github.klee0kai.test_kotlin.di.base_comp
 
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.Company
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.KConnectType
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.MonitorSize
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.Company
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.KConnectType
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.MonitorSize
 import com.github.klee0kai.test_kotlin.tech.comp.DesktopComp
 import com.github.klee0kai.test_kotlin.tech.comp.GameComp
 
 @Component(
-    qualifiers = [MonitorSize::class, Company::class, KConnectType::class]
+    identifiers = [MonitorSize::class, Company::class, KConnectType::class]
 )
 interface CompComponent {
 

@@ -51,7 +51,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
-        List<ClassName> allQualifiers = new LinkedList<>();
+        List<ClassName> allIdentifiers = new LinkedList<>();
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
                 ClassDetail component = new ClassDetail((TypeElement) componentEl);
@@ -59,7 +59,7 @@ public class AnnotationProcessor extends AbstractProcessor {
 
                 for (ClassDetail componentParentCl : component.getAllParents(false)) {
                     ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
-                    if (parentCompAnn != null) allQualifiers.addAll(parentCompAnn.qualifiers);
+                    if (parentCompAnn != null) allIdentifiers.addAll(parentCompAnn.identifiers);
                 }
             } catch (Throwable cause) {
                 throw new CreateStoneComponentException(
@@ -123,20 +123,20 @@ public class AnnotationProcessor extends AbstractProcessor {
                     continue;
                 }
 
-                ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allQualifiers);
+                ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allIdentifiers);
                 factoryBuilder.buildAndWrite();
 
                 ModuleCacheControlInterfaceBuilder.from(
                                 module,
                                 genCacheControlInterfaceModuleNameMirror(module.className),
-                                allQualifiers)
+                                allIdentifiers)
                         .buildAndWrite();
 
                 ModuleBuilder.from(
                                 module,
                                 genModuleNameMirror(module.className),
                                 factoryBuilder.className,
-                                allQualifiers)
+                                allIdentifiers)
                         .buildAndWrite();
             } catch (Throwable e) {
                 throw new CreateStoneModuleException(
@@ -165,14 +165,14 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleCacheControlInterfaceBuilder.from(
                                 component.hiddenModule,
                                 component.hiddenModuleCacheControlInterface,
-                                allQualifiers)
+                                allIdentifiers)
                         .buildAndWrite();
 
                 ModuleBuilder.from(
                                 component.hiddenModule,
                                 (ClassName) component.hiddenModule.className,
                                 null,
-                                allQualifiers)
+                                allIdentifiers)
                         .buildAndWrite();
 
             } catch (Throwable cause) {

@@ -23,11 +23,11 @@ import java.lang.annotation.Target;
 public @interface Component {
 
     /**
-     * Qualifiers, which using in inject methods
+     * Identifiers, which using in inject methods
      *
      * @return
      */
-    Class[] qualifiers() default {};
+    Class[] identifiers() default {};
 
 
     /**

@@ -8,7 +8,7 @@ import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcWheelScope;
 import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcWindowScope;
 
 @Component(
-        qualifiers = {String.class, Integer.class}
+        identifiers = {String.class, Integer.class}
 )
 public abstract class CarSwCacheComponent {
 

@@ -417,7 +417,7 @@ public class ComponentBuilder {
         for (FieldDetail arg : m.args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
         List<FieldDetail> qFields = ListUtils.filter(m.args,
-                (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && orComponentCl.identifiers.contains(it.type)
         );
 
         provideObjMethods.add(builder);
@@ -445,9 +445,9 @@ public class ComponentBuilder {
 
     public ComponentBuilder bindInstanceMethod(MethodDetail m) {
         List<FieldDetail> qFields = ListUtils.filter(m.args,
-                (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && orComponentCl.identifiers.contains(it.type)
         );
-        FieldDetail setValueArg = ListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.qualifiers.contains(it.type));
+        FieldDetail setValueArg = ListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.identifiers.contains(it.type));
         TypeName nonWrappedBindType = nonWrappedType(setValueArg.type);
         boolean isProvideMethod = Objects.equals(nonWrappedType(m.returnType), nonWrappedBindType);
         String hidingProvideName = isProvideMethod ? m.methodName : null;
@@ -506,11 +506,11 @@ public class ComponentBuilder {
                 .returns(void.class);
         for (FieldDetail arg : m.args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-        List<FieldDetail> qFields = ListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type));
+        List<FieldDetail> qFields = ListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && orComponentCl.identifiers.contains(it.type));
         FieldDetail lifeCycleOwner = ListUtils.first(m.args, (inx, it) -> allClassesHelper.isLifeCycleOwner(it.type));
 
 
-        List<FieldDetail> injectableFields = ListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.qualifiers.contains(it.type));
+        List<FieldDetail> injectableFields = ListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.identifiers.contains(it.type));
 
         if (injectableFields.isEmpty()) {
             throw new IncorrectSignatureException(

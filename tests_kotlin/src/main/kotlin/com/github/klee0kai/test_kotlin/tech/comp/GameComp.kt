@@ -2,8 +2,8 @@ package com.github.klee0kai.test_kotlin.tech.comp
 
 import com.github.klee0kai.test.tech.phone.base.ATech
 import com.github.klee0kai.test.tech.phone.base.LifecycleUtils
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.KConnectType
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.MonitorSize
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.KConnectType
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.MonitorSize
 import com.github.klee0kai.test_kotlin.tech.ComputerStore
 import com.github.klee0kai.test_kotlin.tech.components.Keyboard
 import com.github.klee0kai.test_kotlin.tech.components.Monitor
