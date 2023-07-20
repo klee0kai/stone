@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.model;
 
 
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.checks.ComponentMethods;
-import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.helpers.invokecall.ModulesGraph;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
 import com.github.klee0kai.stone.model.annotations.ModuleAnn;

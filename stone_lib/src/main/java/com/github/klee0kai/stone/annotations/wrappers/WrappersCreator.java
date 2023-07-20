@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.annotations.wrappers;
 
 
-import com.github.klee0kai.stone.types.wrappers.Wrapper;
+import com.github.klee0kai.stone.wrappers.creators.Wrapper;
 
 import java.lang.annotation.*;
 

@@ -2,7 +2,7 @@ package com.github.klee0kai.tests.kotlin_models.qualifiers
 
 import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.type.wrappers.getValue
-import com.github.klee0kai.stone.types.wrappers.Ref
+import com.github.klee0kai.stone.wrappers.Ref
 import com.github.klee0kai.test_kotlin.di.compfactory.CompFactoryComponent
 import com.github.klee0kai.test_kotlin.tech.components.Monitor
 import org.junit.jupiter.api.Assertions.*

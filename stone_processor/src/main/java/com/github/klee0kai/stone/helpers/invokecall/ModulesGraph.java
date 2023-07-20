@@ -1,9 +1,9 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
-import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
-import com.github.klee0kai.stone.closed.types.CacheAction;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.provide.ProvideBuilder;
+import com.github.klee0kai.stone._hidden_.types.CacheAction;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;
@@ -15,8 +15,8 @@ import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
 import com.github.klee0kai.stone.model.annotations.QualifierAnn;
-import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.utils.RecursiveDetector;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;

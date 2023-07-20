@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.map.MapItemHolder;
-import com.github.klee0kai.stone.closed.types.single.ItemRefType;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.holders.MapItemHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
@@ -17,7 +17,7 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     public String fieldName;
     public TypeName nonWrappedType;
     public TypeName returnType;
-    public ItemRefType defRefType;
+    public StoneRefType defRefType;
     public List<FieldDetail> keyArgs;
     public boolean isListCaching;
 
@@ -26,7 +26,7 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     public FieldSpec.Builder cachedField() {
         ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(MapItemHolder.class), multiKeyClassName, nonWrappedType);
         return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T($T.$L)", cacheType, ItemRefType.class, defRefType.toString());
+                .initializer("new $T($T.$L)", cacheType, StoneRefType.class, defRefType.toString());
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.github.klee0kai.stone.helpers;
 
+import com.github.klee0kai.stone._hidden_.IModule;
+import com.github.klee0kai.stone._hidden_.IPrivateComponent;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
-import com.github.klee0kai.stone.closed.IModule;
-import com.github.klee0kai.stone.closed.IPrivateComponent;
-import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.stone.model.ClassDetail;
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;

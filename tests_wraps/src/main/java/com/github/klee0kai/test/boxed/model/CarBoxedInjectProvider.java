@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.boxed.model;
 
-import com.github.klee0kai.stone.types.wrappers.LazyProvide;
-import com.github.klee0kai.stone.types.wrappers.Ref;
+import com.github.klee0kai.stone.wrappers.LazyProvide;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.github.klee0kai.test.car.di.wrapped.custom.wrappers.CarLazy;
 import com.github.klee0kai.test.car.model.Bumper;
 import com.github.klee0kai.test.car.model.Wheel;

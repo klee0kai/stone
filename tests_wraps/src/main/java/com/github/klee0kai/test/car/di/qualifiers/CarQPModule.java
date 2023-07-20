@@ -2,7 +2,7 @@ package com.github.klee0kai.test.car.di.qualifiers;
 
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.stone.types.wrappers.Ref;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.BumperQualifier;
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.WheelCount;
 import com.github.klee0kai.test.car.model.Bumper;

@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;

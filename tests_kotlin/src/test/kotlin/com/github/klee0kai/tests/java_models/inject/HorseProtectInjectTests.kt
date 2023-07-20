@@ -1,7 +1,7 @@
 package com.github.klee0kai.tests.java_models.inject
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleListener
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleListener
 import com.github.klee0kai.test.di.base_forest.ForestComponent
 import com.github.klee0kai.test.mowgli.animal.Horse
 import org.junit.jupiter.api.Assertions.assertNotNull

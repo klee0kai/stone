@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.test.car.di.qualifiers.CarQComponent;
 import com.github.klee0kai.test.car.model.Car;
 import org.junit.jupiter.api.Test;

@@ -1,10 +1,10 @@
 package com.github.klee0kai.stone.model;
 
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
-import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;

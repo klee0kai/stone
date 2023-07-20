@@ -1,7 +1,7 @@
 package com.github.klee0kai.test_kotlin.tech.comp
 
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleListener
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleListener
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.test.tech.phone.base.ATech
 import com.github.klee0kai.test.tech.phone.base.ATechLifecycle
 import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.Company

@@ -1,13 +1,13 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone._hidden_.IModule;
+import com.github.klee0kai.stone._hidden_.types.CacheAction;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.SwitchCacheParams;
+import com.github.klee0kai.stone._hidden_.types.holders.SingleItemHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.stone.closed.IModule;
-import com.github.klee0kai.stone.closed.types.CacheAction;
-import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
-import com.github.klee0kai.stone.closed.types.single.ItemRefType;
-import com.github.klee0kai.stone.closed.types.single.SingleItemHolder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.itemholder.ItemCacheType;
@@ -18,8 +18,8 @@ import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.model.annotations.ModuleAnn;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
-import com.github.klee0kai.stone.types.wrappers.Ref;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
@@ -159,7 +159,7 @@ public class ModuleBuilder {
     public ModuleBuilder overridedField() {
         TypeName weakHolder = ParameterizedTypeName.get(ClassName.get(SingleItemHolder.class), genCacheControlInterfaceModuleNameMirror(orModuleCl.className));
         FieldSpec.Builder builder = FieldSpec.builder(weakHolder, overridedModuleFieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T($T.WeakObject)", weakHolder, ItemRefType.class);
+                .initializer("new $T($T.WeakObject)", weakHolder, StoneRefType.class);
         fields.put(overridedModuleFieldName, builder);
         return this;
     }
@@ -367,7 +367,7 @@ public class ModuleBuilder {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
-                .addParameter(ParameterSpec.builder(SwitchCacheParam.class, "__params").build())
+                .addParameter(ParameterSpec.builder(SwitchCacheParams.class, "__params").build())
                 .returns(void.class);
 
         iModuleMethodBuilders.put(switchRefMethodName, builder);

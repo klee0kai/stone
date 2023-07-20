@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
-import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
 import org.jetbrains.annotations.NotNull;
 
 public class AndroidStone {

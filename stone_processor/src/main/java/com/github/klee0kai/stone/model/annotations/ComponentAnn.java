@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.model.annotations;
 
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.PrimitiveTypeNonSupportedStoneException;
 import com.github.klee0kai.stone.utils.ClassNameUtils;

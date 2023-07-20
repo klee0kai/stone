@@ -1,10 +1,12 @@
 package com.github.klee0kai.stone.codegen;
 
+import com.github.klee0kai.stone._hidden_.IModule;
+import com.github.klee0kai.stone._hidden_.IPrivateComponent;
+import com.github.klee0kai.stone._hidden_.types.*;
+import com.github.klee0kai.stone._hidden_.types.holders.TimeHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.TimeScheduler;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.checks.ComponentMethods;
-import com.github.klee0kai.stone.closed.IModule;
-import com.github.klee0kai.stone.closed.IPrivateComponent;
-import com.github.klee0kai.stone.closed.types.*;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
@@ -16,7 +18,6 @@ import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.*;
-import com.github.klee0kai.stone.types.wrappers.RefCollection;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
 import com.github.klee0kai.stone.utils.ImplementMethodCollection;
@@ -133,7 +134,7 @@ public class ComponentBuilder {
      */
     public ComponentBuilder implementIComponentMethods() {
         interfaces.add(ClassName.get(IPrivateComponent.class));
-        ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakLinkedList.class, IPrivateComponent.class);
+        ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakList.class, IPrivateComponent.class);
         fields.put(
                 relatedComponentsListFieldName,
                 FieldSpec.builder(weakComponentsList, relatedComponentsListFieldName, Modifier.FINAL, Modifier.PRIVATE)
@@ -662,8 +663,8 @@ public class ComponentBuilder {
                         Arrays.class,
                         scopesCode.build()
                 )
-                .addStatement("$T toWeak = $T.toWeak()", SwitchCacheParam.class, SwitchCacheParam.class)
-                .addStatement("$T toDef = $T.toDef()", SwitchCacheParam.class, SwitchCacheParam.class);
+                .addStatement("$T toWeak = $T.toWeak()", SwitchCacheParams.class, SwitchCacheParams.class)
+                .addStatement("$T toDef = $T.toDef()", SwitchCacheParams.class, SwitchCacheParams.class);
 
 
         gcMethods.add(builder);
@@ -718,7 +719,7 @@ public class ComponentBuilder {
         }
         builder.addStatement(
                 "$T switchCacheParams = new $T( $T.$L , $L, $L )",
-                SwitchCacheParam.class, SwitchCacheParam.class,
+                SwitchCacheParams.class, SwitchCacheParams.class,
                 SwitchCache.CacheType.class, m.ann(SwitchCacheAnn.class).cache.name(),
                 m.ann(SwitchCacheAnn.class).timeMillis,
                 schedulerInitCode.build()

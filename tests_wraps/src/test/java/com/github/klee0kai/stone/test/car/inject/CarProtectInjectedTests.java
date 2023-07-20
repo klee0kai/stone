@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.inject;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.test.car.di.inject.CarInjectComponent;
 import com.github.klee0kai.test.car.model.CarInject;
 import com.github.klee0kai.test.car.model.CarInjectLists;

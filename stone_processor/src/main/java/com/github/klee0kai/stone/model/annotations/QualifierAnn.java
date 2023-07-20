@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model.annotations;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.squareup.javapoet.ClassName;

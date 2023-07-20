@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.car.di.wrapped.custom.wrappers;
 
-import com.github.klee0kai.stone.types.wrappers.Ref;
+import com.github.klee0kai.stone.wrappers.Ref;
 
 public class CarProvide<T> {
 
