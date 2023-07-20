@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-public class GetNulls {
+public class NullGet {
 
     public static <T, R> R let(T v, Function<T, R> uncover) {
         return v != null ? uncover.apply(v) : null;

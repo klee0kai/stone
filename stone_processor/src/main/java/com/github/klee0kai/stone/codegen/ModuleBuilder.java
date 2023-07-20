@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.codegen;
 import com.github.klee0kai.stone._hidden_.IModule;
 import com.github.klee0kai.stone._hidden_.types.CacheAction;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
-import com.github.klee0kai.stone._hidden_.types.SwitchCacheParams;
+import com.github.klee0kai.stone._hidden_.types.SwitchCacheParam;
 import com.github.klee0kai.stone._hidden_.types.holders.SingleItemHolder;
 import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
@@ -367,7 +367,7 @@ public class ModuleBuilder {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
-                .addParameter(ParameterSpec.builder(SwitchCacheParams.class, "__params").build())
+                .addParameter(ParameterSpec.builder(SwitchCacheParam.class, "__params").build())
                 .returns(void.class);
 
         iModuleMethodBuilders.put(switchRefMethodName, builder);

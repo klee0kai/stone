@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
-import com.github.klee0kai.stone._hidden_.types.GetNulls;
+import com.github.klee0kai.stone._hidden_.types.NullGet;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
@@ -177,7 +177,7 @@ public class WrapHelper {
             wrapType.typeName = wrapper;
             wrapType.wrap = (or) -> {
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.let(", GetNulls.class))
+                        .add(CodeBlock.of("$T.let(", NullGet.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::new )", creator));
                 if (or.providingType != null)
@@ -187,7 +187,7 @@ public class WrapHelper {
 
             wrapType.unwrap = (or) -> {
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.let( ", GetNulls.class))
+                        .add(CodeBlock.of("$T.let( ", NullGet.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", cl));
                 if (or.providingType != null)
@@ -220,7 +220,7 @@ public class WrapHelper {
             wrapType.unwrap = (or) -> {
                 // TODO sometimes work not well. Need use types directly
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.let( ", GetNulls.class))
+                        .add(CodeBlock.of("$T.let( ", NullGet.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", cl));
                 if (or.providingType != null)
@@ -241,9 +241,9 @@ public class WrapHelper {
             wrapType.wrap = (or) -> {
                 SmartCode builder = SmartCode.builder();
                 if (needConstructor)
-                    builder.add(CodeBlock.of("$T.let( ", GetNulls.class));
+                    builder.add(CodeBlock.of("$T.let( ", NullGet.class));
 
-                builder.add(CodeBlock.of("$T.list( ", GetNulls.class))
+                builder.add(CodeBlock.of("$T.list( ", NullGet.class))
                         .add(or)
                         .add(")");
 
@@ -268,7 +268,7 @@ public class WrapHelper {
                 boolean isListNeedConstructor = needConstructor
                         || originalListCode.providingType != null && !Objects.equals(rawTypeOf(wrapper), rawTypeOf(originalListCode.providingType));
 
-                if (isListNeedConstructor) builder.add(CodeBlock.of("$T.let( ", GetNulls.class));
+                if (isListNeedConstructor) builder.add(CodeBlock.of("$T.let( ", NullGet.class));
 
                 SmartCode itemTransform = itemTransformFun.formatCode(SmartCode.of("it", null));
                 if (itemTransform.getSize() <= 1) {
