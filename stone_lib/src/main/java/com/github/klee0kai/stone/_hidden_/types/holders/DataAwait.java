@@ -5,7 +5,7 @@ import java.util.LinkedList;
 /**
  * Stone Private class
  */
-class StDataAwait<T> {
+class DataAwait<T> {
 
     private final LinkedList<T> values = new LinkedList<>();
     private int awaitCount = 0;

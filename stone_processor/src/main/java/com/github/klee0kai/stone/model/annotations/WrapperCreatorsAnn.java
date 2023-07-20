@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model.annotations;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.AnnotationSpec;
@@ -46,7 +46,7 @@ public class WrapperCreatorsAnn implements Cloneable, IAnnotation {
 
 
     public static WrapperCreatorsAnn findFrom(List<AnnotationSpec> annotationSpecs) {
-        AnnotationSpec spec = StListUtils.first(annotationSpecs,
+        AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(WrappersCreator.class)));
         if (spec == null)
             return null;

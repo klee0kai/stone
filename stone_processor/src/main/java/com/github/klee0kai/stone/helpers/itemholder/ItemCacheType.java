@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone._hidden_.types.holders.StRefType;
+import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.annotations.component.GcSoftScope;
 import com.github.klee0kai.stone.annotations.component.GcStrongScope;
 import com.github.klee0kai.stone.annotations.component.GcWeakScope;
@@ -49,27 +49,27 @@ public enum ItemCacheType {
         return ItemCacheType.Soft;
     }
 
-    public StRefType toRefTypeSingle() {
+    public StoneRefType toRefTypeSingle() {
         switch (this) {
             case Strong:
-                return StRefType.StrongObject;
+                return StoneRefType.StrongObject;
             case Soft:
-                return StRefType.SoftObject;
+                return StoneRefType.SoftObject;
             case Weak:
-                return StRefType.WeakObject;
+                return StoneRefType.WeakObject;
             default:
                 return null;
         }
     }
 
-    public StRefType toRefTypeList() {
+    public StoneRefType toRefTypeList() {
         switch (this) {
             case Strong:
-                return StRefType.ListObject;
+                return StoneRefType.ListObject;
             case Soft:
-                return StRefType.ListSoftObject;
+                return StoneRefType.ListSoftObject;
             case Weak:
-                return StRefType.ListWeakObject;
+                return StoneRefType.ListWeakObject;
             default:
                 return null;
         }

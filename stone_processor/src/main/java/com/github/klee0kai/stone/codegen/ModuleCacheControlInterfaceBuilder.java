@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone._hidden_.types.StCacheAction;
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.CacheAction;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone._hidden_.types.StSwitchCache;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -102,14 +102,14 @@ public class ModuleCacheControlInterfaceBuilder {
 
     public ModuleCacheControlInterfaceBuilder cacheControlMethod(String name, TypeName typeName, List<FieldDetail> args) {
         String cacheControlMethodName = cacheControlMethodName(name);
-        List<FieldDetail> qFields = StListUtils.filter(args,
+        List<FieldDetail> qFields = ListUtils.filter(args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                 .returns(listWrapTypeIfNeed(typeName))
-                .addParameter(ParameterSpec.builder(StCacheAction.class, "__action").build());
+                .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build());
         for (FieldDetail q : qFields) {
             cacheControldMethodBuilder.addParameter(q.type, q.name);
         }

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone._hidden_.types.holders.StRefType;
-import com.github.klee0kai.stone._hidden_.types.holders.StSingleItemHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.SingleItemHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.squareup.javapoet.*;
 
@@ -16,15 +16,15 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
 
     public TypeName returnType;
 
-    public StRefType defRefType;
+    public StoneRefType defRefType;
     public boolean isListCaching;
 
 
     @Override
     public FieldSpec.Builder cachedField() {
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(StSingleItemHolder.class), nonWrappedType);
+        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(SingleItemHolder.class), nonWrappedType);
         return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T($T.$L)", cacheType, StRefType.class, defRefType.toString());
+                .initializer("new $T($T.$L)", cacheType, StoneRefType.class, defRefType.toString());
     }
 
     @Override

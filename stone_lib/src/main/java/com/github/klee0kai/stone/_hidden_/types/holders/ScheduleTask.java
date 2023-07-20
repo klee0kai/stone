@@ -4,13 +4,13 @@ package com.github.klee0kai.stone._hidden_.types.holders;
  * Stone Private class
  */
 
-abstract class StScheduleTask {
+abstract class ScheduleTask {
 
     private final long execTime;
 
     private boolean cancel = false;
 
-    public StScheduleTask(long delay) {
+    public ScheduleTask(long delay) {
         execTime = System.currentTimeMillis() + delay;
     }
 

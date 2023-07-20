@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class StRefCollection<T> {
+public class RefCollection<T> {
 
     private final List<Ref<T>> refs = new LinkedList<>();
 
@@ -22,7 +22,7 @@ public class StRefCollection<T> {
 
     public List<T> getAll() {
         clearNulls();
-        return StListUtils.format(refs, Ref::get);
+        return ListUtils.format(refs, Ref::get);
     }
 
     public void clearNulls() {

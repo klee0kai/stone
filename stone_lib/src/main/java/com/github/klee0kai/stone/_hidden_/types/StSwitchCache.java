@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone._hidden_.types;
 
-import com.github.klee0kai.stone._hidden_.types.holders.StTimeScheduler;
+import com.github.klee0kai.stone._hidden_.types.holders.TimeScheduler;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 
 /**
@@ -10,9 +10,9 @@ public class StSwitchCache {
 
     public final SwitchCache.CacheType cache;
     public final long time;
-    public final StTimeScheduler scheduler;
+    public final TimeScheduler scheduler;
 
-    public StSwitchCache(SwitchCache.CacheType cache, long time, StTimeScheduler scheduler) {
+    public StSwitchCache(SwitchCache.CacheType cache, long time, TimeScheduler scheduler) {
         this.cache = cache;
         this.time = time;
         this.scheduler = scheduler;

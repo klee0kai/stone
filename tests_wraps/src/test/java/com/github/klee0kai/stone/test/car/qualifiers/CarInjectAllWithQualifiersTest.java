@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.test.car.di.qualifiers.CarQComponent;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.CarsInjectQualifiers;
@@ -22,7 +22,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "named_empty"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "named_empty"));
         Car car = filtered.get(0);
 
         //Then
@@ -39,7 +39,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "named_a"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "named_a"));
         Car car = filtered.get(0);
 
         //Then
@@ -56,7 +56,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier"));
         Car car = filtered.get(0);
 
         //Then
@@ -73,7 +73,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_with_string"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_with_string"));
         Car car = filtered.get(0);
 
         //Then
@@ -90,7 +90,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a"));
         Car car = filtered.get(0);
 
         //Then
@@ -107,7 +107,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_b"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_b"));
         Car car = filtered.get(0);
 
         //Then
@@ -124,7 +124,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi"));
         Car car = filtered.get(0);
 
         //Then
@@ -141,7 +141,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a1"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a1"));
         Car car = filtered.get(0);
 
         //Then
@@ -159,7 +159,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2"));
         Car car = filtered.get(0);
 
         //Then
@@ -176,7 +176,7 @@ public class CarInjectAllWithQualifiersTest {
 
         //When
         DI.inject(carInject);
-        List<Car> filtered = StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard"));
+        List<Car> filtered = ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard"));
         Car car = filtered.get(0);
 
         //Then
@@ -196,9 +196,9 @@ public class CarInjectAllWithQualifiersTest {
 
         //Then
         assertEquals(14, carInject.allCars.size());
-        assertEquals(1, StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
-        assertEquals(1, StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
-        assertEquals(1, StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
+        assertEquals(1, ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
+        assertEquals(1, ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
+        assertEquals(1, ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
     }
 
 }

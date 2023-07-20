@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
@@ -41,10 +41,10 @@ public class WrappersSupportBuilder {
         ));
 
 
-        boolean isSimpleWrapper = StListUtils.first(provideWrappersCl.getAllParents(false),
+        boolean isSimpleWrapper = ListUtils.first(provideWrappersCl.getAllParents(false),
                 (i, it) -> Objects.equals(it.className, wrapperClName)) != null;
 
-        boolean isAsyncWrapper = StListUtils.first(provideWrappersCl.getAllParents(false),
+        boolean isAsyncWrapper = ListUtils.first(provideWrappersCl.getAllParents(false),
                 (i, it) -> Objects.equals(it.className, asyncWrapperClName)) != null;
 
         for (ClassName wrapper : provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers) {

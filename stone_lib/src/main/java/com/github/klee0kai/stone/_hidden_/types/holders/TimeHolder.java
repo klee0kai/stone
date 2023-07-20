@@ -8,17 +8,17 @@ import java.lang.ref.SoftReference;
 /**
  * Stone Private class
  */
-public class StTimeHolder<T> implements Ref<T> {
+public class TimeHolder<T> implements Ref<T> {
 
-    private final StTimeScheduler timer;
+    private final TimeScheduler timer;
     private Reference<T> ref = null;
-    private StScheduleTask scheduleTask = null;
+    private ScheduleTask scheduleTask = null;
 
-    public StTimeHolder(StTimeScheduler timer) {
+    public TimeHolder(TimeScheduler timer) {
         this.timer = timer;
     }
 
-    public StTimeHolder(StTimeScheduler timer, T ref, long holdTime) {
+    public TimeHolder(TimeScheduler timer, T ref, long holdTime) {
         this.timer = timer;
         hold(ref, holdTime);
     }
@@ -26,7 +26,7 @@ public class StTimeHolder<T> implements Ref<T> {
     public synchronized T hold(T ob, long holdTime) {
         clearRef();
         this.ref = new SoftReference<>(ob);
-        timer.schedule(scheduleTask = new StScheduleTask(holdTime) {
+        timer.schedule(scheduleTask = new ScheduleTask(holdTime) {
             @Override
             public void run() {
                 clearRef();

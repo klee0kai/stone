@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.closed.types.holders;
 
-import com.github.klee0kai.stone._hidden_.types.StRefCollection;
-import com.github.klee0kai.stone._hidden_.types.holders.StTimeHolder;
-import com.github.klee0kai.stone._hidden_.types.holders.StTimeScheduler;
+import com.github.klee0kai.stone._hidden_.types.RefCollection;
+import com.github.klee0kai.stone._hidden_.types.holders.TimeHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.TimeScheduler;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -14,15 +14,15 @@ public class RefCollectionTests {
 
     @Test
     public void clearNullTest() throws InterruptedException {
-        StTimeScheduler timeScheduler = new StTimeScheduler();
-        StRefCollection refCollection = new StRefCollection();
+        TimeScheduler timeScheduler = new TimeScheduler();
+        RefCollection refCollection = new RefCollection();
 
-        refCollection.add(new StTimeHolder(timeScheduler, 10, 40));
-        refCollection.add(new StTimeHolder(timeScheduler, 12, 100));
-        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
-        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
-        refCollection.add(new StTimeHolder(timeScheduler, 1, 100));
-        refCollection.add(new StTimeHolder(timeScheduler, 3, 100));
+        refCollection.add(new TimeHolder(timeScheduler, 10, 40));
+        refCollection.add(new TimeHolder(timeScheduler, 12, 100));
+        refCollection.add(new TimeHolder(timeScheduler, null, 100));
+        refCollection.add(new TimeHolder(timeScheduler, null, 100));
+        refCollection.add(new TimeHolder(timeScheduler, 1, 100));
+        refCollection.add(new TimeHolder(timeScheduler, 3, 100));
 
 
         refCollection.clearNulls();
@@ -43,15 +43,15 @@ public class RefCollectionTests {
 
     @Test
     public void clearNullTest2() throws InterruptedException {
-        StTimeScheduler timeScheduler = new StTimeScheduler();
-        StRefCollection refCollection = new StRefCollection();
+        TimeScheduler timeScheduler = new TimeScheduler();
+        RefCollection refCollection = new RefCollection();
 
-        refCollection.add(new StTimeHolder(timeScheduler, 10, 50));
-        refCollection.add(new StTimeHolder(timeScheduler, 12, 10));
-        refCollection.add(new StTimeHolder(timeScheduler, 1, 50));
-        refCollection.add(new StTimeHolder(timeScheduler, 3, 100));
-        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
-        refCollection.add(new StTimeHolder(timeScheduler, null, 100));
+        refCollection.add(new TimeHolder(timeScheduler, 10, 50));
+        refCollection.add(new TimeHolder(timeScheduler, 12, 10));
+        refCollection.add(new TimeHolder(timeScheduler, 1, 50));
+        refCollection.add(new TimeHolder(timeScheduler, 3, 100));
+        refCollection.add(new TimeHolder(timeScheduler, null, 100));
+        refCollection.add(new TimeHolder(timeScheduler, null, 100));
 
 
         refCollection.clearNulls();

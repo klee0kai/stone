@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
-import com.github.klee0kai.stone._hidden_.types.StNl;
+import com.github.klee0kai.stone._hidden_.types.GetNulls;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.wrappers.AsyncProvide;
@@ -58,7 +58,7 @@ public class WrapHelper {
     }
 
     public static boolean isList(TypeName typeName) {
-        return StListUtils.indexOf(allParamTypes(typeName), (i, it) -> {
+        return ListUtils.indexOf(allParamTypes(typeName), (i, it) -> {
             WrapType wrapType = wrapTypes.get(rawTypeOf(it));
             return wrapType != null && wrapType.isList();
         }) >= 0;
@@ -115,7 +115,7 @@ public class WrapHelper {
             wrapPathNames.pollFirst();
         }
 
-        StListUtils.IFormat<TypeName, WrapType> wrapTypeFormat = it -> {
+        ListUtils.IFormat<TypeName, WrapType> wrapTypeFormat = it -> {
             WrapType type = wrapTypes.get(rawTypeOf(it));
             if (type == null) {
                 throw new StoneException(
@@ -129,13 +129,13 @@ public class WrapHelper {
             return type;
         };
 
-        LinkedList<WrapType> unwrapPath = new LinkedList<>(StListUtils.format(unwrapPathNames, wrapTypeFormat));
-        LinkedList<WrapType> wrapPath = new LinkedList<>(StListUtils.format(wrapPathNames, wrapTypeFormat));
+        LinkedList<WrapType> unwrapPath = new LinkedList<>(ListUtils.format(unwrapPathNames, wrapTypeFormat));
+        LinkedList<WrapType> wrapPath = new LinkedList<>(ListUtils.format(wrapPathNames, wrapTypeFormat));
 
         while (!unwrapPath.isEmpty()) {
             WrapType unwrapType = unwrapPath.get(0);
             if (unwrapType.isList()) {
-                int wrapListIndex = StListUtils.indexOf(wrapPath, (i, it) -> it.isList());
+                int wrapListIndex = ListUtils.indexOf(wrapPath, (i, it) -> it.isList());
                 if (wrapListIndex >= 0) {
                     TypeName unWrapItemType = paramType(unwrapPathNames.get(0));
                     TypeName wrapItemType = paramType(wrapPathNames.get(wrapListIndex));
@@ -177,7 +177,7 @@ public class WrapHelper {
             wrapType.typeName = wrapper;
             wrapType.wrap = (or) -> {
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.let(", StNl.class))
+                        .add(CodeBlock.of("$T.let(", GetNulls.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::new )", creator));
                 if (or.providingType != null)
@@ -187,7 +187,7 @@ public class WrapHelper {
 
             wrapType.unwrap = (or) -> {
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.let( ", StNl.class))
+                        .add(CodeBlock.of("$T.let( ", GetNulls.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", cl));
                 if (or.providingType != null)
@@ -220,7 +220,7 @@ public class WrapHelper {
             wrapType.unwrap = (or) -> {
                 // TODO sometimes work not well. Need use types directly
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.let( ", StNl.class))
+                        .add(CodeBlock.of("$T.let( ", GetNulls.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", cl));
                 if (or.providingType != null)
@@ -241,9 +241,9 @@ public class WrapHelper {
             wrapType.wrap = (or) -> {
                 SmartCode builder = SmartCode.builder();
                 if (needConstructor)
-                    builder.add(CodeBlock.of("$T.let( ", StNl.class));
+                    builder.add(CodeBlock.of("$T.let( ", GetNulls.class));
 
-                builder.add(CodeBlock.of("$T.list( ", StNl.class))
+                builder.add(CodeBlock.of("$T.list( ", GetNulls.class))
                         .add(or)
                         .add(")");
 
@@ -255,7 +255,7 @@ public class WrapHelper {
 
             wrapType.unwrap = (or) -> {
                 SmartCode builder = SmartCode.builder()
-                        .add(CodeBlock.of("$T.first( ", StListUtils.class))
+                        .add(CodeBlock.of("$T.first( ", ListUtils.class))
                         .add(or)
                         .add(CodeBlock.of(") "));
                 if (or.providingType != null)
@@ -268,14 +268,14 @@ public class WrapHelper {
                 boolean isListNeedConstructor = needConstructor
                         || originalListCode.providingType != null && !Objects.equals(rawTypeOf(wrapper), rawTypeOf(originalListCode.providingType));
 
-                if (isListNeedConstructor) builder.add(CodeBlock.of("$T.let( ", StNl.class));
+                if (isListNeedConstructor) builder.add(CodeBlock.of("$T.let( ", GetNulls.class));
 
                 SmartCode itemTransform = itemTransformFun.formatCode(SmartCode.of("it", null));
                 if (itemTransform.getSize() <= 1) {
                     //no transforms
                     builder.add(originalListCode);
                 } else {
-                    builder.add(CodeBlock.of("$T.format( ", StListUtils.class))
+                    builder.add(CodeBlock.of("$T.format( ", ListUtils.class))
                             .add(originalListCode)
                             .add(", it ->  ")
                             .add(itemTransformFun.formatCode(SmartCode.of("it", null)))

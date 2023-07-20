@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
@@ -78,7 +78,7 @@ public class MethodDetail implements Cloneable {
         for (VariableElement v : element.getParameters()) {
             // get<Field>$annotations not checked for method's arguments
             String getAnnotationsElName = "get" + capitalized(v.getSimpleName().toString()) + "$annotations";
-            Element getAnnotationsEl = StListUtils.first(element.getParameters(), (i, it) ->
+            Element getAnnotationsEl = ListUtils.first(element.getParameters(), (i, it) ->
                     Objects.equals(it.getSimpleName().toString(), getAnnotationsElName)
             );
             methodDetail.args.add(FieldDetail.of(v, getAnnotationsEl));

@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Stone Private class
  */
-public class StWeakList<T> {
+public class WeakList<T> {
 
     private final LinkedList<Reference<T>> list = new LinkedList<>();
 

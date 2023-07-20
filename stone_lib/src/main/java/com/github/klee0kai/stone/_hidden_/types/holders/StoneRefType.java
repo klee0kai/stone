@@ -1,12 +1,12 @@
 package com.github.klee0kai.stone._hidden_.types.holders;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
-public enum StRefType {
+public enum StoneRefType {
     StrongObject,
     WeakObject,
     SoftObject,
@@ -28,7 +28,7 @@ public enum StRefType {
         return false;
     }
 
-    public StRefType forList() {
+    public StoneRefType forList() {
         switch (this) {
             case StrongObject:
                 return ListObject;
@@ -42,7 +42,7 @@ public enum StRefType {
     }
 
 
-    public StRefType forSingle() {
+    public StoneRefType forSingle() {
         switch (this) {
             case ListObject:
                 return StrongObject;
@@ -55,7 +55,7 @@ public enum StRefType {
         }
     }
 
-    public <T> StListUtils.IFormat<T, Reference<T>> formatter() {
+    public <T> ListUtils.IFormat<T, Reference<T>> formatter() {
         switch (this) {
             case WeakObject:
             case ListWeakObject:

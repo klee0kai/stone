@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.inject;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.test.car.di.inject.CarInjectComponent;
 import com.github.klee0kai.test.car.model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,13 +75,13 @@ public class CarInjectMethodTests {
         assertEquals(5, carInject.wheelsMethodFrom.size());
         assertEquals(4, carInject.windowsMethodFrom.size());
         for (Bumper b : carInject.bumpersMethodFrom) assertNotNull(b.uuid);
-        Set<String> bumperUids = new HashSet<>(StListUtils.format(carInject.bumpersMethodFrom, it -> it.uuid));
+        Set<String> bumperUids = new HashSet<>(ListUtils.format(carInject.bumpersMethodFrom, it -> it.uuid));
         assertEquals(2, bumperUids.size());
         for (Wheel w : carInject.wheelsMethodFrom) assertNotNull(w.uuid);
-        Set<String> wheelsUid = new HashSet<>(StListUtils.format(carInject.wheels, it -> it.uuid));
+        Set<String> wheelsUid = new HashSet<>(ListUtils.format(carInject.wheels, it -> it.uuid));
         assertEquals(5, wheelsUid.size());
         for (Window w : carInject.windowsMethodFrom) assertNotNull(w.uuid);
-        Set<String> windowUids = new HashSet<>(StListUtils.format(carInject.windows, it -> it.uuid));
+        Set<String> windowUids = new HashSet<>(ListUtils.format(carInject.windows, it -> it.uuid));
         assertEquals(4, windowUids.size());
     }
 

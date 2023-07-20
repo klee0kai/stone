@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model.annotations;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -24,7 +24,7 @@ public class SwitchCacheAnn implements Cloneable, IAnnotation {
     }
 
     public static SwitchCacheAnn findFrom(List<AnnotationSpec> annotationSpecs) {
-        AnnotationSpec spec = StListUtils.first(annotationSpecs,
+        AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(SwitchCache.class)));
         if (spec == null)
             return null;

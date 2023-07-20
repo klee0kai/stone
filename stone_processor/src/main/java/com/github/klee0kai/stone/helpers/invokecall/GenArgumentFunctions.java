@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.Pair;
 import com.github.klee0kai.stone.wrappers.PhantomProvide;
@@ -26,7 +26,7 @@ public class GenArgumentFunctions {
      * @return unwrapped field get code, or null
      */
     public static Function<TypeName, CodeBlock> unwrapArgument(List<FieldDetail> envFields) {
-        List<Pair<TypeName, String>> provideFields = StListUtils.format(envFields, it -> {
+        List<Pair<TypeName, String>> provideFields = ListUtils.format(envFields, it -> {
             if (it.type instanceof ParameterizedTypeName) {
                 ParameterizedTypeName type = (ParameterizedTypeName) it.type;
                 TypeName orType = type.typeArguments.get(type.typeArguments.size() - 1);

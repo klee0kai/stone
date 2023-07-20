@@ -5,7 +5,7 @@ import java.util.*;
 /**
  * Stone Private class
  */
-public class StListUtils {
+public class ListUtils {
 
     public interface IFormat<Tin, Tout> {
         Tout format(Tin it);
@@ -126,7 +126,7 @@ public class StListUtils {
         if (list == null) return null;
         LinkedList<T> out = new LinkedList<>();
         for (T item : list) {
-            boolean contains = StListUtils.contains(out, (i, it) -> eqHelper.eq(item, it));
+            boolean contains = ListUtils.contains(out, (i, it) -> eqHelper.eq(item, it));
             if (!contains) out.add(item);
         }
         return out;
@@ -136,7 +136,7 @@ public class StListUtils {
         if (list == null) return null;
         LinkedList<T> out = new LinkedList<>();
         for (T item : list) {
-            out = StListUtils.filter(out, (i, it) -> !eqHelper.eq(item, it));
+            out = ListUtils.filter(out, (i, it) -> !eqHelper.eq(item, it));
             out.add(item);
         }
         return out;

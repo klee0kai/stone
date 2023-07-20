@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone._hidden_.types.holders;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone._hidden_.types.StSwitchCache;
 import com.github.klee0kai.stone.wrappers.Ref;
 
@@ -11,18 +11,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Stone Private class
  */
-public class StMapItemHolder<Key, T> {
+public class MapItemHolder<Key, T> {
 
-    private final StRefType defType;
+    private final StoneRefType defType;
 
-    private StRefType curRefType;
+    private StoneRefType curRefType;
 
 
     private final HashMap<Key, Object> refMap = new HashMap<>();
     private final AtomicInteger shedTaskCount = new AtomicInteger(0);
 
 
-    public StMapItemHolder(StRefType defType) {
+    public MapItemHolder(StoneRefType defType) {
         this.defType = defType;
         this.curRefType = defType;
     }
@@ -49,19 +49,19 @@ public class StMapItemHolder<Key, T> {
                 return (List<T>) holder;
             case ListWeakObject:
             case ListSoftObject:
-                return StListUtils.format((List<Reference<T>>) holder, Reference::get);
+                return ListUtils.format((List<Reference<T>>) holder, Reference::get);
         }
         return null;
     }
 
     public void set(Key key, Ref<T> creator, boolean onlyIfNull) {
         Object refHolder = refMap.get(key);
-        if (Objects.equals(curRefType, StRefType.StrongObject)) {
+        if (Objects.equals(curRefType, StoneRefType.StrongObject)) {
             if (onlyIfNull && refHolder != null) return;
             refMap.put(key, creator.get());
             return;
         }
-        StListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
         if (formatter == null) return;
         if (!onlyIfNull) {
             //switch ref type case
@@ -77,7 +77,7 @@ public class StMapItemHolder<Key, T> {
 
     public void setList(Key key, Ref<List<T>> creator, boolean onlyIfNull) {
         Object refHolder = refMap.get(key);
-        if (Objects.equals(curRefType, StRefType.ListObject)) {
+        if (Objects.equals(curRefType, StoneRefType.ListObject)) {
             if (!onlyIfNull || refHolder == null) {
                 refMap.put(key, creator.get());
                 return;
@@ -94,11 +94,11 @@ public class StMapItemHolder<Key, T> {
             }
             return;
         }
-        StListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
         if (formatter == null) return;
         if (!onlyIfNull || refHolder == null) {
             //switch ref type case
-            refMap.put(key, StListUtils.format(creator.get(), formatter));
+            refMap.put(key, ListUtils.format(creator.get(), formatter));
             return;
         }
 
@@ -113,7 +113,7 @@ public class StMapItemHolder<Key, T> {
     }
 
 
-    public void setRefType(StRefType refType) {
+    public void setRefType(StoneRefType refType) {
         if (curRefType == refType) return;
         if (defType.isList()) {
             HashMap<Key, List<T>> listMap = new HashMap<>();
@@ -151,7 +151,7 @@ public class StMapItemHolder<Key, T> {
         } else {
             for (Key key : keys) {
                 List<T> list = getList(key);
-                if (!StListUtils.contains(list, (i, it) -> it != null)) {
+                if (!ListUtils.contains(list, (i, it) -> it != null)) {
                     refMap.remove(key);
                 }
             }
@@ -169,19 +169,19 @@ public class StMapItemHolder<Key, T> {
                 reset();
                 return;
             case Weak:
-                setRefType(StRefType.WeakObject);
+                setRefType(StoneRefType.WeakObject);
                 break;
             case Soft:
-                setRefType(StRefType.SoftObject);
+                setRefType(StoneRefType.SoftObject);
                 break;
             case Strong:
-                setRefType(StRefType.StrongObject);
+                setRefType(StoneRefType.StrongObject);
                 break;
         }
 
         if (args.time > 0) {
             shedTaskCount.incrementAndGet();
-            args.scheduler.schedule(new StScheduleTask(args.time) {
+            args.scheduler.schedule(new ScheduleTask(args.time) {
                 @Override
                 public void run() {
                     if (shedTaskCount.decrementAndGet() <= 0) setRefType(defType);

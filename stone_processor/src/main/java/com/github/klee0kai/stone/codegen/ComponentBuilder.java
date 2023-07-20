@@ -3,8 +3,8 @@ package com.github.klee0kai.stone.codegen;
 import com.github.klee0kai.stone._hidden_.IModule;
 import com.github.klee0kai.stone._hidden_.IPrivateComponent;
 import com.github.klee0kai.stone._hidden_.types.*;
-import com.github.klee0kai.stone._hidden_.types.holders.StTimeHolder;
-import com.github.klee0kai.stone._hidden_.types.holders.StTimeScheduler;
+import com.github.klee0kai.stone._hidden_.types.holders.TimeHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.TimeScheduler;
 import com.github.klee0kai.stone.annotations.component.SwitchCache;
 import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
@@ -134,7 +134,7 @@ public class ComponentBuilder {
      */
     public ComponentBuilder implementIComponentMethods() {
         interfaces.add(ClassName.get(IPrivateComponent.class));
-        ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(StWeakList.class, IPrivateComponent.class);
+        ParameterizedTypeName weakComponentsList = ParameterizedTypeName.get(WeakList.class, IPrivateComponent.class);
         fields.put(
                 relatedComponentsListFieldName,
                 FieldSpec.builder(weakComponentsList, relatedComponentsListFieldName, Modifier.FINAL, Modifier.PRIVATE)
@@ -163,14 +163,14 @@ public class ComponentBuilder {
         if (!fields.containsKey(scheduleGlFieldName))
             fields.put(
                     scheduleGlFieldName,
-                    FieldSpec.builder(StTimeScheduler.class, scheduleGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
-                            .initializer("new $T()", StTimeScheduler.class)
+                    FieldSpec.builder(TimeScheduler.class, scheduleGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                            .initializer("new $T()", TimeScheduler.class)
             );
         if (!fields.containsKey(refCollectionGlFieldName))
             fields.put(
                     refCollectionGlFieldName,
-                    FieldSpec.builder(StRefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
-                            .initializer("new $T()", StRefCollection.class)
+                    FieldSpec.builder(RefCollection.class, refCollectionGlFieldName, Modifier.PRIVATE, Modifier.FINAL)
+                            .initializer("new $T()", RefCollection.class)
             );
         return this;
     }
@@ -278,16 +278,16 @@ public class ComponentBuilder {
 
         for (ClassDetail proto : orComponentCl.getAllParents(false)) {
             if (Objects.equals(proto.className, ClassName.get(IPrivateComponent.class))) continue;
-            List<MethodDetail> provideModuleMethods = StListUtils.filter(proto.getAllMethods(false, false),
+            List<MethodDetail> provideModuleMethods = ListUtils.filter(proto.getAllMethods(false, false),
                     (i, m) -> ComponentMethods.isModuleProvideMethod(m)
             );
-            List<MethodDetail> bindInstanceAndProvideMethods = StListUtils.filter(proto.getAllMethods(false, false),
+            List<MethodDetail> bindInstanceAndProvideMethods = ListUtils.filter(proto.getAllMethods(false, false),
                     (i, m) -> ComponentMethods.isBindInstanceMethod(m) == BindInstanceAndProvide
             );
 
             if (provideModuleMethods.isEmpty() && bindInstanceAndProvideMethods.isEmpty()) continue;
 
-            List<String> provideFactories = StListUtils.format(provideModuleMethods, (it) -> it.methodName + "()");
+            List<String> provideFactories = ListUtils.format(provideModuleMethods, (it) -> it.methodName + "()");
 
             builder.beginControlFlow("if (c instanceof $T)", proto.className)
                     .addStatement("$T protoComponent = ($T) c", proto.className, proto.className);
@@ -416,7 +416,7 @@ public class ComponentBuilder {
 
         for (FieldDetail arg : m.args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-        List<FieldDetail> qFields = StListUtils.filter(m.args,
+        List<FieldDetail> qFields = ListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type)
         );
 
@@ -444,10 +444,10 @@ public class ComponentBuilder {
 
 
     public ComponentBuilder bindInstanceMethod(MethodDetail m) {
-        List<FieldDetail> qFields = StListUtils.filter(m.args,
+        List<FieldDetail> qFields = ListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type)
         );
-        FieldDetail setValueArg = StListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.qualifiers.contains(it.type));
+        FieldDetail setValueArg = ListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.qualifiers.contains(it.type));
         TypeName nonWrappedBindType = nonWrappedType(setValueArg.type);
         boolean isProvideMethod = Objects.equals(nonWrappedType(m.returnType), nonWrappedBindType);
         String hidingProvideName = isProvideMethod ? m.methodName : null;
@@ -468,7 +468,7 @@ public class ComponentBuilder {
             TypeName cacheControlType = isListCache ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedBindType) : nonWrappedBindType;
             builder.addStatement(cacheControlInvoke.invokeCode(qFields,
                             typeName -> SmartCode.builder()
-                                    .add(CodeBlock.of("$T.setValueAction(", StCacheAction.class))
+                                    .add(CodeBlock.of("$T.setValueAction(", CacheAction.class))
                                     .add(transform(
                                             SmartCode.of(setValueArg.name).providingType(setValueArg.type),
                                             cacheControlType
@@ -506,11 +506,11 @@ public class ComponentBuilder {
                 .returns(void.class);
         for (FieldDetail arg : m.args)
             builder.addParameter(ParameterSpec.builder(arg.type, arg.name).build());
-        List<FieldDetail> qFields = StListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type));
-        FieldDetail lifeCycleOwner = StListUtils.first(m.args, (inx, it) -> allClassesHelper.isLifeCycleOwner(it.type));
+        List<FieldDetail> qFields = ListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && orComponentCl.qualifiers.contains(it.type));
+        FieldDetail lifeCycleOwner = ListUtils.first(m.args, (inx, it) -> allClassesHelper.isLifeCycleOwner(it.type));
 
 
-        List<FieldDetail> injectableFields = StListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.qualifiers.contains(it.type));
+        List<FieldDetail> injectableFields = ListUtils.filter(m.args, (inx, it) -> (it.type instanceof ClassName) && !orComponentCl.qualifiers.contains(it.type));
 
         if (injectableFields.isEmpty()) {
             throw new IncorrectSignatureException(
@@ -599,7 +599,7 @@ public class ComponentBuilder {
                         emptyCode = false;
                         subscrCode.addStatement(
                                 "$L.add(new $T($L, $L.$L , timeMillis))",
-                                refCollectionGlFieldName, StTimeHolder.class, scheduleGlFieldName,
+                                refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
                                 injectableField.name, getFieldHelper.codeGetField()
                         );
                     }
@@ -633,7 +633,7 @@ public class ComponentBuilder {
 
                 builder.addStatement(
                         "$L.add(new $T($L, cl.$L , $L))",
-                        refCollectionGlFieldName, StTimeHolder.class, scheduleGlFieldName,
+                        refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
                         getFieldHelper.codeGetField(),
                         timeMillis
                 );

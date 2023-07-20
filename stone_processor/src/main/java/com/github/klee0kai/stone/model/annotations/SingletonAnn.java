@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model.annotations;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
@@ -25,7 +25,7 @@ public class SingletonAnn implements Cloneable, IAnnotation {
     }
 
     public static SingletonAnn findFrom(List<AnnotationSpec> annotationSpecs) {
-        AnnotationSpec spec = StListUtils.first(annotationSpecs,
+        AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Singleton.class)));
         if (spec == null)
             return null;

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone._hidden_.types.holders.StMapItemHolder;
-import com.github.klee0kai.stone._hidden_.types.holders.StRefType;
+import com.github.klee0kai.stone._hidden_.types.holders.MapItemHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
@@ -18,16 +18,16 @@ public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
     public TypeName returnType;
     public FieldDetail keyParam;
 
-    public StRefType defRefType;
+    public StoneRefType defRefType;
 
     public boolean isListCaching;
 
 
     @Override
     public FieldSpec.Builder cachedField() {
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(StMapItemHolder.class), keyParam.type, nonWrappedType);
+        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(MapItemHolder.class), keyParam.type, nonWrappedType);
         return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T($T.$L)", cacheType, StRefType.class, defRefType.toString());
+                .initializer("new $T($T.$L)", cacheType, StoneRefType.class, defRefType.toString());
     }
 
     @Override

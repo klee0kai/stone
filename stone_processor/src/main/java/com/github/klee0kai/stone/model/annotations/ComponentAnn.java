@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model.annotations;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.PrimitiveTypeNonSupportedStoneException;
@@ -78,7 +78,7 @@ public class ComponentAnn implements Cloneable, IAnnotation {
 
 
     public static ComponentAnn findFrom(List<AnnotationSpec> annotationSpecs) {
-        AnnotationSpec spec = StListUtils.first(annotationSpecs,
+        AnnotationSpec spec = ListUtils.first(annotationSpecs,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Component.class)));
         if (spec == null)
             return null;

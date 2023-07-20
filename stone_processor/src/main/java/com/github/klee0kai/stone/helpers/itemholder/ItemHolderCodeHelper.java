@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone._hidden_.types.StMultiKey;
+import com.github.klee0kai.stone._hidden_.types.MultiKey;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.ClassName;
@@ -15,7 +15,7 @@ import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 
 public interface ItemHolderCodeHelper {
 
-    ClassName multiKeyClassName = ClassName.get(StMultiKey.class);
+    ClassName multiKeyClassName = ClassName.get(MultiKey.class);
 
     static ItemHolderCodeHelper of(
             String fieldName,

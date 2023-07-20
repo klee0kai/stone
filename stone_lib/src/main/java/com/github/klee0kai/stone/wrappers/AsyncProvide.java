@@ -1,12 +1,12 @@
 package com.github.klee0kai.stone.wrappers;
 
-import com.github.klee0kai.stone._hidden_.types.StThr;
+import com.github.klee0kai.stone._hidden_.types.Threads;
 
 import java.util.concurrent.ExecutorService;
 
 public class AsyncProvide<T> implements Ref<T> {
 
-    private static final ExecutorService secThread = StThr.singleThreadExecutor("stone_async");
+    private static final ExecutorService secThread = Threads.singleThreadExecutor("stone_async");
 
     private T value = null;
     private final Ref<T> call;

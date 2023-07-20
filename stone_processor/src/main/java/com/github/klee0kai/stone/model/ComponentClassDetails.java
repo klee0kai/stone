@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.model;
 
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.helpers.invokecall.ModulesGraph;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
@@ -74,7 +74,7 @@ public class ComponentClassDetails extends ClassDetail {
 
     private void genHiddenModule() {
         if (hiddenModule != null) return;
-        List<MethodDetail> hiddenBindInstanceMethods = StListUtils.filter(
+        List<MethodDetail> hiddenBindInstanceMethods = ListUtils.filter(
                 getAllMethods(false, false, "<init>"),
                 (i, m) -> {
                     boolean isBindAndProvide = ComponentMethods.isBindInstanceMethod(m) == ComponentMethods.BindInstanceType.BindInstanceAndProvide;

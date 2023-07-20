@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone._hidden_.IModuleFactory;
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
@@ -67,7 +67,7 @@ public class ModuleFactoryBuilder {
         ClassDetail providingClass = allClassesHelper.findForType(nonWrappedType(m.returnType));
         boolean hasConstructor = providingClass.findMethod(MethodDetail.constructorMethod(m.args), false) != null;
         if (!hasConstructor) {
-            List<String> argTypes = StListUtils.format(m.args, (it) -> it.type.toString());
+            List<String> argTypes = ListUtils.format(m.args, (it) -> it.type.toString());
             throw new ObjectNotProvidedException(
                     createErrorMes()
                             .constructorNonFound(providingClass.className.toString(), argTypes)
@@ -83,7 +83,7 @@ public class ModuleFactoryBuilder {
         for (FieldDetail p : m.args)
             builder.addParameter(p.type, p.name);
 
-        String argStr = m.args == null ? "" : String.join(",", StListUtils.format(m.args, (it) -> it.name));
+        String argStr = m.args == null ? "" : String.join(",", ListUtils.format(m.args, (it) -> it.name));
         SmartCode genCode = SmartCode.builder()
                 .add(CodeBlock.of("new $T( $L )", providingClass.className, argStr))
                 .providingType(providingClass.className);

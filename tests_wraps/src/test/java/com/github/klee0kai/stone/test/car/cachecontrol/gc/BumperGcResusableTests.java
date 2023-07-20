@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.cachecontrol.gc;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent;
 import org.junit.jupiter.api.Test;
 
@@ -16,17 +16,17 @@ public class BumperGcResusableTests {
     public void gcAllTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcAll();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -39,17 +39,17 @@ public class BumperGcResusableTests {
     public void gcWeakTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcWeak();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -62,17 +62,17 @@ public class BumperGcResusableTests {
     public void gcSoftTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcSoft();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -85,17 +85,17 @@ public class BumperGcResusableTests {
     public void gcStrongTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcStrong();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -108,17 +108,17 @@ public class BumperGcResusableTests {
     public void gcBumpers() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcBumpers();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -131,17 +131,17 @@ public class BumperGcResusableTests {
     public void gcRedBumpers() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcRedBumpers();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -154,17 +154,17 @@ public class BumperGcResusableTests {
     public void gcRedBumpers2() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcRedBumpers2();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -177,17 +177,17 @@ public class BumperGcResusableTests {
     public void gcWheelsTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcWheels();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);
@@ -200,17 +200,17 @@ public class BumperGcResusableTests {
     public void gcNothing() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> bumperFactoryUids1 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids1 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids1 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids1 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids1 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids1 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids1 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids1 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         //When
         DI.gcNothing();
-        List<String> bumperFactoryUids2 = StListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
-        List<String> bumperWeakUids2 = StListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
-        List<String> bumperSoftUids2 = StListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
-        List<String> bumperStrongUids2 = StListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
+        List<String> bumperFactoryUids2 = ListUtils.format(DI.bumpersModule().bumperFactory(), it -> it.uuid);
+        List<String> bumperWeakUids2 = ListUtils.format(DI.bumpersModule().bumperWeak(), it -> it.uuid);
+        List<String> bumperSoftUids2 = ListUtils.format(DI.bumpersModule().bumperSoft(), it -> it.uuid);
+        List<String> bumperStrongUids2 = ListUtils.format(DI.bumpersModule().bumperStrong(), it -> it.uuid);
 
         // Then
         assertNotEquals(bumperFactoryUids1, bumperFactoryUids2);

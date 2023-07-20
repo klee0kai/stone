@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model.annotations;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.squareup.javapoet.ClassName;
@@ -77,7 +77,7 @@ public class QualifierAnn implements Cloneable, IAnnotation {
         builder.append(qualifierClStr);
         if (!values.isEmpty()) {
             builder.append("(")
-                    .append(String.join(",", StListUtils.format(values.values(), Object::toString)))
+                    .append(String.join(",", ListUtils.format(values.values(), Object::toString)))
                     .append(")");
 
         }

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.muti;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.wrappers.Ref;
 import com.github.klee0kai.test.car.di.lists.cached.CarMultiCachedComponent;
 import com.github.klee0kai.test.car.model.Bumper;
@@ -74,11 +74,11 @@ public class MultiCachedProvideTest {
 
         //Then
         // assertEquals(0, Wheel.createCount); // each item wrapping in list not delayed
-        List<Wheel> wheels = StListUtils.format(wheelsProviderList, it -> it.get().get());
+        List<Wheel> wheels = ListUtils.format(wheelsProviderList, it -> it.get().get());
         assertEquals(5, Wheel.createCount);
         assertEquals(5, wheels.size());
         for (Wheel w : wheels) assertNotNull(w.uuid);
-        Set<String> wheelsUid = new HashSet<>(StListUtils.format(wheels, it -> it.uuid));
+        Set<String> wheelsUid = new HashSet<>(ListUtils.format(wheels, it -> it.uuid));
         assertEquals(5, wheelsUid.size());
     }
 
@@ -89,15 +89,15 @@ public class MultiCachedProvideTest {
 
         //When
         List<Provider<WeakReference<Wheel>>> wheelsProviderList = DI.wheels();
-        List<Wheel> wheels1 = StListUtils.format(wheelsProviderList, it -> it.get().get());
-        List<Wheel> wheels2 = StListUtils.format(wheelsProviderList, it -> it.get().get());
-        List<Wheel> wheels3 = StListUtils.format(DI.wheels(), it -> it.get().get());
+        List<Wheel> wheels1 = ListUtils.format(wheelsProviderList, it -> it.get().get());
+        List<Wheel> wheels2 = ListUtils.format(wheelsProviderList, it -> it.get().get());
+        List<Wheel> wheels3 = ListUtils.format(DI.wheels(), it -> it.get().get());
 
         // Then
         assertEquals(5, Wheel.createCount, "wheel lists should cached");
-        List<String> wheelsUuid1 = StListUtils.format(wheels1, it -> it.uuid);
-        List<String> wheelsUuid2 = StListUtils.format(wheels2, it -> it.uuid);
-        List<String> wheelsUuid3 = StListUtils.format(wheels3, it -> it.uuid);
+        List<String> wheelsUuid1 = ListUtils.format(wheels1, it -> it.uuid);
+        List<String> wheelsUuid2 = ListUtils.format(wheels2, it -> it.uuid);
+        List<String> wheelsUuid3 = ListUtils.format(wheels3, it -> it.uuid);
         assertEquals(wheelsUuid1, wheelsUuid2);
         assertEquals(wheelsUuid1, wheelsUuid3);
     }
@@ -130,7 +130,7 @@ public class MultiCachedProvideTest {
         assertEquals(1, windows.size());
         assertEquals(4, windows.get(0).size());
         for (Window w : windows.get(0)) assertNotNull(w.uuid);
-        Set<String> windowUuid = new HashSet<>(StListUtils.format(windows.get(0), it -> it.uuid));
+        Set<String> windowUuid = new HashSet<>(ListUtils.format(windows.get(0), it -> it.uuid));
         assertEquals(4, windowUuid.size());
     }
 
@@ -163,7 +163,7 @@ public class MultiCachedProvideTest {
         assertEquals(4, windows.get(0).get().size());
         assertEquals(4, Window.createCount, "Provider used. Windows created");
         for (Window w : windows.get(0).get()) assertNotNull(w.uuid);
-        Set<String> windowUuid = new HashSet<>(StListUtils.format(windows.get(0).get(), it -> it.uuid));
+        Set<String> windowUuid = new HashSet<>(ListUtils.format(windows.get(0).get(), it -> it.uuid));
         assertEquals(4, windowUuid.size());
     }
 

@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Stone Private class
  */
-public class StThr {
+public class Threads {
 
     public static ThreadPoolExecutor singleThreadExecutor(String name) {
         return new ThreadPoolExecutor(0, 1, 0,

@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone._hidden_.types.StListUtils;
-import com.github.klee0kai.stone._hidden_.types.holders.StMapItemHolder;
-import com.github.klee0kai.stone._hidden_.types.holders.StRefType;
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.holders.MapItemHolder;
+import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
@@ -17,16 +17,16 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     public String fieldName;
     public TypeName nonWrappedType;
     public TypeName returnType;
-    public StRefType defRefType;
+    public StoneRefType defRefType;
     public List<FieldDetail> keyArgs;
     public boolean isListCaching;
 
 
     @Override
     public FieldSpec.Builder cachedField() {
-        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(StMapItemHolder.class), multiKeyClassName, nonWrappedType);
+        ParameterizedTypeName cacheType = ParameterizedTypeName.get(ClassName.get(MapItemHolder.class), multiKeyClassName, nonWrappedType);
         return FieldSpec.builder(cacheType, fieldName, Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new $T($T.$L)", cacheType, StRefType.class, defRefType.toString());
+                .initializer("new $T($T.$L)", cacheType, StoneRefType.class, defRefType.toString());
     }
 
     @Override
@@ -41,7 +41,7 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     public SmartCode codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
         return SmartCode.of(CodeBlock.of("$L.$L(new $T($L) )", fieldName, getMethod, multiKeyClassName,
-                        String.join(",", StListUtils.format(keyArgs, (k) -> k.name))))
+                        String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
                 .providingType(listWrapTypeIfNeed(returnType));
     }
 
@@ -50,7 +50,7 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
         String setMethod = isListCaching ? "setList" : "set";
         return SmartCode.builder()
                 .add(CodeBlock.of("$L.$L( new $T( $L ), () ->  ", fieldName, setMethod, multiKeyClassName,
-                        String.join(",", StListUtils.format(keyArgs, (k) -> k.name))))
+                        String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
                 .add(value)
                 .add(CodeBlock.of(", $L )", isOnlyIfNeed))
                 .build(null);
