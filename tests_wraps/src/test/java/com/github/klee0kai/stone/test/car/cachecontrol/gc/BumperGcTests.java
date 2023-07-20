@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.cachecontrol.gc;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent;
 import com.github.klee0kai.test.car.model.Bumper;
 import org.junit.jupiter.api.Test;
@@ -19,10 +19,10 @@ public class BumperGcTests {
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
 
         //When
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //Then
         assertEquals(3, nonNullCount(bumperFactory));
@@ -35,10 +35,10 @@ public class BumperGcTests {
     public void gcAllTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcAll();
@@ -54,10 +54,10 @@ public class BumperGcTests {
     public void gcWeakTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcWeak();
@@ -73,10 +73,10 @@ public class BumperGcTests {
     public void gcSoftTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcSoft();
@@ -92,10 +92,10 @@ public class BumperGcTests {
     public void gcStrongTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcStrong();
@@ -111,10 +111,10 @@ public class BumperGcTests {
     public void gcBumpers() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcBumpers();
@@ -130,10 +130,10 @@ public class BumperGcTests {
     public void gcRedBumpers() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcRedBumpers();
@@ -149,10 +149,10 @@ public class BumperGcTests {
     public void gcRedBumpers2() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcRedBumpers2();
@@ -168,10 +168,10 @@ public class BumperGcTests {
     public void gcWheelsTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
 
         //When
@@ -188,10 +188,10 @@ public class BumperGcTests {
     public void gcNothing() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Bumper>> bumperFactory = ListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperWeak = ListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperSoft = ListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
-        List<WeakReference<Bumper>> bumperStrong = ListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperFactory = StListUtils.format(DI.bumpersModule().bumperFactory(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperWeak = StListUtils.format(DI.bumpersModule().bumperWeak(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperSoft = StListUtils.format(DI.bumpersModule().bumperSoft(), WeakReference::new);
+        List<WeakReference<Bumper>> bumperStrong = StListUtils.format(DI.bumpersModule().bumperStrong(), WeakReference::new);
 
         //When
         DI.gcNothing();

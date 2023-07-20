@@ -6,11 +6,11 @@ import java.util.*;
  * Stone Private class
  */
 
-public class MultiKey {
+public class StMultiKey {
 
     private final List<Object> subKeys = new LinkedList<>();
 
-    public MultiKey(Object... subKeys){
+    public StMultiKey(Object... subKeys){
         this.subKeys.addAll(Arrays.asList(subKeys));
     }
 
@@ -33,11 +33,11 @@ public class MultiKey {
         //AbstractList equals check
         if (obj == this) {
             return true;
-        } else if (!(obj instanceof MultiKey)) {
+        } else if (!(obj instanceof StMultiKey)) {
             return false;
         } else {
             ListIterator<Object> e1 = this.subKeys.listIterator();
-            ListIterator<?> e2 = ((MultiKey)obj).subKeys.listIterator();
+            ListIterator<?> e2 = ((StMultiKey)obj).subKeys.listIterator();
 
             while(true) {
                 if (e1.hasNext() && e2.hasNext()) {

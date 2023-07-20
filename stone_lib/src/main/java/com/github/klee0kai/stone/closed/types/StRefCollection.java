@@ -1,12 +1,12 @@
-package com.github.klee0kai.stone.types.wrappers;
+package com.github.klee0kai.stone.closed.types;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.types.wrappers.Ref;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RefCollection<T> {
+public class StRefCollection<T> {
 
     private final List<Ref<T>> refs = new LinkedList<>();
 
@@ -22,7 +22,7 @@ public class RefCollection<T> {
 
     public List<T> getAll() {
         clearNulls();
-        return ListUtils.format(refs, Ref::get);
+        return StListUtils.format(refs, Ref::get);
     }
 
     public void clearNulls() {

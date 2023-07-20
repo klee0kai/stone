@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.closed.provide;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ public class ProvideConsumer<T> {
 
     public void addAll(Collection<T> collection) {
         if (collection != null) {
-            list.addAll(ListUtils.filter(collection, (i, it) -> it != null));
+            list.addAll(StListUtils.filter(collection, (i, it) -> it != null));
         }
     }
 

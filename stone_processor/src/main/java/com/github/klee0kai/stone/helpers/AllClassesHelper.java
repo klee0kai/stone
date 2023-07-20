@@ -3,7 +3,7 @@ package com.github.klee0kai.stone.helpers;
 import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.closed.IModule;
 import com.github.klee0kai.stone.closed.IPrivateComponent;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.types.lifecycle.StoneLifeCycleOwner;
@@ -74,7 +74,7 @@ public class AllClassesHelper {
                 for (AnnotationMirror ann : methodEl.getAnnotationMirrors()) {
                     List<? extends AnnotationMirror> methodAnnotations = ann.getAnnotationType().asElement().getAnnotationMirrors();
                     // add as GC Scope
-                    boolean isScopeAnnotated = ListUtils.contains(methodAnnotations, (inx, it) -> {
+                    boolean isScopeAnnotated = StListUtils.contains(methodAnnotations, (inx, it) -> {
                         Element annEl = it.getAnnotationType().asElement();
                         return Objects.equals(annEl, scopeAnnotationElement) || Objects.equals(annEl, gcScopeAnnotationElement);
                     });
@@ -85,7 +85,7 @@ public class AllClassesHelper {
                     }
 
                     // add as Qualifier Annotation
-                    boolean isQualifierAnnotated = ListUtils.contains(methodAnnotations, (inx, it) -> {
+                    boolean isQualifierAnnotated = StListUtils.contains(methodAnnotations, (inx, it) -> {
                         Element annEl = it.getAnnotationType().asElement();
                         return Objects.equals(annEl, qualifierAnnotationElement);
                     });

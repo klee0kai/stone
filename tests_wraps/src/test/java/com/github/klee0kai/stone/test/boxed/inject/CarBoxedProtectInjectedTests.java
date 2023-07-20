@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.boxed.inject;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponent;
 import com.github.klee0kai.test.boxed.model.CarBoxedInject;
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectLists;
@@ -47,9 +47,9 @@ public class CarBoxedProtectInjectedTests {
         //When
         CarBoxedInjectLists carInject = new CarBoxedInjectLists();
         DI.inject(carInject);
-        List<String> bumperUids = ListUtils.format(carInject.bumpers, it -> it.val.uuid);
-        List<String> wheelUids = ListUtils.format(carInject.wheels, it -> it.val.uuid);
-        List<String> windowUids = ListUtils.format(carInject.windows, it -> it.val.uuid);
+        List<String> bumperUids = StListUtils.format(carInject.bumpers, it -> it.val.uuid);
+        List<String> wheelUids = StListUtils.format(carInject.wheels, it -> it.val.uuid);
+        List<String> windowUids = StListUtils.format(carInject.windows, it -> it.val.uuid);
         DI.protect(carInject);
         carInject = null;
         System.gc();
@@ -58,9 +58,9 @@ public class CarBoxedProtectInjectedTests {
 
 
         // Then
-        assertEquals(bumperUids, ListUtils.format(carInject.bumpers, it -> it.val.uuid), "Providing with caching");
-        assertEquals(wheelUids, ListUtils.format(carInject.wheels, it -> it.val.uuid), "Providing with caching");
-        assertNotEquals(windowUids, ListUtils.format(carInject.windows, it -> it.val.uuid), "Providing without caching");
+        assertEquals(bumperUids, StListUtils.format(carInject.bumpers, it -> it.val.uuid), "Providing with caching");
+        assertEquals(wheelUids, StListUtils.format(carInject.wheels, it -> it.val.uuid), "Providing with caching");
+        assertNotEquals(windowUids, StListUtils.format(carInject.windows, it -> it.val.uuid), "Providing without caching");
     }
 
     @Test

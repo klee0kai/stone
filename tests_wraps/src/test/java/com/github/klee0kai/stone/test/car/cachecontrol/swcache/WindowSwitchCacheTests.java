@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.cachecontrol.swcache;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent;
 import com.github.klee0kai.test.car.model.Window;
 import org.junit.jupiter.api.Test;
@@ -17,10 +17,10 @@ public class WindowSwitchCacheTests {
     public void allWeakTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
 
         //When
@@ -38,10 +38,10 @@ public class WindowSwitchCacheTests {
     public void weakToStrongTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
         DI.weakToStrongFewMillis();
@@ -58,10 +58,10 @@ public class WindowSwitchCacheTests {
     public void weakToStrongAfterFewMillisTest() throws InterruptedException {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
         DI.weakToStrongFewMillis();
@@ -79,10 +79,10 @@ public class WindowSwitchCacheTests {
     public void softToWeakTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
         DI.softToWeak();
@@ -99,10 +99,10 @@ public class WindowSwitchCacheTests {
     public void strongToWeakTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
         DI.strongToWeak();
@@ -119,10 +119,10 @@ public class WindowSwitchCacheTests {
     public void windowsToWeakTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
         DI.windowsToWeak();
@@ -139,10 +139,10 @@ public class WindowSwitchCacheTests {
     public void windowsAndWheelsToWeakTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
         DI.windowsAndWheelsToWeak();
@@ -159,10 +159,10 @@ public class WindowSwitchCacheTests {
     public void wheelsToWeakTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
 
         //When
@@ -180,10 +180,10 @@ public class WindowSwitchCacheTests {
     public void weakNothingTest() {
         // Given
         CarSwCacheComponent DI = Stone.createComponent(CarSwCacheComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsModule().windowFactory().get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsModule().windowWeak().get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsModule().windowSoft().get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsModule().windowStrong().get(), WeakReference::new);
 
         //When
         DI.nothingToWeak();

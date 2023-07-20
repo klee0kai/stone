@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.model;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -67,7 +67,7 @@ public class FieldDetail {
         FieldDetail fieldDetail = new FieldDetail();
         fieldDetail.name = field.name;
         fieldDetail.type = field.type;
-        fieldDetail.injectAnnotation = ListUtils.contains(field.annotations,
+        fieldDetail.injectAnnotation = StListUtils.contains(field.annotations,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Inject.class)));
         return fieldDetail;
     }
@@ -83,7 +83,7 @@ public class FieldDetail {
         FieldDetail fieldDetail = new FieldDetail();
         fieldDetail.name = field.name;
         fieldDetail.type = field.type;
-        fieldDetail.injectAnnotation = ListUtils.contains(field.annotations,
+        fieldDetail.injectAnnotation = StListUtils.contains(field.annotations,
                 (inx, ob) -> Objects.equals(ob.type, ClassName.get(Inject.class)));
         return fieldDetail;
     }

@@ -1,8 +1,8 @@
 package com.github.klee0kai.stone.codegen;
 
-import com.github.klee0kai.stone.closed.types.CacheAction;
-import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
+import com.github.klee0kai.stone.closed.types.StCacheAction;
+import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone.closed.types.StSwitchCache;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -79,7 +79,7 @@ public class ModuleCacheControlInterfaceBuilder {
         MethodSpec.Builder builder = methodBuilder(switchRefMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
-                .addParameter(ParameterSpec.builder(SwitchCacheParam.class, "__params").build())
+                .addParameter(ParameterSpec.builder(StSwitchCache.class, "__params").build())
                 .returns(void.class);
 
         iModuleMethodBuilders.put(switchRefMethodName, builder);
@@ -102,14 +102,14 @@ public class ModuleCacheControlInterfaceBuilder {
 
     public ModuleCacheControlInterfaceBuilder cacheControlMethod(String name, TypeName typeName, List<FieldDetail> args) {
         String cacheControlMethodName = cacheControlMethodName(name);
-        List<FieldDetail> qFields = ListUtils.filter(args,
+        List<FieldDetail> qFields = StListUtils.filter(args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                 .returns(listWrapTypeIfNeed(typeName))
-                .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build());
+                .addParameter(ParameterSpec.builder(StCacheAction.class, "__action").build());
         for (FieldDetail q : qFields) {
             cacheControldMethodBuilder.addParameter(q.type, q.name);
         }

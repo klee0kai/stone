@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -105,7 +105,7 @@ public class InvokeCall {
         Set<ProvideDep> argsTypes = new HashSet<>();
         for (List<MethodDetail> invokeSequence : invokeSequenceVariants)
             for (MethodDetail m : invokeSequence) {
-                List<ProvideDep> types = ListUtils.format(m.args, (it) -> new ProvideDep(it.type, it.qualifierAnns));
+                List<ProvideDep> types = StListUtils.format(m.args, (it) -> new ProvideDep(it.type, it.qualifierAnns));
                 argsTypes.addAll(types);
             }
         return argsTypes;
@@ -148,7 +148,7 @@ public class InvokeCall {
             CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
             for (FieldDetail arg : m.args) {
                 if (argCount++ > 0) argsCodeBuilder.add(",");
-                CodeBlock argCode = ListUtils.firstNotNull(argGens, it -> it.apply(arg.type));
+                CodeBlock argCode = StListUtils.firstNotNull(argGens, it -> it.apply(arg.type));
                 argsCodeBuilder.add(argCode != null ? argCode : CodeBlock.of("null"));
             }
 
@@ -207,15 +207,15 @@ public class InvokeCall {
                         for (FieldDetail arg : m.args) {
                             if (argCount++ > 0) builder.add(", ");
                             boolean isList = isList(arg.type);
-                            List<FieldDetail> typeFields = ListUtils.filter(builder.getDeclaredFields(), (i, f) ->
+                            List<FieldDetail> typeFields = StListUtils.filter(builder.getDeclaredFields(), (i, f) ->
                                     Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type)));
 
-                            FieldDetail field = isList ? ListUtils.first(typeFields, (i, f) ->
+                            FieldDetail field = isList ? StListUtils.first(typeFields, (i, f) ->
                                     isList(f.type) && Objects.equals(f.qualifierAnns, arg.qualifierAnns)
                             ) : null;
                             if (field == null) {
                                 //non list
-                                field = ListUtils.first(typeFields, (i, f) -> Objects.equals(f.qualifierAnns, arg.qualifierAnns));
+                                field = StListUtils.first(typeFields, (i, f) -> Objects.equals(f.qualifierAnns, arg.qualifierAnns));
                             }
 
                             if (field == null) {
@@ -253,7 +253,7 @@ public class InvokeCall {
                 if (secIndx++ > 0) builder.append(".");
                 builder.append(m.methodName)
                         .append("(")
-                        .append(String.join(",", ListUtils.format(m.args, f -> f.type.toString())))
+                        .append(String.join(",", StListUtils.format(m.args, f -> f.type.toString())))
                         .append(")");
             }
         }

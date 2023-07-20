@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.itemholder;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.stone.closed.types.holders.StMapItemHolder;
 import com.github.klee0kai.stone.closed.types.holders.StRefType;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
@@ -41,7 +41,7 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     public SmartCode codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
         return SmartCode.of(CodeBlock.of("$L.$L(new $T($L) )", fieldName, getMethod, multiKeyClassName,
-                        String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
+                        String.join(",", StListUtils.format(keyArgs, (k) -> k.name))))
                 .providingType(listWrapTypeIfNeed(returnType));
     }
 
@@ -50,7 +50,7 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
         String setMethod = isListCaching ? "setList" : "set";
         return SmartCode.builder()
                 .add(CodeBlock.of("$L.$L( new $T( $L ), () ->  ", fieldName, setMethod, multiKeyClassName,
-                        String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
+                        String.join(",", StListUtils.format(keyArgs, (k) -> k.name))))
                 .add(value)
                 .add(CodeBlock.of(", $L )", isOnlyIfNeed))
                 .build(null);

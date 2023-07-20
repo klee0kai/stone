@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.car.di.qualifiers.CarQComponent;
 import com.github.klee0kai.test.car.model.Car;
 import com.github.klee0kai.test.car.model.CarsInjectQualifiers;
@@ -185,9 +185,9 @@ public class CarInjectWithQualifiersTest {
 
         //Then
         assertEquals(14, carInject.allCars.size());
-        assertEquals(1, ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
-        assertEquals(1, ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
-        assertEquals(1, ListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
+        assertEquals(1, StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
+        assertEquals(1, StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
+        assertEquals(1, StListUtils.filter(carInject.allCars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
     }
 
 

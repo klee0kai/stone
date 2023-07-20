@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.cachecontrol.gc;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent;
 import com.github.klee0kai.test.car.model.Window;
 import org.junit.jupiter.api.Test;
@@ -19,10 +19,10 @@ public class WindowMappedGcTests {
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
 
         //When
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //Then
         assertEquals(3, nonNullCount(windowsFactory));
@@ -38,10 +38,10 @@ public class WindowMappedGcTests {
         DI.gcAll();
 
         //When
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //Then
         assertEquals(3, nonNullCount(windowsFactory));
@@ -54,10 +54,10 @@ public class WindowMappedGcTests {
     public void gcAllTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
 
         //When
@@ -74,10 +74,10 @@ public class WindowMappedGcTests {
     public void gcWeakTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //When
         DI.gcWeak();
@@ -93,10 +93,10 @@ public class WindowMappedGcTests {
     public void gcSoftTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //When
         DI.gcSoft();
@@ -112,10 +112,10 @@ public class WindowMappedGcTests {
     public void gcStrongTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //When
         DI.gcStrong();
@@ -131,10 +131,10 @@ public class WindowMappedGcTests {
     public void gcWindows() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //When
         DI.gcWindows();
@@ -150,10 +150,10 @@ public class WindowMappedGcTests {
     public void gcWindowsAndWheels() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //When
         DI.gcWindowsAndWheels();
@@ -169,10 +169,10 @@ public class WindowMappedGcTests {
     public void gcWheelsTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
 
         //When
@@ -189,10 +189,10 @@ public class WindowMappedGcTests {
     public void gcNothing() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowsFactory = ListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowWeak = ListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowSoft = ListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowsFactory = StListUtils.format(DI.windowsMappedModule().windowFactory("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowWeak = StListUtils.format(DI.windowsMappedModule().windowWeak("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowSoft = StListUtils.format(DI.windowsMappedModule().windowSoft("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
 
         //When
         DI.gcNothing();

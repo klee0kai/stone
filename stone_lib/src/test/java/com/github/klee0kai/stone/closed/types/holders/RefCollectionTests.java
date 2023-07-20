@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.closed.types.holders;
 
-import com.github.klee0kai.stone.types.wrappers.RefCollection;
+import com.github.klee0kai.stone.closed.types.StRefCollection;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -13,7 +13,7 @@ public class RefCollectionTests {
     @Test
     public void clearNullTest() throws InterruptedException {
         StTimeScheduler timeScheduler = new StTimeScheduler();
-        RefCollection refCollection = new RefCollection();
+        StRefCollection refCollection = new StRefCollection();
 
         refCollection.add(new StTimeHolder(timeScheduler, 10, 40));
         refCollection.add(new StTimeHolder(timeScheduler, 12, 100));
@@ -42,7 +42,7 @@ public class RefCollectionTests {
     @Test
     public void clearNullTest2() throws InterruptedException {
         StTimeScheduler timeScheduler = new StTimeScheduler();
-        RefCollection refCollection = new RefCollection();
+        StRefCollection refCollection = new StRefCollection();
 
         refCollection.add(new StTimeHolder(timeScheduler, 10, 50));
         refCollection.add(new StTimeHolder(timeScheduler, 12, 10));

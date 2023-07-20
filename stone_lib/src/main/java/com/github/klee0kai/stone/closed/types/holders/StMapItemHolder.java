@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.closed.types.holders;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
+import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone.closed.types.StSwitchCache;
 import com.github.klee0kai.stone.types.wrappers.Ref;
 
 import java.lang.ref.Reference;
@@ -52,7 +52,7 @@ public class StMapItemHolder<Key, T> {
                 return (List<T>) holder;
             case ListWeakObject:
             case ListSoftObject:
-                return ListUtils.format((List<Reference<T>>) holder, Reference::get);
+                return StListUtils.format((List<Reference<T>>) holder, Reference::get);
         }
         return null;
     }
@@ -64,7 +64,7 @@ public class StMapItemHolder<Key, T> {
             refMap.put(key, creator.get());
             return;
         }
-        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        StListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
         if (formatter == null) return;
         if (!onlyIfNull) {
             //switch ref type case
@@ -97,11 +97,11 @@ public class StMapItemHolder<Key, T> {
             }
             return;
         }
-        ListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
+        StListUtils.IFormat<T, Reference<T>> formatter = curRefType.formatter();
         if (formatter == null) return;
         if (!onlyIfNull || refHolder == null) {
             //switch ref type case
-            refMap.put(key, ListUtils.format(creator.get(), formatter));
+            refMap.put(key, StListUtils.format(creator.get(), formatter));
             return;
         }
 
@@ -154,7 +154,7 @@ public class StMapItemHolder<Key, T> {
         } else {
             for (Key key : keys) {
                 List<T> list = getList(key);
-                if (!ListUtils.contains(list, (i, it) -> it != null)) {
+                if (!StListUtils.contains(list, (i, it) -> it != null)) {
                     refMap.remove(key);
                 }
             }
@@ -163,7 +163,7 @@ public class StMapItemHolder<Key, T> {
     }
 
 
-    public void switchCache(SwitchCacheParam args) {
+    public void switchCache(StSwitchCache args) {
         switch (args.cache) {
             case Default:
                 setRefType(defType);

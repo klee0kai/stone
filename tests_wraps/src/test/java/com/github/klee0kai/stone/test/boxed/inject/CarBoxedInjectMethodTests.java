@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.boxed.inject;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponent;
 import com.github.klee0kai.test.boxed.model.CarBox;
 import com.github.klee0kai.test.boxed.model.CarBoxedInject;
@@ -82,13 +82,13 @@ public class CarBoxedInjectMethodTests {
         assertEquals(5, carInject.wheelsMethodFrom.size());
         assertEquals(4, carInject.windowsMethodFrom.size());
         for (CarBox<Bumper> b : carInject.bumpersMethodFrom) assertNotNull(b.val.uuid);
-        Set<String> bumperUids = new HashSet<>(ListUtils.format(carInject.bumpersMethodFrom, it -> it.val.uuid));
+        Set<String> bumperUids = new HashSet<>(StListUtils.format(carInject.bumpersMethodFrom, it -> it.val.uuid));
         assertEquals(2, bumperUids.size());
         for (CarBox<Wheel> w : carInject.wheelsMethodFrom) assertNotNull(w.val.uuid);
-        Set<String> wheelsUid = new HashSet<>(ListUtils.format(carInject.wheels, it -> it.val.uuid));
+        Set<String> wheelsUid = new HashSet<>(StListUtils.format(carInject.wheels, it -> it.val.uuid));
         assertEquals(5, wheelsUid.size());
         for (CarBox<Window> w : carInject.windowsMethodFrom) assertNotNull(w.val.uuid);
-        Set<String> windowUids = new HashSet<>(ListUtils.format(carInject.windows, it -> it.val.uuid));
+        Set<String> windowUids = new HashSet<>(StListUtils.format(carInject.windows, it -> it.val.uuid));
         assertEquals(4, windowUids.size());
     }
 

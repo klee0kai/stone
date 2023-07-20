@@ -4,7 +4,7 @@ import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
@@ -66,7 +66,7 @@ public class ClassDetail implements Cloneable {
                 methods.add(MethodDetail.of((ExecutableElement) el));
             else if (el instanceof VariableElement) {
                 String getAnnotationsElName = "get" + capitalized(el.getSimpleName().toString()) + "$annotations";
-                Element getAnnotationsEl = ListUtils.first(owner.getEnclosedElements(), (i, it) ->
+                Element getAnnotationsEl = StListUtils.first(owner.getEnclosedElements(), (i, it) ->
                         Objects.equals(it.getSimpleName().toString(), getAnnotationsElName)
                 );
                 fields.add(FieldDetail.of((VariableElement) el, getAnnotationsEl));

@@ -3,9 +3,9 @@ package com.github.klee0kai.stone.codegen;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.closed.IModule;
-import com.github.klee0kai.stone.closed.types.CacheAction;
-import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.SwitchCacheParam;
+import com.github.klee0kai.stone.closed.types.StCacheAction;
+import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone.closed.types.StSwitchCache;
 import com.github.klee0kai.stone.closed.types.holders.StRefType;
 import com.github.klee0kai.stone.closed.types.holders.StSingleItemHolder;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
@@ -87,7 +87,7 @@ public class ModuleBuilder {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
 
-            List<FieldDetail> qFields = ListUtils.filter(m.args,
+            List<FieldDetail> qFields = StListUtils.filter(m.args,
                     (inx, it) -> (it.type instanceof ClassName) && allQualifiers.contains(it.type)
             );
 
@@ -103,7 +103,7 @@ public class ModuleBuilder {
                 builder.provideCached(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
                         .switchRefFor(itemHolderCodeHelper,
-                                ListUtils.setOf(
+                                StListUtils.setOf(
                                         m.gcScopeAnnotations,
                                         ClassName.get(GcAllScope.class),
                                         cacheType.getGcScopeClassName()
@@ -116,7 +116,7 @@ public class ModuleBuilder {
                 builder.bindInstance(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
                         .switchRefFor(itemHolderCodeHelper,
-                                ListUtils.setOf(
+                                StListUtils.setOf(
                                         m.gcScopeAnnotations,
                                         ClassName.get(GcAllScope.class),
                                         cacheType.getGcScopeClassName()
@@ -268,7 +268,7 @@ public class ModuleBuilder {
                     if (!isProvideMethod)
                         continue;
                     String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
-                    List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
+                    List<FieldDetail> qFields = StListUtils.filter(protoProvideMethod.args,
                             (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
                     );
                     if (!qFields.isEmpty()) {
@@ -278,7 +278,7 @@ public class ModuleBuilder {
 
                     builder.addStatement(
                             "$L( $T.setIfNullValueAction( module.$L( null ) ) )",
-                            protoCacheControlMethodName, CacheAction.class, protoCacheControlMethodName
+                            protoCacheControlMethodName, StCacheAction.class, protoCacheControlMethodName
                     );
 
                 }
@@ -307,7 +307,7 @@ public class ModuleBuilder {
                     if (!protoProvideMethod.hasAnyAnnotation(BindInstanceAnn.class))
                         continue;
                     String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
-                    List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
+                    List<FieldDetail> qFields = StListUtils.filter(protoProvideMethod.args,
                             (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
                     );
                     if (!qFields.isEmpty()) {
@@ -317,7 +317,7 @@ public class ModuleBuilder {
 
                     builder.addStatement(
                             "$L( $T.setValueAction( module.$L( null ) ) )",
-                            protoCacheControlMethodName, CacheAction.class, protoCacheControlMethodName
+                            protoCacheControlMethodName, StCacheAction.class, protoCacheControlMethodName
                     );
 
                 }
@@ -367,7 +367,7 @@ public class ModuleBuilder {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
-                .addParameter(ParameterSpec.builder(SwitchCacheParam.class, "__params").build())
+                .addParameter(ParameterSpec.builder(StSwitchCache.class, "__params").build())
                 .returns(void.class);
 
         iModuleMethodBuilders.put(switchRefMethodName, builder);
@@ -411,8 +411,8 @@ public class ModuleBuilder {
     public ModuleBuilder bindInstance(MethodDetail m, ItemHolderCodeHelper itemHolderCodeHelper) {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
         cacheFields.add(itemHolderCodeHelper.cachedField());
-        FieldDetail setValueArg = ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType));
-        List<FieldDetail> qFields = ListUtils.filter(m.args,
+        FieldDetail setValueArg = StListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType));
+        List<FieldDetail> qFields = StListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
 
@@ -428,7 +428,7 @@ public class ModuleBuilder {
                     .addStatement("$T cached = $L.get().$L( null $L ) ",
                             listWrapTypeIfNeed(m.returnType),
                             overridedModuleFieldName, cacheControlMethodName,
-                            String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
+                            String.join("", StListUtils.format(qFields, (it) -> ", " + it.name))
                     )
                     .addCode("if (cached != null ) return ")
                     .addCode(transform(
@@ -477,7 +477,7 @@ public class ModuleBuilder {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(m.returnType)
                 .addStatement("return  $L.$L($L)", factoryFieldName, m.methodName,
-                        String.join(",", ListUtils.format(m.args, (it) -> it.name)));
+                        String.join(",", StListUtils.format(m.args, (it) -> it.name)));
         if (orModuleCl != null) provideMethodBuilder.addAnnotation(Override.class);
 
         for (FieldDetail p : m.args) {
@@ -493,7 +493,7 @@ public class ModuleBuilder {
 
     public ModuleBuilder provideCached(MethodDetail m, ItemHolderCodeHelper itemHolderCodeHelper) {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
-        List<FieldDetail> qFields = ListUtils.filter(m.args,
+        List<FieldDetail> qFields = StListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
         cacheFields.add(itemHolderCodeHelper.cachedField());
@@ -513,7 +513,7 @@ public class ModuleBuilder {
                     .addStatement("$T cached = $L.get().$L( null $L ) ",
                             listWrapTypeIfNeed(m.returnType),
                             overridedModuleFieldName, cacheControlMethodName,
-                            String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
+                            String.join("", StListUtils.format(qFields, (it) -> ", " + it.name))
                     )
                     .addCode("if (cached != null ) return ")
                     .addCode(transform(
@@ -525,7 +525,7 @@ public class ModuleBuilder {
         }
 
         // set value if null
-        String argStrList = String.join(",", ListUtils.format(m.args, (it) -> it.name));
+        String argStrList = String.join(",", StListUtils.format(m.args, (it) -> it.name));
         provideMethodBuilder
                 .addCode("$T creator = () -> ", ParameterizedTypeName.get(ClassName.get(Ref.class), m.returnType))
                 .addCode(" $L.get() != null ? ", overridedModuleFieldName)
@@ -559,14 +559,14 @@ public class ModuleBuilder {
     public ModuleBuilder cacheControl(MethodDetail m, ItemHolderCodeHelper itemHolderCodeHelper) {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
         TypeName cacheControlType = listWrapTypeIfNeed(m.returnType);
-        List<FieldDetail> qFields = ListUtils.filter(m.args,
+        List<FieldDetail> qFields = StListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(cacheControlType)
-                .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build());
+                .addParameter(ParameterSpec.builder(StCacheAction.class, "__action").build());
         if (orModuleCl != null) cacheControldMethodBuilder.addAnnotation(Override.class);
         for (FieldDetail q : qFields) {
             cacheControldMethodBuilder.addParameter(q.type, q.name);
@@ -580,9 +580,9 @@ public class ModuleBuilder {
                             "$L.get().$L($L)",
                             overridedModuleFieldName,
                             cacheControlMethodName,
-                            String.join(",", ListUtils.format(
+                            String.join(",", StListUtils.format(
                                     cacheControldMethodBuilder.parameters,
-                                    (ListUtils.IFormat<ParameterSpec, CharSequence>) it -> it.name)
+                                    (StListUtils.IFormat<ParameterSpec, CharSequence>) it -> it.name)
                             )
                     )
                     .endControlFlow();
@@ -623,14 +623,14 @@ public class ModuleBuilder {
 
     public ModuleBuilder mockControl(MethodDetail m) {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
-        List<FieldDetail> qFields = ListUtils.filter(m.args,
+        List<FieldDetail> qFields = StListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(listWrapTypeIfNeed(m.returnType))
-                .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build())
+                .addParameter(ParameterSpec.builder(StCacheAction.class, "__action").build())
                 .addStatement("return null");
         if (orModuleCl != null) cacheControldMethodBuilder.addAnnotation(Override.class);
 

@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.closed.types.holders;
 
-import com.github.klee0kai.stone.closed.types.ListUtils;
-import com.github.klee0kai.stone.closed.types.Threads;
+import com.github.klee0kai.stone.closed.types.StListUtils;
+import com.github.klee0kai.stone.closed.types.StThr;
 
 import java.util.LinkedList;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -14,7 +14,7 @@ public class StTimeScheduler {
     private static final int MAX_VALUE_AWAIT_TIME = 30;
     private static final int MIN_AWAIT_TIME = 3;
 
-    private final ThreadPoolExecutor secThread = Threads.singleThreadExecutor("stone time scheduler");
+    private final ThreadPoolExecutor secThread = StThr.singleThreadExecutor("stone time scheduler");
 
     private final StDataAwait<StScheduleTask> timeTaskAwait = new StDataAwait<>();
 
@@ -41,7 +41,7 @@ public class StTimeScheduler {
 
                     task = timeTaskAwait.await(awaitTime);
                     if (task != null)
-                        ListUtils.orderedAdd(timers, task, (ob1, ob2) ->
+                        StListUtils.orderedAdd(timers, task, (ob1, ob2) ->
                                 (int) (ob1.scheduledExecutionTime() - ob2.scheduledExecutionTime())
                         );
                 }

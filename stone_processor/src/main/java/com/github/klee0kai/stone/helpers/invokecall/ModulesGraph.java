@@ -2,8 +2,8 @@ package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone.AnnotationProcessor;
 import com.github.klee0kai.stone.closed.provide.ProvideBuilder;
-import com.github.klee0kai.stone.closed.types.CacheAction;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StCacheAction;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecurciveProviding;
@@ -63,7 +63,7 @@ public class ModulesGraph {
 
             MethodDetail cacheControlMethod = new MethodDetail();
             cacheControlMethod.methodName = cacheControlMethodName(m.methodName);
-            cacheControlMethod.args.add(FieldDetail.simple("__action", ClassName.get(CacheAction.class)));
+            cacheControlMethod.args.add(FieldDetail.simple("__action", ClassName.get(StCacheAction.class)));
             for (FieldDetail it : m.args) {
                 if (!((it.type instanceof ClassName) && allQualifiers.contains(it.type)))
                     continue;
@@ -208,7 +208,7 @@ public class ModulesGraph {
                 );
             }
 
-            List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (i, it) -> {
+            List<ProvideDep> newDeps = StListUtils.filter(invokeCall.argDeps(), (i, it) -> {
                 if (Objects.equals(provideDep.typeName, it.typeName) && Objects.equals(rawDep.typeName, it.typeName)) {
                     // bind instance case. Argument and return type are equals
                     return false;
@@ -219,7 +219,7 @@ public class ModulesGraph {
             });
 
             needProvideDeps.addAll(newDeps);
-            needProvideDeps = ListUtils.removeDoublesRight(needProvideDeps, Objects::equals);
+            needProvideDeps = StListUtils.removeDoublesRight(needProvideDeps, Objects::equals);
             boolean recursiveDetected = !newDeps.isEmpty() && needProvideDepsRecursiveDetector.next(needProvideDeps.hashCode());
             if (recursiveDetected) {
                 throw new RecurciveProviding(
@@ -240,7 +240,7 @@ public class ModulesGraph {
             }
 
             provideTypeInvokes.add(invokeCall);
-            provideTypeInvokes = ListUtils.removeDoublesRight(provideTypeInvokes, (it1, it2) -> {
+            provideTypeInvokes = StListUtils.removeDoublesRight(provideTypeInvokes, (it1, it2) -> {
                 return Objects.equals(it1.resultType(), it2.resultType())
                         && Objects.equals(it1.qualifierAnnotations(true), it2.qualifierAnnotations(true));
             });
@@ -273,10 +273,10 @@ public class ModulesGraph {
         if (invokeCalls == null || invokeCalls.isEmpty())
             return null;
         List<InvokeCall> filtered = !listVariants || qualifierAnns != null && !qualifierAnns.isEmpty()
-                ? ListUtils.filter(invokeCalls, (i, it) -> Objects.equals(it.qualifierAnnotations(false), qualifierAnns))
+                ? StListUtils.filter(invokeCalls, (i, it) -> Objects.equals(it.qualifierAnnotations(false), qualifierAnns))
                 : new LinkedList<>(invokeCalls);
 
-        filtered = provideMethodName != null ? ListUtils.filter(filtered, (i, it) -> {
+        filtered = provideMethodName != null ? StListUtils.filter(filtered, (i, it) -> {
             int len = it.bestSequence().size();
             String mName = it.bestSequence().get(len - 1).methodName;
             return Objects.equals(provideMethodName, mName);
@@ -287,7 +287,7 @@ public class ModulesGraph {
                     createErrorMes()
                             .errorProvideType(typeName.toString())
                             .add(": is bound multi times.\n")
-                            .add(String.join(" and \n", ListUtils.format(filtered, InvokeCall::toString)))
+                            .add(String.join(" and \n", StListUtils.format(filtered, InvokeCall::toString)))
                             .build());
         }
         return !filtered.isEmpty() ? new InvokeCall(filtered) : null;

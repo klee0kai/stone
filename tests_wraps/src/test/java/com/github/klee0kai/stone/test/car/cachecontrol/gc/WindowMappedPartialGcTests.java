@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.cachecontrol.gc;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent;
 import com.github.klee0kai.test.car.model.Window;
 import org.junit.jupiter.api.Test;
@@ -19,8 +19,8 @@ public class WindowMappedPartialGcTests {
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
 
         //When
-        List<WeakReference<Window>> windowStrong1 = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong2 = ListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong1 = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong2 = StListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), WeakReference::new);
 
         //Then
         assertEquals(3, nonNullCount(windowStrong1));
@@ -31,8 +31,8 @@ public class WindowMappedPartialGcTests {
     public void holdInListTest() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<WeakReference<Window>> windowStrong1 = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
-        List<WeakReference<Window>> windowStrong2 = ListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong1 = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), WeakReference::new);
+        List<WeakReference<Window>> windowStrong2 = StListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), WeakReference::new);
         Window holder1 = DI.windowsMappedModule().windowStrong("1").get().get(1);
         Window holder2 = DI.windowsMappedModule().windowStrong("2").get().get(0);
 
@@ -53,9 +53,9 @@ public class WindowMappedPartialGcTests {
     public void partialRecreateList1Test() {
         // Given
         CarGcComponent DI = Stone.createComponent(CarGcComponent.class);
-        List<String> uids1 = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), it -> it.uuid);
-        List<String> uids2 = ListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), it -> it.uuid);
-        List<String> uids3 = ListUtils.format(DI.windowsMappedModule().windowStrong("3").get(), it -> it.uuid);
+        List<String> uids1 = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), it -> it.uuid);
+        List<String> uids2 = StListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), it -> it.uuid);
+        List<String> uids3 = StListUtils.format(DI.windowsMappedModule().windowStrong("3").get(), it -> it.uuid);
         Window holder1 = DI.windowsMappedModule().windowStrong("1").get().get(0);
         Window holder2 = DI.windowsMappedModule().windowStrong("2").get().get(1);
         Window holder3 = DI.windowsMappedModule().windowStrong("3").get().get(2);
@@ -63,9 +63,9 @@ public class WindowMappedPartialGcTests {
 
         //When
         DI.gcAll();
-        List<String> uids1Reused = ListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), it -> it.uuid);
-        List<String> uids2Reused = ListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), it -> it.uuid);
-        List<String> uids3Reused = ListUtils.format(DI.windowsMappedModule().windowStrong("3").get(), it -> it.uuid);
+        List<String> uids1Reused = StListUtils.format(DI.windowsMappedModule().windowStrong("1").get(), it -> it.uuid);
+        List<String> uids2Reused = StListUtils.format(DI.windowsMappedModule().windowStrong("2").get(), it -> it.uuid);
+        List<String> uids3Reused = StListUtils.format(DI.windowsMappedModule().windowStrong("3").get(), it -> it.uuid);
 
 
         // Then

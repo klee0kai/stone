@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.inject;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.car.di.inject.CarInjectComponent;
 import com.github.klee0kai.test.car.model.CarInject;
 import com.github.klee0kai.test.car.model.CarInjectLists;
@@ -47,9 +47,9 @@ public class CarProtectInjectedTests {
         //When
         CarInjectLists carInject = new CarInjectLists();
         DI.inject(carInject);
-        List<String> bumperUids = ListUtils.format(carInject.bumpers, it -> it.uuid);
-        List<String> wheelUids = ListUtils.format(carInject.wheels, it -> it.uuid);
-        List<String> windowUids = ListUtils.format(carInject.windows, it -> it.uuid);
+        List<String> bumperUids = StListUtils.format(carInject.bumpers, it -> it.uuid);
+        List<String> wheelUids = StListUtils.format(carInject.wheels, it -> it.uuid);
+        List<String> windowUids = StListUtils.format(carInject.windows, it -> it.uuid);
         DI.protect(carInject);
         carInject = null;
         System.gc();
@@ -58,9 +58,9 @@ public class CarProtectInjectedTests {
 
 
         // Then
-        assertEquals(bumperUids, ListUtils.format(carInject.bumpers, it -> it.uuid), "Providing with caching");
-        assertEquals(wheelUids, ListUtils.format(carInject.wheels, it -> it.uuid), "Providing with caching");
-        assertNotEquals(windowUids, ListUtils.format(carInject.windows, it -> it.uuid), "Providing without caching");
+        assertEquals(bumperUids, StListUtils.format(carInject.bumpers, it -> it.uuid), "Providing with caching");
+        assertEquals(wheelUids, StListUtils.format(carInject.wheels, it -> it.uuid), "Providing with caching");
+        assertNotEquals(windowUids, StListUtils.format(carInject.windows, it -> it.uuid), "Providing without caching");
     }
 
     @Test

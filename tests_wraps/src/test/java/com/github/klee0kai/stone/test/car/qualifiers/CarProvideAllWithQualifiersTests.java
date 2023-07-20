@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.test.car.qualifiers;
 
 import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.closed.types.ListUtils;
+import com.github.klee0kai.stone.closed.types.StListUtils;
 import com.github.klee0kai.test.car.di.qualifiers.CarQComponent;
 import com.github.klee0kai.test.car.model.Car;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "named_empty"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "named_empty"));
         Car car = filtered.get(0);
 
         //Then
@@ -36,7 +36,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "named_a"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "named_a"));
         Car car = filtered.get(0);
 
         //Then
@@ -52,7 +52,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier"));
         Car car = filtered.get(0);
 
         //Then
@@ -68,7 +68,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_with_string"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_with_string"));
         Car car = filtered.get(0);
 
         //Then
@@ -84,7 +84,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a"));
         Car car = filtered.get(0);
 
         //Then
@@ -100,7 +100,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_b"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_b"));
         Car car = filtered.get(0);
 
         //Then
@@ -116,7 +116,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi"));
         Car car = filtered.get(0);
 
         //Then
@@ -132,7 +132,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a1"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a1"));
         Car car = filtered.get(0);
 
         //Then
@@ -149,7 +149,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2"));
         Car car = filtered.get(0);
 
         //Then
@@ -165,7 +165,7 @@ public class CarProvideAllWithQualifiersTests {
         List<Car> cars = DI.allCars();
 
         //When
-        List<Car> filtered = ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard"));
+        List<Car> filtered = StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard"));
         Car car = filtered.get(0);
 
         //Then
@@ -184,9 +184,9 @@ public class CarProvideAllWithQualifiersTests {
 
         //Then
         assertEquals(14, cars.size());
-        assertEquals(1, ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
-        assertEquals(1, ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
-        assertEquals(1, ListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
+        assertEquals(1, StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "my_qualifier_a")).size());
+        assertEquals(1, StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2")).size());
+        assertEquals(1, StListUtils.filter(cars, (i, it) -> Objects.equals(it.qualifier, "qualifier_multi_a2_hard")).size());
     }
 
 
