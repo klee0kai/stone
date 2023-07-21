@@ -7,10 +7,23 @@ import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.jupiter.api.Test;
 
-public class PrimitiveIdentifierTest {
+public class IdentifiersTests {
 
     @Test
-    void doubleModuleTest() {
+    void objectIdentifierTest() {
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        Compilation compilation = Compiler.javac()
+                .withProcessors(annotationProcessor)
+                .compile(JavaFileObjects.forResource("identifiers/ObjectIdentifiersError.java"));
+
+        CompilationSubject.assertThat(compilation).failed();
+
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContainingMatch("should not have Object identifiers");
+    }
+
+    @Test
+    void primitiveIdentifierTest() {
         AnnotationProcessor annotationProcessor = new AnnotationProcessor();
         Compilation compilation = Compiler.javac()
                 .withProcessors(annotationProcessor)

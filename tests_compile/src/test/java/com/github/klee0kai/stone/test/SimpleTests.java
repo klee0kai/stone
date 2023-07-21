@@ -13,7 +13,7 @@ import javax.tools.JavaFileObject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SimpleTest {
+public class SimpleTests {
 
     @Test
     void simpleTest() {

@@ -7,7 +7,7 @@ import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.jupiter.api.Test;
 
-public class DoubleModuleTest {
+public class CommonTests {
 
     @Test
     void doubleModuleTest() {
@@ -20,6 +20,22 @@ public class DoubleModuleTest {
 
         CompilationSubject.assertThat(compilation)
                 .hadErrorContaining("CarInjectModule has duplicate");
+    }
+
+
+    @Test
+    void nothingToProvideTest() {
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        Compilation compilation = Compiler.javac()
+                .withProcessors(annotationProcessor)
+                .compile(JavaFileObjects.forResource("common/NothingToProvideError.java"));
+
+        CompilationSubject.assertThat(compilation).failed();
+
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContaining("Error provide type java.lang.Object");
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContaining(" Error to implement method: 'provideObject'");
     }
 
 }
