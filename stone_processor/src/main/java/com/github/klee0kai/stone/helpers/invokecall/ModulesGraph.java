@@ -24,6 +24,7 @@ import com.squareup.javapoet.TypeName;
 
 import java.util.*;
 
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
@@ -36,7 +37,6 @@ public class ModulesGraph {
     public static boolean SIMPLE_PROVIDE_OPTIMIZING = true;
     public static int MAX_PROVIDE_RESOLVE_COUNT = 10_000;
 
-    public final Set<ClassName> allQualifiers = new HashSet<>();
     private final HashMap<TypeName, Set<InvokeCall>> provideTypeCodes = new HashMap<>();
     private final HashMap<TypeName, Set<InvokeCall>> cacheControlTypeCodes = new HashMap<>();
 
@@ -65,7 +65,7 @@ public class ModulesGraph {
             cacheControlMethod.methodName = cacheControlMethodName(m.methodName);
             cacheControlMethod.args.add(FieldDetail.simple("__action", ClassName.get(CacheAction.class)));
             for (FieldDetail it : m.args) {
-                if (!((it.type instanceof ClassName) && allQualifiers.contains(it.type)))
+                if (!((it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)))
                     continue;
                 cacheControlMethod.args.add(it);
             }
@@ -215,7 +215,7 @@ public class ModulesGraph {
                 }
                 // qualifies not need to provide
                 TypeName argNonWrapped = nonWrappedType(it.typeName);
-                return argNonWrapped instanceof ClassName && !allQualifiers.contains(argNonWrapped);
+                return argNonWrapped instanceof ClassName && !allClassesHelper.allIdentifiers.contains(argNonWrapped);
             });
 
             needProvideDeps.addAll(newDeps);

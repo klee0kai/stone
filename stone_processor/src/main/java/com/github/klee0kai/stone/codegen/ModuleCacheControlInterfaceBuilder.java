@@ -2,7 +2,7 @@ package com.github.klee0kai.stone.codegen;
 
 import com.github.klee0kai.stone._hidden_.types.CacheAction;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
-import com.github.klee0kai.stone._hidden_.types.SwitchCacheParams;
+import com.github.klee0kai.stone._hidden_.types.SwitchCacheParam;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -12,6 +12,7 @@ import com.squareup.javapoet.*;
 import javax.lang.model.element.Modifier;
 import java.util.*;
 
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.bindMethodName;
 import static com.github.klee0kai.stone.codegen.ModuleBuilder.switchRefMethodName;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
@@ -26,7 +27,6 @@ public class ModuleCacheControlInterfaceBuilder {
 
     public final Set<TypeName> interfaces = new HashSet<>();
 
-    public Set<ClassName> qualifiers = new HashSet<>();
     public final HashMap<String, MethodSpec.Builder> iModuleMethodBuilders = new HashMap<>();
 
     // ---------------------- provide fields and method  ----------------------------------
@@ -35,14 +35,12 @@ public class ModuleCacheControlInterfaceBuilder {
 
     public static ModuleCacheControlInterfaceBuilder from(
             ClassDetail orModule,
-            ClassName cacheControlCl,
-            List<ClassName> allQualifiers
+            ClassName cacheControlCl
     ) {
         ModuleCacheControlInterfaceBuilder builder = new ModuleCacheControlInterfaceBuilder(
                 orModule,
                 cacheControlCl
-        ).addQualifiers(allQualifiers)
-                .bindMethod()
+        ).bindMethod()
                 .switchRefMethod();
 
         for (MethodDetail m : orModule.getAllMethods(false, false)) {
@@ -57,11 +55,6 @@ public class ModuleCacheControlInterfaceBuilder {
     public ModuleCacheControlInterfaceBuilder(ClassDetail orModuleCl, ClassName className) {
         this.orModuleCl = orModuleCl;
         this.className = className;
-    }
-
-    public ModuleCacheControlInterfaceBuilder addQualifiers(Collection<ClassName> qualifiers) {
-        this.qualifiers.addAll(qualifiers);
-        return this;
     }
 
     public ModuleCacheControlInterfaceBuilder bindMethod() {
@@ -79,7 +72,7 @@ public class ModuleCacheControlInterfaceBuilder {
         MethodSpec.Builder builder = methodBuilder(switchRefMethodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                 .addParameter(ParameterSpec.builder(ParameterizedTypeName.get(Set.class, Class.class), "scopes").build())
-                .addParameter(ParameterSpec.builder(SwitchCacheParams.class, "__params").build())
+                .addParameter(ParameterSpec.builder(SwitchCacheParam.class, "__params").build())
                 .returns(void.class);
 
         iModuleMethodBuilders.put(switchRefMethodName, builder);
@@ -103,7 +96,7 @@ public class ModuleCacheControlInterfaceBuilder {
     public ModuleCacheControlInterfaceBuilder cacheControlMethod(String name, TypeName typeName, List<FieldDetail> args) {
         String cacheControlMethodName = cacheControlMethodName(name);
         List<FieldDetail> qFields = ListUtils.filter(args,
-                (inx, it) -> (it.type instanceof ClassName) && qualifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)

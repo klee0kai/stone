@@ -33,11 +33,11 @@ public class WrapperCreatorsAnn implements Cloneable, IAnnotation {
 
         AnnotationValue __wrValue = elementMap != null && wrappersKey != null ? elementMap.get(wrappersKey) : null;
         if (__wrValue != null) {
-            List<Object> qualifiers = __wrValue.getValue() instanceof List ? (List<Object>) __wrValue.getValue() : null;
-            for (int i = 0; qualifiers != null && i < qualifiers.size(); i++) {
-                if (qualifiers.get(i) == null)
+            List<Object> wrappers = __wrValue.getValue() instanceof List ? (List<Object>) __wrValue.getValue() : null;
+            for (int i = 0; wrappers != null && i < wrappers.size(); i++) {
+                if (wrappers.get(i) == null)
                     continue;
-                wrapperCreatorsAnn.wrappers.add(ClassNameUtils.classNameOf(qualifiers.get(i).toString()));
+                wrapperCreatorsAnn.wrappers.add(ClassNameUtils.classNameOf(wrappers.get(i).toString()));
             }
         }
 

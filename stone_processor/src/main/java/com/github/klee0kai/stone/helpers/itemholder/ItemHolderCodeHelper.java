@@ -20,10 +20,10 @@ public interface ItemHolderCodeHelper {
     static ItemHolderCodeHelper of(
             String fieldName,
             TypeName returnType,
-            List<FieldDetail> qualifiers,
+            List<FieldDetail> idFields,
             ItemCacheType cacheType
     ) {
-        if (qualifiers == null || qualifiers.isEmpty()) {
+        if (idFields == null || idFields.isEmpty()) {
             SingleItemHolderHelper singleItemHolderHelper = new SingleItemHolderHelper();
             singleItemHolderHelper.fieldName = fieldName;
             singleItemHolderHelper.nonWrappedType = nonWrappedType(returnType);
@@ -33,12 +33,12 @@ public interface ItemHolderCodeHelper {
             return singleItemHolderHelper;
         }
 
-        if (qualifiers.size() == 1) {
+        if (idFields.size() == 1) {
             SimpleMapItemHolderHelper simpleMapItemHolderHelper = new SimpleMapItemHolderHelper();
             simpleMapItemHolderHelper.fieldName = fieldName;
             simpleMapItemHolderHelper.nonWrappedType = nonWrappedType(returnType);
             simpleMapItemHolderHelper.returnType = returnType;
-            simpleMapItemHolderHelper.keyParam = qualifiers.get(0);
+            simpleMapItemHolderHelper.keyParam = idFields.get(0);
             simpleMapItemHolderHelper.isListCaching = isList(returnType);
             simpleMapItemHolderHelper.defRefType = isList(returnType) ? cacheType.toRefTypeList() : cacheType.toRefTypeSingle();
             return simpleMapItemHolderHelper;
@@ -48,7 +48,7 @@ public interface ItemHolderCodeHelper {
         multiKeyMapItemHolderHelper.fieldName = fieldName;
         multiKeyMapItemHolderHelper.nonWrappedType = nonWrappedType(returnType);
         multiKeyMapItemHolderHelper.returnType = returnType;
-        multiKeyMapItemHolderHelper.keyArgs = qualifiers;
+        multiKeyMapItemHolderHelper.keyArgs = idFields;
         multiKeyMapItemHolderHelper.isListCaching = isList(returnType);
         multiKeyMapItemHolderHelper.defRefType = isList(returnType) ? cacheType.toRefTypeList() : cacheType.toRefTypeSingle();
 

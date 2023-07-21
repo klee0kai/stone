@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone._hidden_.types.holders;
 
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
-import com.github.klee0kai.stone._hidden_.types.SwitchCacheParams;
+import com.github.klee0kai.stone._hidden_.types.SwitchCacheParam;
 import com.github.klee0kai.stone.wrappers.Ref;
 
 import java.lang.ref.Reference;
@@ -160,7 +160,7 @@ public class MapItemHolder<Key, T> {
     }
 
 
-    public void switchCache(SwitchCacheParams args) {
+    public void switchCache(SwitchCacheParam args) {
         switch (args.cache) {
             case Default:
                 setRefType(defType);

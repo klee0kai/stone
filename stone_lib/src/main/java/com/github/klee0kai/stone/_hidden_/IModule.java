@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone._hidden_;
 
-import com.github.klee0kai.stone._hidden_.types.SwitchCacheParams;
+import com.github.klee0kai.stone._hidden_.types.SwitchCacheParam;
 
 import java.util.Set;
 
@@ -48,7 +48,7 @@ public interface IModule {
     /**
      * Switch cache type for scope
      */
-    void __switchRef(Set<Class> scopes, SwitchCacheParams param);
+    void __switchRef(Set<Class> scopes, SwitchCacheParam param);
 
     /**
      * Clear null refs.

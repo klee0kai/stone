@@ -4,9 +4,9 @@ import com.github.klee0kai.stone.lifecycle.StoneLifeCycleListener
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.test.tech.phone.base.ATech
 import com.github.klee0kai.test.tech.phone.base.ATechLifecycle
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.Company
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.KConnectType
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.MonitorSize
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.Company
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.KConnectType
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.MonitorSize
 import com.github.klee0kai.test_kotlin.tech.ComputerStore
 import com.github.klee0kai.test_kotlin.tech.components.Keyboard
 import com.github.klee0kai.test_kotlin.tech.components.Monitor

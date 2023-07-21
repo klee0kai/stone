@@ -27,7 +27,7 @@ import static com.github.klee0kai.stone.utils.StoneNamingUtils.genHiddenModuleNa
 public class ComponentClassDetails extends ClassDetail {
 
     public final ModulesGraph modulesGraph = new ModulesGraph();
-    public final Set<ClassName> qualifiers = new HashSet<>();
+    public final Set<ClassName> identifiers = new HashSet<>();
     public ClassDetail hiddenModule = null;
     public ClassName hiddenModuleCacheControlInterface = null;
 
@@ -45,9 +45,8 @@ public class ComponentClassDetails extends ClassDetail {
     private void collectComponentInfo() {
         for (ClassDetail componentParentCl : getAllParents(false)) {
             ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
-            if (parentCompAnn != null) qualifiers.addAll(parentCompAnn.qualifiers);
+            if (parentCompAnn != null) identifiers.addAll(parentCompAnn.identifiers);
         }
-        modulesGraph.allQualifiers.addAll(qualifiers);
 
         for (MethodDetail m : getAllMethods(false, false, "<init>")) {
             if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)

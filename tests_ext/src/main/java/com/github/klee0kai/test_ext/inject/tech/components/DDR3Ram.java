@@ -1,8 +1,8 @@
 package com.github.klee0kai.test_ext.inject.tech.components;
 
-import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
 import com.github.klee0kai.test.tech.components.Ram;
-import com.github.klee0kai.test_ext.inject.di.techfactory.qualifiers.Frequency;
+import com.github.klee0kai.test_ext.inject.di.techfactory.identifiers.Frequency;
 
 import java.util.UUID;
 

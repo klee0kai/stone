@@ -47,12 +47,12 @@ public class ComponentChecks {
             );
         }
 
-        for (ClassName q : cl.ann(ComponentAnn.class).qualifiers) {
+        for (ClassName q : cl.ann(ComponentAnn.class).identifiers) {
             if (q.isPrimitive()) {
                 throw new IncorrectSignatureException(
                         createErrorMes()
                                 .componentsClass(cl.className.toString())
-                                .shouldNoHaveQualifier("primitive")
+                                .shouldNoHaveIdentifiers("primitive")
                                 .build()
                 );
             }
@@ -61,7 +61,7 @@ public class ComponentChecks {
                 throw new IncorrectSignatureException(
                         createErrorMes()
                                 .componentsClass(cl.className.toString())
-                                .shouldNoHaveQualifier("Object")
+                                .shouldNoHaveIdentifiers("Object")
                                 .build()
                 );
             }

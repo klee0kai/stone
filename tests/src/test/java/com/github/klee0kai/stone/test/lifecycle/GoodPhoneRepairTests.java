@@ -2,8 +2,8 @@ package com.github.klee0kai.stone.test.lifecycle;
 
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.base_phone.PhoneComponent;
-import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
-import com.github.klee0kai.test.di.base_phone.qualifiers.RamSize;
+import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize;
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
 import com.github.klee0kai.test.tech.components.Battery;
 import com.github.klee0kai.test.tech.components.DataStorage;
 import com.github.klee0kai.test.tech.components.Ram;
