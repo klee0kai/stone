@@ -47,7 +47,6 @@ public class ComponentClassDetails extends ClassDetail {
             ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
             if (parentCompAnn != null) identifiers.addAll(parentCompAnn.identifiers);
         }
-        modulesGraph.allIdentifiers.addAll(identifiers);
 
         for (MethodDetail m : getAllMethods(false, false, "<init>")) {
             if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)

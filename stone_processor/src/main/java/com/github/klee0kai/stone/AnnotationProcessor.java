@@ -18,8 +18,6 @@ import com.squareup.javapoet.ClassName;
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
@@ -51,16 +49,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnv) {
-        List<ClassName> allIdentifiers = new LinkedList<>();
         for (Element componentEl : roundEnv.getElementsAnnotatedWith(Component.class)) {
             try {
                 ClassDetail component = new ClassDetail((TypeElement) componentEl);
-                allClassesHelper.deepExtractGcAndQualifierAnnotations(component);
-
-                for (ClassDetail componentParentCl : component.getAllParents(false)) {
-                    ComponentAnn parentCompAnn = componentParentCl.ann(ComponentAnn.class);
-                    if (parentCompAnn != null) allIdentifiers.addAll(parentCompAnn.identifiers);
-                }
+                allClassesHelper.deepExtractAdditionalClasses(component);
             } catch (Throwable cause) {
                 throw new CreateStoneComponentException(
                         createErrorMes()
@@ -74,7 +66,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         for (Element moduleEl : roundEnv.getElementsAnnotatedWith(Module.class)) {
             try {
                 ClassDetail module = new ClassDetail((TypeElement) moduleEl);
-                allClassesHelper.deepExtractGcAndQualifierAnnotations(module);
+                allClassesHelper.deepExtractAdditionalClasses(module);
             } catch (Throwable e) {
                 throw new CreateStoneModuleException(
                         createErrorMes()
@@ -123,20 +115,13 @@ public class AnnotationProcessor extends AbstractProcessor {
                     continue;
                 }
 
-                ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module, allIdentifiers);
+                ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module);
                 factoryBuilder.buildAndWrite();
 
-                ModuleCacheControlInterfaceBuilder.from(
-                                module,
-                                genCacheControlInterfaceModuleNameMirror(module.className),
-                                allIdentifiers)
+                ModuleCacheControlInterfaceBuilder.from(module, genCacheControlInterfaceModuleNameMirror(module.className))
                         .buildAndWrite();
 
-                ModuleBuilder.from(
-                                module,
-                                genModuleNameMirror(module.className),
-                                factoryBuilder.className,
-                                allIdentifiers)
+                ModuleBuilder.from(module, genModuleNameMirror(module.className), factoryBuilder.className)
                         .buildAndWrite();
             } catch (Throwable e) {
                 throw new CreateStoneModuleException(
@@ -162,17 +147,10 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ComponentBuilder.from(component)
                         .buildAndWrite();
 
-                ModuleCacheControlInterfaceBuilder.from(
-                                component.hiddenModule,
-                                component.hiddenModuleCacheControlInterface,
-                                allIdentifiers)
+                ModuleCacheControlInterfaceBuilder.from(component.hiddenModule, component.hiddenModuleCacheControlInterface)
                         .buildAndWrite();
 
-                ModuleBuilder.from(
-                                component.hiddenModule,
-                                (ClassName) component.hiddenModule.className,
-                                null,
-                                allIdentifiers)
+                ModuleBuilder.from(component.hiddenModule, (ClassName) component.hiddenModule.className, null)
                         .buildAndWrite();
 
             } catch (Throwable cause) {

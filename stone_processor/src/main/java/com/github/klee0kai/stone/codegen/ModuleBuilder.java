@@ -26,6 +26,7 @@ import javax.lang.model.element.Modifier;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.ModuleMethods.*;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
@@ -54,7 +55,6 @@ public class ModuleBuilder {
     public ClassName className;
 
     public final Set<TypeName> interfaces = new HashSet<>();
-    public final Set<ClassName> identifiers = new HashSet<>();
 
     // ---------------------- common fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> fields = new HashMap<>();
@@ -72,8 +72,7 @@ public class ModuleBuilder {
     public static ModuleBuilder from(
             ClassDetail orModuleCl,
             ClassName moduleClName,
-            ClassName factoryClName,
-            List<ClassName> allIdentifiers
+            ClassName factoryClName
     ) {
         ModuleBuilder builder = new ModuleBuilder(
                 orModuleCl,
@@ -81,14 +80,13 @@ public class ModuleBuilder {
                 .factoryField(orModuleCl.className, factoryClName)
                 .overridedField()
                 .implementIModule();
-        builder.identifiers.addAll(allIdentifiers);
 
         for (MethodDetail m : orModuleCl.getAllMethods(false, false)) {
             if (Objects.equals(m.methodName, "<init>"))
                 continue;
 
             List<FieldDetail> idFields = ListUtils.filter(m.args,
-                    (inx, it) -> (it.type instanceof ClassName) && allIdentifiers.contains(it.type)
+                    (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
             );
 
             int cacheFieldsCount = builder.cacheFields.size();
@@ -141,11 +139,6 @@ public class ModuleBuilder {
     public ModuleBuilder(ClassDetail orModuleCl, ClassName moduleCl) {
         this.orModuleCl = orModuleCl;
         this.className = moduleCl;
-    }
-
-    public ModuleBuilder addIdentifiers(Set<ClassName> identifiers) {
-        this.identifiers.addAll(identifiers);
-        return this;
     }
 
     public ModuleBuilder factoryField(TypeName typeName, TypeName initTypeName) {
@@ -269,7 +262,7 @@ public class ModuleBuilder {
                         continue;
                     String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
                     List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
-                            (inx, it) -> (it.type instanceof ClassName) && identifiers.contains(it.type)
+                            (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
                     );
                     if (!qFields.isEmpty()) {
                         // TODO https://github.com/klee0kai/stone/issues/42
@@ -308,7 +301,7 @@ public class ModuleBuilder {
                         continue;
                     String protoCacheControlMethodName = cacheControlMethodName(protoProvideMethod.methodName);
                     List<FieldDetail> qFields = ListUtils.filter(protoProvideMethod.args,
-                            (inx, it) -> (it.type instanceof ClassName) && identifiers.contains(it.type)
+                            (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
                     );
                     if (!qFields.isEmpty()) {
                         // TODO https://github.com/klee0kai/stone/issues/42
@@ -413,7 +406,7 @@ public class ModuleBuilder {
         cacheFields.add(itemHolderCodeHelper.cachedField());
         FieldDetail setValueArg = ListUtils.first(m.args, (inx, ob) -> Objects.equals(ob.type, m.returnType));
         List<FieldDetail> qFields = ListUtils.filter(m.args,
-                (inx, it) -> (it.type instanceof ClassName) && identifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
         );
 
         //provide method
@@ -494,7 +487,7 @@ public class ModuleBuilder {
     public ModuleBuilder provideCached(MethodDetail m, ItemHolderCodeHelper itemHolderCodeHelper) {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
         List<FieldDetail> qFields = ListUtils.filter(m.args,
-                (inx, it) -> (it.type instanceof ClassName) && identifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
         );
         cacheFields.add(itemHolderCodeHelper.cachedField());
         MethodSpec.Builder provideMethodBuilder = methodBuilder(m.methodName)
@@ -560,7 +553,7 @@ public class ModuleBuilder {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
         TypeName cacheControlType = listWrapTypeIfNeed(m.returnType);
         List<FieldDetail> qFields = ListUtils.filter(m.args,
-                (inx, it) -> (it.type instanceof ClassName) && identifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
@@ -624,7 +617,7 @@ public class ModuleBuilder {
     public ModuleBuilder mockControl(MethodDetail m) {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
         List<FieldDetail> qFields = ListUtils.filter(m.args,
-                (inx, it) -> (it.type instanceof ClassName) && identifiers.contains(it.type)
+                (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
         );
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)

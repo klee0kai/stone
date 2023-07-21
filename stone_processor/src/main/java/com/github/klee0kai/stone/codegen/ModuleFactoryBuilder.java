@@ -16,10 +16,8 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
@@ -36,11 +34,9 @@ public class ModuleFactoryBuilder {
     public boolean needBuild = false;
 
     public final List<MethodSpec.Builder> provideMethodBuilders = new LinkedList<>();
-    public final Set<ClassName> identifiers = new HashSet<>();
 
-    public static ModuleFactoryBuilder fromModule(ClassDetail module, List<ClassName> allIdentifiers) {
+    public static ModuleFactoryBuilder fromModule(ClassDetail module) {
         ModuleFactoryBuilder builder = new ModuleFactoryBuilder(module);
-        builder.identifiers.addAll(allIdentifiers);
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
         if (builder.needBuild) {
             builder.className = genFactoryNameMirror(module.className);

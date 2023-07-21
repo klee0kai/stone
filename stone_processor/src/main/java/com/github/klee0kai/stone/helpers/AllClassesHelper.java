@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.annotations.component.GcScopeAnnotation;
 import com.github.klee0kai.stone.exceptions.ClassNotFoundStoneException;
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.stone.model.ClassDetail;
+import com.github.klee0kai.stone.model.annotations.ComponentAnn;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -31,6 +32,8 @@ public class AllClassesHelper {
     private final Set<TypeName> lifeCycleOwners = new HashSet<>();
     private final Map<String, ClassDetail> gcScopeAnnotations = new HashMap<>();
     private final Map<String, ClassDetail> qualifierAnnotations = new HashMap<>();
+
+    public final Set<ClassName> allIdentifiers = new HashSet<>();
 
     public ClassDetail iComponentClassDetails;
     public ClassDetail iModule;
@@ -67,9 +70,12 @@ public class AllClassesHelper {
      *
      * @param classDetail component's ClassDetail object
      */
-    public void deepExtractGcAndQualifierAnnotations(ClassDetail classDetail) {
+    public void deepExtractAdditionalClasses(ClassDetail classDetail) {
         for (ClassDetail parent : classDetail.getAllParents(false)) {
             TypeElement parentEl = typeElementFor(parent.className);
+            ComponentAnn parentCompAnn = parent.ann(ComponentAnn.class);
+            if (parentCompAnn != null) allIdentifiers.addAll(parentCompAnn.identifiers);
+
             for (Element methodEl : parentEl.getEnclosedElements()) {
                 for (AnnotationMirror ann : methodEl.getAnnotationMirrors()) {
                     List<? extends AnnotationMirror> methodAnnotations = ann.getAnnotationType().asElement().getAnnotationMirrors();
