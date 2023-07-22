@@ -1,13 +1,11 @@
 package com.github.klee0kai.test.di.base_phone;
 
-import com.github.klee0kai.stone._hidden_.IPrivateComponent;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize;
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType;
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion;
 import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.tech.components.OperationSystem;
 import com.github.klee0kai.test.tech.phone.GoodPhone;
 import com.github.klee0kai.test.tech.phone.OnePhone;
 
@@ -19,7 +17,7 @@ import com.github.klee0kai.test.tech.phone.OnePhone;
                 PhoneOsVersion.class
         }
 )
-public interface PhoneComponent extends IPrivateComponent {
+public interface PhoneComponent {
 
     TechModule components();
 
