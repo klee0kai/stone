@@ -50,7 +50,12 @@ public class AllClassesHelper {
      *
      * @param elements annotation processor's elements
      */
-    public void init(Elements elements) {
+    public void reInit(Elements elements) {
+        lifeCycleOwners.clear();
+        gcScopeAnnotations.clear();
+        qualifierAnnotations.clear();
+        allIdentifiers.clear();
+
         this.elements = elements;
         iComponentClassDetails = findForType(ClassName.get(IPrivateComponent.class));
         iModule = findForType(ClassName.get(IModule.class));

@@ -25,7 +25,8 @@ public class ModuleChecks {
                             .moduleClass(cl.className.toString())
                             .hasIncorrectSignature()
                             .build(),
-                    e
+                    e,
+                    cl.sourceEl
             );
         }
     }
@@ -38,7 +39,8 @@ public class ModuleChecks {
                     createErrorMes()
                             .method(m.methodName)
                             .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
 
@@ -48,7 +50,8 @@ public class ModuleChecks {
                         createErrorMes()
                                 .method(m.methodName)
                                 .shouldProvideNonPrimitiveObjects()
-                                .build()
+                                .build(),
+                        m.sourceEl
                 );
             }
 
@@ -58,7 +61,8 @@ public class ModuleChecks {
                             createErrorMes()
                                     .method(m.methodName)
                                     .shouldNoHavePrimitiveArguments()
-                                    .build()
+                                    .build(),
+                            m.sourceEl
                     );
                 }
         }
@@ -70,7 +74,8 @@ public class ModuleChecks {
                     createErrorMes()
                             .dependencyClass(cl.className.toString())
                             .shouldNoHaveFields()
-                            .build()
+                            .build(),
+                    cl.sourceEl
             );
         }
     }
@@ -83,7 +88,8 @@ public class ModuleChecks {
                     createErrorMes()
                             .moduleClass(cl.className.toString())
                             .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
-                            .build()
+                            .build(),
+                    cl.sourceEl
             );
         }
     }

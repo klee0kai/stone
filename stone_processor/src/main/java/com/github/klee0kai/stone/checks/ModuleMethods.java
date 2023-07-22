@@ -23,7 +23,8 @@ public class ModuleMethods {
                             .method(m.methodName)
                             .hasIncorrectSignature()
                             .shouldHaveOnlyAnnotations(Provide.class.getSimpleName())
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
 
@@ -34,7 +35,8 @@ public class ModuleMethods {
                             .hasIncorrectSignature()
                             .add(" Not support caching, because return type wrapper is non support caching.\n")
                             .add(" You Should use annotation @Provide(cache = Provide.CacheType.Factory)")
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
 
@@ -52,7 +54,8 @@ public class ModuleMethods {
                             .method(m.methodName)
                             .hasIncorrectSignature()
                             .shouldHaveOnlyAnnotations(Provide.class.getSimpleName())
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
 
@@ -68,7 +71,8 @@ public class ModuleMethods {
                             .method(m.methodName)
                             .hasIncorrectSignature()
                             .shouldHaveOnlyAnnotations(BindInstance.class.getSimpleName())
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
         return true;

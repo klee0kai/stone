@@ -16,7 +16,6 @@ import com.github.klee0kai.test.tech.phone.OnePhone;
                 DataStorageSize.class,
                 RamSize.class,
                 PhoneOsType.class,
-                OperationSystem.class,
                 PhoneOsVersion.class
         }
 )

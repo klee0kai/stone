@@ -127,6 +127,14 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder shouldNoProvideIdentifierType(String providingTypeName) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(String.format(Locale.ROOT,
+                "Should no provide identifier %s",
+                providingTypeName));
+        return this;
+    }
+
     public ExceptionStringBuilder errorImplementMethod(String method) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,

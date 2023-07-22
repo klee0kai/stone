@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
-import com.github.klee0kai.stone._hidden_.types.NullGet;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
+import com.github.klee0kai.stone._hidden_.types.NullGet;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.wrappers.AsyncProvide;
@@ -26,7 +26,8 @@ public class WrapHelper {
 
     public static HashMap<TypeName, WrapType> wrapTypes = new HashMap<>();
 
-    static {
+    public static void reInit() {
+        wrapTypes.clear();
         std();
     }
 

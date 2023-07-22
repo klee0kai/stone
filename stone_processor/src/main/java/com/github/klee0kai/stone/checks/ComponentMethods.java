@@ -33,7 +33,8 @@ public class ComponentMethods {
                     createErrorMes()
                             .method(m.methodName)
                             .add("should no have arguments and annotations.")
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
         ModuleChecks.checkModuleClass(providingClDetails);
@@ -52,7 +53,8 @@ public class ComponentMethods {
                     createErrorMes()
                             .method(m.methodName)
                             .add("should no have arguments and annotations.")
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
         DependencyChecks.checkDependencyClass(providingClDetails);
@@ -71,7 +73,8 @@ public class ComponentMethods {
         StoneException ex = new IncorrectSignatureException(
                 createErrorMes()
                         .componentInitMethodSignatureIncorrect(m.methodName, Init.class.getSimpleName())
-                        .build()
+                        .build(),
+                m.sourceEl
         );
         if (!m.hasOnlyAnnotations(false, false, InitAnn.class)
                 || m.args.isEmpty() || m.returnType != TypeName.VOID)
@@ -99,7 +102,8 @@ public class ComponentMethods {
         StoneException ex = new IncorrectSignatureException(
                 createErrorMes()
                         .componentExtOfMethodSignatureIncorrect(m.methodName, ExtendOf.class.getSimpleName())
-                        .build()
+                        .build(),
+                m.sourceEl
         );
         if (!m.hasOnlyAnnotations(false, false, ExtOfAnn.class)
                 || m.args.size() != 1 || m.returnType != TypeName.VOID)
@@ -117,7 +121,8 @@ public class ComponentMethods {
         StoneException ex = new IncorrectSignatureException(
                 createErrorMes()
                         .componentBindInstanceMethodSignatureIncorrect(m.methodName, BindInstance.class.getSimpleName())
-                        .build()
+                        .build(),
+                m.sourceEl
         );
         if (!m.hasOnlyAnnotations(true, true, BindInstanceAnn.class)) throw ex;
         if (m.args.size() != 1) throw ex;
@@ -139,7 +144,8 @@ public class ComponentMethods {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .componentGCMethodSignatureIncorrect(m.methodName)
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
         checkMethodBusy(m);
@@ -152,7 +158,8 @@ public class ComponentMethods {
         StoneException ex = new IncorrectSignatureException(
                 createErrorMes()
                         .componentSwitchCacheMethodSignatureIncorrect(m.methodName, SwitchCache.class.getSimpleName())
-                        .build()
+                        .build(),
+                m.sourceEl
         );
         if (!m.hasOnlyAnnotations(true, false, SwitchCacheAnn.class)) throw ex;
         if (m.returnType != TypeName.VOID || !m.args.isEmpty()) throw ex;
@@ -174,7 +181,8 @@ public class ComponentMethods {
         StoneException ex = new IncorrectSignatureException(
                 createErrorMes()
                         .componentProtectInjectedMethodSignatureIncorrect(m.methodName, ProtectInjected.class.getSimpleName())
-                        .build()
+                        .build(),
+                m.sourceEl
         );
         if (!m.hasOnlyAnnotations(false, false, ProtectInjectedAnn.class) || m.returnType != TypeName.VOID || m.args.size() != 1)
             throw ex;
@@ -199,7 +207,8 @@ public class ComponentMethods {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .componentMethodNameBusy(m.methodName)
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
     }

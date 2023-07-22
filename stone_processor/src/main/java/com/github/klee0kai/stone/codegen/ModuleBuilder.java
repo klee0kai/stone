@@ -127,7 +127,8 @@ public class ModuleBuilder {
                                 .moduleClass(orModuleCl.className.toString())
                                 .method(m.methodName)
                                 .hasIncorrectSignature()
-                                .build()
+                                .build(),
+                        m.sourceEl
                 );
             }
 

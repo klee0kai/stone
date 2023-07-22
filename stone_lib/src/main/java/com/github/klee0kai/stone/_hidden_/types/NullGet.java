@@ -14,4 +14,10 @@ public class NullGet {
         return v != null ? Collections.singletonList(v) : null;
     }
 
+    @SafeVarargs
+    public static <T> T first(T... values) {
+        for (T v : values) if (v != null) return v;
+        return null;
+    }
+
 }

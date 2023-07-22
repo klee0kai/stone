@@ -107,17 +107,14 @@ public class ComponentBuilder {
             } else if (isInjectMethod(m)) {
                 componentBuilder.injectMethod(m);
             } else if (isProtectInjectedMethod(m)) {
-                componentBuilder.protectInjectedMethod(
-                        m.methodName,
-                        allClassesHelper.findForType(m.args.get(0).type),
-                        m.ann(ProtectInjectedAnn.class).timeMillis
-                );
+                componentBuilder.protectInjectedMethod(m);
             } else if (component.isInterfaceClass() || m.isAbstract()) {
                 //non implemented method
                 throw new IncorrectSignatureException(
                         createErrorMes()
                                 .methodPurposeNonDetected(m.methodName, component.className.toString())
-                                .build()
+                                .build(),
+                        m.sourceEl
                 );
             }
         }
@@ -184,21 +181,20 @@ public class ComponentBuilder {
 
         iComponentMethods.add(builder);
 
-        collectRuns.execute(null, () -> {
-            builder.beginControlFlow("for (Object m : modules)")
-                    .beginControlFlow("if (m instanceof $T)", IPrivateComponent.class)
-                    .addComment("related component")
-                    .addStatement("$L.add( ( $T ) m)", relatedComponentsListFieldName, IPrivateComponent.class)
-                    .endControlFlow()
-                    .beginControlFlow("else")
-                    .addComment("init modules")
-                    .addStatement(
-                            "$L( (module) -> { module.$L(m); } )",
-                            eachModuleMethodName, ModuleBuilder.initMethodName
-                    )
-                    .endControlFlow()
-                    .endControlFlow();
-        });
+        collectRuns.execute(() ->
+                builder.beginControlFlow("for (Object m : modules)")
+                        .beginControlFlow("if (m instanceof $T)", IPrivateComponent.class)
+                        .addComment("related component")
+                        .addStatement("$L.add( ( $T ) m)", relatedComponentsListFieldName, IPrivateComponent.class)
+                        .endControlFlow()
+                        .beginControlFlow("else")
+                        .addComment("init modules")
+                        .addStatement(
+                                "$L( (module) -> { module.$L(m); } )",
+                                eachModuleMethodName, ModuleBuilder.initMethodName
+                        )
+                        .endControlFlow()
+                        .endControlFlow());
         return this;
     }
 
@@ -212,12 +208,11 @@ public class ComponentBuilder {
 
         iComponentMethods.add(builder);
 
-        collectRuns.execute(null, () -> {
-            builder.beginControlFlow("for (Object m : deps)")
-                    .addComment("init dependencies")
-                    .addCode(initDepsCode.build())
-                    .endControlFlow();
-        });
+        collectRuns.execute(() ->
+                builder.beginControlFlow("for (Object m : deps)")
+                        .addComment("init dependencies")
+                        .addCode(initDepsCode.build())
+                        .endControlFlow());
         return this;
     }
 
@@ -242,7 +237,8 @@ public class ComponentBuilder {
                         createErrorMes()
                                 .method(m.methodName)
                                 .hasIncorrectSignature()
-                                .build()
+                                .build(),
+                        m.sourceEl
                 );
             }
         }
@@ -259,14 +255,13 @@ public class ComponentBuilder {
         if (override) builder.addAnnotation(Override.class);
 
         iComponentMethods.add(builder);
-        collectRuns.execute(null, () -> {
-            builder.beginControlFlow("for (Object ob : objects)")
-                    .addStatement(
-                            "$L( (m) -> {  m.$L(ob); } )",
-                            eachModuleMethodName, ModuleBuilder.bindMethodName
-                    )
-                    .endControlFlow();
-        });
+        collectRuns.execute(() ->
+                builder.beginControlFlow("for (Object ob : objects)")
+                        .addStatement(
+                                "$L( (m) -> {  m.$L(ob); } )",
+                                eachModuleMethodName, ModuleBuilder.bindMethodName
+                        )
+                        .endControlFlow());
         return this;
     }
 
@@ -361,7 +356,7 @@ public class ComponentBuilder {
                 .addStatement("$L = true", protectRecursiveField);
         if (override) builder.addAnnotation(Override.class);
 
-        collectRuns.execute(null, () -> {
+        collectRuns.execute(() -> {
             for (String module : modulesMethods.keySet()) {
                 builder.addStatement("callback.invoke($L())", module);
             }
@@ -421,7 +416,7 @@ public class ComponentBuilder {
         );
 
         provideObjMethods.add(builder);
-        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
             SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns);
             if (smartCode == null) {
                 throw new ObjectNotProvidedException(
@@ -432,7 +427,7 @@ public class ComponentBuilder {
                                         m.methodName
                                 )
                                 .build(),
-                        null
+                        m.sourceEl
                 );
             }
             builder.addCode("return ")
@@ -460,7 +455,7 @@ public class ComponentBuilder {
             builder.addParameter(p.type, p.name);
         }
 
-        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
             // bind object declared in module
             InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(hidingProvideName, nonWrappedBindType, m.qualifierAnns);
 
@@ -517,13 +512,14 @@ public class ComponentBuilder {
                     createErrorMes()
                             .method(m.methodName)
                             .shouldHaveInjectableClassAsParameter()
-                            .build());
+                            .build(),
+                    m.sourceEl);
         }
 
         if (lifeCycleOwner != null) timeHolderFields();
 
         injectMethods.add(builder);
-        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
             for (FieldDetail injectableField : injectableFields) {
                 ClassDetail injectableCl = allClassesHelper.findForType(injectableField.type);
 
@@ -540,7 +536,7 @@ public class ComponentBuilder {
                                                 injectField.name
                                         )
                                         .build(),
-                                null
+                                injectField.sourceEl
                         );
                     }
                     builder.addCode(injectableField.name)
@@ -564,7 +560,7 @@ public class ComponentBuilder {
                                                     injectField.name
                                             )
                                             .build(),
-                                    null
+                                    injectField.sourceEl
                             );
                         }
 
@@ -612,17 +608,18 @@ public class ComponentBuilder {
         return this;
     }
 
-    public ComponentBuilder protectInjectedMethod(String name, ClassDetail injectableCl, long timeMillis) {
+    public ComponentBuilder protectInjectedMethod(MethodDetail m) {
+        ClassDetail injectableCl = allClassesHelper.findForType(m.args.get(0).type);
         timeHolderFields();
 
-        MethodSpec.Builder builder = methodBuilder(name)
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(ParameterSpec.builder(injectableCl.className, "cl").build())
                 .returns(void.class);
 
         protectInjectedMethods.add(builder);
-        collectRuns.execute(createErrorMes().errorImplementMethod(name).build(), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
                 if (WrapHelper.isNonCachingWrapper(injectField.type))
@@ -635,7 +632,7 @@ public class ComponentBuilder {
                         "$L.add(new $T($L, cl.$L , $L))",
                         refCollectionGlFieldName, TimeHolder.class, scheduleGlFieldName,
                         getFieldHelper.codeGetField(),
-                        timeMillis
+                        m.ann(ProtectInjectedAnn.class).timeMillis
                 );
             }
         });
@@ -668,7 +665,7 @@ public class ComponentBuilder {
 
 
         gcMethods.add(builder);
-        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), () -> {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
             builder.addStatement(
                             "$L( (m) -> {  m.$L(scopes, toWeak); } )",
                             eachModuleMethodName, ModuleBuilder.switchRefMethodName

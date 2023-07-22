@@ -39,6 +39,8 @@ public class MethodDetail implements Cloneable {
 
     public Object defValue = null;
 
+    public Element sourceEl;
+
     /**
      * Take method details from compile element
      *
@@ -52,6 +54,8 @@ public class MethodDetail implements Cloneable {
         methodDetail.modifiers = element.getModifiers();
         methodDetail.elementKind = element.getKind();
         methodDetail.defValue = element.getDefaultValue() != null ? element.getDefaultValue().getValue() : null;
+        methodDetail.sourceEl = element;
+
 
         methodDetail.addAnnotation(InitAnn.of(element.getAnnotation(Init.class)));
         methodDetail.addAnnotation(ExtOfAnn.of(element.getAnnotation(ExtendOf.class)));

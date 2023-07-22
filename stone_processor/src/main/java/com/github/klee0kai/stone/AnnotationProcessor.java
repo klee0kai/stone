@@ -1,13 +1,13 @@
 package com.github.klee0kai.stone;
 
+import com.github.klee0kai.stone._hidden_.types.NullGet;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.checks.ComponentChecks;
 import com.github.klee0kai.stone.codegen.*;
-import com.github.klee0kai.stone.exceptions.CreateStoneComponentException;
-import com.github.klee0kai.stone.exceptions.CreateStoneModuleException;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.AllClassesHelper;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
@@ -23,6 +23,7 @@ import java.util.Set;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genModuleNameMirror;
+import static javax.tools.Diagnostic.Kind.ERROR;
 
 /**
  * Stone's Annotation processor
@@ -44,7 +45,8 @@ public class AnnotationProcessor extends AbstractProcessor {
         super.init(env);
         AnnotationProcessor.env = env;
         messager = env.getMessager();
-        allClassesHelper.init(env.getElementUtils());
+        allClassesHelper.reInit(env.getElementUtils());
+        WrapHelper.reInit();
     }
 
     @Override
@@ -53,13 +55,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             try {
                 ClassDetail component = new ClassDetail((TypeElement) componentEl);
                 allClassesHelper.deepExtractAdditionalClasses(component);
-            } catch (Throwable cause) {
-                throw new CreateStoneComponentException(
+            } catch (StoneException cause) {
+                processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateComponent(componentEl.getSimpleName().toString())
                                 .collectCauseMessages(cause)
                                 .build(),
-                        cause
+                        NullGet.first(cause.findErrorElement(), componentEl)
                 );
             }
         }
@@ -67,13 +69,14 @@ public class AnnotationProcessor extends AbstractProcessor {
             try {
                 ClassDetail module = new ClassDetail((TypeElement) moduleEl);
                 allClassesHelper.deepExtractAdditionalClasses(module);
-            } catch (Throwable e) {
-                throw new CreateStoneModuleException(
+            } catch (StoneException cause) {
+                processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateModule(moduleEl.toString())
-                                .collectCauseMessages(e)
+                                .collectCauseMessages(cause)
                                 .build(),
-                        e);
+                        NullGet.first(cause.findErrorElement(), moduleEl)
+                );
             }
         }
 
@@ -96,13 +99,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             if (wrappersBuilder != null && !wrappersBuilder.isEmpty()) {
                 wrappersBuilder.buildAndWrite();
             }
-        } catch (Throwable cause) {
-            throw new StoneException(
+        } catch (StoneException cause) {
+            processingEnv.getMessager().printMessage(ERROR,
                     createErrorMes()
                             .cannotCreateWrappersHelper()
                             .collectCauseMessages(cause)
                             .build(),
-                    cause
+                    cause.findErrorElement()
             );
         }
 
@@ -123,13 +126,14 @@ public class AnnotationProcessor extends AbstractProcessor {
 
                 ModuleBuilder.from(module, genModuleNameMirror(module.className), factoryBuilder.className)
                         .buildAndWrite();
-            } catch (Throwable e) {
-                throw new CreateStoneModuleException(
+            } catch (StoneException cause) {
+                processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateModule(moduleEl.toString())
-                                .collectCauseMessages(e)
+                                .collectCauseMessages(cause)
                                 .build(),
-                        e);
+                        NullGet.first(cause.findErrorElement(), moduleEl)
+                );
             }
         }
 
@@ -153,13 +157,13 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleBuilder.from(component.hiddenModule, (ClassName) component.hiddenModule.className, null)
                         .buildAndWrite();
 
-            } catch (Throwable cause) {
-                throw new CreateStoneComponentException(
+            } catch (StoneException cause) {
+                processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateComponent(componentEl.getSimpleName().toString())
                                 .collectCauseMessages(cause)
                                 .build(),
-                        cause
+                        NullGet.first(cause.findErrorElement(), componentEl)
                 );
             }
 
