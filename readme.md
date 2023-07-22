@@ -23,9 +23,8 @@ Step 2. Add the dependency
 
 ``` groovy
 dependencies {
-    implementation 'com.github.klee0kai.stone:stone_lib:TAG'
-    implementation 'com.github.klee0kai.stone:android_lib:TAG'
-    annotationProcessor 'com.github.klee0kai.stone:stone_processor:TAG'
+    implementation 'com.github.klee0kai.stone:stone_lib:0.0.14'
+    annotationProcessor 'com.github.klee0kai.stone:stone_processor:0.0.14'
 }
 ```
 
