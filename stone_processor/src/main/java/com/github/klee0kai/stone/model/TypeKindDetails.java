@@ -4,12 +4,36 @@ import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.ElementKind;
 
+/**
+ * Out class king's enum.
+ * Collected class king of compile type or type specs.
+ * Collect the information you need in one place
+ */
 public enum TypeKindDetails {
+
+    /**
+     * King of simple java class.
+     */
     CLASS,
+    /**
+     * King of simple java interface.
+     */
     INTERFACE,
+    /**
+     * Java enum type
+     */
     ENUM,
+    /**
+     * Java annotation type
+     */
     ANNOTATION;
 
+    /**
+     * Take class king details from compile type element
+     *
+     * @param elementKind original element
+     * @return new TypeKindDetails object of this element
+     */
     public static TypeKindDetails of(ElementKind elementKind) {
         if (elementKind == ElementKind.ANNOTATION_TYPE) {
             return ANNOTATION;
@@ -24,6 +48,12 @@ public enum TypeKindDetails {
         }
     }
 
+    /**
+     * Take class king details from type specs.
+     *
+     * @param king original element
+     * @return new TypeKindDetails object of this element
+     */
     public static TypeKindDetails of(TypeSpec.Kind king) {
         if (king == TypeSpec.Kind.ANNOTATION) {
             return ANNOTATION;

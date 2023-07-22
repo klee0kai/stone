@@ -2,13 +2,14 @@ package com.github.klee0kai.test_kotlin.tech.comp
 
 import com.github.klee0kai.test.tech.phone.base.ATech
 import com.github.klee0kai.test.tech.phone.base.LifecycleUtils
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.KConnectType
-import com.github.klee0kai.test_kotlin.di.base_comp.qualifiers.MonitorSize
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.KConnectType
+import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.MonitorSize
 import com.github.klee0kai.test_kotlin.tech.ComputerStore
 import com.github.klee0kai.test_kotlin.tech.components.Keyboard
 import com.github.klee0kai.test_kotlin.tech.components.Monitor
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Named
 
 class GameComp(
     val monitorSize: MonitorSize = MonitorSize("17"),
@@ -20,6 +21,7 @@ class GameComp(
     val uuid = UUID.randomUUID()
 
     @Inject
+    @Named("null_company")
     var monitor: Monitor? = null
 
     @Inject
@@ -27,7 +29,7 @@ class GameComp(
 
     fun buy() {
         onBuy()
-        ComputerStore.DI.inject(this,lifeCycleOwner, monitorSize, kConnectType)
+        ComputerStore.DI.inject(this, lifeCycleOwner, monitorSize, kConnectType)
     }
 
     fun dropToWater() {
@@ -43,7 +45,7 @@ class GameComp(
     }
 
     fun repair() {
-        ComputerStore.DI.inject(lifeCycleOwner,this, monitorSize, kConnectType)
+        ComputerStore.DI.inject(lifeCycleOwner, this, monitorSize, kConnectType)
     }
 
 

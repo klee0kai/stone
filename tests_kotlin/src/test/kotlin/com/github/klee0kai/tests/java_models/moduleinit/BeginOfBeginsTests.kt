@@ -24,7 +24,7 @@ class BeginOfBeginsTests {
         val DI = Stone.createComponent(ForestComponent::class.java)
 
         //When
-        DI.init(module)
+        DI.initUnitedModule(module)
 
         //Then
         assertEquals(earth, DI.united().earth())
@@ -36,7 +36,7 @@ class BeginOfBeginsTests {
         val DI = Stone.createComponent(ForestComponent::class.java)
 
         //When
-        DI.init(UnitedModuleFactory::class.java)
+        DI.initUnitedModule(UnitedModuleFactory::class.java)
 
         //Then
         assertEquals(earth, DI.united().earth())

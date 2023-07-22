@@ -1,8 +1,8 @@
 package com.github.klee0kai.test_kotlin.mowgli.animal
 
-import com.github.klee0kai.stone.types.wrappers.IRef
-import com.github.klee0kai.stone.types.wrappers.LazyProvide
-import com.github.klee0kai.stone.types.wrappers.PhantomProvide
+import com.github.klee0kai.stone.wrappers.LazyProvide
+import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.stone.wrappers.Ref
 import com.github.klee0kai.test.mowgli.animal.IAnimal
 import com.github.klee0kai.test.mowgli.body.Blood
 import com.github.klee0kai.test.mowgli.community.History
@@ -41,7 +41,7 @@ class Cougar : IAnimal {
     var knowledgeLazyProvide: LazyProvide<Knowledge>? = null
 
     @Inject
-    var knowledgePhantomProvide2: IRef<Knowledge>? = null
+    var knowledgePhantomProvide2: Ref<Knowledge>? = null
 
     @Inject
     var knowledgePhantomProvide3: Provider<Knowledge>? = null

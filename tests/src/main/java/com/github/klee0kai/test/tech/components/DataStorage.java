@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.tech.components;
 
-import com.github.klee0kai.test.di.base_phone.qualifiers.DataStorageSize;
+import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize;
 
 import java.util.UUID;
 

@@ -9,6 +9,10 @@ java {
     withJavadocJar()
 }
 
+javadoc {
+    exclude("com/github/klee0kai/stone/closed/")
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -22,6 +26,14 @@ dependencies {
     // https://mvnrepository.com/artifact/javax.inject/javax.inject
     apiElements 'javax.inject:javax.inject:1'
     implementation 'javax.inject:javax.inject:1'
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 

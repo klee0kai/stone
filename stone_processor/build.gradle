@@ -1,12 +1,15 @@
 apply plugin: 'java-library'
 apply plugin: 'java'
-
 apply from: '../jitpack.gradle'
 
 
 java {
     withSourcesJar()
     withJavadocJar()
+}
+
+javadoc {
+    enabled(false)
 }
 
 publishing {
@@ -23,7 +26,7 @@ dependencies {
     implementation "com.google.auto.service:auto-service:1.0.1"
     annotationProcessor "com.google.auto.service:auto-service:1.0.1"
 
-    //    incap
+    //  incap
     implementation "net.ltgt.gradle.incap:incap:0.3"
     implementation "net.ltgt.gradle.incap:incap-processor:0.3"
 

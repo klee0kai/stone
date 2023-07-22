@@ -1,20 +1,15 @@
 package com.github.klee0kai.stone.exceptions;
 
-public class ImplementMethodStoneException extends IllegalStateException {
+import javax.lang.model.element.Element;
 
-    public ImplementMethodStoneException() {
-    }
-
-    public ImplementMethodStoneException(String s) {
-        super(s);
-    }
+public class ImplementMethodStoneException extends StoneException {
 
     public ImplementMethodStoneException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ImplementMethodStoneException(Throwable cause) {
-        super(cause);
+    public ImplementMethodStoneException(String message, Throwable cause, Element element) {
+        super(message, cause, element);
     }
 
 }

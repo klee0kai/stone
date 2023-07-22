@@ -1,7 +1,7 @@
 package com.github.klee0kai.tests.java_models.inject
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone.types.lifecycle.IStoneLifeCycleListener
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleListener
 import com.github.klee0kai.test.di.base_forest.ForestComponent
 import com.github.klee0kai.test.mowgli.animal.Horse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -18,7 +18,7 @@ class HorseProtectInjectTests {
 
 
         //When
-        DI.inject(horse) { listener: IStoneLifeCycleListener? -> }
+        DI.inject(horse) { listener: StoneLifeCycleListener? -> }
         val historyWeakReference = WeakReference(
             horse!!.history
         )
@@ -37,7 +37,7 @@ class HorseProtectInjectTests {
         var horse: Horse? = Horse()
 
         //When
-        DI.inject(horse) { listener: IStoneLifeCycleListener? -> }
+        DI.inject(horse) { listener: StoneLifeCycleListener? -> }
         val historyWeakReference = WeakReference(
             horse!!.history
         )

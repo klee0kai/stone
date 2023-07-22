@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.model.annotations;
 
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.closed.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.PrimitiveTypeNonSupportedStoneException;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
@@ -19,7 +19,7 @@ import java.util.Objects;
 
 public class ComponentAnn implements Cloneable, IAnnotation {
 
-    public List<ClassName> qualifiers = new LinkedList<>();
+    public List<ClassName> identifiers = new LinkedList<>();
 
     public List<ClassName> wrapperProviders = new LinkedList<>();
 
@@ -28,29 +28,30 @@ public class ComponentAnn implements Cloneable, IAnnotation {
             return null;
         ComponentAnn componentAnn = new ComponentAnn();
 
-        ExecutableElement qualifiersKey = null;
+        ExecutableElement identifierKey = null;
         ExecutableElement wrappersProvidersKey = null;
         Map<? extends ExecutableElement, ? extends AnnotationValue> elementMap = annMirror.getElementValues();
         if (elementMap != null) for (ExecutableElement k : elementMap.keySet()) {
-            if (Objects.equals(k.getSimpleName().toString(), "qualifiers"))
-                qualifiersKey = k;
+            if (Objects.equals(k.getSimpleName().toString(), "identifiers"))
+                identifierKey = k;
             if (Objects.equals(k.getSimpleName().toString(), "wrapperProviders"))
                 wrappersProvidersKey = k;
         }
 
         try {
-            AnnotationValue __qValue = elementMap != null && qualifiersKey != null ? elementMap.get(qualifiersKey) : null;
+            AnnotationValue __qValue = elementMap != null && identifierKey != null ? elementMap.get(identifierKey) : null;
             if (__qValue != null) {
-                List<Object> qualifiers = __qValue.getValue() instanceof List ? (List<Object>) __qValue.getValue() : null;
-                for (int i = 0; qualifiers != null && i < qualifiers.size(); i++) {
-                    if (qualifiers.get(i) == null)
+                List<Object> identifiers = __qValue.getValue() instanceof List ? (List<Object>) __qValue.getValue() : null;
+                for (int i = 0; identifiers != null && i < identifiers.size(); i++) {
+                    if (identifiers.get(i) == null)
                         continue;
-                    componentAnn.qualifiers.add(ClassNameUtils.classNameOf(qualifiers.get(i).toString()));
+                    componentAnn.identifiers.add(ClassNameUtils.classNameOf(identifiers.get(i).toString()));
                 }
             }
         } catch (Exception e) {
-            if (e instanceof PrimitiveTypeNonSupportedStoneException)
-                throw new IncorrectSignatureException("Primitive types non supported for Component's qualifiers", e);
+            if (e instanceof PrimitiveTypeNonSupportedStoneException) {
+                throw new IncorrectSignatureException("Primitive types non supported for Component's identifiers", e);
+            }
             throw e;
         }
 
@@ -65,8 +66,9 @@ public class ComponentAnn implements Cloneable, IAnnotation {
                 }
             }
         } catch (Exception e) {
-            if (e instanceof PrimitiveTypeNonSupportedStoneException)
+            if (e instanceof PrimitiveTypeNonSupportedStoneException) {
                 throw new IncorrectSignatureException("Primitive types non supported for Component's WrapperProviders", e);
+            }
             throw e;
         }
 

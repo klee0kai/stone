@@ -1,29 +1,58 @@
 package com.github.klee0kai.stone.utils;
 
 import com.github.klee0kai.stone.exceptions.ImplementMethodStoneException;
-import com.github.klee0kai.stone.model.Pair;
 
+import javax.lang.model.element.Element;
 import java.util.LinkedList;
 
+/**
+ * We collect all delayed launches and launch at the next stage
+ */
 public class ImplementMethodCollection {
 
-    private final LinkedList<Pair<String, Runnable>> collectRuns = new LinkedList<>();
+    private final LinkedList<DelayStart> collectRuns = new LinkedList<>();
 
-    public void execute(String errMessage, Runnable runnable) {
-        collectRuns.add(new Pair<>(errMessage, runnable));
+
+    public void execute(String errMessage, Element souseEl, Runnable runnable) {
+        collectRuns.add(new DelayStart(errMessage, souseEl, runnable));
     }
 
+    public void execute(Runnable runnable) {
+        execute(null, null, runnable);
+    }
+
+
+    public void execute(String errMessage, Runnable runnable) {
+        execute(errMessage, null, runnable);
+    }
+
+
+    /**
+     * Run all pending tasks
+     */
     public void executeAll() {
-        for (Pair<String, Runnable> r : collectRuns) {
+        for (DelayStart r : collectRuns) {
             try {
-                r.second.run();
+                r.run.run();
             } catch (Throwable e) {
-                if (r.first == null) throw e;
-                throw new ImplementMethodStoneException(r.first, e);
+                if (r.errorMessage == null) throw e;
+                throw new ImplementMethodStoneException(r.errorMessage, e, r.sourceEl);
             }
         }
 
         collectRuns.clear();
+    }
+
+    private static class DelayStart {
+        public String errorMessage;
+        public Element sourceEl;
+        public Runnable run;
+
+        public DelayStart(String errorMessage, Element sourceEl, Runnable run) {
+            this.errorMessage = errorMessage;
+            this.sourceEl = sourceEl;
+            this.run = run;
+        }
     }
 
 }

@@ -1,8 +1,8 @@
 package com.github.klee0kai.test.mowgli;
 
-import com.github.klee0kai.stone.types.wrappers.IRef;
-import com.github.klee0kai.stone.types.wrappers.LazyProvide;
-import com.github.klee0kai.stone.types.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.wrappers.LazyProvide;
+import com.github.klee0kai.stone.wrappers.PhantomProvide;
+import com.github.klee0kai.stone.wrappers.Ref;
 import com.github.klee0kai.test.mowgli.community.History;
 import com.github.klee0kai.test.mowgli.identity.Knowledge;
 
@@ -15,7 +15,7 @@ public class School {
     public LazyProvide<History> historyLazyProvide;
 
     @Inject
-    public IRef<Knowledge> knowledgePhantomProvide2;
+    public Ref<Knowledge> knowledgePhantomProvide2;
 
     @Inject
     public Provider<Knowledge> knowledgePhantomProvide3;

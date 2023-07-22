@@ -1,12 +1,14 @@
 package com.github.klee0kai.stone.annotations.wrappers;
 
 
+import com.github.klee0kai.stone.wrappers.creators.Wrapper;
+
 import java.lang.annotation.*;
 
 /**
  * Provide custom wrappers creator, class
  * <p>
- * Should implement {@link com.github.klee0kai.stone.types.wrappers.IWrapperCreator}
+ * Should implement {@link Wrapper}
  * and declare custom wrappers in annotation
  */
 @Retention(value = RetentionPolicy.CLASS)
@@ -20,5 +22,13 @@ public @interface WrappersCreator {
      * @return
      */
     Class[] wrappers() default {};
+
+
+    /**
+     * Providing without caching and object holding
+     */
+    boolean noCachesProviding() default true;
+
+    boolean isAsyncProvider() default true;
 
 }

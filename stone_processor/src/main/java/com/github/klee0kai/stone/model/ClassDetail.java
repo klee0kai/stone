@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.model;
 
+import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies;
 import com.github.klee0kai.stone.annotations.module.Module;
@@ -7,15 +8,20 @@ import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.github.klee0kai.stone.utils.AnnotationMirrorUtil;
 import com.github.klee0kai.stone.utils.ClassNameUtils;
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import java.util.*;
 
-import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.helpers.SetFieldHelper.capitalized;
 
+/**
+ * Collected class details of compile type or type specs.
+ * Collect the information you need in one place
+ */
 public class ClassDetail implements Cloneable {
 
     public TypeName className;
@@ -30,75 +36,77 @@ public class ClassDetail implements Cloneable {
     public ClassDetail superClass = null;
     public List<ClassDetail> interfaces = new LinkedList<>();
 
+    public Element sourceEl = null;
+
 
     // ------- annotations ---------
 
     private Map<Class<? extends IAnnotation>, IAnnotation> annotations = new HashMap<>();
 
+    public ClassDetail(TypeName className) {
+        this.className = className;
+    }
 
-    public static ClassDetail of(TypeElement owner) {
-        ClassDetail classDetail = new ClassDetail();
-        classDetail.className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());
-        classDetail.modifiers = owner.getModifiers();
-        classDetail.kind = TypeKindDetails.of(owner.getKind());
 
-        classDetail.addAnnotation(ComponentAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class)));
-        classDetail.addAnnotation(ModuleAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class)));
-        classDetail.addAnnotation(DependenciesAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Dependencies.class)));
-        classDetail.addAnnotation(WrapperCreatorsAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class)));
+    /**
+     * Take class details from compile type element
+     *
+     * @param owner original element
+     */
+    public ClassDetail(TypeElement owner) {
+        className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());
+        modifiers = owner.getModifiers();
+        kind = TypeKindDetails.of(owner.getKind());
+        sourceEl = owner;
 
+        addAnnotation(ComponentAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class)));
+        addAnnotation(ModuleAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class)));
+        addAnnotation(DependenciesAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Dependencies.class)));
+        addAnnotation(WrapperCreatorsAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, WrappersCreator.class)));
 
         for (Element el : owner.getEnclosedElements()) {
             if (el instanceof ExecutableElement)
-                classDetail.methods.add(MethodDetail.of((ExecutableElement) el));
-            else if (el instanceof VariableElement)
-                classDetail.fields.add(FieldDetail.of((VariableElement) el));
+                methods.add(MethodDetail.of((ExecutableElement) el));
+            else if (el instanceof VariableElement) {
+                String getAnnotationsElName = "get" + capitalized(el.getSimpleName().toString()) + "$annotations";
+                Element getAnnotationsEl = ListUtils.first(owner.getEnclosedElements(), (i, it) ->
+                        Objects.equals(it.getSimpleName().toString(), getAnnotationsElName)
+                );
+                fields.add(FieldDetail.of((VariableElement) el, getAnnotationsEl));
+            }
         }
         if (owner.getSuperclass() instanceof DeclaredType) {
             if (((DeclaredType) owner.getSuperclass()).asElement() instanceof TypeElement)
-                classDetail.superClass = ClassDetail.of((TypeElement) (((DeclaredType) owner.getSuperclass()).asElement()));
+                superClass = new ClassDetail((TypeElement) (((DeclaredType) owner.getSuperclass()).asElement()));
         }
 
         for (TypeMirror tp : owner.getInterfaces()) {
             if (tp instanceof DeclaredType && ((DeclaredType) tp).asElement() instanceof TypeElement)
-                classDetail.interfaces.add(ClassDetail.of((TypeElement) ((DeclaredType) tp).asElement()));
+                interfaces.add(new ClassDetail((TypeElement) ((DeclaredType) tp).asElement()));
         }
-        return classDetail;
+    }
+
+    public ClassDetail(ClassDetail cp) {
+        this.className = cp.className;
+        this.modifiers = cp.modifiers;
+        this.kind = cp.kind;
+        this.methods = cp.methods;
+        this.fields = cp.fields;
+        this.superClass = cp.superClass;
+        this.interfaces = cp.interfaces;
+        this.annotations = cp.annotations;
+        this.sourceEl = cp.sourceEl;
     }
 
     /**
-     * Annotations not supported
+     * List all methods of this class include parent classes and interfaces
+     *
+     * @param includeObjectMethods return object's methods (equals, hashCode and etc)
+     * @param allowDoubles         true if we want to check return types of overridden methods
+     * @param exceptNames          filter names by except list
+     * @return list of all methods
      */
-    public static ClassDetail of(String packageName, TypeSpec owner) {
-        ClassDetail classDetail = new ClassDetail();
-        classDetail.className = ClassName.get(packageName, owner.name);
-        classDetail.modifiers = owner.modifiers;
-        classDetail.kind = TypeKindDetails.of(owner.kind);
-
-        classDetail.addAnnotation(ComponentAnn.findFrom(owner.annotations));
-        classDetail.addAnnotation(ModuleAnn.findFrom(owner.annotations));
-        classDetail.addAnnotation(DependenciesAnn.findFrom(owner.annotations));
-        classDetail.addAnnotation(WrapperCreatorsAnn.findFrom(owner.annotations));
-
-        for (MethodSpec m : owner.methodSpecs)
-            classDetail.methods.add(MethodDetail.of(m));
-
-        for (FieldSpec f : owner.fieldSpecs)
-            classDetail.fields.add(FieldDetail.of(f));
-
-        classDetail.superClass = allClassesHelper.findForType(owner.superclass);
-        for (TypeName t : owner.superinterfaces)
-            classDetail.interfaces.add(allClassesHelper.findForType(t));
-
-        return classDetail;
-    }
-
-    /**
-     * @param includeObjectMethods
-     * @param allowDoubles         for use return type and overriden methods
-     * @return
-     */
-    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles) {
+    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles, String... exceptNames) {
         if (!includeObjectMethods && className.equals(ClassName.OBJECT))
             return Collections.emptyList();
         LinkedList<MethodDetail> allMethods = new LinkedList<>(this.methods);
@@ -114,13 +122,25 @@ public class ClassDetail implements Cloneable {
                 if (exist |= exitMethod.isSameMethod(m))
                     break;
             }
-            if (!exist || allowDoubles)
-                outMethods.add(m);
+            if (exist && !allowDoubles) continue;
+            boolean ignore = false;
+            if (exceptNames != null)
+                for (String ex : exceptNames)
+                    if (Objects.equals(ex, m.methodName)) {
+                        ignore = true;
+                        break;
+                    }
+            if (ignore) continue;
+            outMethods.add(m);
         }
         return outMethods;
     }
 
-
+    /**
+     * List all fields of this class include parent classes
+     *
+     * @return list of all fields
+     */
     public List<FieldDetail> getAllFields() {
         if (className.equals(ClassName.OBJECT))
             return Collections.emptyList();
@@ -143,6 +163,12 @@ public class ClassDetail implements Cloneable {
         return outFields;
     }
 
+    /**
+     * List all parents of class: classes and interfaces.
+     *
+     * @param includeObject return also java object's class
+     * @return list for all parents
+     */
     public List<ClassDetail> getAllParents(boolean includeObject) {
         if (!includeObject && className.equals(ClassName.OBJECT))
             return Collections.emptyList();
@@ -155,22 +181,15 @@ public class ClassDetail implements Cloneable {
         return parents;
     }
 
-    public List<MethodDetail> getAllMethods(boolean includeObjectMethods, boolean allowDoubles, String... exceptNames) {
-        LinkedList<MethodDetail> outMethods = new LinkedList<>();
-        for (MethodDetail m : getAllMethods(includeObjectMethods, allowDoubles)) {
-            boolean ignore = false;
-            if (exceptNames != null)
-                for (String ex : exceptNames)
-                    if (Objects.equals(ex, m.methodName)) {
-                        ignore = true;
-                        break;
-                    }
-            if (!ignore)
-                outMethods.add(m);
-        }
-        return outMethods;
-    }
 
+    /**
+     * Find method by method details.
+     * Compare by name and argument's list.
+     *
+     * @param methodDetail    excepting method
+     * @param checkSuperclass search in superclasses
+     * @return found method details
+     */
     public MethodDetail findMethod(MethodDetail methodDetail, boolean checkSuperclass) {
         for (MethodDetail m : methods) {
             if (m.isSameMethod(methodDetail))
@@ -189,24 +208,12 @@ public class ClassDetail implements Cloneable {
         return null;
     }
 
-    public ClassDetail findInterfaceOverride(MethodDetail m) {
-        if (superClass != null && superClass.findMethod(m, true) != null)
-            return superClass;
-        for (ClassDetail cl : interfaces) {
-            if (cl.findMethod(m, true) != null)
-                return cl;
-        }
-        return null;
-    }
-
-    public int superClassesDeep(boolean includeObject) {
-        if (!includeObject && className.equals(ClassName.OBJECT))
-            return 0;
-        if (superClass != null)
-            return superClass.superClassesDeep(includeObject) + 1;
-        return 0;
-    }
-
+    /**
+     * Check for superclasses
+     *
+     * @param typeName excepting superclass
+     * @return true if class has superclass
+     */
     public boolean isExtOf(TypeName typeName) {
         if (Objects.equals(typeName, this.className))
             return true;
@@ -218,22 +225,46 @@ public class ClassDetail implements Cloneable {
         return false;
     }
 
+    /**
+     * @return true if is abstract class
+     */
     public boolean isAbstractClass() {
         return modifiers.contains(Modifier.ABSTRACT);
     }
 
+    /**
+     * @return true if is interface class
+     */
     public boolean isInterfaceClass() {
         return kind == TypeKindDetails.INTERFACE;
     }
 
+    /**
+     * Add annotation to class
+     *
+     * @param annotation new annotation
+     */
     public void addAnnotation(IAnnotation annotation) {
         if (annotation != null) annotations.put(annotation.getClass(), annotation);
     }
 
+    /**
+     * Get annotation by type
+     *
+     * @param tClass class name of annotation
+     * @param <T>    type of annotation
+     * @return found annotation
+     */
     public <T> T ann(Class<T> tClass) {
         return (T) annotations.getOrDefault(tClass, null);
     }
 
+    /**
+     * Check is any annotation exist
+     *
+     * @param aClasses list of annotation types
+     * @return found first annotation from list
+     */
     @SafeVarargs
     public final IAnnotation anyAnnotation(Class<? extends IAnnotation>... aClasses) {
         for (Class<? extends IAnnotation> cl : aClasses) {
@@ -243,6 +274,12 @@ public class ClassDetail implements Cloneable {
         return null;
     }
 
+    /**
+     * Check is list of annotations exist
+     *
+     * @param aClasses list of annotation types
+     * @return true if all annotations from list exist
+     */
     @SafeVarargs
     public final boolean hasAnnotations(Class<? extends IAnnotation>... aClasses) {
         for (Class<? extends IAnnotation> cl : aClasses) {
@@ -251,6 +288,12 @@ public class ClassDetail implements Cloneable {
         return true;
     }
 
+    /**
+     * Check is any of annotation exist
+     *
+     * @param aClasses list of annotation types
+     * @return true if any annotation from list exist
+     */
     @SafeVarargs
     public final boolean hasAnyAnnotation(Class<? extends IAnnotation>... aClasses) {
         for (Class<? extends IAnnotation> cl : aClasses) {
@@ -259,6 +302,12 @@ public class ClassDetail implements Cloneable {
         return false;
     }
 
+    /**
+     * Check class have annotations exact as annotation list
+     *
+     * @param aClasses list of annotation types
+     * @return true if class has exact same annotations list
+     */
     @SafeVarargs
     public final boolean hasOnlyAnnotations(Class<? extends IAnnotation>... aClasses) {
         if (annotations.size() != aClasses.length) return false;
@@ -268,11 +317,24 @@ public class ClassDetail implements Cloneable {
         return true;
     }
 
-
+    /**
+     * copy class details
+     */
     @Override
     public ClassDetail clone() throws CloneNotSupportedException {
         return (ClassDetail) super.clone();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassDetail that = (ClassDetail) o;
+        return Objects.equals(className, that.className) && Objects.equals(modifiers, that.modifiers) && kind == that.kind && Objects.equals(methods, that.methods) && Objects.equals(fields, that.fields) && Objects.equals(superClass, that.superClass) && Objects.equals(interfaces, that.interfaces) && Objects.equals(annotations, that.annotations);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(className, modifiers, kind, methods, fields, superClass, interfaces, annotations);
+    }
 }

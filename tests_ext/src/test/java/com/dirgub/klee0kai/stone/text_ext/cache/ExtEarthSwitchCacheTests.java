@@ -3,7 +3,6 @@ package com.dirgub.klee0kai.stone.text_ext.cache;
 import com.github.klee0kai.stone.Stone;
 import com.github.klee0kai.test.di.swcache.SwitchCacheComponent;
 import com.github.klee0kai.test.mowgli.earth.Mountain;
-import com.github.klee0kai.test.mowgli.earth.River;
 import com.github.klee0kai.test_ext.inject.di.swcache.SwitchCacheExtComponent;
 import org.junit.jupiter.api.Test;
 

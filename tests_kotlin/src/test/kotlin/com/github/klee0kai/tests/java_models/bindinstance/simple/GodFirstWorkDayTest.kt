@@ -17,7 +17,7 @@ class GodFirstWorkDayTest {
         val sun = Sun()
 
         //When
-        DI.bind(sun)
+        DI.bindSun(sun)
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid)
@@ -32,7 +32,8 @@ class GodFirstWorkDayTest {
         val earth = Earth()
 
         //When
-        DI.bind(sun, earth)
+        DI.bindSun(sun)
+        DI.bindEarth(earth)
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid)
@@ -49,7 +50,9 @@ class GodFirstWorkDayTest {
         val saturn = Saturn()
 
         //When
-        DI.bind(sun, earth, saturn)
+        DI.bindSun(sun)
+        DI.bindEarth(earth)
+        DI.bindSaturn(saturn)
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid)
@@ -67,9 +70,9 @@ class GodFirstWorkDayTest {
         val saturn = Saturn()
 
         //When
-        DI.bind(saturn)
-        DI.bind(earth)
-        DI.bind(sun)
+        DI.bindSaturn(saturn)
+        DI.bindEarth(earth)
+        DI.bindSun(sun)
 
         //Then
         assertEquals(sun.uuid, DI.sunSystem().sun().uuid)

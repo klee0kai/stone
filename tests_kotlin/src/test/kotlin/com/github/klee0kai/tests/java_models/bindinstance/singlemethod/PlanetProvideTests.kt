@@ -48,7 +48,7 @@ class PlanetProvideTests {
         val earth = Earth()
 
         //When
-        DI.bind(earth)
+        DI.earth(earth)
 
         //Then
         assertEquals(earth, DI.earth(null))

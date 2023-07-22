@@ -21,7 +21,7 @@ public class PlanetSputniksTests {
 
         //When
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
 
 
         //Then
@@ -36,12 +36,12 @@ public class PlanetSputniksTests {
         // Given
         PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
+        DIPro.extendOf(DI);
         Earth earth = new Earth();
 
 
         //When
-        DI.bind(earth);
+        DI.earth(earth);
 
 
         //Then
@@ -58,13 +58,13 @@ public class PlanetSputniksTests {
         PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
         Earth earth1 = new Earth();
         Earth earth2 = new Earth();
-        DI.bind(earth1);
+        DI.earth(earth1);
 
 
         //When
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
-        DIPro.bind(earth2);
+        DIPro.extendOf(DI);
+        DIPro.earth(earth2);
 
 
         //Then
@@ -82,14 +82,14 @@ public class PlanetSputniksTests {
         Earth earth1 = new Earth();
         Earth earth2 = new Earth();
         Earth earth3 = new Earth();
-        DI.bind(earth1);
+        DI.earth(earth1);
         PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extOf(DI);
-        DIPro.bind(earth2);
+        DIPro.extendOf(DI);
+        DIPro.earth(earth2);
 
 
         //When
-        DI.bind(earth3);
+        DI.earth(earth3);
 
 
         //Then

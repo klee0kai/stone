@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 /**
  * Init module or dependency
  */
-
 @Retention(value = RetentionPolicy.CLASS)
 @Target(value = ElementType.METHOD)
 public @interface Init {

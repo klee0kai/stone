@@ -16,6 +16,8 @@ public interface ExtPlanetRollingComponent extends PlanetRollingComponent {
     @Override
     StarModule sunModule();
 
+    @ExtendOf
+    void extOf(PlanetRollingComponent ext);
 
     @GcSputnikScope
     @BindInstance(cache = BindInstance.CacheType.Strong)

@@ -4,10 +4,10 @@ import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.test.house.House;
 import com.github.klee0kai.test.house.InHouse;
 import com.github.klee0kai.test.house.kitchen.storagearea.Sanitizers;
-import com.github.klee0kai.test.house.qualifiers.StoreAreaType;
+import com.github.klee0kai.test.house.identifiers.StoreAreaType;
 
 @Component(
-        qualifiers = {StoreAreaType.class}
+        identifiers = {StoreAreaType.class}
 )
 public interface HouseComponent {
 
