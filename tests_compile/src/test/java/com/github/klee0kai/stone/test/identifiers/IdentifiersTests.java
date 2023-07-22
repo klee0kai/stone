@@ -43,4 +43,21 @@ public class IdentifiersTests {
                 .onLine(7);
     }
 
+
+    @Test
+    void provideIdentifierTest() {
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        JavaFileObject file = JavaFileObjects.forResource("identifiers/ProvideIdentifierError.java");
+        Compilation compilation = Compiler.javac()
+                .withProcessors(annotationProcessor)
+                .compile(file);
+
+        CompilationSubject.assertThat(compilation).failed();
+
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContainingMatch("method 'sayHelloProvide' Should no provide identifier.*String")
+                .inFile(file)
+                .onLine(11);
+    }
+
 }

@@ -15,6 +15,7 @@ import java.util.Set;
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.checkWrapperClass;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 
 public class ComponentChecks {
 
@@ -25,6 +26,7 @@ public class ComponentChecks {
             for (MethodDetail m : cl.getAllMethods(false, true))
                 checkMethodSignature(m);
             checkNoModuleDoubles(cl);
+
         } catch (Exception e) {
             throw new IncorrectSignatureException(
                     createErrorMes()
@@ -36,7 +38,6 @@ public class ComponentChecks {
             );
         }
     }
-
 
     private static void checkClassAnnotations(ClassDetail cl) {
         if (cl.hasAnyAnnotation(WrapperCreatorsAnn.class)) {
@@ -108,6 +109,17 @@ public class ComponentChecks {
                     m.sourceEl
             );
         }
+
+        Set<TypeName> identifiers = new HashSet<>(allClassesHelper.allIdentifiers);
+        if (identifiers.contains(nonWrappedType(m.returnType))) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .shouldNoProvideIdentifierType(m.returnType.toString())
+                            .build(),
+                    m.sourceEl
+            );
+        }
     }
 
     private static void checkClassNoHaveFields(ClassDetail cl) {
@@ -121,5 +133,6 @@ public class ComponentChecks {
             );
         }
     }
+
 
 }
