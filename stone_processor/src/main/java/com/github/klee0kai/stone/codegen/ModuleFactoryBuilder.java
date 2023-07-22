@@ -68,7 +68,7 @@ public class ModuleFactoryBuilder {
                     createErrorMes()
                             .constructorNonFound(providingClass.className.toString(), argTypes)
                             .build(),
-                    providingClass.sourceEl
+                    m.sourceEl
             );
         }
 
