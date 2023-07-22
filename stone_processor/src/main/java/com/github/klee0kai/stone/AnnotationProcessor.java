@@ -4,6 +4,7 @@ import com.github.klee0kai.stone._hidden_.types.NullGet;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.checks.ComponentChecks;
+import com.github.klee0kai.stone.checks.ModuleChecks;
 import com.github.klee0kai.stone.codegen.*;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.AllClassesHelper;
@@ -122,6 +123,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                     System.out.println("module skipped for debug " + module.className);
                     continue;
                 }
+                ModuleChecks.checkModuleClass(module);
 
                 ModuleFactoryBuilder factoryBuilder = ModuleFactoryBuilder.fromModule(module);
                 factoryBuilder.buildAndWrite();

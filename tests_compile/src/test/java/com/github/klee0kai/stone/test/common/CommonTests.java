@@ -44,4 +44,21 @@ public class CommonTests {
                 .onLine(12);
     }
 
+
+    @Test
+    void noConstructorTest() {
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        JavaFileObject file = JavaFileObjects.forResource("common/NoConstructorError.java");
+        Compilation compilation = Compiler.javac()
+                .withProcessors(annotationProcessor)
+                .compile(file);
+
+        CompilationSubject.assertThat(compilation).failed();
+
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContainingMatch("No found public constructor for class:.*SomeObject with args:.*Integer")
+                .inFile(file)
+                .onLine(22);
+    }
+
 }
