@@ -35,6 +35,8 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     public static final String PROJECT_URL = "https://github.com/klee0kai/stone";
     public static final AllClassesHelper allClassesHelper = new AllClassesHelper();
+
+    private static final boolean DEBUG = false;
     private static final String DEBUG_PKG = null;
 
     public static ProcessingEnvironment env;
@@ -56,6 +58,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ClassDetail component = new ClassDetail((TypeElement) componentEl);
                 allClassesHelper.deepExtractAdditionalClasses(component);
             } catch (StoneException cause) {
+                if (DEBUG) throw cause;
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateComponent(componentEl.getSimpleName().toString())
@@ -70,6 +73,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ClassDetail module = new ClassDetail((TypeElement) moduleEl);
                 allClassesHelper.deepExtractAdditionalClasses(module);
             } catch (StoneException cause) {
+                if (DEBUG) throw cause;
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateModule(moduleEl.toString())
@@ -100,6 +104,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 wrappersBuilder.buildAndWrite();
             }
         } catch (StoneException cause) {
+            if (DEBUG) throw cause;
             processingEnv.getMessager().printMessage(ERROR,
                     createErrorMes()
                             .cannotCreateWrappersHelper()
@@ -127,6 +132,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleBuilder.from(module, genModuleNameMirror(module.className), factoryBuilder.className)
                         .buildAndWrite();
             } catch (StoneException cause) {
+                if (DEBUG) throw cause;
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateModule(moduleEl.toString())
@@ -158,6 +164,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                         .buildAndWrite();
 
             } catch (StoneException cause) {
+                if (DEBUG) throw cause;
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateComponent(componentEl.getSimpleName().toString())

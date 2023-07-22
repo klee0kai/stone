@@ -57,6 +57,15 @@ public class ClassNameUtils {
         return typeName;
     }
 
+
+    public static TypeName noWildCardType(TypeName type) {
+        if (type instanceof WildcardTypeName) {
+            List<TypeName> upperBounds = ((WildcardTypeName) type).upperBounds;
+            return !upperBounds.isEmpty() ? noWildCardType(upperBounds.get(0)) : type;
+        }
+        return type;
+    }
+
     public static String simpleName(TypeName typeName) {
         TypeName raw = rawTypeOf(typeName);
         if (raw instanceof ClassName)
