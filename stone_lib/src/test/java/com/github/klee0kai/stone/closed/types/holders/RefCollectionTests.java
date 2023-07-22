@@ -46,12 +46,12 @@ public class RefCollectionTests {
         TimeScheduler timeScheduler = new TimeScheduler();
         RefCollection refCollection = new RefCollection();
 
-        refCollection.add(new TimeHolder(timeScheduler, 10, 50));
-        refCollection.add(new TimeHolder(timeScheduler, 12, 20));
-        refCollection.add(new TimeHolder(timeScheduler, 1, 50));
-        refCollection.add(new TimeHolder(timeScheduler, 3, 100));
-        refCollection.add(new TimeHolder(timeScheduler, null, 100));
-        refCollection.add(new TimeHolder(timeScheduler, null, 100));
+        refCollection.add(new TimeHolder(timeScheduler, 10, 100));
+        refCollection.add(new TimeHolder(timeScheduler, 12, 50));
+        refCollection.add(new TimeHolder(timeScheduler, 1, 100));
+        refCollection.add(new TimeHolder(timeScheduler, 3, 150));
+        refCollection.add(new TimeHolder(timeScheduler, null, 150));
+        refCollection.add(new TimeHolder(timeScheduler, null, 150));
 
 
         refCollection.clearNulls();
@@ -59,7 +59,7 @@ public class RefCollectionTests {
         assertEquals(Arrays.asList(10, 12, 1, 3), refCollection.getAll());
 
 
-        Thread.sleep(30);
+        Thread.sleep(60);
 
         assertEquals(3, refCollection.getAll().size());
         assertEquals(Arrays.asList(10, 1, 3), refCollection.getAll());
