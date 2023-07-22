@@ -23,7 +23,9 @@ public class GodLastWorkDayTests {
         WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
         WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
         WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.__bind(sunRef.get(), earthRef.get(), saturnRef.get());
+        di.bind(sunRef.get());
+        di.bind(earthRef.get());
+        di.bind(saturnRef.get());
 
         //When
         di.gcAll();
@@ -42,7 +44,9 @@ public class GodLastWorkDayTests {
         WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
         WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
         WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.__bind(sunRef.get(), earthRef.get(), saturnRef.get());
+        di.bind(sunRef.get());
+        di.bind(earthRef.get());
+        di.bind(saturnRef.get());
 
         //When
         di.gcWeak();
@@ -61,7 +65,9 @@ public class GodLastWorkDayTests {
         WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
         WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
         WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.__bind(sunRef.get(), earthRef.get(), saturnRef.get());
+        di.bind(sunRef.get());
+        di.bind(earthRef.get());
+        di.bind(saturnRef.get());
 
         //When
         di.gcSoft();
@@ -79,7 +85,9 @@ public class GodLastWorkDayTests {
         WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
         WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
         WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.__bind(sunRef.get(), earthRef.get(), saturnRef.get());
+        di.bind(sunRef.get());
+        di.bind(earthRef.get());
+        di.bind(saturnRef.get());
 
         //When
         di.gcStrong();
@@ -98,7 +106,9 @@ public class GodLastWorkDayTests {
         WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
         WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
         WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.__bind(sunRef.get(), earthRef.get(), saturnRef.get());
+        di.bind(sunRef.get());
+        di.bind(earthRef.get());
+        di.bind(saturnRef.get());
 
         //When
         di.gcSun();
@@ -117,7 +127,9 @@ public class GodLastWorkDayTests {
         WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
         WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
         WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.__bind(sunRef.get(), earthRef.get(), saturnRef.get());
+        di.bind(sunRef.get());
+        di.bind(earthRef.get());
+        di.bind(saturnRef.get());
 
         //When
         di.gcPlanets();
@@ -135,7 +147,9 @@ public class GodLastWorkDayTests {
         WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
         WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
         WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.__bind(sunRef.get(), earthRef.get(), saturnRef.get());
+        di.bind(sunRef.get());
+        di.bind(earthRef.get());
+        di.bind(saturnRef.get());
 
         //When
         di.gcSunAndPlanets();

@@ -32,7 +32,7 @@ public class BeginOfBeginsTests {
         ForestComponent DI = Stone.createComponent(ForestComponent.class);
 
         //When
-        DI.__init(module);
+        DI.initUnitedModule(module);
 
         //Then
         assertEquals(earth, DI.united().earth());
@@ -45,7 +45,7 @@ public class BeginOfBeginsTests {
         ForestComponent DI = Stone.createComponent(ForestComponent.class);
 
         //When
-        DI.__init(UnitedModuleFactory.class);
+        DI.initUnitedModule(UnitedModuleFactory.class);
 
         //Then
         assertEquals(earth, DI.united().earth());

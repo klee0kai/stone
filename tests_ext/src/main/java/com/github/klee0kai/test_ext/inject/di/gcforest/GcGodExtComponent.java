@@ -8,6 +8,10 @@ import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope;
 @Component
 public abstract class GcGodExtComponent extends GcGodComponent implements IGcEarthExtComponent {
 
+
+    @ExtendOf
+    public abstract void extOf(GcGodComponent parent);
+
     @Override
     public abstract GcSunSystemExtModule sunSystem();
 
