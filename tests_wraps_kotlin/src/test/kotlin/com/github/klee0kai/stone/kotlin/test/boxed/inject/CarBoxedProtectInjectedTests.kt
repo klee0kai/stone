@@ -1,15 +1,10 @@
 package com.github.klee0kai.stone.kotlin.test.boxed.inject
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone._hidden_.types.ListUtils
 import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponent
-import com.github.klee0kai.test.boxed.model.CarBox
 import com.github.klee0kai.test.boxed.model.CarBoxedInject
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectLists
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectProvider
-import com.github.klee0kai.test.car.model.Bumper
-import com.github.klee0kai.test.car.model.Wheel
-import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
@@ -49,15 +44,9 @@ class CarBoxedProtectInjectedTests {
         //When
         var carInject: CarBoxedInjectLists? = CarBoxedInjectLists()
         DI.inject(carInject!!)
-        val bumperUids = ListUtils.format(
-            carInject.bumpers
-        ) { it: CarBox<Bumper> -> it.value.uuid }
-        val wheelUids = ListUtils.format(
-            carInject.wheels
-        ) { it: CarBox<Wheel> -> it.value.uuid }
-        val windowUids = ListUtils.format(
-            carInject.windows
-        ) { it: CarBox<Window> -> it.value.uuid }
+        val bumperUids = carInject.bumpers!!.map { it.value.uuid }
+        val wheelUids = carInject.wheels!!.map { it.value.uuid }
+        val windowUids = carInject.windows!!.map { it.value.uuid }
         DI.protect(carInject)
         carInject = null
         System.gc()
@@ -66,21 +55,9 @@ class CarBoxedProtectInjectedTests {
 
 
         // Then
-        assertEquals(
-            bumperUids,
-            ListUtils.format(carInject.bumpers) { it: CarBox<Bumper> -> it.value.uuid },
-            "Providing with caching"
-        )
-        assertEquals(
-            wheelUids,
-            ListUtils.format(carInject.wheels) { it: CarBox<Wheel> -> it.value.uuid },
-            "Providing with caching"
-        )
-        assertNotEquals(
-            windowUids,
-            ListUtils.format(carInject.windows) { it: CarBox<Window> -> it.value.uuid },
-            "Providing without caching"
-        )
+        assertEquals(bumperUids, carInject.bumpers!!.map { it.value.uuid }, "Providing with caching")
+        assertEquals(wheelUids, carInject.wheels!!.map { it.value.uuid }, "Providing with caching")
+        assertNotEquals(windowUids, carInject.windows!!.map { it.value.uuid }, "Providing without caching")
     }
 
     @Test

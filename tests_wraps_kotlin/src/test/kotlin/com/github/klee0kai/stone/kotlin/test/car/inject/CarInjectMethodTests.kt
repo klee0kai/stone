@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.car.inject
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone._hidden_.types.ListUtils
 import com.github.klee0kai.test.car.di.inject.CarInjectComponent
 import com.github.klee0kai.test.car.model.*
 import org.junit.jupiter.api.Assertions
@@ -74,13 +73,13 @@ class CarInjectMethodTests {
         assertEquals(5, carInject.wheelsMethodFrom!!.size)
         assertEquals(4, carInject.windowsMethodFrom!!.size)
         for (b in carInject.bumpersMethodFrom!!) assertNotNull(b.uuid)
-        val bumperUids: Set<String> = HashSet(ListUtils.format(carInject.bumpersMethodFrom) { it: Bumper -> it.uuid })
+        val bumperUids: Set<String> = carInject.bumpersMethodFrom!!.map { it.uuid }.toSet()
         assertEquals(2, bumperUids.size)
         for (w in carInject.wheelsMethodFrom!!) assertNotNull(w.uuid)
-        val wheelsUid: Set<String> = HashSet(ListUtils.format(carInject.wheels) { it: Wheel -> it.uuid })
+        val wheelsUid: Set<String> = carInject.wheels!!.map { it.uuid }.toSet()
         assertEquals(5, wheelsUid.size)
         for (w in carInject.windowsMethodFrom!!) assertNotNull(w.uuid)
-        val windowUids: Set<String> = HashSet(ListUtils.format(carInject.windows) { it: Window -> it.uuid })
+        val windowUids: Set<String> = carInject.windows!!.map { it.uuid }.toSet()
         assertEquals(4, windowUids.size)
     }
 

@@ -21,7 +21,7 @@ class CarInjectProvider {
     var windowFromMethod: Ref<CarLazy<Window>>? = null
 
     @Inject
-    fun init(bumper: LazyProvide<Bumper>?, wheel: Ref<Wheel>?, window: Ref<CarLazy<Window>>?) {
+    fun init(bumper: LazyProvide<Bumper>, wheel: Ref<Wheel>, window: Ref<CarLazy<Window>>) {
         bumperFromMethod = bumper
         wheelFromMethod = wheel
         windowFromMethod = window

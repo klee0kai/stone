@@ -1,9 +1,7 @@
 package com.github.klee0kai.stone.kotlin.test.boxed.inject
 
 import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.stone._hidden_.types.ListUtils
 import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponent
-import com.github.klee0kai.test.boxed.model.CarBox
 import com.github.klee0kai.test.boxed.model.CarBoxedInject
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectLists
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectProvider
@@ -77,9 +75,7 @@ class CarBoxedInjectMethodTests {
     @Test
     fun carInjectListTest() {
         //Given
-        val DI = Stone.createComponent(
-            CarBoxedInjectComponent::class.java
-        )
+        val DI = Stone.createComponent(CarBoxedInjectComponent::class.java)
 
         //When
         val carInject = CarBoxedInjectLists()
@@ -93,15 +89,13 @@ class CarBoxedInjectMethodTests {
         assertEquals(5, carInject.wheelsMethodFrom!!.size)
         assertEquals(4, carInject.windowsMethodFrom!!.size)
         for (b in carInject.bumpersMethodFrom!!) assertNotNull(b.value.uuid)
-        val bumperUids: Set<String> =
-            HashSet(ListUtils.format(carInject.bumpersMethodFrom) { it: CarBox<Bumper> -> it.value.uuid })
+        val bumperUids: Set<String> = carInject.bumpersMethodFrom!!.map { it.value.uuid }.toSet()
         assertEquals(2, bumperUids.size)
         for (w in carInject.wheelsMethodFrom!!) assertNotNull(w.value.uuid)
-        val wheelsUid: Set<String> = HashSet(ListUtils.format(carInject.wheels) { it: CarBox<Wheel> -> it.value.uuid })
+        val wheelsUid: Set<String> = carInject.wheels!!.map { it.value.uuid }.toSet()
         assertEquals(5, wheelsUid.size)
         for (w in carInject.windowsMethodFrom!!) assertNotNull(w.value.uuid)
-        val windowUids: Set<String> =
-            HashSet(ListUtils.format(carInject.windows) { it: CarBox<Window> -> it.value.uuid })
+        val windowUids: Set<String> = carInject.windows!!.map { it.value.uuid }.toSet()
         assertEquals(4, windowUids.size)
     }
 

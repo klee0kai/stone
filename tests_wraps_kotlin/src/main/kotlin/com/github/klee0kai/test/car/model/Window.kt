@@ -11,7 +11,6 @@ class Window {
     }
 
     companion object {
-        @JvmField
         var createCount = 0
     }
 }
