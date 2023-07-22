@@ -8,10 +8,7 @@ import com.github.klee0kai.stone.wrappers.AsyncProvide;
 import com.github.klee0kai.stone.wrappers.LazyProvide;
 import com.github.klee0kai.stone.wrappers.PhantomProvide;
 import com.github.klee0kai.stone.wrappers.Ref;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.*;
 
 import javax.inject.Provider;
 import java.lang.ref.Reference;
@@ -20,6 +17,7 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.utils.ClassNameUtils.noWildCardType;
 import static com.github.klee0kai.stone.utils.ClassNameUtils.rawTypeOf;
 
 public class WrapHelper {
@@ -81,6 +79,11 @@ public class WrapHelper {
             if (isSupport(par.rawType) && par.typeArguments != null && !par.typeArguments.isEmpty())
                 return nonWrappedType(par.typeArguments.get(0));
         }
+        if (typeName instanceof WildcardTypeName) {
+            WildcardTypeName par = (WildcardTypeName) typeName;
+            if (!par.upperBounds.isEmpty())
+                return nonWrappedType(par.upperBounds.get(0));
+        }
         return typeName;
     }
 
@@ -91,12 +94,13 @@ public class WrapHelper {
     }
 
     public static List<TypeName> allParamTypes(TypeName typeName) {
+        typeName = noWildCardType(typeName);
         List<TypeName> allParams = new LinkedList<>();
         while (true) {
             allParams.add(typeName);
             ParameterizedTypeName paramType = typeName instanceof ParameterizedTypeName ? (ParameterizedTypeName) typeName : null;
             if (paramType == null || paramType.typeArguments.isEmpty()) break;
-            typeName = paramType.typeArguments.get(0);
+            typeName = noWildCardType(paramType.typeArguments.get(0));
         }
         return allParams;
     }
@@ -121,7 +125,7 @@ public class WrapHelper {
             if (type == null) {
                 throw new StoneException(
                         createErrorMes()
-                                .typeTransformNonSupport(code.providingType, wannaType)
+                                .typeTransformNonSupport(noWildCardType(code.providingType), wannaType)
                                 .classNonFound(it.toString())
                                 .build(),
                         null
