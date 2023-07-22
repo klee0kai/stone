@@ -59,4 +59,37 @@ public class ModuleTests {
                 .onLine(21);
     }
 
+    @Test
+    void createNothingTest() {
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        JavaFileObject file = JavaFileObjects.forResource("module/CreateNothingError.java");
+        Compilation compilation = Compiler.javac()
+                .withProcessors(annotationProcessor)
+                .compile(file);
+
+        CompilationSubject.assertThat(compilation).failed();
+
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContainingMatch("method 'someCreate' should provide")
+                .inFile(file)
+                .onLine(18);
+    }
+
+    @Test
+    void bindNothingTest() {
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        JavaFileObject file = JavaFileObjects.forResource("module/BindNothingError.java");
+        Compilation compilation = Compiler.javac()
+                .withProcessors(annotationProcessor)
+                .compile(file);
+
+        CompilationSubject.assertThat(compilation).failed();
+
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContainingMatch("method 'someBind' should provide")
+                .inFile(file)
+                .onLine(20);
+    }
+
+
 }
