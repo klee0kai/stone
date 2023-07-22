@@ -77,7 +77,7 @@ public class ComponentClassDetails extends ClassDetail {
                 getAllMethods(false, false, "<init>"),
                 (i, m) -> {
                     boolean isBindAndProvide = ComponentMethods.isBindInstanceMethod(m) == ComponentMethods.BindInstanceType.BindInstanceAndProvide;
-                    boolean noInModules = isBindAndProvide && modulesGraph.codeProvideType(m.methodName, m.returnType, m.qualifierAnns, true) == null;
+                    boolean noInModules = isBindAndProvide && modulesGraph.codeProvideType(m.methodName, m.returnType, m.qualifierAnns) == null;
                     return isBindAndProvide && noInModules;
                 });
 

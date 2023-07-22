@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.checks.ComponentChecks;
 import com.github.klee0kai.stone.codegen.*;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.AllClassesHelper;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
 import com.github.klee0kai.stone.model.annotations.ComponentAnn;
@@ -44,7 +45,8 @@ public class AnnotationProcessor extends AbstractProcessor {
         super.init(env);
         AnnotationProcessor.env = env;
         messager = env.getMessager();
-        allClassesHelper.init(env.getElementUtils());
+        allClassesHelper.reInit(env.getElementUtils());
+        WrapHelper.reInit();
     }
 
     @Override

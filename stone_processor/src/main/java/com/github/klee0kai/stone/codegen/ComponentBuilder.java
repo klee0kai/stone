@@ -417,7 +417,7 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
-            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns, false);
+            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns);
             if (smartCode == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
@@ -483,7 +483,7 @@ public class ComponentBuilder {
                 builder.addCode("return ")
                         .addCode(
                                 transform(
-                                        orComponentCl.modulesGraph.codeProvideType(hidingProvideName, nonWrappedBindType, m.qualifierAnns, true),
+                                        orComponentCl.modulesGraph.codeProvideType(hidingProvideName, nonWrappedBindType, m.qualifierAnns),
                                         m.returnType
                                 ).build(m.args))
                         .addCode(";\n");
@@ -526,7 +526,7 @@ public class ComponentBuilder {
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns, false);
+                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns);
                     if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
@@ -550,7 +550,7 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns, false);
+                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns);
                         if (provideCode == null) {
                             throw new ObjectNotProvidedException(
                                     createErrorMes()

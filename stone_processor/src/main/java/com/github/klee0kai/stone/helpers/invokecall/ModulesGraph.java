@@ -77,12 +77,12 @@ public class ModulesGraph {
         }
     }
 
-    public SmartCode codeProvideType(String methodName, TypeName returnType, Set<QualifierAnn> qualifierAnns, boolean allowThemSelves) {
+    public SmartCode codeProvideType(String methodName, TypeName returnType, Set<QualifierAnn> qualifierAnns) {
         boolean isWrappedReturn = isSupport(returnType);
         boolean isListReturn = isList(returnType);
         TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
 
-        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(new ProvideDep(methodName, returnType, qualifierAnns), allowThemSelves);
+        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(new ProvideDep(methodName, returnType, qualifierAnns));
         if (provideTypeInvokes == null || provideTypeInvokes.isEmpty()) {
             return null;
         }
@@ -183,7 +183,7 @@ public class ModulesGraph {
     }
 
 
-    public List<InvokeCall> provideInvokesWithDeps(ProvideDep provideDep, boolean allowThemSelves) {
+    public List<InvokeCall> provideInvokesWithDeps(ProvideDep provideDep) {
         LinkedList<InvokeCall> provideTypeInvokes = new LinkedList<>();
         LinkedList<ProvideDep> needProvideDeps = new LinkedList<>();
         RecursiveDetector<Integer> needProvideDepsRecursiveDetector = new RecursiveDetector<>();
@@ -208,7 +208,7 @@ public class ModulesGraph {
             }
 
             List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (i, it) -> {
-                if (allowThemSelves && Objects.equals(provideDep.typeName, it.typeName)
+                if (Objects.equals(provideDep.typeName, it.typeName)
                         && Objects.equals(rawDep.typeName, it.typeName)) {
                     // bind instance case. Argument and return type are equals
                     return false;

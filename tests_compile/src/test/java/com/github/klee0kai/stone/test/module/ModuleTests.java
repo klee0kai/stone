@@ -59,21 +59,4 @@ public class ModuleTests {
                 .onLine(21);
     }
 
-
-    @Test
-    void provideThemSelvesTest() {
-        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
-        JavaFileObject file = JavaFileObjects.forResource("module/ProvideThemSelvesError.java");
-        Compilation compilation = Compiler.javac()
-                .withProcessors(annotationProcessor)
-                .compile(file);
-
-        CompilationSubject.assertThat(compilation).failed();
-
-        CompilationSubject.assertThat(compilation)
-                .hadErrorContainingMatch("Error provide type .*String.*Recursive providing detected")
-                .inFile(file)
-                .onLine(11);
-    }
-
 }
