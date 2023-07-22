@@ -21,7 +21,7 @@ public class GodRebrandingPlanetTest {
 
         //When
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extendComponent(DI);
 
 
         //Then
@@ -36,7 +36,7 @@ public class GodRebrandingPlanetTest {
         // Given
         GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extendComponent(DI);
         Earth earth = new Earth();
 
 
@@ -63,7 +63,7 @@ public class GodRebrandingPlanetTest {
 
         //When
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extendComponent(DI);
         DIPro.bindPlanet(earth2);
 
 
@@ -84,7 +84,7 @@ public class GodRebrandingPlanetTest {
         Earth earth3 = new Earth();
         DI.bindPlanet(earth1);
         GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extendComponent(DI);
         DIPro.bindPlanet(earth2);
 
 

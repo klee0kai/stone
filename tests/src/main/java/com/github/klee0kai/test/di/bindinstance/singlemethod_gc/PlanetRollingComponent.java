@@ -1,6 +1,5 @@
 package com.github.klee0kai.test.di.bindinstance.singlemethod_gc;
 
-import com.github.klee0kai.stone._hidden_.IPrivateComponent;
 import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.test.di.bindinstance.singlemethod.SunModule;
@@ -10,7 +9,7 @@ import com.github.klee0kai.test.mowgli.galaxy.Earth;
 import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
 
 @Component
-public interface PlanetRollingComponent extends IPrivateComponent {
+public interface PlanetRollingComponent {
 
     SunModule sunModule();
 

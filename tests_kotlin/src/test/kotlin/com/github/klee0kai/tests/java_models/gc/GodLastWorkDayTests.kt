@@ -18,9 +18,9 @@ class GodLastWorkDayTests {
         val sunRef = WeakReference(Sun())
         val earthRef = WeakReference(Earth())
         val saturnRef = WeakReference(Saturn())
-        di.bindSingle(sunRef.get())
-        di.bindSingle(earthRef.get())
-        di.bindSingle(saturnRef.get())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
         di.gcAll()
@@ -38,9 +38,9 @@ class GodLastWorkDayTests {
         val sunRef = WeakReference(Sun())
         val earthRef = WeakReference(Earth())
         val saturnRef = WeakReference(Saturn())
-        di.bindSingle(sunRef.get())
-        di.bindSingle(earthRef.get())
-        di.bindSingle(saturnRef.get())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
         di.gcWeak()
@@ -58,9 +58,9 @@ class GodLastWorkDayTests {
         val sunRef = WeakReference(Sun())
         val earthRef = WeakReference(Earth())
         val saturnRef = WeakReference(Saturn())
-        di.bindSingle(sunRef.get())
-        di.bindSingle(earthRef.get())
-        di.bindSingle(saturnRef.get())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
         di.gcSoft()
@@ -78,9 +78,9 @@ class GodLastWorkDayTests {
         val sunRef = WeakReference(Sun())
         val earthRef = WeakReference(Earth())
         val saturnRef = WeakReference(Saturn())
-        di.bindSingle(sunRef.get())
-        di.bindSingle(earthRef.get())
-        di.bindSingle(saturnRef.get())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
         di.gcStrong()
@@ -98,9 +98,9 @@ class GodLastWorkDayTests {
         val sunRef = WeakReference(Sun())
         val earthRef = WeakReference(Earth())
         val saturnRef = WeakReference(Saturn())
-        di.bindSingle(sunRef.get())
-        di.bindSingle(earthRef.get())
-        di.bindSingle(saturnRef.get())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
         di.gcSun()
@@ -118,9 +118,9 @@ class GodLastWorkDayTests {
         val sunRef = WeakReference(Sun())
         val earthRef = WeakReference(Earth())
         val saturnRef = WeakReference(Saturn())
-        di.bindSingle(sunRef.get())
-        di.bindSingle(earthRef.get())
-        di.bindSingle(saturnRef.get())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
         di.gcPlanets()
@@ -138,9 +138,9 @@ class GodLastWorkDayTests {
         val sunRef = WeakReference(Sun())
         val earthRef = WeakReference(Earth())
         val saturnRef = WeakReference(Saturn())
-        di.bindSingle(sunRef.get())
-        di.bindSingle(earthRef.get())
-        di.bindSingle(saturnRef.get())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
         di.gcSunAndPlanets()
@@ -150,14 +150,4 @@ class GodLastWorkDayTests {
         assertNull(earthRef.get())
         assertNull(saturnRef.get())
     }
-}
-
-
-/**
- * simple kotlin GC bug go-round
- *
- * [Research](https://github.com/klee0kai/KotlinMemLeakResearch)
- */
-fun GcGodComponent.bindSingle(obj: Any?) {
-    __bind(obj)
 }

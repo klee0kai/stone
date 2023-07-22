@@ -18,7 +18,7 @@ public class OldInjectTests {
         // Given
         ForestComponent DI = Stone.createComponent(ForestComponent.class);
         OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         OldHorse horse = new OldHorse();
 
         // When
@@ -38,7 +38,7 @@ public class OldInjectTests {
         // Given
         ForestComponent DI = Stone.createComponent(ForestComponent.class);
         OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         OldHorse horse = new OldHorse();
 
         // When
@@ -54,7 +54,7 @@ public class OldInjectTests {
         // Given
         ForestComponent DI = Stone.createComponent(ForestComponent.class);
         OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         OldHorse horse = new OldHorse();
 
         // When
@@ -76,7 +76,7 @@ public class OldInjectTests {
 
         // simply connect dynamic feature
         OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         DI.inject(horse);
 
         // Then
@@ -95,7 +95,7 @@ public class OldInjectTests {
 
         // simply connect dynamic feature
         OldForestComponent DIPro = Stone.createComponent(OldForestComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         DI.inject(horse);
 
         //use cached component if not need use overrided

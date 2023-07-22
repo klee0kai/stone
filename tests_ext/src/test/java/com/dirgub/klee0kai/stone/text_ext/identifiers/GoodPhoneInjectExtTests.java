@@ -26,7 +26,7 @@ public class GoodPhoneInjectExtTests {
 
         //When
         PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         GoodPhone goodPhone2 = new GoodPhone();
         DIPro.inject(goodPhone2, goodPhone2.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
 
@@ -41,7 +41,7 @@ public class GoodPhoneInjectExtTests {
         //Given
         PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
         PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
 
         GoodPhone goodPhone = new GoodPhone();
 
@@ -60,7 +60,7 @@ public class GoodPhoneInjectExtTests {
         //Given
         PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
         PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
 
         GoodPhone goodPhone = new GoodPhone();
 
@@ -79,7 +79,7 @@ public class GoodPhoneInjectExtTests {
         //Given
         PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
         PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         GoodPhone goodPhone = new GoodPhone();
 
         //When
@@ -97,7 +97,7 @@ public class GoodPhoneInjectExtTests {
         //Given
         PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
         PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         GoodPhone goodPhone1 = new GoodPhone();
         GoodPhone goodPhone2 = new GoodPhone();
 

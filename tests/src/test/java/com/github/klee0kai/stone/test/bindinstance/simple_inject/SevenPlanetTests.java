@@ -18,7 +18,8 @@ public class SevenPlanetTests {
         Earth earth = new Earth();
         Mercury mercury = new Mercury();
         Earth planet = new Earth();
-        component.__bind(earth, mercury);
+        component.bind(earth);
+        component.bind(mercury);
         component.bindPlanet(planet);
 
         //When

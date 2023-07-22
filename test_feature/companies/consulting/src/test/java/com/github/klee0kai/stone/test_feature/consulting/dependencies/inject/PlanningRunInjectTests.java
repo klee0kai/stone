@@ -18,7 +18,7 @@ public class PlanningRunInjectTests {
         ConsultingComponent di = Stone.createComponent(ConsultingComponent.class);
         di.workCalendar(new WorkCalendar("test", 240, 8));
         PlanningComponent featureDi = Stone.createComponent(PlanningComponent.class);
-        featureDi.__initDependencies(di);
+        featureDi.initDep(di);
         PlanningRun planningRun = new PlanningRun(featureDi);
 
         //When
@@ -37,7 +37,7 @@ public class PlanningRunInjectTests {
         ConsultingComponent di = Stone.createComponent(ConsultingComponent.class);
         di.workCalendar(new WorkCalendar("test", 240, 8));
         PlanningComponent featureDi = Stone.createComponent(PlanningComponent.class);
-        featureDi.__initDependencies(di);
+        featureDi.initDep(di);
         PlanningRun planningRun1 = new PlanningRun(featureDi);
         PlanningRun planningRun2 = new PlanningRun(featureDi);
 

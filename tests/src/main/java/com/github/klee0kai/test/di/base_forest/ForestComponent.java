@@ -1,6 +1,5 @@
 package com.github.klee0kai.test.di.base_forest;
 
-import com.github.klee0kai.stone._hidden_.IPrivateComponent;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.component.Init;
@@ -12,7 +11,7 @@ import com.github.klee0kai.test.mowgli.animal.Mowgli;
 import com.github.klee0kai.test.mowgli.animal.Snake;
 
 @Component
-public interface ForestComponent extends IPrivateComponent {
+public interface ForestComponent {
 
     UnitedModule united();
 

@@ -32,7 +32,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
@@ -71,7 +71,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
@@ -118,7 +118,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
@@ -164,7 +164,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
@@ -210,7 +210,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
@@ -255,7 +255,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
@@ -299,7 +299,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
@@ -345,7 +345,7 @@ public class ExtEarthLastDayTests {
         WeakReference<River> riverWeak = new WeakReference<>(DI.earth().riverWeak());
         WeakReference<River> riverDef = new WeakReference<>(DI.earth().riverDefaultSoft());
         GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.__extOf(DI);
+        DIPro.extOf(DI);
         WeakReference<Desert> desertStrong = new WeakReference<>(DIPro.earth().desertStrong());
         WeakReference<Desert> desertSoft = new WeakReference<>(DIPro.earth().desertSoft());
         WeakReference<Desert> desertWeak = new WeakReference<>(DIPro.earth().desertWeak());
