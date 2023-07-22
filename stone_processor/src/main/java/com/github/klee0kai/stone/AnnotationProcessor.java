@@ -1,9 +1,11 @@
 package com.github.klee0kai.stone;
 
+import com.github.klee0kai.stone._hidden_.types.NullGet;
 import com.github.klee0kai.stone.annotations.component.Component;
 import com.github.klee0kai.stone.annotations.module.Module;
 import com.github.klee0kai.stone.checks.ComponentChecks;
 import com.github.klee0kai.stone.codegen.*;
+import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.AllClassesHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.ComponentClassDetails;
@@ -51,12 +53,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             try {
                 ClassDetail component = new ClassDetail((TypeElement) componentEl);
                 allClassesHelper.deepExtractAdditionalClasses(component);
-            } catch (Throwable cause) {
+            } catch (StoneException cause) {
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateComponent(componentEl.getSimpleName().toString())
                                 .collectCauseMessages(cause)
-                                .build()
+                                .build(),
+                        NullGet.first(cause.findErrorElement(), componentEl)
                 );
             }
         }
@@ -64,12 +67,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             try {
                 ClassDetail module = new ClassDetail((TypeElement) moduleEl);
                 allClassesHelper.deepExtractAdditionalClasses(module);
-            } catch (Throwable e) {
+            } catch (StoneException cause) {
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateModule(moduleEl.toString())
-                                .collectCauseMessages(e)
-                                .build()
+                                .collectCauseMessages(cause)
+                                .build(),
+                        NullGet.first(cause.findErrorElement(), moduleEl)
                 );
             }
         }
@@ -93,12 +97,13 @@ public class AnnotationProcessor extends AbstractProcessor {
             if (wrappersBuilder != null && !wrappersBuilder.isEmpty()) {
                 wrappersBuilder.buildAndWrite();
             }
-        } catch (Throwable cause) {
+        } catch (StoneException cause) {
             processingEnv.getMessager().printMessage(ERROR,
                     createErrorMes()
                             .cannotCreateWrappersHelper()
                             .collectCauseMessages(cause)
-                            .build()
+                            .build(),
+                    cause.findErrorElement()
             );
         }
 
@@ -119,12 +124,14 @@ public class AnnotationProcessor extends AbstractProcessor {
 
                 ModuleBuilder.from(module, genModuleNameMirror(module.className), factoryBuilder.className)
                         .buildAndWrite();
-            } catch (Throwable e) {
+            } catch (StoneException cause) {
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateModule(moduleEl.toString())
-                                .collectCauseMessages(e)
-                                .build());
+                                .collectCauseMessages(cause)
+                                .build(),
+                        NullGet.first(cause.findErrorElement(), moduleEl)
+                );
             }
         }
 
@@ -148,12 +155,13 @@ public class AnnotationProcessor extends AbstractProcessor {
                 ModuleBuilder.from(component.hiddenModule, (ClassName) component.hiddenModule.className, null)
                         .buildAndWrite();
 
-            } catch (Throwable cause) {
+            } catch (StoneException cause) {
                 processingEnv.getMessager().printMessage(ERROR,
                         createErrorMes()
                                 .cannotCreateComponent(componentEl.getSimpleName().toString())
                                 .collectCauseMessages(cause)
-                                .build()
+                                .build(),
+                        NullGet.first(cause.findErrorElement(), componentEl)
                 );
             }
 

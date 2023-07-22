@@ -36,6 +36,8 @@ public class ClassDetail implements Cloneable {
     public ClassDetail superClass = null;
     public List<ClassDetail> interfaces = new LinkedList<>();
 
+    public Element sourceEl = null;
+
 
     // ------- annotations ---------
 
@@ -55,6 +57,7 @@ public class ClassDetail implements Cloneable {
         className = ClassNameUtils.classNameOf(owner.getQualifiedName().toString());
         modifiers = owner.getModifiers();
         kind = TypeKindDetails.of(owner.getKind());
+        sourceEl = owner;
 
         addAnnotation(ComponentAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Component.class)));
         addAnnotation(ModuleAnn.of(AnnotationMirrorUtil.findAnnotationMirror(owner, Module.class)));
@@ -92,6 +95,7 @@ public class ClassDetail implements Cloneable {
         this.superClass = cp.superClass;
         this.interfaces = cp.interfaces;
         this.annotations = cp.annotations;
+        this.sourceEl = cp.sourceEl;
     }
 
     /**

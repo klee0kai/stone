@@ -31,7 +31,8 @@ public class ComponentChecks {
                             .componentsClass(cl.className.toString())
                             .hasIncorrectSignature()
                             .build(),
-                    e
+                    e,
+                    cl.sourceEl
             );
         }
     }
@@ -83,7 +84,8 @@ public class ComponentChecks {
                             createErrorMes()
                                     .componentsClass(cl.className.toString())
                                     .shouldHaveOnlySingleModuleMethod(((ClassName) m.returnType).simpleName())
-                                    .build()
+                                    .build(),
+                            m.sourceEl
                     );
                 }
 
@@ -102,7 +104,8 @@ public class ComponentChecks {
                     createErrorMes()
                             .method(m.methodName)
                             .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
-                            .build()
+                            .build(),
+                    m.sourceEl
             );
         }
     }
@@ -113,7 +116,8 @@ public class ComponentChecks {
                     createErrorMes()
                             .componentsClass(cl.className.toString())
                             .shouldNoHaveFields()
-                            .build()
+                            .build(),
+                    cl.sourceEl
             );
         }
     }

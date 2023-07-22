@@ -7,35 +7,41 @@ import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 import org.junit.jupiter.api.Test;
 
+import javax.tools.JavaFileObject;
+
 public class CommonTests {
 
     @Test
     void doubleModuleTest() {
         AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        JavaFileObject file = JavaFileObjects.forResource("common/DoubleModuleError.java");
         Compilation compilation = Compiler.javac()
                 .withProcessors(annotationProcessor)
-                .compile(JavaFileObjects.forResource("common/DoubleModuleError.java"));
+                .compile(file);
 
         CompilationSubject.assertThat(compilation).failed();
 
         CompilationSubject.assertThat(compilation)
-                .hadErrorContaining("CarInjectModule has duplicate");
+                .hadErrorContaining("CarInjectModule has duplicate")
+                .inFile(file)
+                .onLine(11);
     }
 
 
     @Test
     void nothingToProvideTest() {
         AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        JavaFileObject file = JavaFileObjects.forResource("common/NothingToProvideError.java");
         Compilation compilation = Compiler.javac()
                 .withProcessors(annotationProcessor)
-                .compile(JavaFileObjects.forResource("common/NothingToProvideError.java"));
+                .compile(file);
 
         CompilationSubject.assertThat(compilation).failed();
 
         CompilationSubject.assertThat(compilation)
-                .hadErrorContaining("Error provide type java.lang.Object");
-        CompilationSubject.assertThat(compilation)
-                .hadErrorContaining(" Error to implement method: 'provideObject'");
+                .hadErrorContainingMatch("Error to implement method: 'provideObject'.*\n.*Error provide type.*Object")
+                .inFile(file)
+                .onLine(12);
     }
 
 }

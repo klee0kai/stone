@@ -18,13 +18,14 @@ public class DependencyChecks {
             ModuleChecks.checkModuleClassNoHaveFields(cl);
             for (MethodDetail m : cl.getAllMethods(false, true))
                 ModuleChecks.checkModuleMethodSignature(m);
-        } catch (Exception e) {
+        } catch (Exception cause) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .dependencyClass(cl.className.toString())
                             .hasIncorrectSignature()
                             .build(),
-                    e);
+                    cause,
+                    cl.sourceEl);
         }
     }
 
@@ -35,7 +36,8 @@ public class DependencyChecks {
                     createErrorMes()
                             .dependencyClass(cl.className.toString())
                             .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
-                            .build()
+                            .build(),
+                    cl.sourceEl
             );
         }
     }

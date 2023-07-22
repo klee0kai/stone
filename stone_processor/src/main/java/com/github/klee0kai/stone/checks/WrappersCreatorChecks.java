@@ -29,13 +29,14 @@ public class WrappersCreatorChecks {
             checkClassAnnotations(cl);
             checkWrapperCreatorInterface(cl);
             checkWrappingClasses(cl);
-        } catch (Exception e) {
+        } catch (Exception cause) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .wrappersCreatorClass(cl.className.toString())
                             .hasIncorrectSignature()
-                            .build()
-                    , e);
+                            .build(),
+                    cause,
+                    cl.sourceEl);
         }
     }
 
@@ -46,13 +47,13 @@ public class WrappersCreatorChecks {
                     createErrorMes()
                             .wrappersCreatorClass(cl.className.toString())
                             .shouldNoHaveAnnotation(prohibitedAnn.originalAnn().getSimpleName())
-                            .build()
+                            .build(),
+                    cl.sourceEl
             );
         }
     }
 
     private static void checkWrapperCreatorInterface(ClassDetail cl) {
-
         List<TypeName> wrapperClasses = Arrays.asList(wrapperClName, asyncWrapperClName);
         boolean isWrapperCreatorInterface = false;
         for (ClassDetail p : cl.getAllParents(false))
@@ -69,7 +70,8 @@ public class WrappersCreatorChecks {
                             .shouldImplementInterface(asyncWrapperClName.canonicalName())
                             .add(" and ")
                             .shouldHaveAnnotations(WrappersCreator.class.getSimpleName())
-                            .build()
+                            .build(),
+                    cl.sourceEl
             );
         }
 
@@ -80,7 +82,8 @@ public class WrappersCreatorChecks {
                     createErrorMes()
                             .wrappersCreatorClass(cl.className.toString())
                             .shouldHaveConstructorWithoutArgs()
-                            .build()
+                            .build(),
+                    m != null ? m.sourceEl : cl.sourceEl
             );
         }
     }
@@ -92,7 +95,8 @@ public class WrappersCreatorChecks {
                 throw new IncorrectSignatureException(
                         createErrorMes()
                                 .wrapperShouldBeGenericType1(cl.className)
-                                .build()
+                                .build(),
+                        cl.sourceEl
                 );
             }
         }

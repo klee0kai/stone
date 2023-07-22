@@ -6,7 +6,7 @@ import com.github.klee0kai.stone._hidden_.types.CacheAction;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
-import com.github.klee0kai.stone.exceptions.RecurciveProviding;
+import com.github.klee0kai.stone.exceptions.RecursiveProviding;
 import com.github.klee0kai.stone.exceptions.StoneException;
 import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
@@ -77,12 +77,12 @@ public class ModulesGraph {
         }
     }
 
-    public SmartCode codeProvideType(String methodName, TypeName returnType, Set<QualifierAnn> qualifierAnns) {
+    public SmartCode codeProvideType(String methodName, TypeName returnType, Set<QualifierAnn> qualifierAnns, boolean allowThemSelves) {
         boolean isWrappedReturn = isSupport(returnType);
         boolean isListReturn = isList(returnType);
         TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
 
-        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(new ProvideDep(methodName, returnType, qualifierAnns));
+        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(new ProvideDep(methodName, returnType, qualifierAnns), allowThemSelves);
         if (provideTypeInvokes == null || provideTypeInvokes.isEmpty()) {
             return null;
         }
@@ -183,7 +183,7 @@ public class ModulesGraph {
     }
 
 
-    public List<InvokeCall> provideInvokesWithDeps(ProvideDep provideDep) {
+    public List<InvokeCall> provideInvokesWithDeps(ProvideDep provideDep, boolean allowThemSelves) {
         LinkedList<InvokeCall> provideTypeInvokes = new LinkedList<>();
         LinkedList<ProvideDep> needProvideDeps = new LinkedList<>();
         RecursiveDetector<Integer> needProvideDepsRecursiveDetector = new RecursiveDetector<>();
@@ -203,13 +203,13 @@ public class ModulesGraph {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideType(dep.toString())
-                                .build(),
-                        null
+                                .build()
                 );
             }
 
             List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (i, it) -> {
-                if (Objects.equals(provideDep.typeName, it.typeName) && Objects.equals(rawDep.typeName, it.typeName)) {
+                if (allowThemSelves && Objects.equals(provideDep.typeName, it.typeName)
+                        && Objects.equals(rawDep.typeName, it.typeName)) {
                     // bind instance case. Argument and return type are equals
                     return false;
                 }
@@ -222,7 +222,7 @@ public class ModulesGraph {
             needProvideDeps = ListUtils.removeDoublesRight(needProvideDeps, Objects::equals);
             boolean recursiveDetected = !newDeps.isEmpty() && needProvideDepsRecursiveDetector.next(needProvideDeps.hashCode());
             if (recursiveDetected) {
-                throw new RecurciveProviding(
+                throw new RecursiveProviding(
                         createErrorMes()
                                 .errorProvideType(provideDep.typeName.toString())
                                 .recursiveProviding()

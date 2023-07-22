@@ -31,6 +31,8 @@ public class FieldDetail {
 
     public boolean injectAnnotation = false;
 
+    public Element sourceEl = null;
+
     /**
      * Take field details for compile variable-element
      *
@@ -42,6 +44,7 @@ public class FieldDetail {
         fieldDetail.type = TypeName.get(p.asType());
         fieldDetail.name = p.getSimpleName().toString();
         fieldDetail.injectAnnotation = p.getAnnotation(Inject.class) != null;
+        fieldDetail.sourceEl = p;
 
         for (AnnotationMirror ann : p.getAnnotationMirrors()) {
             String clName = ann.getAnnotationType().toString();
