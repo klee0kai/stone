@@ -75,13 +75,33 @@ public class EarthCacheMixedTests {
         DIPro.extOf(DI);
 
         //When
-        Mountain mountain1 = DI.earth().mountainDefaultSoft();
-        Mountain mountain2 = DIPro.earth().mountainDefaultSoft();
+        Mountain mountain1 = DI.earth().mountainDefaultFactory();
+        Mountain mountain2 = DIPro.earth().mountainDefaultFactory();
 
         //Then
-        assertEquals(
+        assertNotEquals(
                 mountain1.uuid,
-                mountain2.uuid
+                mountain2.uuid,
+                "Factory providing"
+        );
+    }
+
+    @Test
+    public void defCache2Test() {
+        //Given
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
+        DIPro.extOf(DI);
+
+        //When
+        Mountain mountain1 = DI.earth().mountainDefault2Factory();
+        Mountain mountain2 = DIPro.earth().mountainDefault2Factory();
+
+        //Then
+        assertNotEquals(
+                mountain1.uuid,
+                mountain2.uuid,
+                "Factory providing"
         );
     }
 

@@ -61,13 +61,31 @@ class EarthCacheTests {
         val di = Stone.createComponent(GcGodComponent::class.java)
 
         //When
-        val mountain1 = di.earth().mountainDefaultSoft()
-        val mountain2 = di.earth().mountainDefaultSoft()
+        val mountain1 = di.earth().mountainDefaultFactory()
+        val mountain2 = di.earth().mountainDefaultFactory()
 
         //Then
-        assertEquals(
+        assertNotEquals(
             mountain1.uuid,
-            mountain2.uuid
+            mountain2.uuid,
+            "Factory creating"
+        )
+    }
+
+    @Test
+    fun defCache2Test() {
+        //Given
+        val di = Stone.createComponent(GcGodComponent::class.java)
+
+        //When
+        val mountain1 = di.earth().mountainDefault2Factory()
+        val mountain2 = di.earth().mountainDefault2Factory()
+
+        //Then
+        assertNotEquals(
+            mountain1.uuid,
+            mountain2.uuid,
+            "Factory creating"
         )
     }
 

@@ -19,6 +19,6 @@ public @interface Provide {
         Strong
     }
 
-    CacheType cache() default CacheType.Soft;
+    CacheType cache() default CacheType.Factory;
 
 }

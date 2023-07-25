@@ -75,13 +75,14 @@ public class EarthCacheAndProTests {
         DIPro.extOf(DI);
 
         //When
-        Mountain mountain1 = DI.earth().mountainDefaultSoft();
-        Mountain mountain2 = DI.earth().mountainDefaultSoft();
+        Mountain mountain1 = DI.earth().mountainDefaultFactory();
+        Mountain mountain2 = DI.earth().mountainDefaultFactory();
 
         //Then
-        assertEquals(
+        assertNotEquals(
                 mountain1.uuid,
-                mountain2.uuid
+                mountain2.uuid,
+                "Factory providing"
         );
     }
 

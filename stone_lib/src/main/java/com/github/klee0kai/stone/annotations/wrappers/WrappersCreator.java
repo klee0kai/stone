@@ -23,12 +23,4 @@ public @interface WrappersCreator {
      */
     Class[] wrappers() default {};
 
-
-    /**
-     * Providing without caching and object holding
-     */
-    boolean noCachesProviding() default true;
-
-    boolean isAsyncProvider() default true;
-
 }
