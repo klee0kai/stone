@@ -10,10 +10,15 @@ import java.lang.ref.WeakReference
 
 @Module
 interface CarWrappedCreateModule {
+
+    @Provide(cache = Provide.CacheType.Soft)
     fun whell(): Wheel?
 
-    @Provide(cache = Provide.CacheType.Factory)
     fun bumper(): WeakReference<Bumper?>?
+
+    @Provide(cache = Provide.CacheType.Soft)
     fun window(): Window?
+
+    @Provide(cache = Provide.CacheType.Soft)
     fun car(bumper: Bumper?, wheel: Wheel?, window: Window?): Car?
 }

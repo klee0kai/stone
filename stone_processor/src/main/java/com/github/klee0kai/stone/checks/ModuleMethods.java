@@ -46,7 +46,7 @@ public class ModuleMethods {
     public static boolean isProvideFactoryObject(MethodDetail m) {
         if (m.hasAnyAnnotation(BindInstanceAnn.class)) return false;
         ProvideAnn ann = m.ann(ProvideAnn.class);
-        if (ann == null || ann.cacheType != Provide.CacheType.Factory) return false;
+        if (ann != null && ann.cacheType != Provide.CacheType.Factory) return false;
 
         if (!m.hasOnlyAnnotations(true, true, ProvideAnn.class)) {
             throw new IncorrectSignatureException(
