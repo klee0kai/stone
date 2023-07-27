@@ -13,15 +13,17 @@ import java.lang.ref.WeakReference;
 public interface CarWrappedCreateModule {
 
 
+    @Provide(cache = Provide.CacheType.Soft)
     Wheel whell();
 
-    @Provide(cache = Provide.CacheType.Factory)
     WeakReference<Bumper> bumper();
 
 
+    @Provide(cache = Provide.CacheType.Soft)
     Window window();
 
 
+    @Provide(cache = Provide.CacheType.Soft)
     Car car(Bumper bumper, Wheel wheel, Window window);
 
 

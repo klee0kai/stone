@@ -30,10 +30,10 @@ public abstract class GcEarthModule {
 
     @GcMountainScope
     @Provide
-    abstract public Mountain mountainDefaultSoft();
+    abstract public Mountain mountainDefaultFactory();
 
     @GcMountainScope
-    abstract public Mountain mountainDefault2Soft();
+    abstract public Mountain mountainDefault2Factory();
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Strong)

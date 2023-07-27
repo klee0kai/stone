@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class ProvideAnn implements Cloneable, IAnnotation {
 
-    public Provide.CacheType cacheType = Provide.CacheType.Soft;
+    public Provide.CacheType cacheType = Provide.CacheType.Factory;
 
     public static ProvideAnn of(Provide ann) {
         if (ann == null)

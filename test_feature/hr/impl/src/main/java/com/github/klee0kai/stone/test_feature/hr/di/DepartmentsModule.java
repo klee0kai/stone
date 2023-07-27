@@ -17,12 +17,12 @@ public class DepartmentsModule {
     }
 
 
-    @Provide
+    @Provide(cache = Provide.CacheType.Soft)
     public SecurityDepartment securityDepartment() {
         return new SecurityDepartmentImpl();
     }
 
-    @Provide
+    @Provide(cache = Provide.CacheType.Soft)
     public SoftwareDepartment softwareDepartment() {
         return new SoftwareDepartmentImpl();
     }

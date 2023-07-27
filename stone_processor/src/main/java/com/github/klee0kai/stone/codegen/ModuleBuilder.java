@@ -95,8 +95,7 @@ public class ModuleBuilder {
                 builder.provideFactory(m)
                         .mockControl(m);
             } else if (isProvideCachedObject(m)) {
-                ProvideAnn ann = m.ann(ProvideAnn.class);
-                ItemCacheType cacheType = ann != null ? cacheTypeFrom(ann.cacheType) : ItemCacheType.Soft;
+                ItemCacheType cacheType = cacheTypeFrom(m.ann(ProvideAnn.class).cacheType);
                 ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, idFields, cacheType);
                 builder.provideCached(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)

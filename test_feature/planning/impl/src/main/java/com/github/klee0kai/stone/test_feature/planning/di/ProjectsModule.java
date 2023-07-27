@@ -14,10 +14,12 @@ public abstract class ProjectsModule {
     @Provide(cache = Provide.CacheType.Strong)
     public abstract ProjectsStore projectsStore();
 
+    @Provide(cache = Provide.CacheType.Soft)
     public LogisticProject logisticProject() {
         return new LogisticProjectImpl();
     }
 
+    @Provide(cache = Provide.CacheType.Soft)
     public BuildFactoryProject buildFactoryProject() {
         return new BuildFactoryProjectImpl();
     }

@@ -16,7 +16,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -41,7 +41,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -51,15 +51,15 @@ class EarthLastDayTests {
         di.gcStrong()
 
         //Then
-        for (ref in Arrays.asList(
-            mountainStrong, mountainWeak,
-            riverStrong, riverWeak
+        for (ref in listOf(
+            mountainStrong, mountainWeak, mountainDef,
+            riverStrong, riverWeak, riverDef
         )) {
             assertNull(ref.get())
         }
-        for (ref in Arrays.asList(
-            mountainSoft, mountainDef,
-            riverSoft, riverDef
+        for (ref in listOf(
+            mountainSoft,
+            riverSoft,
         )) {
             assertNotNull(ref.get())
         }
@@ -72,7 +72,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -82,13 +82,13 @@ class EarthLastDayTests {
         di.gcSoft()
 
         //Then
-        for (ref in Arrays.asList(
+        for (ref in listOf(
             mountainSoft, mountainWeak, mountainDef,
             riverSoft, riverWeak, riverDef
         )) {
             assertNull(ref.get())
         }
-        for (ref in Arrays.asList(
+        for (ref in listOf(
             mountainStrong,
             riverStrong
         )) {
@@ -103,7 +103,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -113,15 +113,15 @@ class EarthLastDayTests {
         di.gcWeak()
 
         //Then
-        for (ref in Arrays.asList(
-            mountainWeak,
-            riverWeak
+        for (ref in listOf(
+            mountainWeak, mountainDef,
+            riverWeak, riverDef
         )) {
             assertNull(ref.get())
         }
-        for (ref in Arrays.asList(
-            mountainStrong, mountainSoft, mountainDef,
-            riverStrong, riverSoft, riverDef
+        for (ref in listOf(
+            mountainStrong, mountainSoft,
+            riverStrong, riverSoft
         )) {
             assertNotNull(ref.get())
         }
@@ -134,7 +134,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -144,14 +144,14 @@ class EarthLastDayTests {
         di.gcMountains()
 
         //Then
-        for (ref in Arrays.asList(
+        for (ref in listOf(
             mountainStrong, mountainSoft, mountainWeak, mountainDef,
-            riverWeak
+            riverWeak, riverDef
         )) {
             assertNull(ref.get())
         }
-        for (ref in Arrays.asList(
-            riverStrong, riverSoft, riverDef
+        for (ref in listOf(
+            riverStrong, riverSoft,
         )) {
             assertNotNull(ref.get())
         }
@@ -164,7 +164,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -174,14 +174,14 @@ class EarthLastDayTests {
         di.gcRivers()
 
         //Then
-        for (ref in Arrays.asList(
-            mountainWeak,
+        for (ref in listOf(
+            mountainWeak, mountainDef,
             riverStrong, riverSoft, riverWeak, riverDef
         )) {
             assertNull(ref.get())
         }
-        for (ref in Arrays.asList(
-            mountainStrong, mountainSoft, mountainDef
+        for (ref in listOf(
+            mountainStrong, mountainSoft,
         )) {
             assertNotNull(ref.get())
         }
@@ -194,7 +194,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -204,7 +204,7 @@ class EarthLastDayTests {
         di.gcMountainsAndRivers()
 
         //Then
-        for (ref in Arrays.asList(
+        for (ref in listOf(
             mountainStrong, mountainSoft, mountainWeak, mountainDef,
             riverStrong, riverSoft, riverWeak, riverDef
         )) {
@@ -219,7 +219,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -229,15 +229,15 @@ class EarthLastDayTests {
         di.gcSoftMountains()
 
         //Then
-        for (ref in Arrays.asList(
+        for (ref in listOf(
             mountainSoft, mountainWeak, mountainDef,
-            riverWeak
+            riverWeak, riverDef
         )) {
             assertNull(ref.get())
         }
-        for (ref in Arrays.asList(
+        for (ref in listOf(
             mountainStrong,
-            riverStrong, riverSoft, riverDef
+            riverStrong, riverSoft,
         )) {
             assertNotNull(ref.get())
         }
@@ -250,7 +250,7 @@ class EarthLastDayTests {
         val mountainStrong = WeakReference(di.earth().mountainStrong())
         val mountainSoft = WeakReference(di.earth().mountainSoft())
         val mountainWeak = WeakReference(di.earth().mountainWeak())
-        val mountainDef = WeakReference(di.earth().mountainDefaultSoft())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
         val riverStrong = WeakReference(di.earth().riverStrong())
         val riverSoft = WeakReference(di.earth().riverSoft())
         val riverWeak = WeakReference(di.earth().riverWeak())
@@ -260,15 +260,15 @@ class EarthLastDayTests {
         di.gcStrongMountains()
 
         //Then
-        for (ref in Arrays.asList(
-            mountainStrong, mountainWeak,
-            riverWeak
+        for (ref in listOf(
+            mountainStrong, mountainWeak, mountainDef,
+            riverWeak, riverDef
         )) {
             assertNull(ref.get())
         }
-        for (ref in Arrays.asList(
-            mountainSoft, mountainDef,
-            riverStrong, riverSoft, riverDef
+        for (ref in listOf(
+            mountainSoft,
+            riverStrong, riverSoft,
         )) {
             assertNotNull(ref.get())
         }

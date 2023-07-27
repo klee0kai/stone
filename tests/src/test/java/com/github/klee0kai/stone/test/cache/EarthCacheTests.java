@@ -66,13 +66,31 @@ public class EarthCacheTests {
         GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
 
         //When
-        Mountain mountain1 = DI.earth().mountainDefaultSoft();
-        Mountain mountain2 = DI.earth().mountainDefaultSoft();
+        Mountain mountain1 = DI.earth().mountainDefaultFactory();
+        Mountain mountain2 = DI.earth().mountainDefaultFactory();
 
         //Then
-        assertEquals(
+        assertNotEquals(
                 mountain1.uuid,
-                mountain2.uuid
+                mountain2.uuid,
+                "Default is factory providing"
+        );
+    }
+
+    @Test
+    public void defCache2Test() {
+        //Given
+        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+
+        //When
+        Mountain mountain1 = DI.earth().mountainDefault2Factory();
+        Mountain mountain2 = DI.earth().mountainDefault2Factory();
+
+        //Then
+        assertNotEquals(
+                mountain1.uuid,
+                mountain2.uuid,
+                "Default is factory providing"
         );
     }
 
