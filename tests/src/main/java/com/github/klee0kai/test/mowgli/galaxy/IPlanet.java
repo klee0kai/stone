@@ -1,4 +1,4 @@
 package com.github.klee0kai.test.mowgli.galaxy;
 
-public interface IPlanet {
+public interface IPlanet extends ISpaceObject {
 }

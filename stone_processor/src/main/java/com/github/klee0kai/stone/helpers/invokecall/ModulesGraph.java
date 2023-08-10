@@ -50,30 +50,32 @@ public class ModulesGraph {
     public void collectFromModule(MethodDetail provideModuleMethod, ClassDetail module) {
         ClassDetail iModuleInterface = AnnotationProcessor.allClassesHelper.iModule;
         for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
-            TypeName provTypeName = nonWrappedType(m.returnType);
-            if (provTypeName.isPrimitive() || provTypeName == TypeName.VOID)
-                continue;
-            if (iModuleInterface.findMethod(m, false) != null)
-                continue;
-            boolean isCached = !m.hasAnnotations(ProvideAnn.class) || m.ann(ProvideAnn.class).isCachingProvideType();
-            int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
-
-            provideTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
-            provideTypeCodes.get(provTypeName).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
-
-            MethodDetail cacheControlMethod = new MethodDetail();
-            cacheControlMethod.methodName = cacheControlMethodName(m.methodName);
-            cacheControlMethod.args.add(FieldDetail.simple("__action", ClassName.get(CacheAction.class)));
-            for (FieldDetail it : m.args) {
-                if (!((it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)))
+            for (TypeName returnType : m.allReturnAlternatives()) {
+                TypeName provTypeName = nonWrappedType(returnType);
+                if (provTypeName.isPrimitive() || provTypeName == TypeName.VOID)
                     continue;
-                cacheControlMethod.args.add(it);
-            }
-            cacheControlMethod.returnType = listWrapTypeIfNeed(m.returnType);
-            cacheControlMethod.qualifierAnns = m.qualifierAnns;
+                if (iModuleInterface.findMethod(m, false) != null)
+                    continue;
+                boolean isCached = !m.hasAnnotations(ProvideAnn.class) || m.ann(ProvideAnn.class).isCachingProvideType();
+                int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
 
-            cacheControlTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
-            cacheControlTypeCodes.get(provTypeName).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
+                provideTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
+                provideTypeCodes.get(provTypeName).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
+
+                MethodDetail cacheControlMethod = new MethodDetail();
+                cacheControlMethod.methodName = cacheControlMethodName(m.methodName);
+                cacheControlMethod.args.add(FieldDetail.simple("__action", ClassName.get(CacheAction.class)));
+                for (FieldDetail it : m.args) {
+                    if (!((it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)))
+                        continue;
+                    cacheControlMethod.args.add(it);
+                }
+                cacheControlMethod.returnType = listWrapTypeIfNeed(returnType);
+                cacheControlMethod.qualifierAnns = m.qualifierAnns;
+
+                cacheControlTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
+                cacheControlTypeCodes.get(provTypeName).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
+            }
         }
     }
 
@@ -106,7 +108,6 @@ public class ModulesGraph {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
             FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), null);
             FieldDetail listDepField = FieldDetail.simple(genLocalFieldName(), null);
-            boolean isListInv = inv.invokeSequenceVariants.size() > 1;
 
             builder.withLocals(localBuilder -> {
                 // provide single objects

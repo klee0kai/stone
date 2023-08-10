@@ -2,7 +2,6 @@ package com.github.klee0kai.stone.model;
 
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.annotations.component.*;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.annotations.module.Provide;
 import com.github.klee0kai.stone.model.annotations.*;
 import com.squareup.javapoet.ClassName;
@@ -60,7 +59,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.addAnnotation(InitAnn.of(element.getAnnotation(Init.class)));
         methodDetail.addAnnotation(ExtOfAnn.of(element.getAnnotation(ExtendOf.class)));
         methodDetail.addAnnotation(ProvideAnn.of(element.getAnnotation(Provide.class)));
-        methodDetail.addAnnotation(BindInstanceAnn.of(element.getAnnotation(BindInstance.class)));
+        methodDetail.addAnnotation(BindInstanceAnn.find(element));
         methodDetail.addAnnotation(ProtectInjectedAnn.of(element.getAnnotation(ProtectInjected.class)));
         methodDetail.addAnnotation(SwitchCacheAnn.of(element.getAnnotation(SwitchCache.class)));
         methodDetail.addAnnotation(InjectAnn.of(element.getAnnotation(Inject.class)));
@@ -173,6 +172,13 @@ public class MethodDetail implements Cloneable {
         return true;
     }
 
+    public List<TypeName> allReturnAlternatives() {
+        LinkedList<TypeName> returns = new LinkedList<>();
+        returns.add(returnType);
+        if (hasAnnotations(BindInstanceAnn.class)) returns.addAll(ann(BindInstanceAnn.class).alternatives);
+        return returns;
+    }
+
     /**
      * Add annotation to method
      *
@@ -252,7 +258,6 @@ public class MethodDetail implements Cloneable {
         return (allowGsScopeAnnotations || gcScopeAnnotations.isEmpty())
                 && (allowQualifierAnnotations || qualifierAnns.isEmpty());
     }
-
 
     @Override
     public MethodDetail clone() throws CloneNotSupportedException {

@@ -19,4 +19,9 @@ public @interface BindInstance {
 
     BindInstance.CacheType cache() default BindInstance.CacheType.Soft;
 
+    /**
+     * Alternative providing types
+     */
+    Class[] alternatives() default {};
+
 }

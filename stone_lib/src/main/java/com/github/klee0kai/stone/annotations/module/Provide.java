@@ -21,4 +21,9 @@ public @interface Provide {
 
     CacheType cache() default CacheType.Factory;
 
+    /**
+     * Alternative providing types
+     */
+    Class[] alternatives() default {};
+
 }
