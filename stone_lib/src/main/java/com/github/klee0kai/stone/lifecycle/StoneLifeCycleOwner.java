@@ -8,12 +8,12 @@ package com.github.klee0kai.stone.lifecycle;
  * In a normal case, this can be done by declaring an additional `@ProtectInjected` method in the component.
  * For example:
  * <pre>{@code
- *    @Component
+ *    ㅤ@Component
  *     interface AppComponent {
  *
  *         void inject(Activity activity);
  *
- *         @ProtectInjected
+ *        ㅤ@ProtectInjected
  *         void protectInjected(Activity activity);
  *
  *     }
@@ -27,7 +27,7 @@ package com.github.klee0kai.stone.lifecycle;
  * <pre>{@code
  *    public static StoneLifeCycleOwner lifeCycleOwner(Lifecycle lifecycle, long protectTimeMillis) {
  *         return listener -> lifecycle.addObserver(new DefaultLifecycleObserver() {
- *             @Override
+ *            ㅤ@Override
  *             public void onPause(@NonNull @NotNull LifecycleOwner owner1) {
  *                 DefaultLifecycleObserver.super.onPause(owner1);
  *                 listener.protectForInjected(protectTimeMillis);
@@ -40,7 +40,7 @@ package com.github.klee0kai.stone.lifecycle;
  * or with an additional StoneLifeCycleOwner argument
  *
  * <pre>{@code
- *    @Component
+ *   ㅤ@Component
  *    interface AppComponent {
  *
  *          void inject(Activity activity, StoneLifeCycleOwner owner);

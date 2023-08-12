@@ -19,13 +19,13 @@ import java.lang.annotation.Target;
  * <p>
  * So for example in the machine creation module
  * <pre>{@code
- *     @Module
+ *    ㅤ@Module
  *     public abstract class CarModule {
  *
- *         @BindInstance
+ *        ㅤ@BindInstance
  *         abstract Wheel wheel();
  *
- *         @Provide
+ *        ㅤ@Provide
  *         Bumper bumper(){
  *             return new Bumper();
  *         }
@@ -42,18 +42,18 @@ import java.lang.annotation.Target;
  * <p>
  * Each element can be cached by specifying how the object is cached.
  * <pre>{@code
- *    @Module
+ *    ㅤ@Module
  *     public abstract class CarModule {
  *
- *         @BindInstance(cache = BindInstance.CacheType.Weak)
+ *        ㅤ@BindInstance(cache = BindInstance.CacheType.Weak)
  *         abstract Wheel wheel();
  *
- *          @Provide(cache = Provide.CacheType.Weak)
+ *        ㅤ@Provide(cache = Provide.CacheType.Weak)
  *         Bumper bumper(){
  *             return new Bumper();
  *         }
  *
- *         @Provide(cache = Provide.CacheType.Soft)
+ *        ㅤ@Provide(cache = Provide.CacheType.Soft)
  *         Window window(){
  *             return new Window();
  *         }
@@ -65,16 +65,16 @@ import java.lang.annotation.Target;
  * The constructor will be found by the library automatically when using parameters.
  *
  * <pre>{@code
- *     @Module
+ *    ㅤ@Module
  *     public interface CarModule {
  *
- *         @BindInstance(cache = BindInstance.CacheType.Weak)
+ *        ㅤ@BindInstance(cache = BindInstance.CacheType.Weak)
  *         Wheel wheel();
  *
- *         @Provide(cache = Provide.CacheType.Weak)
+ *        ㅤ@Provide(cache = Provide.CacheType.Weak)
  *         Bumper bumper();
  *
- *         @Provide(cache = Provide.CacheType.Soft)
+ *        ㅤ@Provide(cache = Provide.CacheType.Soft)
  *         Window window();
  *
  *     }

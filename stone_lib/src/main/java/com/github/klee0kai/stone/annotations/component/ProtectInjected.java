@@ -11,13 +11,13 @@ import java.lang.annotation.Target;
  * When a dependency consumer class is re-created, cached objects may be garbage collected.
  * This can be prevented by calling the deletion protection method.
  * <pre>{@code
- *    @Component
+ *   ㅤ@Component
  *     public interface AppComponent {
  *
  *
  *         void inject(Activity activity);
  *
- *         @ProtectInjected
+ *        ㅤ@ProtectInjected
  *         void protectInjected();
  *
  *     }

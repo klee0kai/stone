@@ -20,10 +20,10 @@ import java.lang.annotation.*;
  * <p>
  * Dependencies for an object can be listed using function arguments.
  * <pre>{@code
- *    @Module
+ *   ㅤ@Module
  *     interface CarModule {
  *
- *         @Provide(cache = Provide.CacheType.Weak)
+ *        ㅤ@Provide(cache = Provide.CacheType.Weak)
  *         Car car(Bumper bumper, Wheel wheel, Window window);
  *
  *     }

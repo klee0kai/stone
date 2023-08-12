@@ -11,9 +11,9 @@ import java.lang.annotation.Target;
  * Announce new scopes in the following way.
  *
  * <pre>{@code
- *     @GcScopeAnnotation
- *     @Retention(RUNTIME)
- *     @Target(METHOD)
+ *    ㅤ@GcScopeAnnotation
+ *    ㅤ@Retention(RUNTIME)
+ *    ㅤ@Target(METHOD)
  *     public @interface GcPlanetScope {
  *     }
  * }</pre>
@@ -21,9 +21,9 @@ import java.lang.annotation.Target;
  * annotation.
  *
  * <pre>{@code
- *     @Scope
- *     @Retention(RUNTIME)
- *     @Target(METHOD)
+ *    ㅤ@Scope
+ *    ㅤ@Retention(RUNTIME)
+ *   ㅤ@Target(METHOD)
  *     public @interface GcPlanetScope {
  *     }
  * }</pre>

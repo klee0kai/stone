@@ -4,7 +4,7 @@ package com.github.klee0kai.stone.wrappers;
  * Providing an object with lazy rendering.
  * The object will be provided the first time it is used.
  * <pre>{@code
- *     @Component
+ *    ㅤ@Component
  *     interface Component {
  *
  *         LazyProvide<WelcomePresenter> presenter();

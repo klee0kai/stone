@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * In this class, you just need to enumerate the provided objects and dependencies as interface methods.
  *
  * <pre>{@code
- *    @Dependencies
+ *    ㅤ@Dependencies
  *     public interface CarDependencies {
  *
  *         Wheel wheel();
@@ -27,12 +27,12 @@ import java.lang.annotation.Target;
  * }</pre>
  * Any factory, provider, or DI component can provide these dependencies by simply implementing this interface.
  * <pre>{@code
- *    @Comonent
+ *    ㅤ@Component
  *     public abstract class AppComponent implements CommonDependencies {
  *         // some code
  *     }
  *
- *     @Dependencies
+ *    ㅤ@Dependencies
  *     public interface CommonDependencies{
  *         // some code
  *     }
@@ -40,10 +40,10 @@ import java.lang.annotation.Target;
  * <p>
  * In your component, you simply initialize these dependencies.
  * <pre>{@code
- *    @Comonent
+ *    ㅤ@Comonent
  *     public abstract class FeatureComponent {
  *         public abstract CommonDependencies dependencies();
- *         @Init
+ *       ㅤ@Init
  *         void initDependencies(CommonDependencies dependencies);
  *     }
  * }</pre>

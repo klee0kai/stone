@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
  * A component extends a parent component.
  * With the help of such an annotation, an extension method is declared on the parent component.
  * <pre>{@code
- *    @Component
+ *    ㅤ@Component
  *     public interface AppExtendComponent extends AppComponent {
  *
- *         @ExtendOf
+ *         ㅤ@ExtendOf
  *         void extOf(AppComponent parent);
  *
  *     }

@@ -12,18 +12,18 @@ import java.lang.annotation.Target;
  * An initialization method is declared in a component that accepts an instance of the module or its class.
  *
  * <pre>{@code
- *    @Component
+ *    ㅤ@Component
  *     interface AppComponent() {
  *
- *         @Init
+ *        ㅤ@Init
  *         void initRepositoriesModule(RepositoriesModule module);
  *
- *         @Init
+ *        ㅤ@Init
  *         void initRepositoriesModule(Class<? extends RepositoriesModule> module);
  *
  *     }
  *
- *     @Module
+ *  ㅤㅤ@Module
  *     interface RepositoriesModule{
  *         // some code
  *     }

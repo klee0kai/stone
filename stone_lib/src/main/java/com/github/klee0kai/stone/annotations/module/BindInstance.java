@@ -10,20 +10,20 @@ import java.lang.annotation.*;
  * Binding can be declared in a module.
  * To do this, we define the provider method in the module and the binding method in the module.
  * <pre>{@code
- *    @Component
+ *    ㅤ@Component
  *     public interface SpaceComponent {
  *
  *         SunSystemModule sunSystem();
  *
- *         @BindInstance
+ *        ㅤ@BindInstance
  *         void bindSun(Sun sun);
  *
  *     }
  *
- *     @Module
+ *    ㅤ@Module
  *     public interface SunSystemModule {
  *
- *         @BindInstance
+ *        ㅤ@BindInstance
  *         Sun sun();
  *
  *     }
@@ -33,7 +33,7 @@ import java.lang.annotation.*;
  * A method in a component should only receive that object as an argument.
  * Further, this object can already be passed in the component directly or through injection.
  * <pre>{@code
- *    @Component
+ *    ㅤ@Component
  *     public interface SpaceComponent {
  *         // some code
  *
@@ -45,10 +45,10 @@ import java.lang.annotation.*;
  * <p>
  * The second way to declare the use of binding is to declare everything in one method in the DI component.
  * <pre>{@code
- *    @Component
+ *    ㅤ@Component
  *     public interface SpaceComponent {
  *
- *         @BindInstance
+ *        ㅤ@BindInstance
  *         Sun sun(Sun sun);
  *
  *     }

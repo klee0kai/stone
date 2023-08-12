@@ -23,12 +23,12 @@ import java.lang.annotation.Target;
  * To do this, you need to create a class with the @Module annotation, and provide it in the component.
  * <p>
  * <pre>{@code
- *     @Component
+ *    ㅤ@Component
  *     public abstract class AppComponent {
  *         public abstract RepositoriesModule repositories();
  *     }
  *
- *     @Module
+ *    ㅤ@Module
  *     public interface RepositoriesModule{
  *         // some code
  *     }
@@ -40,10 +40,10 @@ import java.lang.annotation.Target;
  * Providing a module can be replaced by calling an initialization method.
  * <pre>{@code
  *
- *     @Component
+ *    ㅤ@Component
  *     public abstract class AppComponent {
  *         public abstract RepositoriesModule repositories();
- *         @Init
+ *        ㅤ@Init
  *         void initRepositories(RepositoriesModule repositories);
  *     }
  *
@@ -59,14 +59,14 @@ import java.lang.annotation.Target;
  * All component dependencies are declared in the same way as modules.
  * Dependency classes must use the `@Dependencies` annotation
  * <pre>{@code
- *     @Comonent
+ *    ㅤ@Component
  *     public abstract class FeatureComponent {
  *         public abstract CommonDependencies dependencies();
- *         @Init
+ *        ㅤ@Init
  *         void initDependencies(CommonDependencies dependencies);
  *     }
  *
- *     @Dependencies
+ *    ㅤ@Dependencies
  *     public interface CommonDependencies{
  *         // some code
  *     }
@@ -85,7 +85,7 @@ import java.lang.annotation.Target;
  * In a component, you can declare a provider method of any object that is provided in one of its modules.
  * By providing this object, dependencies will be resolved automatically.
  * <pre>{@code
- *    @Component
+ *    ㅤ@Component
  *     public interface CarComponent {
  *
  *         CarModule module();
@@ -93,7 +93,7 @@ import java.lang.annotation.Target;
  *         Car car();
  *     }
  *
- *     @Module
+ *    ㅤ@Module
  *     public interface CarModule{
  *         Wheel wheel();
  *         Window window();
@@ -120,7 +120,7 @@ import java.lang.annotation.Target;
  * To do this, it is enough to declare an injection method without a return type,
  * with only one argument - the injection class.
  * <pre>{@code
- *     @Component
+ *    ㅤ@Component
  *     public interface AppComponent {
  *         void inject(Activity activity);
  *     }
@@ -144,10 +144,10 @@ import java.lang.annotation.Target;
  * or after explicitly using a child component.
  *
  * <pre>{@code
- *     @Component
+ *    ㅤ@Component
  *     public interface AppProComponent extends AppComponent {
  *
- *         @ExtendOf
+ *        ㅤ@ExtendOf
  *         void extOf(AppComponent parent);
  *
  *     }
@@ -159,10 +159,10 @@ import java.lang.annotation.Target;
  * To do this, you need to declare a method without arguments
  * and a return value with the annotation of one or more scopes.
  * <pre>{@code
- *     @Component
+ *    ㅤ@Component
  *     public interface AppProComponent extends AppComponent {
  *
- *         @GcAllScope
+ *        ㅤ@GcAllScope
  *         void gcAll();
  *
  *     }
@@ -189,13 +189,13 @@ public @interface Component {
      * implementing the `hashCode` and `equals` methods (Kotlin data classes)
      * and list them when declaring the component.
      * <pre>{@code
-     *    @Component(identifiers = [PresenterTag::class])
+     *    ㅤ@Component(identifiers = [PresenterTag::class])
      *     interface AppComponent {
      *         PresentersModule module();
      *         WelcomePresenter welcomePresenter(PresenterTag tag);
      *     }
      *
-     *     @Module
+     *    ㅤ@Module
      *     interface PresentersModule {
      *         WelcomePresenter createWelcomePresenter(PresenterTag tag);
      *     }
@@ -226,10 +226,10 @@ public @interface Component {
      * It is enough to override these classes, and use the `@WrappersCreator` annotation
      * to list the wrappers implemented in this class.
      * <pre>{@code
-     *     @WrappersCreator(wrappers = {CarRef.class})
+     *    ㅤ@WrappersCreator(wrappers = {CarRef.class})
      *     public class CarWrapper implements Wrapper {
      *
-     *         @Override
+     *        ㅤ@Override
      *         public <Wr, T> Wr wrap(Class<Wr> wrapperCl, T original) {
      *             if (wrapperCl.equals(CarRef.class)) {
      *                 return (Wr) new CarRef<>(original);

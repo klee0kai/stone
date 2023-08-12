@@ -8,7 +8,7 @@ package com.github.klee0kai.stone.wrappers;
  * Together with the use of Kotlin delegates, you can fully use the objects from the
  * DI component directly without keeping them from being deleted in your class.
  * <pre>{@code
- *     @Component
+ *    ㅤ@Component
  *     interface Component {
  *
  *         PhantomProvide<WelcomePresenter> presenter();

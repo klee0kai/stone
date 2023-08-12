@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
  * By the time of use, the object will already be created on the second thread,
  * or lazy initialization will be performed.
  * <pre>{@code
- *     @Component
+ *    ㅤ@Component
  *     interface Component {
  *
  *         AsyncProvide<WelcomePresenter> presenter();
