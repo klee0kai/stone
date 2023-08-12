@@ -16,45 +16,59 @@ abstract class CarGcComponent {
     abstract fun windowsMappedModule(): WindowMappedGcModule?
     abstract fun windowsMultiMappedModule(): WindowMultiMappedGcModule?
 
+    @RunGc
     @GcAllScope
     abstract fun gcAll()
 
+    @RunGc
     @GcWeakScope
     abstract fun gcWeak()
 
+    @RunGc
     @GcSoftScope
     abstract fun gcSoft()
 
+    @RunGc
     @GcStrongScope
     abstract fun gcStrong()
 
+    @RunGc
     @GcWheelScope
     abstract fun gcWheels()
 
+    @RunGc
     @GcBumperScope
     abstract fun gcBumpers()
 
+    @RunGc
     @GcBumperRedScope
     abstract fun gcRedBumpers()
 
+    @RunGc
     @GcBumperRedScope
     @GcBumperScope
     abstract fun gcRedBumpers2()
 
+    @RunGc
     @GcWindowScope
     abstract fun gcWindows()
 
+    @RunGc
     @GcWindowScope
     @GcWeakScope
     abstract fun gcWeakWindows()
 
+    @RunGc
     @GcWindowScope
     @GcSoftScope
     abstract fun gcSoftWindows()
 
+    @RunGc
     @GcWindowScope
     @GcBumperScope
     abstract fun gcNothing()
+
+
     fun gcWindowsAndWheels() {
         gcWindows()
         gcWheels()

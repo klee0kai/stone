@@ -292,12 +292,14 @@ public class ExceptionStringBuilder {
         return this;
     }
 
-    public ExceptionStringBuilder componentGCMethodSignatureIncorrect(String className) {
+    public ExceptionStringBuilder componentGCMethodSignatureIncorrect(String className, String annotation) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,
                 "Component's gc method have incorrect signature: '%s'. "
+                        + "Method Should have only %s annotation and GC scope annotations. "
+                        + "Should no have arguments. "
                         + "Should be void.",
-                className));
+                className, annotation));
         return this;
     }
 

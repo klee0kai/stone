@@ -3,6 +3,7 @@ package com.github.klee0kai.test_kotlin.di.base_forest
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.annotations.component.GcAllScope
 import com.github.klee0kai.stone.annotations.component.ProtectInjected
+import com.github.klee0kai.stone.annotations.component.RunGc
 import com.github.klee0kai.test.di.base_forest.IdentityModule
 import com.github.klee0kai.test.di.base_forest.UnitedModule
 import com.github.klee0kai.test_kotlin.mowgli.University
@@ -16,6 +17,7 @@ interface RainForestComponent {
 
     fun identity(): IdentityModule
 
+    @RunGc
     @GcAllScope
     fun gcAll()
 
