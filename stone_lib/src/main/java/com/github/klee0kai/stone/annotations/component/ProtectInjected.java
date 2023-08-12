@@ -7,7 +7,23 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * protect injected components in class.
+ * Protect provided objects from being destroyed by injection.
+ * When a dependency consumer class is re-created, cached objects may be garbage collected.
+ * This can be prevented by calling the deletion protection method.
+ * <pre>{@code
+ *    @Component
+ *     public interface AppComponent {
+ *
+ *
+ *         void inject(Activity activity);
+ *
+ *         @ProtectInjected
+ *         void protectInjected();
+ *
+ *     }
+ * }</pre>
+ * <p>
+ * Deletion protection changes object caching to strict. Objects cannot be deleted for some time.
  */
 
 @Retention(value = RetentionPolicy.CLASS)
@@ -15,7 +31,7 @@ import java.lang.annotation.Target;
 public @interface ProtectInjected {
 
     /**
-     * protect tim millis.
+     * protect time millis.
      * Default protect 5 sec.
      */
     long timeMillis() default 5000L;

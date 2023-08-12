@@ -7,9 +7,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declare scope for gc method.
+ * Annotation announcing new scopes for garbage collection and changing the caching method.
+ * Announce new scopes in the following way.
+ *
+ * <pre>{@code
+ *     @GcScopeAnnotation
+ *     @Retention(RUNTIME)
+ *     @Target(METHOD)
+ *     public @interface GcPlanetScope {
+ *     }
+ * }</pre>
+ * Instead of this annotation, you can use the more general {@link javax.inject.Scope}
+ * annotation.
+ *
+ * <pre>{@code
+ *     @Scope
+ *     @Retention(RUNTIME)
+ *     @Target(METHOD)
+ *     public @interface GcPlanetScope {
+ *     }
+ * }</pre>
  * <p>
- * The same behavior for {@link javax.inject.Scope}.
  * Not Follow {@link javax.inject.Scope} documentation.
  */
 
