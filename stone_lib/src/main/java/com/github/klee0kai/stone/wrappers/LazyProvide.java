@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.wrappers;
 
 /**
- * Providing an object with lazy rendering.
+ * Providing an object with lazy providing.
  * The object will be provided the first time it is used.
  * <pre>{@code
  *    ㅤ@Component

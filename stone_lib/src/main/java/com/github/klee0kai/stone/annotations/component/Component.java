@@ -103,7 +103,7 @@ import java.lang.annotation.Target;
  *     }
  * }</pre>
  * You can also use additional identifiers to provide a unique object instance.
- * The result can be wrapped in declared wrappers, for example, lazy rendering, and asynchronous rendering.
+ * The result can be wrapped in declared wrappers, for example, lazy providing, and asynchronous providing.
  *
  * <p>
  * <b>Bind Instances</b>
@@ -136,7 +136,7 @@ import java.lang.annotation.Target;
  * <p>
  * <b>Extension</b>
  * <p>
- * A bean can extend another bean with the `ExtendOf` annotation.
+ * A component can extend another component with the `ExtendOf` annotation.
  * When one component is extended by another, both begin to provide child component objects.
  * <p>
  * At the same time, object caching is temporarily preserved for the parent component.
@@ -216,7 +216,7 @@ public @interface Component {
 
     /**
      * The library allows you to provide objects in wrappers.
-     * Various wrappers allow, for example, to perform lazy or asynchronous rendering of objects,
+     * Various wrappers allow, for example, to perform lazy or asynchronous providingF of objects,
      * or not to keep cached objects in DI.
      * Wrapping also allows you to render several different objects into one list.
      * <p>
