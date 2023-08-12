@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Garbage collection in the selected osprey.
+ * Garbage collection in the selected scope.
  * We explicitly clean up unused objects in DI.
  * <p>
  * In fact, only those objects that are used and not held by anyone will be deleted.
