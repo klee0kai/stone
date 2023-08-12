@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 
 /**
  * Switch cache for scoped items.
- * Or injected items, if method have arguments.
  * <p>
  * Work one time. After reset cache, cache work in default mode.
  */
@@ -43,7 +42,6 @@ public @interface SwitchCache {
     /**
      * new cache type for providing items
      *
-     * @return
      */
     CacheType cache() default CacheType.Default;
 
@@ -51,7 +49,6 @@ public @interface SwitchCache {
      * Switch cache time duration.
      * After time cache restored to default.
      *
-     * @return
      */
     long timeMillis() default -1;
 

@@ -8,7 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * run garbage collector for soft references
+ * A standard library scope that lists all cached objects using soft references.
+ * Used for garbage collection and caching change methods.
  */
 
 @GcScopeAnnotation

@@ -8,7 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * run garbage collector for weak references
+ * A standard library scope that enumerates all cacheable objects using weak references.
+ * Used for garbage collection and caching change methods.
  */
 
 @GcScopeAnnotation
