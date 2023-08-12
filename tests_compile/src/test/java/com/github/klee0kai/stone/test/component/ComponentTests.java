@@ -57,7 +57,7 @@ public class ComponentTests {
         CompilationSubject.assertThat(compilation)
                 .hadErrorContainingMatch("What is purpose for Method 'gcAll'")
                 .inFile(file)
-                .onLine(14);
+                .onLine(13);
     }
 
 
