@@ -44,6 +44,22 @@ public class ComponentTests {
                 .onLine(7);
     }
 
+    @Test
+    void noRunGcTest() {
+        AnnotationProcessor annotationProcessor = new AnnotationProcessor();
+        JavaFileObject file = JavaFileObjects.forResource("component/NoRunGcError.java");
+        Compilation compilation = Compiler.javac()
+                .withProcessors(annotationProcessor)
+                .compile(file);
+
+        CompilationSubject.assertThat(compilation).failed();
+
+        CompilationSubject.assertThat(compilation)
+                .hadErrorContainingMatch("What is purpose for Method 'gcAll'")
+                .inFile(file)
+                .onLine(14);
+    }
+
 
     @Test
     void noWrapperCreatorTest() {
