@@ -78,7 +78,7 @@ public @interface BindInstance {
      * <li> Soft - caching objects with a soft link.
      * <li>Strong - caching objects with a strong link.</li>
      * </ul>
-     * p>
+     * <p>
      */
     BindInstance.CacheType cache() default BindInstance.CacheType.Soft;
 
