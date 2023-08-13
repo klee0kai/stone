@@ -32,33 +32,41 @@ public interface ExtPlanetRollingComponent extends PlanetRollingComponent {
     Moon moonWeak(Moon moon);
 
 
+    @RunGc
     @GcAllScope
     void gcAllExt();
 
+    @RunGc
     @GcStrongScope
     void gcStrongExt();
 
+    @RunGc
     @GcSoftScope
     void gcSoftExt();
 
+    @RunGc
     @GcWeakScope
     void gcWeakExt();
 
 
+    @RunGc
     @GcSoftScope
     @GcSunScope
     void gcSoftSunExt();
 
+    @RunGc
     @GcSoftScope
     @GcPlanetScope
     void gcSoftPlanetsExt();
 
 
+    @RunGc
     @GcSoftScope
     @GcSputnikScope
     void gcSoftSputniksExt();
 
 
+    @RunGc
     @GcSoftScope
     @GcSiriusScope
     void gcSoftSiriusExt();

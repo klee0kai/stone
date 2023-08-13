@@ -62,6 +62,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.addAnnotation(ProvideAnn.of(element.getAnnotation(Provide.class)));
         methodDetail.addAnnotation(BindInstanceAnn.of(element.getAnnotation(BindInstance.class)));
         methodDetail.addAnnotation(ProtectInjectedAnn.of(element.getAnnotation(ProtectInjected.class)));
+        methodDetail.addAnnotation(RunGcAnn.of(element.getAnnotation(RunGc.class)));
         methodDetail.addAnnotation(SwitchCacheAnn.of(element.getAnnotation(SwitchCache.class)));
         methodDetail.addAnnotation(InjectAnn.of(element.getAnnotation(Inject.class)));
         methodDetail.addAnnotation(SingletonAnn.of(element.getAnnotation(Singleton.class)));

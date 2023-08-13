@@ -156,12 +156,13 @@ import java.lang.annotation.Target;
  * <b>GC collect</b>
  * <p>
  * The library allows you to explicitly call garbage collection for cached objects.
- * To do this, you need to declare a method without arguments
- * and a return value with the annotation of one or more scopes.
+ * To do this, you need to declare a method without arguments and a return value
+ * with the @RunGc annotation and one or more scopes.
  * <pre>{@code
  *    ㅤ@Component
  *     public interface AppProComponent extends AppComponent {
  *
+ *        ㅤ@RunGc
  *        ㅤ@GcAllScope
  *         void gcAll();
  *

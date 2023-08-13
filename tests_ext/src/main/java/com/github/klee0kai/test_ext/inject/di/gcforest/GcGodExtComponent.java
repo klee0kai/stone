@@ -18,22 +18,28 @@ public abstract class GcGodExtComponent extends GcGodComponent implements IGcEar
     @Override
     public abstract GcEarthExtModule earth();
 
+    @RunGc
     @GcAllScope
     public abstract void gcAllExt();
 
+    @RunGc
     @GcStrongScope
     public abstract void gcStrongExt();
 
+    @RunGc
     @GcSoftScope
     public abstract void gcSoftExt();
 
+    @RunGc
     @GcWeakScope
     public abstract void gcWeakExt();
 
 
+    @RunGc
     @GcSunScope
     public abstract void gcSunExt();
 
+    @RunGc
     @GcPlanetScope
     public abstract void gcPlanetsExt();
 

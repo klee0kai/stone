@@ -31,23 +31,29 @@ public interface PlanetRollingComponent {
 
     IPlanet providePlanet();
 
+    @RunGc
     @GcAllScope
     void gcAll();
 
+    @RunGc
     @GcStrongScope
     void gcStrong();
 
+    @RunGc
     @GcSoftScope
     void gcSoft();
 
+    @RunGc
     @GcWeakScope
     void gcWeak();
 
 
+    @RunGc
     @GcSoftScope
     @GcSunScope
     void gcSoftSun();
 
+    @RunGc
     @GcSoftScope
     @GcPlanetScope
     void gcSoftPlanets();
