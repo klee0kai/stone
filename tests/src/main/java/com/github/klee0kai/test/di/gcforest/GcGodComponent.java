@@ -25,21 +25,27 @@ public abstract class GcGodComponent extends GcEarthComponent {
     public abstract void bind(Saturn saturn);
 
 
+    @RunGc
     @GcAllScope
     public abstract void gcAll();
 
+    @RunGc
     @GcStrongScope
     public abstract void gcStrong();
 
+    @RunGc
     @GcSoftScope
     public abstract void gcSoft();
 
+    @RunGc
     @GcWeakScope
     public abstract void gcWeak();
 
+    @RunGc
     @GcSunScope
     public abstract void gcSun();
 
+    @RunGc
     @GcPlanetScope
     public abstract void gcPlanets();
 

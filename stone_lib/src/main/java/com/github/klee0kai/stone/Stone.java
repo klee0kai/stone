@@ -4,6 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Stone {
 
+    /**
+     * Create a new Stone component
+     */
     public static <T> T createComponent(Class<T> component) {
         try {
             Class<?> gennedClass = Class.forName(component.getCanonicalName() + "StoneComponent");

@@ -8,7 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * run garbage collector for all elements
+ * A scope that defines all exposed objects in DI.
+ * Used for garbage collection and caching change methods.
  */
 
 @GcScopeAnnotation

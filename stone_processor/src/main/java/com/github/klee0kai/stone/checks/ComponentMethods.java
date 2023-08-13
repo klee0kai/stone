@@ -1,9 +1,6 @@
 package com.github.klee0kai.stone.checks;
 
-import com.github.klee0kai.stone.annotations.component.ExtendOf;
-import com.github.klee0kai.stone.annotations.component.Init;
-import com.github.klee0kai.stone.annotations.component.ProtectInjected;
-import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.StoneException;
@@ -139,11 +136,18 @@ public class ComponentMethods {
     }
 
     public static boolean isGcMethod(MethodDetail m) {
-        if (m.gcScopeAnnotations.isEmpty() || !m.hasOnlyAnnotations(true, false)) return false;
+        if (!m.hasAnyAnnotation(RunGcAnn.class)) return false;
+        if (m.gcScopeAnnotations.isEmpty() || !m.hasOnlyAnnotations(true, false, RunGcAnn.class))
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .componentGCMethodSignatureIncorrect(m.methodName, RunGc.class.getSimpleName())
+                            .build(),
+                    m.sourceEl
+            );
         if (m.returnType != TypeName.VOID) {
             throw new IncorrectSignatureException(
                     createErrorMes()
-                            .componentGCMethodSignatureIncorrect(m.methodName)
+                            .componentGCMethodSignatureIncorrect(m.methodName, RunGc.class.getSimpleName())
                             .build(),
                     m.sourceEl
             );
