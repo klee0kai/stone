@@ -24,8 +24,8 @@ Step 2. Add the dependency
 
 ``` groovy
 dependencies {
-    implementation 'com.github.klee0kai.stone:stone_lib:0.0.15'
-    annotationProcessor 'com.github.klee0kai.stone:stone_processor:0.0.15'
+    implementation 'com.github.klee0kai.stone:stone_lib:1.0.0'
+    annotationProcessor 'com.github.klee0kai.stone:stone_processor:1.0.0'
 }
 ```
 
