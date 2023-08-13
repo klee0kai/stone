@@ -18,8 +18,6 @@ public @interface WrappersCreator {
 
     /**
      * Custom Wrappers, can be provided
-     *
-     * @return
      */
     Class[] wrappers() default {};
 
