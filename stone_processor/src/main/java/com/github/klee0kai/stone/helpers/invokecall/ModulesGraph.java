@@ -13,6 +13,7 @@ import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
+import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
 import com.github.klee0kai.stone.model.annotations.QualifierAnn;
 import com.github.klee0kai.stone.utils.RecursiveDetector;
@@ -27,6 +28,7 @@ import java.util.*;
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
+import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_BIND_INSTANCE;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
@@ -56,7 +58,9 @@ public class ModulesGraph {
             if (iModuleInterface.findMethod(m, false) != null)
                 continue;
             boolean isCached = !m.hasAnnotations(ProvideAnn.class) || m.ann(ProvideAnn.class).isCachingProvideType();
+            boolean isBindInstance = m.hasAnnotations(BindInstanceAnn.class);
             int invokeProvideFlags = isCached ? INVOKE_PROVIDE_OBJECT_CACHED : 0;
+            invokeProvideFlags |= isBindInstance ? INVOKE_PROVIDE_BIND_INSTANCE : 0;
 
             provideTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
             provideTypeCodes.get(provTypeName).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
@@ -207,9 +211,9 @@ public class ModulesGraph {
                 );
             }
 
+            boolean isBindInstanceInvoke = (invokeCall.flags & INVOKE_PROVIDE_BIND_INSTANCE) != 0;
             List<ProvideDep> newDeps = ListUtils.filter(invokeCall.argDeps(), (i, it) -> {
-                if (Objects.equals(provideDep.typeName, it.typeName)
-                        && Objects.equals(rawDep.typeName, it.typeName)) {
+                if (isBindInstanceInvoke && Objects.equals(rawDep.typeName, it.typeName)) {
                     // bind instance case. Argument and return type are equals
                     return false;
                 }

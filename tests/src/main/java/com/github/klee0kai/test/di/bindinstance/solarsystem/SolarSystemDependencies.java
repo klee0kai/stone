@@ -4,13 +4,12 @@ import com.github.klee0kai.stone.wrappers.LazyProvide;
 import com.github.klee0kai.test.mowgli.galaxy.Earth;
 import com.github.klee0kai.test.mowgli.galaxy.Mercury;
 import com.github.klee0kai.test.mowgli.galaxy.Saturn;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
 
 public interface SolarSystemDependencies {
 
-    LazyProvide<Earth> earth(Sun sun);
+    LazyProvide<Earth> earth();
 
-    LazyProvide<Mercury> mercury(Sun sun);
+    LazyProvide<Mercury> mercury();
 
-    LazyProvide<Saturn> saturn(Sun sun);
+    LazyProvide<Saturn> saturn();
 }

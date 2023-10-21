@@ -33,6 +33,10 @@ public class InvokeCall {
      * Invoke sequence provides the object, which caching in DI.
      */
     public static final int INVOKE_PROVIDE_OBJECT_CACHED = 0x1;
+    /**
+     * ignore recursive providing for bind instances
+     */
+    public static final int INVOKE_PROVIDE_BIND_INSTANCE = 0x2;
 
     public final List<List<MethodDetail>> invokeSequenceVariants = new LinkedList<>();
     public final int flags;

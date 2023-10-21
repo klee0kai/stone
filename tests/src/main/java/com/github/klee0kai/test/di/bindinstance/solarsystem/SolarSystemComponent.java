@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.test.mowgli.galaxy.SolarSystem;
 
 @Component
-interface SolarSystemComponent extends SolarSystemDependencies {
+public interface SolarSystemComponent extends SolarSystemDependencies {
 
     PlanetModule planets();
 
