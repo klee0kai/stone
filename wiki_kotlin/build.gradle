@@ -3,11 +3,6 @@ plugins {
     id "org.jetbrains.kotlin.kapt" version "1.7.21"
 }
 
-test {
-    useJUnitPlatform()
-}
-
-
 compileKotlin {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11
 }
