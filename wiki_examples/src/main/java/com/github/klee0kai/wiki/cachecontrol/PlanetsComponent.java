@@ -1,9 +1,6 @@
 package com.github.klee0kai.wiki.cachecontrol;
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.component.GcSoftScope;
-import com.github.klee0kai.stone.annotations.component.ProtectInjected;
-import com.github.klee0kai.stone.annotations.component.SwitchCache;
+import com.github.klee0kai.stone.annotations.component.*;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
 import com.github.klee0kai.test.mowgli.galaxy.Sun;
@@ -13,9 +10,11 @@ public interface PlanetsComponent {
 
     PlanetsModule sunModule();
 
+    @RunGc
     @GcMercuryScope
     void gcMercury();
 
+    @RunGc
     @GcSoftScope
     @GcMercuryScope
     void gcSoftMercury();
