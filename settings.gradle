@@ -20,6 +20,8 @@ include 'stone_processor'
 include 'android_lib'
 include 'kotlin_lib'
 
+include 'wiki_java'
+include 'wiki_kotlin'
 include 'tests'
 include 'tests_ext'
 include 'tests_kotlin'
