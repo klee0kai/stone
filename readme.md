@@ -39,7 +39,7 @@ dependencies {
 
 Simple usage boils down to declaring a grant object
 
-```
+```kotlin
 @Module
 abstract class PlanetsModule {
 
