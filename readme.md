@@ -8,7 +8,7 @@ A DI library designed for jvm programs, working on the basis of various types of
 The main goal of the library is to decouple DI from the need to work with the life cycles of application components,
 transfer the work of the life cycle to the components themselves from the life cycle
 
-Read more about the idealogy solution on [wiki](https://github.com/klee0kai/stone/wiki)
+Read more about the  solution ideology [wiki](https://github.com/klee0kai/stone/wiki)
 
 ## Quick start
 
