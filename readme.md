@@ -4,6 +4,11 @@
 [![](https://img.shields.io/badge/license-GNU_GPLv3-blue.svg?style=flat-square)](./LICENCE.md)
 [![](https://jitpack.io/v/klee0kai/stone.svg)](https://jitpack.io/#klee0kai/stone)
 
+
+[![](https://img.shields.io/badge/Platform-Android-brightgreen)]()
+[![](https://img.shields.io/badge/Platform-java-orange)]()
+[![](https://img.shields.io/badge/Platform-Kotlin-blue)]()
+
 A DI library designed for jvm programs, working on the basis of various types of links: weak, soft, strong.
 The main goal of the library is to decouple DI from the need to work with the life cycles of application components,
 transfer the work of the life cycle to the components themselves from the life cycle
@@ -39,7 +44,7 @@ dependencies {
 
 Simple usage boils down to declaring a grant object
 
-```
+```kotlin
 @Module
 abstract class PlanetsModule {
 
@@ -102,8 +107,18 @@ And blurred scopes ensure that instances are properly cleaned as they are releas
 ### Gradual warm-up
 
 The library supports the use of provider wrappers.
-This allows you to lazily initialize class instances, or on the 2nd thread.
-You can also implement your own wrapper to work through kotlin delegates, or to implement initialization in coroutine scopes.
+This allows you to lazily initialize class instances or use the 2nd thread to do this.
+You can also implement your own wrapper to work through kotlin delegates
+or to implement initialization in coroutine scopes.
+
+
+## Find this library useful? :heart:
+Support it by joining __[stargazers](https://github.com/klee0kai/stone/stargazers)__ for this repository. :star: <br>
+Also, __[follow me](https://github.com/klee0kai)__ on GitHub for more libraries! 🤩
+
+You can always
+<a href="https://www.buymeacoffee.com/kee0kai"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=kee0kai&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
+
 
 ## License
 
