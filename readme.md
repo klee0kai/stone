@@ -111,14 +111,15 @@ This allows you to lazily initialize class instances or use the 2nd thread to do
 You can also implement your own wrapper to work through kotlin delegates
 or to implement initialization in coroutine scopes.
 
+## Documentation 
 
-## Find this library useful? :heart:
+Documentation with examples
+ - [Kotlin](https://github.com/klee0kai/stone/wiki/kotlin_start)
+ - [Java](https://github.com/klee0kai/stone/wiki/java_start)
+
+## Find this library useful? 
 Support it by joining __[stargazers](https://github.com/klee0kai/stone/stargazers)__ for this repository. :star: <br>
-Also, __[follow me](https://github.com/klee0kai)__ on GitHub for more libraries! 🤩
-
-You can always
-<a href="https://www.buymeacoffee.com/kee0kai"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=kee0kai&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" /></a>
-
+Also, __[follow me](https://github.com/klee0kai)__ on GitHub for more libraries!
 
 ## License
 
