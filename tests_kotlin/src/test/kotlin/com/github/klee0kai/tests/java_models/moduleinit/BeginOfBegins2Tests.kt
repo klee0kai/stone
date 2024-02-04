@@ -2,11 +2,13 @@ package com.github.klee0kai.tests.java_models.moduleinit
 
 import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.test.di.base_forest.ForestComponent
+import com.github.klee0kai.test.di.base_forest.UnitedBlueModule
 import com.github.klee0kai.test.di.base_forest.UnitedModule
 import com.github.klee0kai.test.mowgli.community.History
 import com.github.klee0kai.test.mowgli.galaxy.Earth
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.awt.Color
 
 class BeginOfBegins2Tests {
     @Test
@@ -42,8 +44,20 @@ class BeginOfBegins2Tests {
         assertEquals(earth, DI.united().earth())
     }
 
+    @Test
+    fun initByAbstractFactoryClass() {
+        //Given
+        val DI = Stone.createComponent(ForestComponent::class.java)
+
+        //When
+        DI.initUnitedModule(UnitedBlueModule::class.java)
+
+        //Then
+        assertEquals(Color.BLUE, DI.united().blood().color)
+    }
+
     class UnitedModuleFactory : UnitedModule() {
-        override fun earth(): Earth? {
+        override fun earth(): Earth {
             return earth
         }
 
