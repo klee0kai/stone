@@ -8,6 +8,13 @@ import com.squareup.javapoet.TypeName;
  */
 public class StoneNamingUtils {
 
+    public static String COMPONENT_NAME_SUFFIX = "StoneComponent";
+    public static String FACTORY_NAME_SUFFIX = "_FStone";
+    public static String MODULE_NAME_SUFFIX = "_MStone";
+    public static String CACHE_CONTROL_NAME_SUFFIX = "_CCMStone";
+    public static String HIDDEN_MODULE_NAME_SUFFIX = "_HMStone";
+    public static String TYPE_WRAPPER_NAME_SUFFIX = "_TWStone";
+
     /**
      * Component's class name creator
      *
@@ -17,7 +24,7 @@ public class StoneNamingUtils {
     public static ClassName genComponentNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "StoneComponent");
+        return ClassName.get(origin.packageName(), origin.simpleName() + COMPONENT_NAME_SUFFIX);
     }
 
     /**
@@ -29,7 +36,7 @@ public class StoneNamingUtils {
     public static ClassName genFactoryNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "_FStone");
+        return ClassName.get(origin.packageName(), origin.simpleName() + FACTORY_NAME_SUFFIX);
     }
 
 
@@ -42,7 +49,7 @@ public class StoneNamingUtils {
     public static ClassName genModuleNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "_MStone");
+        return ClassName.get(origin.packageName(), origin.simpleName() + MODULE_NAME_SUFFIX);
     }
 
 
@@ -55,7 +62,7 @@ public class StoneNamingUtils {
     public static ClassName genCacheControlInterfaceModuleNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), "I" + origin.simpleName() + "_CCMStone");
+        return ClassName.get(origin.packageName(), origin.simpleName() + CACHE_CONTROL_NAME_SUFFIX);
     }
 
     /**
@@ -67,14 +74,14 @@ public class StoneNamingUtils {
     public static ClassName genHiddenModuleNameMirror(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "_HMStone");
+        return ClassName.get(origin.packageName(), origin.simpleName() + HIDDEN_MODULE_NAME_SUFFIX);
     }
 
 
     public static ClassName typeWrappersClass(TypeName or) {
         if (!(or instanceof ClassName)) return null;
         ClassName origin = (ClassName) or;
-        return ClassName.get(origin.packageName(), origin.simpleName() + "_TWStone");
+        return ClassName.get(origin.packageName(), origin.simpleName() + TYPE_WRAPPER_NAME_SUFFIX);
     }
 
 }

@@ -19,6 +19,7 @@ import com.github.klee0kai.stone.model.annotations.BindInstanceAnn;
 import com.github.klee0kai.stone.model.annotations.ModuleAnn;
 import com.github.klee0kai.stone.model.annotations.ProvideAnn;
 import com.github.klee0kai.stone.utils.CodeFileUtil;
+import com.github.klee0kai.stone.utils.StoneNamingUtils;
 import com.github.klee0kai.stone.wrappers.Ref;
 import com.squareup.javapoet.*;
 
@@ -206,7 +207,7 @@ public class ModuleBuilder {
                     .beginControlFlow("else if (or instanceof Class<?> &&  $T.class.isAssignableFrom((Class<?>) or))", orModuleCl.className)
                     .beginControlFlow("try")
                     .addComment("looking for generated factory for module class")
-                    .addStatement("Class<?> gennedClass = Class.forName(((Class) or).getCanonicalName() + \"StoneFactory\")")
+                    .addStatement("Class<?> gennedClass = Class.forName(((Class) or).getCanonicalName() + \"" + StoneNamingUtils.FACTORY_NAME_SUFFIX + "\")")
                     .addStatement("$L = ($T) gennedClass.getConstructors()[0].newInstance()", factoryFieldName, orModuleCl.className)
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow()
