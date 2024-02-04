@@ -5,20 +5,6 @@ on:
     types: [ opened, synchronize, reopened ]
 
 jobs:
-  wf_meta:
-    name: Workflow Metadata
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Github Object
-        continue-on-error: true
-        run: echo ${{ toJSON(github) }} > github.json
-      - name: Upload Meta artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: wf-meta
-          path: |
-            github.json 
-
   tests:
     strategy:
       matrix:
