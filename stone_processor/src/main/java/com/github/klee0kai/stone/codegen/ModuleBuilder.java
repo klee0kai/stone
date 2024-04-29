@@ -251,6 +251,7 @@ public class ModuleBuilder {
 
         collectRuns.add(() -> {
             if (orModuleCl != null) for (ClassDetail cl : orModuleCl.getAllParents(false)) {
+                if (!cl.hasAnyAnnotation(ModuleAnn.class)) continue;
                 ClassName cacheControlInterfaceCl = genCacheControlInterfaceModuleNameMirror(cl.className);
                 builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterfaceCl)
                         .addStatement("$T module = ($T) m", cacheControlInterfaceCl, cacheControlInterfaceCl);
@@ -293,6 +294,7 @@ public class ModuleBuilder {
 
         collectRuns.add(() -> {
             if (orModuleCl != null) for (ClassDetail cl : orModuleCl.getAllParents(false)) {
+                if (!cl.hasAnyAnnotation(ModuleAnn.class)) continue;
                 ClassName cacheControlInterfaceCl = genCacheControlInterfaceModuleNameMirror(cl.className);
                 builder.beginControlFlow("if ( m instanceof $T )", cacheControlInterfaceCl)
                         .addStatement("$T module = ($T) m", cacheControlInterfaceCl, cacheControlInterfaceCl);

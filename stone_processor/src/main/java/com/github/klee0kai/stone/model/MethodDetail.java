@@ -266,13 +266,11 @@ public class MethodDetail implements Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         MethodDetail that = (MethodDetail) o;
         return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType)
-                && Objects.equals(modifiers, that.modifiers) && elementKind == that.elementKind
-                && Objects.equals(args, that.args) && Objects.equals(annotations, that.annotations)
-                && Objects.equals(gcScopeAnnotations, that.gcScopeAnnotations);
+                && Objects.equals(args, that.args) ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(methodName, returnType, modifiers, elementKind, args, annotations, gcScopeAnnotations);
+        return Objects.hash(methodName, returnType, args);
     }
 }

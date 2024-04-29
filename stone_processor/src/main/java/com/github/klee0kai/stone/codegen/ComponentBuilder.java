@@ -81,7 +81,6 @@ public class ComponentBuilder {
         ComponentBuilder componentBuilder = new ComponentBuilder(component, genComponentNameMirror(component.className))
                 .implementIComponentMethods();
 
-
         for (MethodDetail m : component.getAllMethods(false, false, "<init>")) {
             if (allClassesHelper.iComponentClassDetails.findMethod(m, false) != null)
                 continue;
@@ -143,7 +142,6 @@ public class ComponentBuilder {
                         .initializer("false")
         );
 
-
         // IComponent
         initMethod(true);
         initDependenciesMethod(true);
@@ -154,7 +152,6 @@ public class ComponentBuilder {
         eachModuleMethod(true);
         return this;
     }
-
 
     public ComponentBuilder timeHolderFields() {
         if (!fields.containsKey(scheduleGlFieldName))
