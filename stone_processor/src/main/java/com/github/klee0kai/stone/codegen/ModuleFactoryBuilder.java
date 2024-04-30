@@ -38,14 +38,27 @@ public class ModuleFactoryBuilder {
     public static ModuleFactoryBuilder fromModule(ClassDetail module) {
         ModuleFactoryBuilder builder = new ModuleFactoryBuilder(module);
         builder.needBuild = module.isAbstractClass() || module.isInterfaceClass();
+        ClassDetail defaultImpl = allClassesHelper.tryFindForType(((ClassName) module.className).nestedClass("DefaultImpls"));
         if (builder.needBuild) {
             builder.className = genFactoryNameMirror(module.className);
             for (MethodDetail m : module.getAllMethods(false, false, "<init>")) {
                 if (!m.isAbstract() && !module.isInterfaceClass())
                     continue;
+                boolean processed = false;
                 if (m.hasAnnotations(BindInstanceAnn.class)) {
                     builder.provideNullMethod(m);
-                } else {
+                    processed = true;
+                }
+                if (!processed && defaultImpl != null) {
+                    MethodDetail defProvideMethod = MethodDetail.simpleName(m.methodName);
+                    defProvideMethod.args.add(FieldDetail.simple("thhhis", module.className));
+                    defProvideMethod.args.addAll(m.args);
+                    if (defaultImpl.findMethod(defProvideMethod, false) != null) {
+                        builder.provideMethodFrom(m, defaultImpl);
+                        processed = true;
+                    }
+                }
+                if (!processed) {
                     builder.provideMethod(m);
                 }
             }
@@ -58,6 +71,32 @@ public class ModuleFactoryBuilder {
         this.className = (ClassName) orFactory.className;
     }
 
+    public ModuleFactoryBuilder provideMethodFrom(MethodDetail m, ClassDetail defaultImpl) {
+        ClassDetail providingClass = allClassesHelper.findForType(nonWrappedType(m.returnType));
+        MethodSpec.Builder builder = methodBuilder(m.methodName)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .returns(m.returnType);
+        for (FieldDetail p : m.args)
+            builder.addParameter(p.type, p.name);
+
+        String argStr = m.args == null ? "" : String.join("", ListUtils.format(m.args, (it) -> ", " + it.name));
+        SmartCode genCode = SmartCode.builder()
+                .add(CodeBlock.of("$T.$L( null $L )", defaultImpl.className, m.methodName, argStr))
+                .providingType(providingClass.className);
+
+        builder.addCode(
+                SmartCode.builder()
+                        .add("return ")
+                        .add(WrapHelper.transform(genCode, m.returnType))
+                        .add(";\n")
+                        .build(m.args)
+        );
+
+
+        provideMethodBuilders.add(builder);
+        return this;
+    }
 
     public ModuleFactoryBuilder provideMethod(MethodDetail m) {
         ClassDetail providingClass = allClassesHelper.findForType(nonWrappedType(m.returnType));
