@@ -78,6 +78,7 @@ public class ComponentChecks {
     private static void checkNoModuleDoubles(ClassDetail cl) {
         Set<TypeName> modules = new HashSet<>();
         for (MethodDetail m : cl.getAllMethods(false, true)) {
+            if (m.hasAnyAnnotation(ModuleOriginFactoryAnn.class)) continue;
             ClassDetail module = allClassesHelper.findForType(m.returnType);
             if (module != null && module.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class)) {
                 if (modules.contains(m.returnType)) {
