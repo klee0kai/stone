@@ -20,10 +20,34 @@ import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.create
 
 public class ComponentMethods {
 
+    public static boolean isModuleFactoryProvideMethod(MethodDetail m) {
+        boolean isProvideMethod = isProvideMethodSimple(m);
+        ClassDetail providingClDetails = isProvideMethod ? allClassesHelper.findForType(m.returnType) : null;
+        if (providingClDetails == null
+                || !providingClDetails.hasAnnotations(ModuleAnn.class)
+                || !m.hasAnyAnnotation(ModuleOriginFactoryAnn.class))
+            return false;
+        if (!m.args.isEmpty() || !m.hasOnlyAnnotations(false, false, ModuleOriginFactoryAnn.class)) {
+            throw new IncorrectSignatureException(
+                    createErrorMes()
+                            .method(m.methodName)
+                            .add("should no have arguments and annotations.")
+                            .build(),
+                    m.sourceEl
+            );
+        }
+        ModuleChecks.checkModuleClass(providingClDetails);
+        checkMethodBusy(m);
+
+        return m.args.isEmpty();
+    }
+
     public static boolean isModuleProvideMethod(MethodDetail m) {
         boolean isProvideMethod = isProvideMethod(m);
         ClassDetail providingClDetails = isProvideMethod ? allClassesHelper.findForType(m.returnType) : null;
-        if (providingClDetails == null || !providingClDetails.hasAnnotations(ModuleAnn.class))
+        if (providingClDetails == null
+                || !providingClDetails.hasAnnotations(ModuleAnn.class)
+                || m.hasAnyAnnotation(ModuleOriginFactoryAnn.class))
             return false;
         if (!m.args.isEmpty() || !m.annotations.isEmpty()) {
             throw new IncorrectSignatureException(
@@ -203,6 +227,12 @@ public class ComponentMethods {
                 && !m.returnType.isBoxedPrimitive()
                 && m.returnType != TypeName.VOID
                 && m.hasOnlyAnnotations(false, true);
+    }
+
+    private static boolean isProvideMethodSimple(MethodDetail m) {
+        return !m.returnType.isPrimitive()
+                && !m.returnType.isBoxedPrimitive()
+                && m.returnType != TypeName.VOID;
     }
 
 
