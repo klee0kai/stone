@@ -111,6 +111,14 @@ public class ExceptionStringBuilder {
         return this;
     }
 
+    public ExceptionStringBuilder errorProvideModuleFactoryRequiredIn(String providingTypeName, String className, String method) {
+        if (sb.length() > 0) sb.append(" ");
+        sb.append(String.format(Locale.ROOT,
+                "Error provide module %s. Required in %s.%s",
+                providingTypeName, className, method));
+        return this;
+    }
+
     public ExceptionStringBuilder errorProvideTypeRequiredIn(String providingTypeName, String className, String method) {
         if (sb.length() > 0) sb.append(" ");
         sb.append(String.format(Locale.ROOT,

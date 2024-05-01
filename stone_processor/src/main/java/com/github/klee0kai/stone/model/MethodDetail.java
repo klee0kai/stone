@@ -66,6 +66,7 @@ public class MethodDetail implements Cloneable {
         methodDetail.addAnnotation(SwitchCacheAnn.of(element.getAnnotation(SwitchCache.class)));
         methodDetail.addAnnotation(InjectAnn.of(element.getAnnotation(Inject.class)));
         methodDetail.addAnnotation(SingletonAnn.of(element.getAnnotation(Singleton.class)));
+        methodDetail.addAnnotation(ModuleOriginFactoryAnn.of(element.getAnnotation(ModuleOriginFactory.class)));
 
         List<Class<? extends Annotation>> scClasses = Arrays.asList(GcAllScope.class, GcWeakScope.class, GcSoftScope.class, GcStrongScope.class);
         for (Class<? extends Annotation> sc : scClasses)
@@ -266,7 +267,7 @@ public class MethodDetail implements Cloneable {
         if (o == null || getClass() != o.getClass()) return false;
         MethodDetail that = (MethodDetail) o;
         return Objects.equals(methodName, that.methodName) && Objects.equals(returnType, that.returnType)
-                && Objects.equals(args, that.args) ;
+                && Objects.equals(args, that.args);
     }
 
     @Override

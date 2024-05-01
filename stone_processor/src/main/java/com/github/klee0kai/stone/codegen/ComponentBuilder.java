@@ -64,8 +64,10 @@ public class ComponentBuilder {
 
     // ---------------------- provide fields and method  ----------------------------------
     public final HashMap<String, FieldSpec.Builder> modulesFields = new HashMap<>();
+    public final HashMap<TypeName, String> modulesFieldsTypes = new HashMap<>();
     public final HashMap<String, FieldSpec.Builder> depsFields = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> modulesMethods = new HashMap<>();
+    public final HashMap<String, MethodSpec.Builder> moduleFactoriesMethods = new HashMap<>();
     public final HashMap<String, MethodSpec.Builder> depsMethods = new HashMap<>();
     public final List<MethodSpec.Builder> provideObjMethods = new LinkedList<>();
     public final List<MethodSpec.Builder> bindInstanceMethods = new LinkedList<>();
@@ -88,6 +90,9 @@ public class ComponentBuilder {
             if (isModuleProvideMethod(m)) {
                 ClassDetail moduleCl = allClassesHelper.findForType(m.returnType);
                 componentBuilder.provideModuleMethod(m.methodName, moduleCl);
+            } else if (isModuleFactoryProvideMethod(m)) {
+                ClassDetail moduleCl = allClassesHelper.findForType(m.returnType);
+                componentBuilder.provideModuleFactoryMethod(m, moduleCl);
             } else if (isDepsProvide(m)) {
                 ClassDetail dependencyCl = allClassesHelper.findForType(m.returnType);
                 componentBuilder.provideDependenciesMethod(m.methodName, dependencyCl);
@@ -194,7 +199,6 @@ public class ComponentBuilder {
                         .endControlFlow());
         return this;
     }
-
 
     public ComponentBuilder initDependenciesMethod(boolean override) {
         MethodSpec.Builder builder = methodBuilder(initDepsMethodName)
@@ -372,10 +376,10 @@ public class ComponentBuilder {
         return this;
     }
 
-
     public ComponentBuilder provideModuleMethod(String name, ClassDetail module) {
         ClassName moduleStoneMirror = genModuleNameMirror(module.className);
         modulesFields.put(name, FieldSpec.builder(moduleStoneMirror, name, Modifier.PRIVATE).initializer("new $T()", moduleStoneMirror));
+        modulesFieldsTypes.putIfAbsent(module.className, name);
         MethodSpec.Builder builder = methodBuilder(name)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
@@ -384,6 +388,35 @@ public class ComponentBuilder {
         modulesMethods.put(name, builder);
 
         bindModuleCode.addStatement("this.$L.bind(ob)", name);
+        return this;
+    }
+
+    public ComponentBuilder provideModuleFactoryMethod(MethodDetail m, ClassDetail module) {
+        collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
+            if (!modulesFieldsTypes.containsKey(module.className)) {
+                throw new ObjectNotProvidedException(
+                        createErrorMes()
+                                .errorProvideModuleFactoryRequiredIn(
+                                        m.returnType.toString(),
+                                        orComponentCl.className.toString(),
+                                        m.methodName
+                                )
+                                .build(),
+                        m.sourceEl
+                );
+            }
+
+            MethodSpec.Builder builder = methodBuilder(m.methodName)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(module.className)
+                    .addStatement("return ( ( $T ) this.$L.$L() )", m.returnType,
+                            modulesFieldsTypes.get(module.className),
+                            ModuleBuilder.getFactoryMethodName
+                    );
+            moduleFactoriesMethods.put(m.methodName, builder);
+
+        });
         return this;
     }
 
@@ -681,7 +714,6 @@ public class ComponentBuilder {
         return this;
     }
 
-
     public ComponentBuilder switchRefMethod(MethodDetail m) {
         CodeBlock.Builder scopesCode = CodeBlock.builder();
         int inx = 0;
@@ -752,6 +784,7 @@ public class ComponentBuilder {
         methodBuilders.addAll(iComponentMethods);
         methodBuilders.addAll(depsMethods.values());
         methodBuilders.addAll(modulesMethods.values());
+        methodBuilders.addAll(moduleFactoriesMethods.values());
         methodBuilders.addAll(provideObjMethods);
         methodBuilders.addAll(bindInstanceMethods);
         methodBuilders.addAll(injectMethods);
