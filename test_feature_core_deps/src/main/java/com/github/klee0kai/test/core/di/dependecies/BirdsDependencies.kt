@@ -2,6 +2,7 @@ package com.github.klee0kai.test.core.di.dependecies
 
 import com.github.klee0kai.stone.wrappers.AsyncProvide
 import com.github.klee0kai.test.core.birds.*
+import com.github.klee0kai.test.core.di.wrapper.CustomStoneProvide
 
 interface BirdsDependencies {
 
@@ -13,8 +14,8 @@ interface BirdsDependencies {
 
     fun pigeon(): AsyncProvide<Pigeon>
 
-    fun sparrow(): AsyncProvide<Sparrow>
+    fun sparrow(): CustomStoneProvide<Sparrow>
 
-    fun turkey(): AsyncProvide<Turkey>
+    fun turkey(): CustomStoneProvide<Turkey>
 
 }

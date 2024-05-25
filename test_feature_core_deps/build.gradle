@@ -1,15 +1,8 @@
 plugins {
-    id 'java'
+    id "org.jetbrains.kotlin.jvm" version '1.7.0'
+    id "org.jetbrains.kotlin.kapt" version "1.7.21"
 }
 
-dependencies {
-    implementation project(":stone_lib")
-    annotationProcessor project(":stone_processor")
-
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
-}
 
 test {
     useJUnitPlatform()
@@ -18,4 +11,14 @@ test {
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+}
+
+
+dependencies {
+    implementation(project(":kotlin_lib"))
+    kapt(project(":stone_processor"))
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.0-M2'
 }

@@ -10,7 +10,6 @@ interface CarInjectComponent {
 
     CarInjectModule module();
 
-
 }
 
 
