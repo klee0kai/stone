@@ -18,7 +18,7 @@ class Feature1Tests {
         featureDI.initCoreDependencies(coreDI)
 
         // Then
-        assertNotNull(featureDI.fir())
+        assertNotNull(featureDI.fir().get())
     }
 
 }
