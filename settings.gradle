@@ -35,4 +35,5 @@ include ':test_feature:planning:api'
 include ':test_feature:planning:impl'
 include ':test_feature:finance:api'
 include ':test_feature:finance:impl'
+include ':test_feature_core_deps'
 

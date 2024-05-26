@@ -188,6 +188,7 @@ public class ModuleBuilder {
                 .addAnnotation(Override.class)
                 .returns(boolean.class)
                 .addParameter(Object.class, "or")
+                .addStatement("if (or == this) return false; ")
                 .addStatement("boolean $L = false", appliedLocalFieldName);
 
         if (orModuleCl != null) {

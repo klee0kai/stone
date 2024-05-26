@@ -15,8 +15,7 @@ import javax.lang.model.element.Modifier;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.asyncWrapperClName;
-import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.wrapperClName;
+import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
 public class WrappersSupportBuilder {
@@ -25,7 +24,6 @@ public class WrappersSupportBuilder {
 
     public static final String provideWrappersGlFieldPrefixName = "__wrapperCreator";
     public final LinkedList<WrapperCreatorField> wrapperCreatorFields = new LinkedList<>();
-
 
     public WrappersSupportBuilder(ClassName className) {
         this.className = className;
@@ -40,12 +38,14 @@ public class WrappersSupportBuilder {
                         .initializer("new $T()", provideWrappersCl.className)
         ));
 
-
         boolean isSimpleWrapper = ListUtils.first(provideWrappersCl.getAllParents(false),
                 (i, it) -> Objects.equals(it.className, wrapperClName)) != null;
 
         boolean isAsyncWrapper = ListUtils.first(provideWrappersCl.getAllParents(false),
                 (i, it) -> Objects.equals(it.className, asyncWrapperClName)) != null;
+
+        boolean isCycleWrapper = ListUtils.first(provideWrappersCl.getAllParents(false),
+                (i, it) -> Objects.equals(it.className, circleWrapperClName)) != null;
 
         for (ClassName wrapper : provideWrappersCl.ann(WrapperCreatorsAnn.class).wrappers) {
             WrapType wrapType = new WrapType();
@@ -58,7 +58,7 @@ public class WrappersSupportBuilder {
                     builder.add(CodeBlock.of("$T.$L.wrap( $T.class , ", className, name, wrapper))
                             .add(or)
                             .add(")");
-                } else if (isAsyncWrapper) {
+                } else if (isAsyncWrapper || isCycleWrapper) {
                     builder.add(CodeBlock.of("$T.$L.wrap( $T.class , () -> ", className, name, wrapper))
                             .add(or)
                             .add(")");
@@ -72,9 +72,21 @@ public class WrappersSupportBuilder {
                 return builder;
             };
             wrapType.unwrap = or -> {
-                throw new IncorrectSignatureException(createErrorMes()
-                        .typeTransformNonSupport(or.providingType, wrapper)
-                        .build());
+                SmartCode builder = SmartCode.builder();
+                TypeName paramType = WrapHelper.paramType(or.providingType);
+                if (isCycleWrapper) {
+
+                    builder.add(CodeBlock.of("$T.$L.unwrap( $T.class , $T.class, ", className, name, wrapper, paramType))
+                            .add(or)
+                            .add(")")
+                            .providingType(paramType);
+                } else {
+                    throw new IncorrectSignatureException(createErrorMes()
+                            .typeTransformNonSupport(or.providingType, wrapper)
+                            .build());
+                }
+
+                return builder;
             };
 
             WrapHelper.support(wrapType);
