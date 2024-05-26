@@ -111,9 +111,9 @@ public class ClassDetail implements Cloneable {
             return Collections.emptyList();
         LinkedList<MethodDetail> allMethods = new LinkedList<>(this.methods);
         if (superClass != null)
-            allMethods.addAll(superClass.getAllMethods(includeObjectMethods, false));
+            allMethods.addAll(superClass.getAllMethods(includeObjectMethods, allowDoubles));
         if (interfaces != null) for (ClassDetail interf : interfaces)
-            allMethods.addAll(interf.getAllMethods(includeObjectMethods, false));
+            allMethods.addAll(interf.getAllMethods(includeObjectMethods, allowDoubles));
 
         LinkedList<MethodDetail> outMethods = new LinkedList<>();
         for (MethodDetail m : allMethods) {

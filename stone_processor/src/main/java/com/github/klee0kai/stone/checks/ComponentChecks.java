@@ -76,24 +76,30 @@ public class ComponentChecks {
     }
 
     private static void checkNoModuleDoubles(ClassDetail cl) {
-        Set<TypeName> modules = new HashSet<>();
+        Set<MethodDetail> moduleProvideMethods = new HashSet<>();
         for (MethodDetail m : cl.getAllMethods(false, true)) {
             if (m.hasAnyAnnotation(ModuleOriginFactoryAnn.class)) continue;
             ClassDetail module = allClassesHelper.findForType(m.returnType);
             if (module != null && module.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class)) {
-                if (modules.contains(m.returnType)) {
-                    throw new IncorrectSignatureException(
-                            createErrorMes()
-                                    .componentsClass(cl.className.toString())
-                                    .shouldHaveOnlySingleModuleMethod(((ClassName) m.returnType).simpleName())
-                                    .build(),
-                            m.sourceEl
-                    );
+                for (MethodDetail moduleMethod : moduleProvideMethods) {
+                    if (moduleMethod.isSameMethod(m)) {
+                        // overrided method
+                        break;
+                    }
+                    if (moduleMethod.returnType.equals(m.returnType)) {
+                        throw new IncorrectSignatureException(
+                                createErrorMes()
+                                        .componentsClass(cl.className.toString())
+                                        .shouldHaveOnlySingleModuleMethod(((ClassName) m.returnType).simpleName())
+                                        .build(),
+                                m.sourceEl
+                        );
+                    }
                 }
 
                 for (ClassDetail ignored : module.getAllParents(false)) {
                     if (module.hasAnyAnnotation(ModuleAnn.class, DependenciesAnn.class))
-                        modules.add(m.returnType);
+                        moduleProvideMethods.add(m);
                 }
             }
         }

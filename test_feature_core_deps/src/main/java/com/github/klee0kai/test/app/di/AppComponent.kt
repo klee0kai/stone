@@ -12,7 +12,9 @@ import com.github.klee0kai.test.core.di.wrapper.CustomWrappersStone
         CustomWrappersStone::class,
     ],
 )
-interface AppComponent : CoreComponent, AppComponentModules, AppDependencyProvider {
+// TODO https://github.com/klee0kai/stone/issues/116
+//  make the use of interfaces position independent
+interface AppComponent : AppComponentModules, AppDependencyProvider, CoreComponent {
 
     @ExtendOf
     fun ext(core: CoreComponent)
