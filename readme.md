@@ -37,8 +37,8 @@ In the project module, import dependencies
 ```kotlin
 dependencies {
     // stone
-    implementation("com.github.klee0kai.stone:stone_lib:1.0.6")
-    kapt("com.github.klee0kai.stone:stone_processor:1.0.6")
+    implementation("com.github.klee0kai.stone:stone_lib:1.0.7")
+    kapt("com.github.klee0kai.stone:stone_processor:1.0.7")
 }
 ```
 
