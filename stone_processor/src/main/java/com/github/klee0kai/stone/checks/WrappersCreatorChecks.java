@@ -5,6 +5,7 @@ import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.*;
+import com.github.klee0kai.stone.wrappers.creators.CircleWrapper;
 import com.github.klee0kai.stone.wrappers.creators.ProviderWrapper;
 import com.github.klee0kai.stone.wrappers.creators.Wrapper;
 import com.squareup.javapoet.ClassName;
@@ -23,6 +24,7 @@ public class WrappersCreatorChecks {
 
     public static final ClassName wrapperClName = ClassName.get(Wrapper.class);
     public static final ClassName asyncWrapperClName = ClassName.get(ProviderWrapper.class);
+    public static final ClassName circleWrapperClName = ClassName.get(CircleWrapper.class);
 
     public static void checkWrapperClass(ClassDetail cl) {
         try {
@@ -54,7 +56,7 @@ public class WrappersCreatorChecks {
     }
 
     private static void checkWrapperCreatorInterface(ClassDetail cl) {
-        List<TypeName> wrapperClasses = Arrays.asList(wrapperClName, asyncWrapperClName);
+        List<TypeName> wrapperClasses = Arrays.asList(wrapperClName, asyncWrapperClName, circleWrapperClName);
         boolean isWrapperCreatorInterface = false;
         for (ClassDetail p : cl.getAllParents(false))
             if (wrapperClasses.contains(p.className)) {
@@ -68,6 +70,8 @@ public class WrappersCreatorChecks {
                             .shouldImplementInterface(wrapperClName.canonicalName())
                             .add(" or ")
                             .shouldImplementInterface(asyncWrapperClName.canonicalName())
+                            .add(" or ")
+                            .shouldImplementInterface(circleWrapperClName.canonicalName())
                             .add(" and ")
                             .shouldHaveAnnotations(WrappersCreator.class.getSimpleName())
                             .build(),
