@@ -2,6 +2,10 @@ plugins {
     id("java")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation(project(":stone_lib"))
     implementation(project(":stone_processor"))

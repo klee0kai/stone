@@ -4,6 +4,9 @@ plugins {
 
 group = "com.github.klee0kai.stone.test_feature.planning"
 
+tasks.test {
+    useJUnitPlatform()
+}
 
 dependencies {
     implementation(project(":test_feature:planning:api"))

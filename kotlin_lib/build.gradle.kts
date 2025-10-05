@@ -1,23 +1,18 @@
 plugins {
     id("org.jetbrains.kotlin.jvm").version("1.7.0")
     id("org.jetbrains.kotlin.kapt").version("1.7.21")
+    alias(libs.plugins.publish.maven)
+    alias(libs.plugins.publish.stone)
 }
-
-apply from: '../jitpack.gradle'
 
 java {
     withSourcesJar()
     withJavadocJar()
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
-    }
+tasks.test {
+    useJUnitPlatform()
 }
-
 
 dependencies {
     api(project(":stone_lib"))

@@ -3,6 +3,10 @@ plugins {
     id("org.jetbrains.kotlin.kapt").version("1.7.21")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation(project(":tests"))
 

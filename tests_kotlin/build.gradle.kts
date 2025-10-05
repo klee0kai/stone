@@ -1,6 +1,10 @@
 plugins {
     id("org.jetbrains.kotlin.jvm").version("1.7.0")
-            id("org.jetbrains.kotlin.kapt").version("1.7.21")
+    id("org.jetbrains.kotlin.kapt").version("1.7.21")
+}
+
+tasks.getByName<Test>("test") {
+    useJUnitPlatform()
 }
 
 dependencies {

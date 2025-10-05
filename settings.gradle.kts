@@ -1,5 +1,3 @@
-import org.gradle.api.initialization.resolve.RepositoriesMode
-
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -7,14 +5,13 @@ pluginManagement {
         mavenCentral()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        mavenLocal()
         google()
         mavenCentral()
     }
-
     versionCatalogs {
         create("libs") {
             from(files("libs.versions.toml"))
@@ -23,6 +20,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Stone"
+includeBuild("plugin_publish")
 include(":stone_lib")
 include(":stone_processor")
 include(":android_lib")

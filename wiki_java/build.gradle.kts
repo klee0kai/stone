@@ -3,6 +3,10 @@ plugins {
     id("application")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation(project(":tests"))
     implementation(project(":test_feature:finance:api"))

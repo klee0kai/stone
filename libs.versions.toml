@@ -41,6 +41,7 @@ kotlinpoet = ["kotlinpoet", "kotlinpoet-ksp"]
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+android-libarary = { id = "com.android.library",version="8.12.3" }
 
 publish-maven = { id = "org.gradle.maven-publish" }
-publish-crossbox = { id = "com.github.klee0kai.crossbox.publish" }
+publish-stone = { id = "com.github.klee0kai.stone.publish" }
