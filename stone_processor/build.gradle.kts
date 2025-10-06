@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.publish.stone)
 }
 
+group = "com.github.klee0kai.stone"
+version = libs.versions.stone.get()
+
 java {
     withSourcesJar()
     withJavadocJar()

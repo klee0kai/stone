@@ -1,6 +1,6 @@
 [versions]
 
-crossbox = "0.0.1"
+stone = "1.0.7"
 
 kotlin = "2.1.10"
 ksp = "2.1.10-1.0.30"
@@ -8,7 +8,6 @@ ksp = "2.1.10-1.0.30"
 jetbrain-immutable = "0.3.7"
 jetbrain-coroutines = "1.10.1"
 
-stone = "1.0.7"
 kotlinpoet = "2.0.0"
 
 jupiter = "5.9.2"
