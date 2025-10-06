@@ -82,7 +82,7 @@ public class ModuleFactoryBuilder {
 
         String argStr = m.args == null ? "" : String.join("", ListUtils.format(m.args, (it) -> ", " + it.name));
         SmartCode genCode = SmartCode.builder()
-                .add(CodeBlock.of("$T.$L( null $L )", defaultImpl.className, m.methodName, argStr))
+                .add(CodeBlock.of("$T.$L( this $L )", defaultImpl.className, m.methodName, argStr))
                 .providingType(providingClass.className);
 
         builder.addCode(
