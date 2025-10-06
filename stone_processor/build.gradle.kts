@@ -19,15 +19,13 @@ tasks.javadoc {
 dependencies {
     implementation(project(":stone_lib"))
 
-    implementation("com.google.auto.service:auto-service:1.0.1")
-    annotationProcessor("com.google.auto.service:auto-service:1.0.1")
+    implementation(libs.auto.service)
+    annotationProcessor(libs.auto.service)
 
-    //  incap
-    implementation("net.ltgt.gradle.incap:incap:0.3")
-    implementation("net.ltgt.gradle.incap:incap-processor:0.3")
+    implementation(libs.incap)
+    implementation(libs.incap.processor)
 
-    // squareup - кодогенерация
-    implementation("com.squareup:javapoet:1.13.0")
+    implementation(libs.javapoet)
 }
 
 

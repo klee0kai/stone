@@ -21,9 +21,7 @@ tasks.test {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/javax.inject/javax.inject
-    api("javax.inject:javax.inject:1")
+    api(libs.java.inject)
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+    testImplementation(libs.bundles.jupiter)
 }

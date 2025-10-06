@@ -5,32 +5,41 @@ stone = "1.0.7"
 kotlin = "1.7.0"
 ksp = "2.1.10-1.0.30"
 
-jetbrain-immutable = "0.3.7"
-jetbrain-coroutines = "1.10.1"
+appcompat = "1.6.1"
+javax-inject = "1"
 
-kotlinpoet = "2.0.0"
+auto-service = "1.0.1"
+incap = "0.3"
+javapoet = "1.13.0"
 
 jupiter = "5.9.2"
+testing-compile = "0.21.0"
 
 
 [libraries]
 
-jetbrain-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "jetbrain-immutable" }
-jetbrain-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "jetbrain-coroutines" }
+android-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+# https://mvnrepository.com/artifact/javax.inject/javax.inject
+java-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
+
+auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
+
+incap = { group = "net.ltgt.gradle.incap", name = "incap", version.ref = "incap" }
+incap-processor = { group = "net.ltgt.gradle.incap", name = "incap-processor", version.ref = "incap" }
+
+javapoet = { group = "com.squareup", name = "javapoet", version.ref = "javapoet" }
 
 ksp = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
 
-kotlinpoet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinpoet" }
-kotlinpoet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinpoet" }
-
-# test
 jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "jupiter" }
 jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "jupiter" }
 
+testing-compile = { group = "com.google.testing.compile", name = "compile-testing", version.ref = "testing-compile" }
+
 [bundles]
 
-kotlin = ["jetbrain-coroutines", "jetbrain-immutable"]
-kotlinpoet = ["kotlinpoet", "kotlinpoet-ksp"]
+jupiter = ["jupiter-api", "jupiter-engine"]
 
 [plugins]
 

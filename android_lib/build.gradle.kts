@@ -38,5 +38,5 @@ android {
 dependencies {
     api(project(":stone_lib"))
 
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation(libs.android.appcompat)
 }

@@ -20,7 +20,6 @@ dependencies {
     implementation(project(":stone_lib"))
     annotationProcessor(project(":stone_processor"))
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation(libs.bundles.jupiter)
 }
 

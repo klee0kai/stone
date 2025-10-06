@@ -10,9 +10,10 @@ dependencies {
     implementation(project(":stone_lib"))
     implementation(project(":stone_processor"))
 
-    testImplementation("com.google.testing.compile:compile-testing:0.21.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+
+    testImplementation(libs.bundles.jupiter)
+    testImplementation(libs.testing.compile)
+
 }
 
 
