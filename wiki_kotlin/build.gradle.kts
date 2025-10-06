@@ -1,6 +1,6 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.7.0")
-    id("org.jetbrains.kotlin.kapt").version("1.7.21")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 tasks.test {
@@ -13,6 +13,5 @@ dependencies {
 
     implementation(project(":kotlin_lib"))
     kapt(project(":stone_processor"))
-
 }
 

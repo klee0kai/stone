@@ -1,9 +1,9 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.7.0")
-    id("org.jetbrains.kotlin.kapt").version("1.7.21")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.kapt)
 }
 
-tasks.getByName<Test>("test") {
+tasks.test {
     useJUnitPlatform()
 }
 

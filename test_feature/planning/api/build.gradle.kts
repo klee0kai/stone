@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    java
 }
 
 group = "com.github.klee0kai.stone.test_feature.planning"
