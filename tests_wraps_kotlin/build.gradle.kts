@@ -13,6 +13,6 @@ dependencies {
     implementation(project(":kotlin_lib"))
     kapt(project(":stone_processor"))
 
-    testImplementation(libs.bundles.jupiter)
+    testImplementation(libs.bundles.junit)
 }
 

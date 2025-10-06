@@ -12,7 +12,7 @@ dependencies {
 
     implementation(project(":tests"))
 
-    testImplementation(libs.bundles.jupiter)
+    testImplementation(libs.bundles.junit)
 }
 
 

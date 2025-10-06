@@ -23,5 +23,5 @@ tasks.test {
 dependencies {
     api(libs.java.inject)
 
-    testImplementation(libs.bundles.jupiter)
+    testImplementation(libs.bundles.junit)
 }
