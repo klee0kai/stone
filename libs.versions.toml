@@ -4,9 +4,11 @@ stone = "1.0.7"
 
 kotlin = "2.2.20"
 ksp = "2.1.10-1.0.30"
+agp = "8.12.3"
 
 appcompat = "1.7.1"
 javax-inject = "1"
+kotlinx-coroutines = "1.10.1"
 
 auto-service = "1.1.1"
 incap = "1.0.0"
@@ -23,6 +25,8 @@ android-appcompat = { group = "androidx.appcompat", name = "appcompat", version.
 
 # https://mvnrepository.com/artifact/javax.inject/javax.inject
 java-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
+
+kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
 
@@ -48,7 +52,8 @@ junit = ["jupiter-api", "jupiter-engine", "jupiter-launcher"]
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
-android-libarary = { id = "com.android.library", version = "8.12.3" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 
 publish-maven = { id = "org.gradle.maven-publish" }
 publish-stone = { id = "com.github.klee0kai.stone.publish" }

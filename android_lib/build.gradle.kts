@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.android.libarary)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.publish.maven)
     alias(libs.plugins.publish.stone)
 }
