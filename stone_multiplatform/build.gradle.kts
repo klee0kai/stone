@@ -16,20 +16,14 @@ android {
 
 kotlin {
     androidTarget()
-
     jvm()
     js(IR) {
         browser()
         nodejs()
     }
 
-    targets.all {
-        compilations.all {
-            compilerOptions.configure {
-                freeCompilerArgs.add("-Xskip-prerelease-check")
-            }
-        }
-    }
+    linuxX64()
+    mingwX64()
 
     sourceSets {
         commonMain.dependencies {
@@ -44,6 +38,8 @@ kotlin {
 
 val isMac = System.getProperty("os.name").contains("Mac")
 if (isMac) kotlin {
+    macosX64()
+    macosArm64()
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -74,5 +70,4 @@ if (isMac) kotlin {
         }
     }
 }
-
 

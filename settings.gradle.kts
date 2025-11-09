@@ -21,10 +21,10 @@ dependencyResolutionManagement {
 rootProject.name = "Stone"
 includeBuild("plugin_publish")
 include("weakref_multiplatform")
-include(":stone_lib")
-////include(":stone_multiplatform")
+//include(":stone_lib")
+include(":stone_multiplatform")
 //include(":stone_processor")
-include(":android_lib")
+//include(":android_lib")
 //include(":kotlin_lib")
 //
 //include(":wiki_java")

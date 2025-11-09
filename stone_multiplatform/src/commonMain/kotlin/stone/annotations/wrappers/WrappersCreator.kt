@@ -1,0 +1,22 @@
+package stone.annotations.wrappers
+
+
+import java.lang.annotation.Inherited
+import kotlin.reflect.KClass
+
+/**
+ * Provide custom wrappers creator, class
+ *
+ *
+ * Should implement [Wrapper] or [ProviderWrapper] or [CircleWrapper]
+ * and declare custom wrappers in annotation
+ */
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.CLASS)
+@Inherited
+annotation class WrappersCreator(
+    /**
+     * Custom Wrappers, can be provided
+     */
+    val wrappers: Array<KClass<*>> = []
+)
