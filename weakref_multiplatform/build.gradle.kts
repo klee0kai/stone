@@ -1,37 +1,40 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+//    alias(libs.plugins.android.library)
 }
 
-group = "com.github.klee0kai.stone"
+group = "com.github.klee0kai.stone.weakref"
 version = libs.versions.stone.get()
 
-android {
-    namespace = project.group.toString()
-    compileSdk = 36
-    defaultConfig {
-        minSdk = 21
-    }
-}
+//android {
+//    namespace = project.group.toString()
+//    compileSdk = 36
+//    defaultConfig {
+//        minSdk = 21
+//    }
+//}
 
 kotlin {
-    androidTarget()
-
+//    androidTarget()
     jvm()
     js(IR) {
         browser()
         nodejs()
     }
 
-    targets.all {
-        compilations.all {
-            compilerOptions.configure {
-                freeCompilerArgs.add("-Xskip-prerelease-check")
-            }
-        }
-    }
+//    linuxX64("linux")
+//    mingwX64()
+
+//    targets.all {
+//        compilations.all {
+//            compilerOptions.configure {
+//                freeCompilerArgs.add("-Xskip-prerelease-check")
+//            }
+//        }
+//    }
 
     sourceSets {
+
         commonMain.dependencies {
             api(libs.java.inject)
             api(libs.kotlinx.coroutines)
@@ -44,6 +47,8 @@ kotlin {
 
 val isMac = System.getProperty("os.name").contains("Mac")
 if (isMac) kotlin {
+    macosX64()
+    macosArm64()
     iosX64()
     iosArm64()
     iosSimulatorArm64()

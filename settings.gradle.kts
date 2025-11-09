@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 rootProject.name = "Stone"
 includeBuild("plugin_publish")
 include(":stone_lib")
-include(":stone_multiplatform")
+//include(":stone_multiplatform")
 include(":stone_processor")
 include(":android_lib")
 include(":kotlin_lib")
@@ -44,3 +44,5 @@ include(":test_feature:finance:api")
 include(":test_feature:finance:impl")
 include(":test_feature_core_deps")
 
+
+include("weakref_multiplatform")
