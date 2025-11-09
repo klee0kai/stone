@@ -1,6 +1,5 @@
 package stone.annotations.component
 
-
 /**
  * Annotation announcing new scopes for garbage collection and changing the caching method.
  * Announce new scopes in the following way.

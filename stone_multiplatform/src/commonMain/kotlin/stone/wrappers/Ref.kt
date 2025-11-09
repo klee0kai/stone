@@ -1,8 +1,8 @@
 package stone.wrappers
 
-import javax.inject.Provider
+import com.github.klee0kai.stone.weakref.Provider
 
-fun interface Ref<T> : javax.inject.Provider<T> {
+fun interface Ref<T> : Provider<T> {
 
     override fun get(): T
 

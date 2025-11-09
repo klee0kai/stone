@@ -1,6 +1,5 @@
 package stone.annotations.component
 
-
 /**
  * Provide origin module's factory
  *

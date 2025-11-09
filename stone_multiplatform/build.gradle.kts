@@ -27,7 +27,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(libs.java.inject)
+            api(project(":inject_multiplatform"))
+            api(project(":weakref_multiplatform"))
             api(libs.kotlinx.coroutines)
         }
         commonTest.dependencies {

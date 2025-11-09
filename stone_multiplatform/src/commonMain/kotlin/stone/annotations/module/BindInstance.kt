@@ -1,7 +1,5 @@
 package stone.annotations.module
 
-import java.lang.annotation.Inherited
-
 
 /**
  * Those objects that are created outside of DI.
@@ -63,7 +61,6 @@ import java.lang.annotation.Inherited
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@Inherited
 annotation class BindInstance(
     /**
      * Object caching type

@@ -16,8 +16,10 @@ package stone.wrappers
  * }
 `</pre> *
  */
-class PhantomProvide<T>(private val call: stone.wrappers.Ref<T?>) : stone.wrappers.Ref<T?> {
+class PhantomProvide<T>(private val call: Ref<T?>) : Ref<T?> {
+
     override fun get(): T? {
         return call.get()
     }
+
 }

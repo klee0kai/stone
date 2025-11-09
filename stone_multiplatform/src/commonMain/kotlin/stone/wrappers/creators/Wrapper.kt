@@ -1,5 +1,7 @@
 package stone.wrappers.creators
 
+import kotlin.reflect.KClass
+
 interface Wrapper {
     /**
      * Provide wrapped object.
@@ -10,5 +12,5 @@ interface Wrapper {
      * @param <T>       type of providing original object
      * @return wrapped object provider
     </T></Wr> */
-    fun <Wr, T> wrap(wrapperCl: Class<Wr?>?, original: T?): Wr?
+    fun <Wr : Any, T : Any> wrap(wrapperCl: KClass<Wr>?, original: T?): Wr?
 }

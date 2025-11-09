@@ -1,6 +1,7 @@
 package stone.wrappers.creators
 
-import javax.inject.Provider
+import com.github.klee0kai.stone.weakref.Provider
+import kotlin.reflect.KClass
 
 interface ProviderWrapper {
     /**
@@ -12,5 +13,5 @@ interface ProviderWrapper {
      * @param <T>              type of providing original object
      * @return wrapped object provider
     </T></Wr> */
-    fun <Wr, T> wrap(wrapperCl: Class<Wr?>?, originalProvider: Provider<T?>?): Wr?
+    fun <Wr : Any, T : Any> wrap(wrapperCl: KClass<Wr>?, originalProvider: Provider<T?>?): Wr?
 }

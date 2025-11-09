@@ -1,6 +1,8 @@
 package stone.wrappers.creators
 
-interface CircleWrapper : stone.wrappers.creators.ProviderWrapper {
+import kotlin.reflect.KClass
+
+interface CircleWrapper : ProviderWrapper {
     /**
      * UnProvide wrapped object.
      *
@@ -11,5 +13,5 @@ interface CircleWrapper : stone.wrappers.creators.ProviderWrapper {
      * @param <T>        type of providing original object
      * @return wrapped object provider
     </T></Wr> */
-    fun <Wr, T> unwrap(wrapperCl: Class<Wr?>?, objectType: Class<T?>?, wrapper: Wr?): T?
+    fun <Wr : Any, T : Any> unwrap(wrapperCl: KClass<Wr>?, objectType: KClass<T>?, wrapper: Wr?): T?
 }

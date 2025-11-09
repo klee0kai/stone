@@ -1,6 +1,5 @@
 package stone.annotations.component
 
-
 /**
  * Protect provided objects from being destroyed by injection.
  * When a dependency consumer class is re-created, cached objects may be garbage collected.

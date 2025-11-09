@@ -1,7 +1,5 @@
 package stone.annotations.wrappers
 
-
-import java.lang.annotation.Inherited
 import kotlin.reflect.KClass
 
 /**
@@ -13,7 +11,6 @@ import kotlin.reflect.KClass
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
-@Inherited
 annotation class WrappersCreator(
     /**
      * Custom Wrappers, can be provided

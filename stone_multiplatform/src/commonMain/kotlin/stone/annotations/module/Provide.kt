@@ -1,8 +1,5 @@
 package stone.annotations.module
 
-import java.lang.annotation.Inherited
-
-
 /**
  * Providing objects.
  * This annotation marks the methods in the module for providing objects.
@@ -32,7 +29,6 @@ import java.lang.annotation.Inherited
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
-@Inherited
 annotation class Provide(
     /**
      * Object caching type
