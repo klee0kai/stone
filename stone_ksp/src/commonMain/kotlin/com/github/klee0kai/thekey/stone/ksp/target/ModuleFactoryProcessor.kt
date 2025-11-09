@@ -42,9 +42,8 @@ class ModuleFactoryProcessor : TargetFileProcessor {
         val fileOwner = validSymbol.containingFile ?: return null
         val classDeclaration = validSymbol as? KSClassDeclaration ?: return null
 
-        val moduleInterfaceInterfaceAnn =
-            classDeclaration.getAnnotationsByType(Module::class)
-                .firstOrNull() ?: return null
+        val moduleAnn = classDeclaration.getAnnotationsByType(Module::class)
+            .firstOrNull() ?: return null
 
         val genClassName = ClassName(
             fileOwner.packageName.asString().stonePackageName,
@@ -56,17 +55,17 @@ class ModuleFactoryProcessor : TargetFileProcessor {
 
             genClass(genClassName) {
                 validSymbol.getAllFunctions().forEach { function ->
-                    if (!function.isAbstract) return@genClass
+//                    if (!function.isAbstract) return@genClass
                     val returnType = function.returnType?.resolve()?.toClassName() ?: return@genClass
-                    val moduleInterfaceInterfaceAnn = function.getAnnotationsByType(BindInstance::class)
-                        .firstOrNull() ?: return@genClass
+                    val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
+                        .firstOrNull()
 
                     genFun(function.simpleName.asString()) {
                         declareSameParameters(function)
                         returns(returnType)
                         if (function.isSuspend) addModifiers(KModifier.SUSPEND)
 
-                        if (moduleInterfaceInterfaceAnn != null) {
+                        if (bindInstanceAnn != null) {
                             addStatement("return null")
                         } else {
 

@@ -1,7 +1,7 @@
 plugins {
     `java-library`
-    alias(libs.plugins.publish.maven)
-    alias(libs.plugins.publish.stone)
+//    alias(libs.plugins.publish.maven)
+//    alias(libs.plugins.publish.stone)
 }
 
 group = "com.github.klee0kai.stone"
