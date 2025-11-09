@@ -11,6 +11,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":stone_multiplatform"))
             implementation(libs.bundles.kotlin)
             implementation(libs.bundles.kotlinpoet)
             implementation(libs.ksp)

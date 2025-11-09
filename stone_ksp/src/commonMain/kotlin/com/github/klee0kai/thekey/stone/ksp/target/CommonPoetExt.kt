@@ -1,0 +1,47 @@
+package com.github.klee0kai.thekey.stone.ksp.target
+
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.Modifier
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+
+val KSFunctionDeclaration.isSuspend: Boolean get() = modifiers.contains(Modifier.SUSPEND)
+
+val KSFunctionDeclaration.asyncReturnType: TypeName?
+    get() {
+        val returnType = returnType?.resolve()?.toClassName()
+        return when {
+            returnType != null && !isSuspend -> returnType
+            returnType != null && returnType != Unit::class.asClassName() ->
+                Deferred::class.asClassName().parameterizedBy(returnType)
+
+            isSuspend -> Job::class.asClassName()
+            else -> returnType
+        }
+    }
+
+fun FunSpec.Builder.declareSameParameters(
+    function: KSFunctionDeclaration,
+) = apply {
+    function.returnType?.resolve()?.toClassName()?.let { returns(it) }
+    function.extensionReceiver?.resolve()?.toClassName()?.let { receiver(it) }
+
+    function.parameters.forEach { param ->
+        addParameter(
+            ParameterSpec.builder(
+                name = param.name?.asString() ?: "",
+                type = param.type.resolve().toTypeName(),
+            ).apply {
+                if (param.isVararg) addModifiers(KModifier.VARARG)
+            }.build()
+        )
+    }
+}

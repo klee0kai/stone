@@ -11,7 +11,7 @@ interface TargetFileProcessor {
     ): SymbolsToProcess
 
     suspend fun process(
-        targetSymbol: KSAnnotated,
+        validSymbol: KSAnnotated,
         resolver: Resolver,
         options: Map<String, String>,
         logger: KSPLogger,

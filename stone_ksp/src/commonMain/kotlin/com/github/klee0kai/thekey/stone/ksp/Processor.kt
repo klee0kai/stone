@@ -5,6 +5,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.forceProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.takeOnly
+import com.github.klee0kai.thekey.stone.ksp.target.ModuleFactoryProcessor
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -35,11 +36,7 @@ class Processor(
     }
 
     val targetProcessors = arrayOf<TargetFileProcessor>(
-//        CrossboxGenInterfaceProcessor(),
-//        CrossboxModelProcessor(),
-//        CrossboxSuspendInterfaceProcessor(),
-//        CrossboxAsyncInterfaceProcessor(),
-//        CrossboxProxyClassProcessor(),
+        ModuleFactoryProcessor(),
     )
 
     override fun process(
@@ -61,8 +58,11 @@ class Processor(
                         var symbols = findSymbolsMutex.withLock { processor.findSymbolsToProcess(resolver) }
                         var takeSymbolsCount = 0
                         processSymbolsCounter.updateAndGet { totalCount ->
-                            takeSymbolsCount =
-                                min(symbols.symbolsForProcessing.size, ONE_RUN_SYMBOLS_COUNT - totalCount)
+                            takeSymbolsCount = min(
+                                symbols.symbolsForProcessing.size,
+                                ONE_RUN_SYMBOLS_COUNT - totalCount
+                            )
+
                             takeSymbolsCount = max(takeSymbolsCount, 0)
                             totalCount + takeSymbolsCount
                         }
@@ -78,7 +78,7 @@ class Processor(
                         symbols.symbolsForProcessing
                             .mapNotNull { targetSymbol ->
                                 processor.process(
-                                    targetSymbol = targetSymbol,
+                                    validSymbol = targetSymbol,
                                     resolver = resolver,
                                     options = options,
                                     logger = logger,

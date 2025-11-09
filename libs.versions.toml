@@ -3,7 +3,7 @@
 stone = "1.0.7"
 
 kotlin = "2.2.21"
-ksp = "2.1.10-1.0.30"
+ksp = "2.2.21-2.0.4"
 agp = "8.12.3"
 
 appcompat = "1.7.1"
@@ -64,7 +64,6 @@ kotlin = ["jetbrain-coroutines", "jetbrain-immutable"]
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
-kotlin-dsl = { id = "org.gradle.kotlin.kotlin-dsl", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 
