@@ -46,3 +46,4 @@ include(":stone_multiplatform")
 //include(":test_feature_core_deps")
 
 
+include("stone_ksp")
