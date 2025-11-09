@@ -16,6 +16,7 @@ actual class WeakRef<T : Any?> actual constructor(value: T) {
         }
     }
 
+
     actual fun get(): T? {
         return if (weakRefDynamic != null) {
             val derefResult = weakRefDynamic.deref?.invoke()
