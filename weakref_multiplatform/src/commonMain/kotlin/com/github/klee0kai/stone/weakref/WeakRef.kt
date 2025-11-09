@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.weakref
 
-expect class WeakRef<T> constructor(value: T) {
+expect class WeakRef<T : Any?> constructor(value: T) {
 
     fun get(): T?
 

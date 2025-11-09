@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.weakref
 
-actual class WeakRef<T> actual constructor(value: T) {
+actual class WeakRef<T : Any?> actual constructor(value: T) {
 
     private var weakRefDynamic: dynamic = null
     private var strongFallback: T? = null
