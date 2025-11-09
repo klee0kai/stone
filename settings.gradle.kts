@@ -21,6 +21,7 @@ dependencyResolutionManagement {
 rootProject.name = "Stone"
 includeBuild("plugin_publish")
 include("weakref_multiplatform")
+include("inject_multiplatform")
 //include(":stone_lib")
 include(":stone_multiplatform")
 //include(":stone_processor")
