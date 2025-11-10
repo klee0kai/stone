@@ -35,13 +35,16 @@ class Processor(
         val ONE_RUN_SYMBOLS_COUNT = max(Runtime.getRuntime().availableProcessors(), 4)
     }
 
+    private val multithread = options["multithread"]?.toBoolean() ?: false
+
+    val dispatcher by lazy { if (multithread) Dispatchers.Default else Dispatchers.Unconfined }
     val targetProcessors = arrayOf<TargetFileProcessor>(
         ModuleFactoryProcessor(),
     )
 
     override fun process(
         resolver: Resolver
-    ): List<KSAnnotated> = runBlocking(Dispatchers.Default) {
+    ): List<KSAnnotated> = runBlocking(dispatcher) {
 
         val processSymbolsCounter = AtomicInteger(0)
         val findSymbolsMutex = Mutex()

@@ -55,7 +55,7 @@ class ModuleFactoryProcessor : TargetFileProcessor {
 
             genClass(genClassName) {
                 validSymbol.getAllFunctions().forEach { function ->
-//                    if (!function.isAbstract) return@genClass
+                    if (!function.isAbstract) return@genClass
                     val returnType = function.returnType?.resolve()?.toClassName() ?: return@genClass
                     val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
                         .firstOrNull()
