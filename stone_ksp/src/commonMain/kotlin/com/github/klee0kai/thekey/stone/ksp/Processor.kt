@@ -1,10 +1,10 @@
 package com.github.klee0kai.thekey.stone.ksp
 
 import com.github.klee0kai.thekey.stone.ksp.coroutines.LaunchConductor
-import com.github.klee0kai.thekey.stone.ksp.ksp.GenSpec
-import com.github.klee0kai.thekey.stone.ksp.ksp.TargetFileProcessor
-import com.github.klee0kai.thekey.stone.ksp.ksp.forceProcess
-import com.github.klee0kai.thekey.stone.ksp.ksp.takeOnly
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.takeOnly
 import com.github.klee0kai.thekey.stone.ksp.target.ModuleFactoryProcessor
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -69,7 +69,7 @@ class Processor(
                             takeSymbolsCount = max(takeSymbolsCount, 0)
                             totalCount + takeSymbolsCount
                         }
-                        symbols = symbols.takeOnly(takeSymbolsCount)
+//                        symbols = symbols.takeOnly(takeSymbolsCount)
                         globalSymbolsForProcessing.addAll(symbols.symbolsForProcessing)
                         symbols
                     }

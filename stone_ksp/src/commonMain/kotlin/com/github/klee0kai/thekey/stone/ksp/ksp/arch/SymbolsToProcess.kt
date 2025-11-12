@@ -1,4 +1,4 @@
-package com.github.klee0kai.thekey.stone.ksp.ksp
+package com.github.klee0kai.thekey.stone.ksp.ksp.arch
 
 import com.google.devtools.ksp.symbol.KSAnnotated
 
@@ -15,7 +15,6 @@ fun SymbolsToProcess.takeOnly(
         symbolsForReprocessing = symbolsForReprocessing + symbolsForProcessing.drop(takeSymbolsCount),
     )
 }
-
 
 fun SymbolsToProcess.forceProcess(
     filter: (KSAnnotated) -> Boolean = { false },

@@ -4,18 +4,23 @@ package com.github.klee0kai.thekey.stone.ksp.target
 
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
-import com.github.klee0kai.thekey.stone.ksp.ksp.GenSpec
-import com.github.klee0kai.thekey.stone.ksp.ksp.SymbolsToProcess
-import com.github.klee0kai.thekey.stone.ksp.ksp.TargetFileProcessor
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
+import com.github.klee0kai.thekey.stone.ksp.ksp.findConstructor
+import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.asClassName
@@ -28,6 +33,7 @@ class ModuleFactoryProcessor : TargetFileProcessor {
     ) = SymbolsToProcess(
         symbolsForProcessing = resolver
             .getSymbolsWithAnnotation(Module::class.asClassName().canonicalName)
+            .take(2)
             .toList(),
         symbolsForReprocessing = emptyList(),
     )
@@ -40,44 +46,75 @@ class ModuleFactoryProcessor : TargetFileProcessor {
     ): GenSpec? {
 
         val fileOwner = validSymbol.containingFile ?: return null
-        val classDeclaration = validSymbol as? KSClassDeclaration ?: return null
+        val moduleCl = validSymbol as? KSClassDeclaration ?: return null
 
-        val moduleAnn = classDeclaration.getAnnotationsByType(Module::class)
+        if (!moduleCl.isAbstract()) {
+            // factory not needed
+            return null
+        }
+
+        val moduleAnn = moduleCl.getAnnotationsByType(Module::class)
             .firstOrNull() ?: return null
 
         val genClassName = ClassName(
             fileOwner.packageName.asString().stonePackageName,
-            "I${classDeclaration.simpleName.getShortName()}"
+            moduleCl.simpleName.getShortName().factoryClName,
         )
 
         val fileSpec = genFileSpec(genClassName.packageName, genClassName.simpleName) {
             genLibComment()
 
             genClass(genClassName) {
-                validSymbol.getAllFunctions().forEach { function ->
-                    if (!function.isAbstract) return@genClass
-                    val returnType = function.returnType?.resolve()?.toClassName() ?: return@genClass
-                    val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
-                        .firstOrNull()
+                if (moduleCl.classKind == ClassKind.INTERFACE) {
+                    addSuperinterface(moduleCl.toClassName())
+                } else {
+                    superclass(moduleCl.toClassName())
+                }
+                addModifiers(KModifier.OPEN)
 
-                    genFun(function.simpleName.asString()) {
-                        declareSameParameters(function)
-                        returns(returnType)
-                        if (function.isSuspend) addModifiers(KModifier.SUSPEND)
 
-                        if (bindInstanceAnn != null) {
-                            addStatement("return null")
-                        } else {
 
+                validSymbol.getAllMethods(false, false, "<init>")
+                    .forEach { function ->
+                        if (!function.modifiers.contains(Modifier.ABSTRACT) && moduleCl.classKind != ClassKind.INTERFACE) return@forEach
+                        val returnCl = function.returnType?.resolve()
+                            ?.declaration as? KSClassDeclaration ?: return@forEach
+                        val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
+                            .firstOrNull()
+
+                        val constructorFun by lazy { returnCl.findConstructor(function.parameters) }
+
+                        genFun(function.simpleName.asString()) {
+                            addModifiers(KModifier.OVERRIDE)
+                            declareSameParameters(function)
+                            returns(returnCl.toClassName())
+                            if (function.isSuspend) addModifiers(KModifier.SUSPEND)
+
+                            when {
+                                bindInstanceAnn != null -> {
+                                    addStatement("return null")
+                                }
+
+                                constructorFun != null -> {
+                                    addStatement(
+                                        "return %T( %L )",
+                                        returnCl.toClassName(),
+                                        function.parameters.joinToString(", ") { it.name?.asString() ?: "it" },
+                                    )
+                                }
+
+                                else -> {
+                                    addStatement(
+                                        "return super.%L( %L )",
+                                        function.simpleName.asString(),
+                                        function.parameters.joinToString(", ") { it.name?.asString() ?: "it" },
+                                    )
+                                }
+                            }
                         }
                     }
-
-
-                }
             }
         }
-
-
 
         return GenSpec(
             fileSpec = fileSpec,
