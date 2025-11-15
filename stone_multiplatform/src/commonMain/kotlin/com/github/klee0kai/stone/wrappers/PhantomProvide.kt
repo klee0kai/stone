@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.wrappers
 
+import com.github.klee0kai.stone.weakref.Ref
+
 /**
  * Providing an object without any deduction.
  * Each time you use this object through a provider,

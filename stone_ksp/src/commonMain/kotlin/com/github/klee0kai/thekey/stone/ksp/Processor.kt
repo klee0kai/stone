@@ -5,7 +5,8 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.takeOnly
-import com.github.klee0kai.thekey.stone.ksp.target.ModuleFactoryProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.GenModuleFactoryProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -39,7 +40,8 @@ class Processor(
 
     val dispatcher by lazy { if (multithread) Dispatchers.Default else Dispatchers.Unconfined }
     val targetProcessors = arrayOf<TargetFileProcessor>(
-        ModuleFactoryProcessor(),
+        GenModuleFactoryProcessor(),
+        GenModuleProcessor(),
     )
 
     override fun process(
@@ -59,17 +61,23 @@ class Processor(
                 launch {
                     var symbols = launchConductor.finishTogether {
                         var symbols = findSymbolsMutex.withLock { processor.findSymbolsToProcess(resolver) }
-                        var takeSymbolsCount = 0
-                        processSymbolsCounter.updateAndGet { totalCount ->
-                            takeSymbolsCount = min(
-                                symbols.symbolsForProcessing.size,
-                                ONE_RUN_SYMBOLS_COUNT - totalCount
-                            )
 
-                            takeSymbolsCount = max(takeSymbolsCount, 0)
-                            totalCount + takeSymbolsCount
+                        if (multithread) {
+                            // skip to next ksp run
+
+                            var takeSymbolsCount = 0
+                            processSymbolsCounter.updateAndGet { totalCount ->
+                                takeSymbolsCount = min(
+                                    symbols.symbolsForProcessing.size,
+                                    ONE_RUN_SYMBOLS_COUNT - totalCount
+                                )
+
+                                takeSymbolsCount = max(takeSymbolsCount, 0)
+                                totalCount + takeSymbolsCount
+                            }
+                            symbols = symbols.takeOnly(takeSymbolsCount)
                         }
-//                        symbols = symbols.takeOnly(takeSymbolsCount)
+
                         globalSymbolsForProcessing.addAll(symbols.symbolsForProcessing)
                         symbols
                     }

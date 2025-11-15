@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.weakref
 
-expect class WeakRef<T : Any?> constructor(value: T) : Ref<T?> {
+expect class SoftRef<T : Any?> constructor(value: T) : Ref<T?> {
 
     override fun get(): T?
 

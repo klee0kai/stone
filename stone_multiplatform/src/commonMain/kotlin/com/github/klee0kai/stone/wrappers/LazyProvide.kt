@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.wrappers
 
+import com.github.klee0kai.stone.weakref.Ref
+
 /**
  * Providing an object with lazy providing.
  * The object will be provided the first time it is used.

@@ -4,9 +4,11 @@ import com.github.klee0kai.thekey.stone.ksp.utils.removeDoubles
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
-
+import com.squareup.kotlinpoet.ClassName
+import kotlin.reflect.KClass
 
 fun KSClassDeclaration.findConstructor(
     parameters: List<KSValueParameter>,
@@ -15,6 +17,9 @@ fun KSClassDeclaration.findConstructor(
             && parameters.map { it.type } == function.parameters.map { it.type }
 }
 
+fun KSDeclaration.isType(cl: KClass<*>): Boolean = qualifiedName?.asString() == cl.qualifiedName.toString()
+
+fun KSDeclaration.isType(cl: ClassName): Boolean = qualifiedName?.asString() == cl.toString()
 
 fun KSClassDeclaration.getAllMethods(
     includeObjectMethods: Boolean = false,

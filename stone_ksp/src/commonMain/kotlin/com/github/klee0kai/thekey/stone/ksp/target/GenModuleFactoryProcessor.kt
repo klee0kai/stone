@@ -2,18 +2,22 @@
 
 package com.github.klee0kai.thekey.stone.ksp.target
 
+import com.github.klee0kai.stone.__hidden__.IModuleFactory
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.thekey.stone.ksp.helpers.factoryStoneClName
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.findConstructor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
-import com.github.klee0kai.thekey.stone.ksp.poet.*
+import com.github.klee0kai.thekey.stone.ksp.poet.genClass
+import com.github.klee0kai.thekey.stone.ksp.poet.genFileSpec
+import com.github.klee0kai.thekey.stone.ksp.poet.genFun
+import com.github.klee0kai.thekey.stone.ksp.poet.genLibComment
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAnnotationsByType
-import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -21,12 +25,11 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 
-class ModuleFactoryProcessor : TargetFileProcessor {
+class GenModuleFactoryProcessor : TargetFileProcessor {
 
     override suspend fun findSymbolsToProcess(
         resolver: Resolver,
@@ -48,30 +51,22 @@ class ModuleFactoryProcessor : TargetFileProcessor {
         val fileOwner = validSymbol.containingFile ?: return null
         val moduleCl = validSymbol as? KSClassDeclaration ?: return null
 
-        if (!moduleCl.isAbstract()) {
-            // factory not needed
-            return null
-        }
-
         val moduleAnn = moduleCl.getAnnotationsByType(Module::class)
             .firstOrNull() ?: return null
 
-        val genClassName = ClassName(
-            fileOwner.packageName.asString().stonePackageName,
-            moduleCl.simpleName.getShortName().factoryClName,
-        )
+        val genFactoryClassName = moduleCl.factoryStoneClName
 
-        val fileSpec = genFileSpec(genClassName.packageName, genClassName.simpleName) {
+        val fileSpec = genFileSpec(genFactoryClassName.packageName, fileName = genFactoryClassName.simpleName) {
             genLibComment()
 
-            genClass(genClassName) {
+            genClass(genFactoryClassName) {
                 if (moduleCl.classKind == ClassKind.INTERFACE) {
                     addSuperinterface(moduleCl.toClassName())
                 } else {
                     superclass(moduleCl.toClassName())
                 }
+                addSuperinterface(IModuleFactory::class)
                 addModifiers(KModifier.OPEN)
-
 
 
                 validSymbol.getAllMethods(false, false, "<init>")

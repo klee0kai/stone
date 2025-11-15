@@ -1,5 +1,6 @@
 package com.github.klee0kai.stone.wrappers
 
+import com.github.klee0kai.stone.weakref.Ref
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
