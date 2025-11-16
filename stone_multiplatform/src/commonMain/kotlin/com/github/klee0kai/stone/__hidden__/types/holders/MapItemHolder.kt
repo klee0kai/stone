@@ -13,80 +13,95 @@ import kotlin.time.Duration
  * Stone Private class
  */
 @Suppress("UNCHECKED_CAST")
-class SingleItemHolder<T>(
+class MapItemHolder<Key, T>(
     private val defType: StoneRefType
 ) {
+
     private var curRefType: StoneRefType = defType
 
-    private var refHolder: Any? = null
+
+    private val refMap: HashMap<Key?, Any?> = HashMap()
     private val shedTaskCount = atomic(0)
 
 
-    fun get(): T? = when (curRefType) {
-        StoneRefType.StrongObject -> refHolder as T?
-        StoneRefType.WeakObject, StoneRefType.SoftObject -> (refHolder as Ref<T?>?)?.get()
-        else -> null
+    fun get(
+        key: Key?,
+    ): T? {
+        val holder = refMap[key] ?: return null
+        return when (curRefType) {
+            StoneRefType.StrongObject -> holder as T?
+            StoneRefType.WeakObject, StoneRefType.SoftObject -> (holder as Ref<T?>?)?.get()
+            else -> null
+        }
     }
 
-    fun getList(): List<T?>? = when (curRefType) {
-        StoneRefType.ListObject -> refHolder as MutableList<T>?
-        StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> (refHolder as MutableList<Ref<T?>?>?)?.map { it?.get() }
-        else -> null
+    fun getList(
+        key: Key?,
+    ): List<T?>? {
+        val holder = refMap[key] ?: return null
+        return when (curRefType) {
+            StoneRefType.ListObject -> holder as MutableList<T>?
+            StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> (holder as MutableList<Ref<T?>?>?)?.map { it?.get() }
+            else -> null
+        }
     }
-
 
     fun set(
+        key: Key?,
         creator: Ref<T?>,
         onlyIfNull: Boolean,
     ) {
+        val refHolder = refMap[key]
         if (curRefType == StoneRefType.StrongObject) {
-            if (refHolder != null && onlyIfNull) return
-            refHolder = creator.get()
+            if (onlyIfNull && refHolder != null) return
+            refMap[key] = creator.get()
             return
         }
         val formatter: (T?) -> Ref<T?> = curRefType.formatter<T>() ?: return
         if (!onlyIfNull) {
             //switch ref type case
-            refHolder = formatter(creator.get())
+            refMap[key] = formatter(creator.get())
             return
         }
 
         val ref: Ref<T?>? = refHolder as Ref<T?>?
         if (ref == null || ref.get() == null) {
-            refHolder = formatter(creator.get())
+            refMap[key] = formatter(creator.get())
         }
     }
 
     fun setList(
+        key: Key?,
         creator: Ref<List<T?>?>,
         onlyIfNull: Boolean,
     ) {
+        val refHolder = refMap[key]
         if (curRefType == StoneRefType.ListObject) {
             if (!onlyIfNull || refHolder == null) {
-                refHolder = creator.get()?.toMutableList()
+                refMap[key] = creator.get()?.toMutableList()
                 return
             }
 
             // init nulls if needed
             var created: List<T?>? = null
-            val list = refHolder as MutableList<T?>
-            for (i in list.indices) {
-                if (list[i] == null) {
+            val refList = refHolder as MutableList<T?>
+            for (i in refList.indices) {
+                if (refList[i] == null) {
                     if (created == null) created = creator.get()
-                    list[i] = created?.get(i)
+                    refList[i] = created?.get(i)
                 }
             }
             return
         }
 
         val formatter = curRefType.formatter<T>() ?: return
-        val refList = refHolder as? MutableList<Ref<T?>?>?
+        val refList = refHolder as? MutableList<Ref<T?>?>
         if (!onlyIfNull || refList == null) {
-            refHolder = creator.get()?.map { formatter(it) }?.toMutableList()
+            //switch ref type case
+            refMap[key] = creator.get()?.map { formatter(it) }?.toMutableList()
             return
         }
 
-        // init nulls if needed
         var created: List<T?>? = null
         for (i in refList.indices) {
             if (refList[i] == null || refList[i]?.get() == null) {
@@ -96,25 +111,50 @@ class SingleItemHolder<T>(
         }
     }
 
-    fun setRefType(
-        refType: StoneRefType,
-    ) {
+
+    fun setRefType(refType: StoneRefType) {
         if (curRefType == refType) return
         if (defType.isList) {
-            val ob = this.getList()
+            val listMap: HashMap<Key?, List<T?>?> = HashMap()
+            for (key in refMap.keys) listMap[key] = getList(key)
             curRefType = refType.forList()
-            setList(creator = Ref { ob }, false)
+            for (key in listMap.keys) setList(key, Ref { listMap[key] }, false)
         } else {
-            val ob = get()
+            val itemMap: HashMap<Key?, T?> = HashMap()
+            for (key in refMap.keys) itemMap[key] = get(key)
             curRefType = refType.forSingle()
-            set(creator = Ref { ob }, false)
+            for (key in itemMap.keys) set(key, Ref { itemMap[key] }, false)
         }
+    }
+
+
+    fun remove(key: Key?) {
+        refMap.remove(key)
     }
 
 
     fun reset() {
         curRefType = defType
-        refHolder = null
+        refMap.clear()
+    }
+
+
+    fun clearNulls() {
+        val keys: Set<Key?> = HashSet(refMap.keys)
+        if (!curRefType.isList) {
+            for (key in keys) {
+                if (get(key) == null) {
+                    refMap.remove(key)
+                }
+            }
+        } else {
+            for (key in keys) {
+                val list = getList(key)
+                if (list?.none { it != null } == true) {
+                    refMap.remove(key)
+                }
+            }
+        }
     }
 
 
