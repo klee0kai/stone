@@ -1,7 +1,7 @@
 package com.github.klee0kai.stone.__hidden__.types.holders
 
 import com.github.klee0kai.stone.__hidden__.StoneScope
-import com.github.klee0kai.stone.__hidden__.types.SwitchCacheParam
+import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
 import com.github.klee0kai.stone.annotations.component.SwitchCache
 import com.github.klee0kai.stone.weakref.Ref
 import kotlinx.atomicfu.atomic
