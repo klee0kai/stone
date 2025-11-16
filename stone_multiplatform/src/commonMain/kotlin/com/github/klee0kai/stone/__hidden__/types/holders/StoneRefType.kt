@@ -35,7 +35,7 @@ enum class StoneRefType {
         else -> this
     }
 
-    fun <T> formatter(): ((T) -> Ref<T?>)? {
+    fun <T> formatter(): ((T?) -> Ref<T?>)? {
         when (this) {
             WeakObject, ListWeakObject -> return { WeakRef(it) }
             SoftObject, ListSoftObject -> return { SoftRef(it) }

@@ -29,7 +29,8 @@ kotlin {
         commonMain.dependencies {
             api(project(":inject_multiplatform"))
             api(project(":weakref_multiplatform"))
-            api(libs.kotlinx.coroutines)
+            implementation(libs.kotlinx.coroutines)
+            implementation(libs.kotlinx.atomicfu)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

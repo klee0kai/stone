@@ -11,6 +11,7 @@ javax-inject = "1"
 kotlinx-coroutines = "1.10.1"
 jetbrain-immutable = "0.3.7"
 jetbrain-coroutines = "1.10.1"
+kotlinx-atomicfu = "0.29.0"
 
 auto-service = "1.1.1"
 incap = "1.0.0"
@@ -34,6 +35,7 @@ android-appcompat = { group = "androidx.appcompat", name = "appcompat", version.
 java-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
 
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu", version.ref = "kotlinx-atomicfu" }
 
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
 
