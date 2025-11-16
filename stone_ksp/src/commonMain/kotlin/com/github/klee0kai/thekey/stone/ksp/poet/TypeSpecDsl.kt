@@ -2,10 +2,7 @@ package com.github.klee0kai.thekey.stone.ksp.poet
 
 import com.squareup.kotlinpoet.*
 
-@DslMarker
-annotation class TypeSpecDsl
-
-@TypeSpecDsl
+@PoetDsl
 fun TypeSpec.Builder.genProperty(
     name: String,
     type: TypeName,
@@ -20,7 +17,7 @@ fun TypeSpec.Builder.genProperty(
         }
 }
 
-@TypeSpecDsl
+@PoetDsl
 fun TypeSpec.Builder.genClass(
     className: ClassName,
     block: TypeSpec.Builder.() -> Unit = {},
@@ -32,7 +29,7 @@ fun TypeSpec.Builder.genClass(
     )
 }
 
-@TypeSpecDsl
+@PoetDsl
 fun TypeSpec.Builder.genObject(
     className: ClassName,
     block: TypeSpec.Builder.() -> Unit = {},
@@ -44,7 +41,7 @@ fun TypeSpec.Builder.genObject(
     )
 }
 
-@TypeSpecDsl
+@PoetDsl
 fun TypeSpec.Builder.genInterface(
     className: ClassName,
     block: TypeSpec.Builder.() -> Unit = {},
@@ -56,7 +53,7 @@ fun TypeSpec.Builder.genInterface(
     )
 }
 
-@TypeSpecDsl
+@PoetDsl
 fun TypeSpec.Builder.genFun(
     name: String,
     block: FunSpec.Builder.() -> Unit = {},
@@ -68,7 +65,7 @@ fun TypeSpec.Builder.genFun(
     )
 }
 
-@TypeSpecDsl
+@PoetDsl
 fun TypeSpec.Builder.genPrimaryConstructor(
     block: FunSpec.Builder.() -> Unit = {},
 ) {
@@ -79,7 +76,7 @@ fun TypeSpec.Builder.genPrimaryConstructor(
     )
 }
 
-@TypeSpecDsl
+@PoetDsl
 fun TypeSpec.Builder.genConstructor(
     block: FunSpec.Builder.() -> Unit = {},
 ) {

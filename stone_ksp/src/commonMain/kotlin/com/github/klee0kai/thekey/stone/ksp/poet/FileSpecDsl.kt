@@ -2,10 +2,7 @@ package com.github.klee0kai.thekey.stone.ksp.poet
 
 import com.squareup.kotlinpoet.*
 
-@DslMarker
-annotation class FileSpecDsl
-
-@FileSpecDsl
+@PoetDsl
 fun genFileSpec(
     packageName: String,
     fileName: String,
@@ -16,7 +13,7 @@ fun genFileSpec(
         .build()
 }
 
-@FileSpecDsl
+@PoetDsl
 fun FileSpec.Builder.genProperty(
     name: String,
     type: TypeName,
@@ -30,7 +27,7 @@ fun FileSpec.Builder.genProperty(
     )
 }
 
-@FileSpecDsl
+@PoetDsl
 fun FileSpec.Builder.genClass(
     className: ClassName,
     block: TypeSpec.Builder.() -> Unit = {},
@@ -43,7 +40,7 @@ fun FileSpec.Builder.genClass(
 }
 
 
-@FileSpecDsl
+@PoetDsl
 fun FileSpec.Builder.genObject(
     className: ClassName,
     block: TypeSpec.Builder.() -> Unit = {},
@@ -55,7 +52,7 @@ fun FileSpec.Builder.genObject(
     )
 }
 
-@FileSpecDsl
+@PoetDsl
 fun FileSpec.Builder.genInterface(
     className: ClassName,
     block: TypeSpec.Builder.() -> Unit = {},
@@ -67,7 +64,7 @@ fun FileSpec.Builder.genInterface(
     )
 }
 
-@FileSpecDsl
+@PoetDsl
 fun FileSpec.Builder.genFun(
     name: String,
     block: FunSpec.Builder.() -> Unit = {},

@@ -3,10 +3,7 @@ package com.github.klee0kai.thekey.stone.ksp.poet
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 
-@DslMarker
-annotation class PropertySpecDsl
-
-@PropertySpecDsl
+@PoetDsl
 fun PropertySpec.Builder.genGetter(
     block: FunSpec.Builder.() -> Unit = {}
 ): FunSpec {
@@ -19,7 +16,7 @@ fun PropertySpec.Builder.genGetter(
 }
 
 
-@PropertySpecDsl
+@PoetDsl
 fun PropertySpec.Builder.genSetter(
     block: FunSpec.Builder.() -> Unit = {}
 ): FunSpec {
