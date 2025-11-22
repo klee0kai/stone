@@ -7,6 +7,9 @@ import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
+import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.ItemHolderHelper
+import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.of
+import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.toItemCacheType
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
@@ -47,7 +50,6 @@ class GenModuleProcessor : TargetFileProcessor {
     ) = SymbolsToProcess(
         symbolsForProcessing = resolver
             .getSymbolsWithAnnotation(Module::class.asClassName().canonicalName)
-            .take(2)
             .toList(),
         symbolsForReprocessing = emptyList(),
     )
@@ -67,8 +69,13 @@ class GenModuleProcessor : TargetFileProcessor {
         val componentCl = resolver.findComponentForModuleOrDep(moduleCl.toClassName())
             .firstOrNull()
 
-        val identifierTypes = componentCl?.allIdentifierTypes
-        val wrapperTypes = componentCl?.wrapperProviders
+        val identifierTypes = componentCl
+            ?.allIdentifierTypes?.toList()
+            ?: emptyList()
+
+        val wrapperTypes = componentCl
+            ?.wrapperProviders?.toList()
+            ?: emptyList()
 
         val genModuleClassName = moduleCl.moduleStoneClName
 
@@ -93,20 +100,36 @@ class GenModuleProcessor : TargetFileProcessor {
 
                 validSymbol.getAllMethods(false, false, "<init>")
                     .forEachIndexed { funIdx, function ->
-
                         val bindAnn = function.getAnnotationsByType(BindInstance::class).firstOrNull()
                         val provideAnn = function.getAnnotationsByType(Provide::class).firstOrNull()
+                        val idArguments = function.parameters
+                            .filter { it.type.resolve() in identifierTypes }
 
-                        if (provideAnn != null) {
-                            genProperty("${function.simpleName.asString()}${funIdx}", moduleCl.toClassName()) {
-                                addModifiers(KModifier.OPEN)
-                                mutable(true)
-                                initializer("%T()", moduleCl.factoryStoneClName)
+                        val returnType = function.returnType?.resolve() ?: return@forEachIndexed
+                        val nonWrappedType = returnType.noWrappedType(wrapperTypes)
+                        val isListReturnType = nonWrappedType.isListType()
+
+                        when {
+                            bindAnn != null -> {
+
                             }
 
+                            provideAnn == null || provideAnn.cache == Provide.CacheType.Factory -> {
 
+                            }
+
+                            else -> {
+                                val itemHolderHelper = ItemHolderHelper.of(
+                                    fieldName = "${function.simpleName.asString()}$funIdx",
+                                    returnType = returnType,
+                                    idArguments = idArguments,
+                                    cacheType = provideAnn.cache.toItemCacheType() ?: return@forEachIndexed,
+                                )
+                                with(itemHolderHelper) {
+                                    genCacheField()
+                                }
+                            }
                         }
-
 
                     }
 

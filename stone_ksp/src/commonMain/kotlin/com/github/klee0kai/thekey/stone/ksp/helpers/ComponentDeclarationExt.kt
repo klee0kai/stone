@@ -3,17 +3,16 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers
 
 import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnnotation
 import com.github.klee0kai.thekey.stone.ksp.ksp.isType
 import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
-import kotlin.reflect.KClass
 
 fun Resolver.findComponentForModuleOrDep(
     moduleCl: ClassName,
@@ -27,23 +26,22 @@ fun Resolver.findComponentForModuleOrDep(
         }
 }
 
-
-val KSClassDeclaration.allIdentifierTypes: Sequence<KClass<*>>
+val KSClassDeclaration.allIdentifierTypes: Sequence<KSType>
     get() {
-        val componentCl = this@allIdentifierTypes as? KSTypeReference
+        val componentCl = this@allIdentifierTypes
         val allParentsSequence = (sequenceOf(componentCl) + superTypes)
         return allParentsSequence
-            .flatMap { it?.getAnnotationsByType(Component::class) ?: emptySequence() }
-            .flatMap { it.identifiers.asSequence() }
+            .flatMap { it.findComponentAnnotation() }
+            .flatMap { it.identifiers }
     }
 
-val KSClassDeclaration.wrapperProviders: Sequence<KClass<*>>
+val KSClassDeclaration.wrapperProviders: Sequence<KSType>
     get() {
-        val componentCl = this@wrapperProviders as? KSTypeReference
+        val componentCl = this@wrapperProviders
         val allParentsSequence = (sequenceOf(componentCl) + superTypes)
         return allParentsSequence
-            .flatMap { it?.getAnnotationsByType(Component::class) ?: emptySequence() }
-            .flatMap { it.wrapperProviders.asSequence() }
+            .flatMap { it.findComponentAnnotation() }
+            .flatMap { it.wrapperProviders }
     }
 
 val KSFunctionDeclaration.scopeAnnotations: Sequence<KSAnnotation>

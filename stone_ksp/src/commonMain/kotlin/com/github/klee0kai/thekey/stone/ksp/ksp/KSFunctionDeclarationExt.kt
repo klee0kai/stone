@@ -1,6 +1,7 @@
 package com.github.klee0kai.thekey.stone.ksp.ksp
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 
 fun KSFunctionDeclaration.isSameMethods(
     other: KSFunctionDeclaration,
@@ -17,4 +18,17 @@ fun KSFunctionDeclaration.isSameMethods(
     }
 
     return true
+}
+
+fun KSFunctionDeclaration.joinInvokeArguments(
+    availableVariables: List<KSValueParameter>,
+): String {
+    return parameters.mapNotNull { parameter ->
+        val availableVariable = availableVariables.firstOrNull { it.type.resolve() == parameter.type.resolve() }
+        if (availableVariable != null) {
+            "${parameter.name!!.asString()} = ${availableVariable.name!!.asString()}"
+        } else {
+            null
+        }
+    }.joinToString(", ")
 }

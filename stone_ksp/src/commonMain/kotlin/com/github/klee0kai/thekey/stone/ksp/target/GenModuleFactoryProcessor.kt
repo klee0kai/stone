@@ -11,6 +11,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.findConstructor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
+import com.github.klee0kai.thekey.stone.ksp.ksp.joinInvokeArguments
 import com.github.klee0kai.thekey.stone.ksp.poet.genClass
 import com.github.klee0kai.thekey.stone.ksp.poet.genFileSpec
 import com.github.klee0kai.thekey.stone.ksp.poet.genFun
@@ -36,7 +37,6 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
     ) = SymbolsToProcess(
         symbolsForProcessing = resolver
             .getSymbolsWithAnnotation(Module::class.asClassName().canonicalName)
-            .take(2)
             .toList(),
         symbolsForReprocessing = emptyList(),
     )
@@ -68,7 +68,6 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                 addSuperinterface(IModuleFactory::class)
                 addModifiers(KModifier.OPEN)
 
-
                 validSymbol.getAllMethods(false, false, "<init>")
                     .forEach { function ->
                         if (!function.modifiers.contains(Modifier.ABSTRACT) && moduleCl.classKind != ClassKind.INTERFACE) return@forEach
@@ -77,7 +76,10 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                         val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
                             .firstOrNull()
 
-                        val constructorFun by lazy { returnCl.findConstructor(function.parameters) }
+                        val constructorFun by lazy {
+                            returnCl.findConstructor(
+                                parameters = function.parameters.map { it.type.resolve() })
+                        }
 
                         genFun(function.simpleName.asString()) {
                             addModifiers(KModifier.OVERRIDE)
@@ -94,7 +96,7 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                                     addStatement(
                                         "return %T( %L )",
                                         returnCl.toClassName(),
-                                        function.parameters.joinToString(", ") { it.name?.asString() ?: "it" },
+                                        constructorFun!!.joinInvokeArguments(function.parameters),
                                     )
                                 }
 

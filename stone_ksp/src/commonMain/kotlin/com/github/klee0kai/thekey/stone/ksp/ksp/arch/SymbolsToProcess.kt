@@ -7,12 +7,21 @@ data class SymbolsToProcess(
     val symbolsForReprocessing: List<KSAnnotated>,
 )
 
-fun SymbolsToProcess.takeOnly(
+fun SymbolsToProcess.nowTakeOnly(
     takeSymbolsCount: Int,
 ): SymbolsToProcess {
     return copy(
         symbolsForProcessing = symbolsForProcessing.take(takeSymbolsCount),
         symbolsForReprocessing = symbolsForReprocessing + symbolsForProcessing.drop(takeSymbolsCount),
+    )
+}
+
+fun SymbolsToProcess.filter(
+    filter: (KSAnnotated) -> Boolean,
+): SymbolsToProcess {
+    return copy(
+        symbolsForProcessing = symbolsForProcessing.filter(filter),
+        symbolsForReprocessing = symbolsForReprocessing.filter(filter),
     )
 }
 

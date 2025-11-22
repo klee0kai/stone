@@ -2,11 +2,12 @@ package com.github.klee0kai.thekey.stone.ksp
 
 import com.github.klee0kai.thekey.stone.ksp.coroutines.LaunchConductor
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
-import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.filter
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
-import com.github.klee0kai.thekey.stone.ksp.ksp.arch.takeOnly
+import com.github.klee0kai.thekey.stone.ksp.ksp.arch.nowTakeOnly
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleFactoryProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
+import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -33,13 +34,35 @@ class Processor(
     companion object {
         const val PROJECT_URL = "https://github.com/klee0kai/stone"
 
-        val ONE_RUN_SYMBOLS_COUNT = max(Runtime.getRuntime().availableProcessors(), 4)
+        var oneRunSymbolsCount = 4
+            private set
+
+        var multithread = false
+            private set
+
+        var debug = false
+            private set
+
+        var debugPkgFilter: String? = null
+            private set
     }
 
-    private val multithread = options["multithread"]?.toBoolean() ?: false
+    init {
+        oneRunSymbolsCount = options["oneRunSymbolsCount"]?.toInt()
+            ?: max(Runtime.getRuntime().availableProcessors(), 4)
+
+        multithread = options["multithread"]?.toBoolean() ?: false
+        debug = options["debug"]?.toBoolean() ?: false
+        debugPkgFilter = options["debugPkgFilter"]
+
+        // force changes
+        debug = true
+        debugPkgFilter = "com.github.klee0kai.test_kotlin.di.base_comp"
+    }
+
 
     val dispatcher by lazy { if (multithread) Dispatchers.Default else Dispatchers.Unconfined }
-    val targetProcessors = arrayOf<TargetFileProcessor>(
+    val targetProcessors = arrayOf(
         GenModuleFactoryProcessor(),
         GenModuleProcessor(),
     )
@@ -62,27 +85,30 @@ class Processor(
                     var symbols = launchConductor.finishTogether {
                         var symbols = findSymbolsMutex.withLock { processor.findSymbolsToProcess(resolver) }
 
-                        if (multithread) {
-                            // skip to next ksp run
+                        var takeSymbolsCount = 0
+                        processSymbolsCounter.updateAndGet { totalCount ->
+                            takeSymbolsCount = min(
+                                symbols.symbolsForProcessing.size,
+                                oneRunSymbolsCount - totalCount
+                            )
 
-                            var takeSymbolsCount = 0
-                            processSymbolsCounter.updateAndGet { totalCount ->
-                                takeSymbolsCount = min(
-                                    symbols.symbolsForProcessing.size,
-                                    ONE_RUN_SYMBOLS_COUNT - totalCount
-                                )
-
-                                takeSymbolsCount = max(takeSymbolsCount, 0)
-                                totalCount + takeSymbolsCount
-                            }
-                            symbols = symbols.takeOnly(takeSymbolsCount)
+                            takeSymbolsCount = max(takeSymbolsCount, 0)
+                            totalCount + takeSymbolsCount
                         }
+                        // skip to next run
+                        symbols = symbols.nowTakeOnly(takeSymbolsCount)
 
                         globalSymbolsForProcessing.addAll(symbols.symbolsForProcessing)
+
                         symbols
                     }
 
                     symbols = symbols.forceProcess { it in globalSymbolsForProcessing }
+
+                    if (debug && debugPkgFilter != null) {
+                        symbols = symbols
+                            .filter { it.containingFile?.packageName?.asString()?.startsWith(debugPkgFilter!!) ?: true }
+                    }
                     globalSymbolsForReprocessing.addAll(symbols.symbolsForReprocessing)
 
                     genSpecs.addAll(

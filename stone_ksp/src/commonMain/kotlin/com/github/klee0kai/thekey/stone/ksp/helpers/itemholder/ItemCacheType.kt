@@ -21,7 +21,7 @@ enum class ItemCacheType {
 
 fun ItemCacheType.toRefTypeSingle(
 
-): StoneRefType? = when (this) {
+): StoneRefType = when (this) {
     ItemCacheType.Strong -> StoneRefType.StrongObject
     ItemCacheType.Soft -> StoneRefType.SoftObject
     ItemCacheType.Weak -> StoneRefType.WeakObject
@@ -29,7 +29,7 @@ fun ItemCacheType.toRefTypeSingle(
 
 fun ItemCacheType.toRefTypeList(
 
-): StoneRefType? = when (this) {
+): StoneRefType = when (this) {
     ItemCacheType.Strong -> StoneRefType.ListObject
     ItemCacheType.Soft -> StoneRefType.ListSoftObject
     ItemCacheType.Weak -> StoneRefType.ListWeakObject
@@ -44,10 +44,10 @@ fun BindInstance.CacheType.toItemCacheType(
 }
 
 fun Provide.CacheType.toItemCacheType(
-): ItemCacheType = when (this) {
-    Provide.CacheType.Factory -> TODO()
-    Provide.CacheType.Weak -> TODO()
-    Provide.CacheType.Soft -> TODO()
-    Provide.CacheType.Strong -> TODO()
+): ItemCacheType? = when (this) {
+    Provide.CacheType.Factory -> null
+    Provide.CacheType.Weak -> ItemCacheType.Weak
+    Provide.CacheType.Soft -> ItemCacheType.Soft
+    Provide.CacheType.Strong -> ItemCacheType.Strong
 }
 

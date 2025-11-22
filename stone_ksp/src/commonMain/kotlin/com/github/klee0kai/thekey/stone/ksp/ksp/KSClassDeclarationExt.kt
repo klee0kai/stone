@@ -6,16 +6,21 @@ import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import kotlin.reflect.KClass
 
 fun KSClassDeclaration.findConstructor(
-    parameters: List<KSValueParameter>,
+    parameters: List<KSType>,
 ): KSFunctionDeclaration? = getDeclaredFunctions().firstOrNull { function ->
     function.simpleName.asString() == "<init>"
-            && parameters.map { it.type } == function.parameters.map { it.type }
+            && function.parameters.all { it.type.resolve() in parameters || it.hasDefault }
 }
+
+fun KSDeclaration.isAnyType(
+    vararg cl: KClass<*>,
+) = cl.any { isType(it) }
+
 
 fun KSDeclaration.isType(cl: KClass<*>): Boolean = qualifiedName?.asString() == cl.qualifiedName.toString()
 
