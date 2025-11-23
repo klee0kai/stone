@@ -107,6 +107,7 @@ class GenModuleProcessor : TargetFileProcessor {
                     superclass(moduleCl.toClassName())
                 }
                 addSuperinterface(IModule::class)
+                addSuperinterface(moduleCl.cacheControlStoneClName)
                 addModifiers(KModifier.OPEN)
                 val codeBlocks = DelayedCodeBlocks()
 
