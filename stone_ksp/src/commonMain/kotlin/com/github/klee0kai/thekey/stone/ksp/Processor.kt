@@ -6,6 +6,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.filter
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.nowTakeOnly
+import com.github.klee0kai.thekey.stone.ksp.target.GenModuleCacheControlProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleFactoryProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.containingFile
@@ -65,6 +66,7 @@ class Processor(
     val dispatcher by lazy { if (multithread) Dispatchers.Default else Dispatchers.Unconfined }
     val targetProcessors = arrayOf(
         GenModuleFactoryProcessor(),
+        GenModuleCacheControlProcessor(),
         GenModuleProcessor(),
     )
 
