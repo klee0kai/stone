@@ -83,7 +83,6 @@ class GenModuleCacheControlProcessor : TargetFileProcessor {
                     addParameter("__params", SwitchCacheParam::class)
                 }
 
-
                 validSymbol.getAllMethods(false, false, "<init>")
                     .forEach { function ->
                         val idArguments = function.parameters
@@ -95,6 +94,7 @@ class GenModuleCacheControlProcessor : TargetFileProcessor {
                         }
                         genFun(function.cacheControlMethodName) {
                             modifiers.add(KModifier.ABSTRACT)
+                            returns(function.returnType!!.resolve().toClassName())
                             addParameter("__action", CacheAction::class)
                             idArguments.forEach {
                                 addParameter(it.name!!.asString(), it.type.resolve().toClassName())

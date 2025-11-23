@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.__hidden__
 
-import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
 import com.github.klee0kai.stone.annotations.component.SwitchCache
 
 /**
@@ -28,7 +27,7 @@ class CacheAction(
     val isSwitchCacheAction: Boolean get() = type == ActionType.SWITCH_CACHE
 
     companion object {
-        val valueAction: CacheAction get() = CacheAction(ActionType.GET_VALUE)
+        val getValueAction: CacheAction get() = CacheAction(ActionType.GET_VALUE)
 
         fun setValueAction(value: Any?) = CacheAction(ActionType.SET_VALUE, value = value)
 

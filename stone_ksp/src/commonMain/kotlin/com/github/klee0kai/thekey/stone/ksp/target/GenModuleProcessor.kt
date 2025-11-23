@@ -2,6 +2,7 @@
 
 package com.github.klee0kai.thekey.stone.ksp.target
 
+import com.github.klee0kai.stone.__hidden__.CacheAction
 import com.github.klee0kai.stone.__hidden__.IModule
 import com.github.klee0kai.stone.__hidden__.types.holders.SingleItemHolder
 import com.github.klee0kai.stone.__hidden__.types.holders.StoneRefType
@@ -186,37 +187,34 @@ class GenModuleProcessor : TargetFileProcessor {
     ) {
         val returnType = function.returnType?.resolve()?.toClassName() ?: return
         genOverrideFun(function) {
-            controlFlow("if (%L.get() != null )", overridedModuleFieldName) {
-                addStatement(
-                    "val cached = %L.get().%L( null %L ) ",
-                    overridedModuleFieldName,
-                    function.cacheControlMethodName,
-                    idArguments.joinToString { ", ${it.name!!.asString()}" },
-                )
-                add("if (cached != null ) return ")
-                add(
-                    wrapperHelper.transform(
-                        code = smartCode {
-                            providingType.value = wrapperHelper.listWrapTypeIfNeed(returnType)
-                            add("cached")
-                        },
-                        wannaType = returnType,
-                    ).collect()
-                )
-                addStatement("")
-            }
+            addStatement(
+                "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
+                overridedModuleFieldName,
+                function.cacheControlMethodName,
+                CacheAction::class.asClassName(),
+                idArguments.joinToString(", ") { it.name!!.asString() },
+            )
+            addCode("if (cached != null ) return ")
+            addCode(
+                wrapperHelper.transform(
+                    code = smartCode {
+                        providingType.value = wrapperHelper.listWrapTypeIfNeed(returnType)
+                        add("cached")
+                    },
+                    wannaType = returnType,
+                ).collect()
+            )
+            addStatement("")
+
             // set value if null
             val argStrList = function.parameters.joinToString(", ") { it.name!!.asString() }
             addCode("val creator = %T{ ", Ref::class.asClassName().parameterizedBy(returnType))
-            addCode("if ( %L.get() != null ) ", overridedModuleFieldName)
             addCode(
-                " %L.get().%L( %L ) ",
-                overridedModuleFieldName,
-                function.simpleName.asString(),
-                argStrList,
+                "%L.get()?.%L(%L)",
+                overridedModuleFieldName, function.simpleName.asString(), argStrList,
             )
-            addCode(" else ")
-            addCode(" %L.%L(%L)", factoryFieldName, function.simpleName.asString(), argStrList)
+            addCode(" ?: ")
+            addCode("%L.%L(%L)", factoryFieldName, function.simpleName.asString(), argStrList)
             addCode("}\n")
             addCode(
                 itemHolderHelper.codeSetCachedValue(
@@ -230,6 +228,7 @@ class GenModuleProcessor : TargetFileProcessor {
                     onlyIfNull = true,
                 )
             )
+            addCode("\n")
             addCode("return ")
             addCode(
                 wrapperHelper.transform(
@@ -237,6 +236,7 @@ class GenModuleProcessor : TargetFileProcessor {
                     wannaType = returnType,
                 ).collect()
             )
+            addCode(" as %T", returnType)
         }
     }
 
