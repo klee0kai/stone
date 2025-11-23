@@ -8,16 +8,20 @@ import com.github.klee0kai.stone.__hidden__.types.holders.StoneRefType
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.ItemHolderHelper
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.of
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.toItemCacheType
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCodeScopeBuilder
+import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
+import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.add
+import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.smartCode
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAnnotationsByType
@@ -46,13 +50,13 @@ class GenModuleProcessor : TargetFileProcessor {
     }
 
     class DelayedCodeBlocks(
-        val initMethodCode: SmartCodeScopeBuilder = SmartCodeScopeBuilder(),
-        val initCachesFromMethodName: SmartCodeScopeBuilder = SmartCodeScopeBuilder(),
-        val bindMethodName: SmartCodeScopeBuilder = SmartCodeScopeBuilder(),
-        val getFactoryMethodName: SmartCodeScopeBuilder = SmartCodeScopeBuilder(),
-        val switchRefMethodName: SmartCodeScopeBuilder = SmartCodeScopeBuilder(),
-        val updateBindInstancesFrom: SmartCodeScopeBuilder = SmartCodeScopeBuilder(),
-        val clearNullsMethodName: SmartCodeScopeBuilder = SmartCodeScopeBuilder(),
+        val initMethodCode: SmartCode = SmartCode(),
+        val initCachesFromMethodName: SmartCode = SmartCode(),
+        val bindMethodName: SmartCode = SmartCode(),
+        val getFactoryMethodName: SmartCode = SmartCode(),
+        val switchRefMethodName: SmartCode = SmartCode(),
+        val updateBindInstancesFrom: SmartCode = SmartCode(),
+        val clearNullsMethodName: SmartCode = SmartCode(),
     )
 
 
@@ -90,6 +94,7 @@ class GenModuleProcessor : TargetFileProcessor {
 
         val genModuleClassName = moduleCl.moduleStoneClName
 
+        val wrapperHelper = WrapHelper()
 
         val fileSpec = genFileSpec(genModuleClassName.packageName, genModuleClassName.simpleName) {
             genLibComment()
@@ -133,11 +138,9 @@ class GenModuleProcessor : TargetFileProcessor {
                             }
 
                             provideAnn == null || provideAnn.cache == Provide.CacheType.Factory -> {
-                                genProvideCachedFun(
-                                    function,
-                                    idArguments,
-                                    wrapperTypes,
-                                )
+                                genOverrideFun(function) {
+
+                                }
                             }
 
                             else -> {
@@ -149,11 +152,14 @@ class GenModuleProcessor : TargetFileProcessor {
                                 )
                                 with(itemHolderHelper) {
                                     genCacheField()
-
-                                    genOverrideFun(function) {
-
-                                    }
                                 }
+                                genProvideCachedFun(
+                                    function,
+                                    idArguments,
+                                    itemHolderHelper,
+                                    wrapperTypes,
+                                    wrapperHelper,
+                                )
                             }
                         }
 
@@ -174,20 +180,63 @@ class GenModuleProcessor : TargetFileProcessor {
     private fun TypeSpec.Builder.genProvideCachedFun(
         function: KSFunctionDeclaration,
         idArguments: List<KSValueParameter>,
+        itemHolderHelper: ItemHolderHelper,
         wrapperTypes: List<KSType>,
+        wrapperHelper: WrapHelper,
     ) {
+        val returnType = function.returnType?.resolve()?.toClassName() ?: return
         genOverrideFun(function) {
             controlFlow("if (%L.get() != null )", overridedModuleFieldName) {
                 addStatement(
-                    "%T cached = %L.get().%L( null %L ) ",
-                    function.returnType!!.resolve().listWrapTypeIfNeed(wrapperTypes),
-                    overridedModuleFieldName, function.cacheControlMethodName,
-                    idArguments.joinToString { ", ${it.name}" },
+                    "val cached = %L.get().%L( null %L ) ",
+                    overridedModuleFieldName,
+                    function.cacheControlMethodName,
+                    idArguments.joinToString { ", ${it.name!!.asString()}" },
                 )
                 add("if (cached != null ) return ")
-                TODO()
-
+                add(
+                    wrapperHelper.transform(
+                        code = smartCode {
+                            providingType.value = wrapperHelper.listWrapTypeIfNeed(returnType)
+                            add("cached")
+                        },
+                        wannaType = returnType,
+                    ).collect()
+                )
+                addStatement("")
             }
+            // set value if null
+            val argStrList = function.parameters.joinToString(", ") { it.name!!.asString() }
+            addCode("val creator = %T{ ", Ref::class.asClassName().parameterizedBy(returnType))
+            addCode("if ( %L.get() != null ) ", overridedModuleFieldName)
+            addCode(
+                " %L.get().%L( %L ) ",
+                overridedModuleFieldName,
+                function.simpleName.asString(),
+                argStrList,
+            )
+            addCode(" else ")
+            addCode(" %L.%L(%L)", factoryFieldName, function.simpleName.asString(), argStrList)
+            addCode("}\n")
+            addCode(
+                itemHolderHelper.codeSetCachedValue(
+                    value = wrapperHelper.transform(
+                        code = smartCode {
+                            providingType.value = returnType
+                            add("creator.get()")
+                        },
+                        wannaType = wrapperHelper.listWrapTypeIfNeed(returnType)
+                    ).collect(),
+                    onlyIfNull = true,
+                )
+            )
+            addCode("return ")
+            addCode(
+                wrapperHelper.transform(
+                    code = itemHolderHelper.codeGetCachedValue(),
+                    wannaType = returnType,
+                ).collect()
+            )
         }
     }
 
@@ -216,27 +265,21 @@ class GenModuleProcessor : TargetFileProcessor {
         }
 
         genFun(initMethodName) {
-            codeBlocks.initMethodCode.collect(declaredVariables = emptyMap())
         }
 
         genFun(initCachesFromMethodName) {
-            codeBlocks.initCachesFromMethodName.collect(declaredVariables = emptyMap())
         }
 
         genFun(bindMethodName) {
-            codeBlocks.bindMethodName.collect(declaredVariables = emptyMap())
         }
 
         genFun(switchRefMethodName) {
-            codeBlocks.switchRefMethodName.collect(declaredVariables = emptyMap())
         }
 
         genFun(updateBindInstancesFrom) {
-            codeBlocks.updateBindInstancesFrom.collect(declaredVariables = emptyMap())
         }
 
         genFun(clearNullsMethodName) {
-            codeBlocks.clearNullsMethodName.collect(declaredVariables = emptyMap())
         }
 
     }

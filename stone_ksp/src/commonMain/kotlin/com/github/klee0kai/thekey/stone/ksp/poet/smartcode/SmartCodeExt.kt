@@ -1,63 +1,50 @@
 package com.github.klee0kai.thekey.stone.ksp.poet.smartcode
 
 import com.github.klee0kai.thekey.stone.ksp.poet.PoetDsl
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
-
-@PoetDsl
-fun SmartCodeScopeBuilder.add(
-    codeBlock: CodeBlock,
-    usedVariables: Set<String> = emptySet(),
-    providingType: ClassName? = null,
+fun SmartCode.add(
+    code: String,
 ) {
-    codes.add(
-        SimpleCodeBuilder {
-            CollectedSmartCode(
-                codeBlock = codeBlock,
-                usedVariables = usedVariables,
-                providingType = providingType,
-            )
-        })
+    add(CodeBlock.of(code))
 }
 
-@PoetDsl
-fun SmartCodeScopeBuilder.add(
-    codeBlock: String,
-    usedVariables: Set<String> = emptySet(),
-    providingType: ClassName? = null,
+fun SmartCode.add(
+    code: String,
+    vararg arg: Any
 ) {
-    codes.add(
-        SimpleCodeBuilder {
-            CollectedSmartCode(
-                codeBlock = CodeBlock.Builder().apply {
-                    add(codeBlock)
-                }.build(),
-                usedVariables = usedVariables,
-                providingType = providingType,
-            )
-        })
+    add(CodeBlock.of(code, *arg))
 }
 
-@PoetDsl
-fun SmartCodeScopeBuilder.add(
-    codeBlock: CollectedSmartCode.ScopedBuilder.() -> Unit,
-) {
-    codes.add(
-        SimpleCodeBuilder {
-            CollectedSmartCode.ScopedBuilder(it).apply(codeBlock).build()
-        }
-    )
-}
 
 @PoetDsl
-fun SmartCodeScopeBuilder.smartCode(
-    codeBlock: SmartCodeScopeBuilder.() -> Unit,
+fun smartCode(
+    block: SmartCode.() -> Unit,
+) = SmartCode()
+    .apply(block)
+
+
+@PoetDsl
+fun smartCode(
+    string: String,
+) = SmartCode()
+    .apply {
+        add(string)
+    }
+
+
+@PoetDsl
+fun SmartCode.add(
+    block: SmartCode.() -> Unit,
 ) {
-    codes.add(
-        SmartCodeScopeBuilder()
-            .apply(codeBlock)
-    )
+    val parentBlock = this
+    val builder = SmartCode(parentBlock)
+    availableVariables.source = parentBlock.availableVariables
+    builder.block()
+    parentBlock.add(builder)
 }
+
+
+
 
 

@@ -2,14 +2,24 @@ package com.github.klee0kai.thekey.stone.ksp.helpers.itemholder
 
 import com.github.klee0kai.thekey.stone.ksp.helpers.isListType
 import com.github.klee0kai.thekey.stone.ksp.helpers.noWrappedType
+import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.TypeSpec
 
 interface ItemHolderHelper {
     companion object;
 
     fun TypeSpec.Builder.genCacheField()
+
+    fun codeGetCachedValue(): SmartCode
+
+    fun codeSetCachedValue(
+        value: CodeBlock,
+        onlyIfNull: Boolean,
+    ): CodeBlock
+
 
 }
 
@@ -57,6 +67,6 @@ fun ItemHolderHelper.Companion.of(
             isListCaching = noWrappedReturnType.isListType(),
             defRefType = defRefType,
             keyArguments = idArguments,
-            )
+        )
     }
 }

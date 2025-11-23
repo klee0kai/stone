@@ -16,7 +16,7 @@ val String.hiddenModuleClName: String get() = "${this}_HMStone"
 
 val String.wrapperClName: String get() = "${this}_TWStone"
 
-val KSFunctionDeclaration.cacheControlMethodName get() = "__" + simpleName + "_cache"
+val KSFunctionDeclaration.cacheControlMethodName get() = "__" + simpleName.asString() + "_cache"
 
 val KSClassDeclaration.componentStoneClName
     get() = ClassName(

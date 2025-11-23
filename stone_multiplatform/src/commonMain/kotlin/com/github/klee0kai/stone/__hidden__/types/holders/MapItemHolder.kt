@@ -48,8 +48,8 @@ class MapItemHolder<Key, T>(
 
     fun set(
         key: Key?,
-        creator: Ref<T?>,
         onlyIfNull: Boolean,
+        creator: Ref<T?>,
     ) {
         val refHolder = refMap[key]
         if (curRefType == StoneRefType.StrongObject) {
@@ -72,8 +72,8 @@ class MapItemHolder<Key, T>(
 
     fun setList(
         key: Key?,
-        creator: Ref<List<T?>?>,
         onlyIfNull: Boolean,
+        creator: Ref<List<T?>?>,
     ) {
         val refHolder = refMap[key]
         if (curRefType == StoneRefType.ListObject) {
@@ -118,12 +118,12 @@ class MapItemHolder<Key, T>(
             val listMap: HashMap<Key?, List<T?>?> = HashMap()
             for (key in refMap.keys) listMap[key] = getList(key)
             curRefType = refType.forList()
-            for (key in listMap.keys) setList(key, Ref { listMap[key] }, false)
+            for (key in listMap.keys) setList(key, onlyIfNull = false) { listMap[key] }
         } else {
             val itemMap: HashMap<Key?, T?> = HashMap()
             for (key in refMap.keys) itemMap[key] = get(key)
             curRefType = refType.forSingle()
-            for (key in itemMap.keys) set(key, Ref { itemMap[key] }, false)
+            for (key in itemMap.keys) set(key, onlyIfNull = false) { itemMap[key] }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.github.klee0kai.thekey.stone.ksp
 
 import com.github.klee0kai.thekey.stone.ksp.coroutines.LaunchConductor
+import com.github.klee0kai.thekey.stone.ksp.exceptions.StoneException
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.filter
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
@@ -111,17 +112,22 @@ class Processor(
                     }
                     globalSymbolsForReprocessing.addAll(symbols.symbolsForReprocessing)
 
-                    genSpecs.addAll(
-                        symbols.symbolsForProcessing
-                            .mapNotNull { targetSymbol ->
-                                processor.process(
-                                    validSymbol = targetSymbol,
-                                    resolver = resolver,
-                                    options = options,
-                                    logger = logger,
-                                )
-                            }
-                    )
+                    try {
+                        genSpecs.addAll(
+                            symbols.symbolsForProcessing
+                                .mapNotNull { targetSymbol ->
+                                    processor.process(
+                                        validSymbol = targetSymbol,
+                                        resolver = resolver,
+                                        options = options,
+                                        logger = logger,
+                                    )
+                                }
+                        )
+                    } catch (e: StoneException) {
+                        logger.error(e.toString(), e.findErrorElement())
+                    }
+
                 }
             }
         }

@@ -8,7 +8,7 @@ fun CodeBlock.Builder.controlFlow(
     vararg args: Any,
     block: CodeBlock.Builder.() -> Unit,
 ) = apply {
-    beginControlFlow(controlFlow, args)
+    beginControlFlow(controlFlow, *args)
         .add(CodeBlock.builder().apply(block).build())
         .endControlFlow()
 }
@@ -18,7 +18,7 @@ fun FunSpec.Builder.controlFlow(
     vararg args: Any,
     block: CodeBlock.Builder.() -> Unit,
 ) = apply {
-    beginControlFlow(controlFlow, args)
+    beginControlFlow(controlFlow, *args)
         .addCode(CodeBlock.builder().apply(block).build())
         .endControlFlow()
 }

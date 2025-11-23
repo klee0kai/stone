@@ -1,6 +1,6 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.wrap
 
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCodeScopeBuilder
+import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
 
 fun interface FormatInList {
 
@@ -8,5 +8,9 @@ fun interface FormatInList {
      * @param itemTransformFun format each type
      * @return
      */
-    fun SmartCodeScopeBuilder.formatCode(itemTransformFun: FormatSimple)
+    fun formatCode(
+        or: SmartCode,
+        itemTransformFun: FormatSimple,
+    ): SmartCode
+
 }

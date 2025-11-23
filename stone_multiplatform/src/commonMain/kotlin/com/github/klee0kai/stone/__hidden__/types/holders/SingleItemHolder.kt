@@ -36,8 +36,8 @@ class SingleItemHolder<T>(
 
 
     fun set(
-        creator: Ref<T?>,
         onlyIfNull: Boolean,
+        creator: Ref<T?>,
     ) {
         if (curRefType == StoneRefType.StrongObject) {
             if (refHolder != null && onlyIfNull) return
@@ -58,8 +58,8 @@ class SingleItemHolder<T>(
     }
 
     fun setList(
-        creator: Ref<List<T?>?>,
         onlyIfNull: Boolean,
+        creator: Ref<List<T?>?>,
     ) {
         if (curRefType == StoneRefType.ListObject) {
             if (!onlyIfNull || refHolder == null) {
@@ -103,11 +103,11 @@ class SingleItemHolder<T>(
         if (defType.isList) {
             val ob = this.getList()
             curRefType = refType.forList()
-            setList(creator = Ref { ob }, false)
+            setList(onlyIfNull = false) { ob }
         } else {
             val ob = get()
             curRefType = refType.forSingle()
-            set(creator = Ref { ob }, false)
+            set(onlyIfNull = false) { ob }
         }
     }
 
