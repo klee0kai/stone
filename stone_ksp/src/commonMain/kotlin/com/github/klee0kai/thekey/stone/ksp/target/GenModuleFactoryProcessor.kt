@@ -14,8 +14,8 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.joinInvokeArguments
 import com.github.klee0kai.thekey.stone.ksp.poet.genClass
 import com.github.klee0kai.thekey.stone.ksp.poet.genFileSpec
-import com.github.klee0kai.thekey.stone.ksp.poet.genFun
 import com.github.klee0kai.thekey.stone.ksp.poet.genLibComment
+import com.github.klee0kai.thekey.stone.ksp.poet.genOverrideFun
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAnnotationsByType
@@ -81,12 +81,7 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                                 parameters = function.parameters.map { it.type.resolve() })
                         }
 
-                        genFun(function.simpleName.asString()) {
-                            addModifiers(KModifier.OVERRIDE)
-                            declareSameParameters(function)
-                            returns(returnCl.toClassName())
-                            if (function.isSuspend) addModifiers(KModifier.SUSPEND)
-
+                        genOverrideFun(function) {
                             when {
                                 bindInstanceAnn != null -> {
                                     addStatement("return null")

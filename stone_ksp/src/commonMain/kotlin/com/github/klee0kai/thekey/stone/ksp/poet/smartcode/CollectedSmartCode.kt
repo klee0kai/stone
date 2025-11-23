@@ -2,12 +2,13 @@ package com.github.klee0kai.thekey.stone.ksp.poet.smartcode
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.TypeName
 
 class CollectedSmartCode(
     val codeBlock: CodeBlock,
     val declareLocalVariable: Pair<String, ClassName>? = null,
     val usedVariables: Set<String> = emptySet(),
-    val providingType: ClassName? = null,
+    val providingType: TypeName? = null,
 ) {
 
     class ScopedBuilder(

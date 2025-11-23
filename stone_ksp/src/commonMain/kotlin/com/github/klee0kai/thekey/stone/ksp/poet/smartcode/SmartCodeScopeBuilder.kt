@@ -3,13 +3,14 @@ package com.github.klee0kai.thekey.stone.ksp.poet.smartcode
 import com.github.klee0kai.thekey.stone.ksp.poet.PoetDsl
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.TypeName
 
 open class SmartCodeScopeBuilder() : SimpleCodeBuilder {
 
     val codes = mutableListOf<SimpleCodeBuilder>()
 
     var declareLocalVariable: Pair<String, ClassName>? = null
-    var providingType: ClassName? = null
+    var providingType: TypeName? = null
 
     override fun collect(
         declaredVariables: Map<String, ClassName>,

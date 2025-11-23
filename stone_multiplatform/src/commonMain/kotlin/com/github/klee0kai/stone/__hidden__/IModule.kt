@@ -4,6 +4,14 @@ package com.github.klee0kai.stone.__hidden__
  * Stone Private class
  */
 interface IModule {
+
+    /**
+     * get component's factory
+     *
+     * @return
+     */
+    val factory: Any?
+
     /**
      * Init module
      *
@@ -33,12 +41,6 @@ interface IModule {
      */
     fun __bind(`object`: Any?): Boolean
 
-    /**
-     * get component's factory
-     *
-     * @return
-     */
-    fun __getFactory(): Any?
 
     /**
      * TODO Switch cache type for scope
