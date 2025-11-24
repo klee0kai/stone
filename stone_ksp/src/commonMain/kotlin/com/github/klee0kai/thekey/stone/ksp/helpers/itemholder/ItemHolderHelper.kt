@@ -20,6 +20,11 @@ interface ItemHolderHelper {
         onlyIfNull: Boolean,
     ): CodeBlock
 
+    fun statementSwitchRef(
+        paramsCode: CodeBlock,
+    ): CodeBlock
+
+    fun clearNullsStatement(): CodeBlock
 
 }
 

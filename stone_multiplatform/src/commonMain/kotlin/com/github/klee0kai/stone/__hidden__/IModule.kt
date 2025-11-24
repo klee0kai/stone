@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.__hidden__
 
+import kotlin.reflect.KClass
+
 /**
  * Stone Private class
  */
@@ -19,20 +21,20 @@ interface IModule {
      * - a factory instance
      * - a factory class
      */
-    fun __init(ob: Any?): Boolean
+    fun __init(ob: Any): Boolean
 
     /**
      * Init caches from module prototype.
      * using in extOf method
      */
-    fun __initCachesFrom(module: com.github.klee0kai.stone.__hidden__.IModule?)
+    fun __initCachesFrom(module: IModule)
 
     /**
      * Update values of bindInstance variables
      *
      * @param module related module, source to update
      */
-    fun __updateBindInstancesFrom(module: com.github.klee0kai.stone.__hidden__.IModule?)
+    fun __updateBindInstancesFrom(module: IModule)
 
     /**
      * bind instance objects
@@ -43,9 +45,9 @@ interface IModule {
 
 
     /**
-     * TODO Switch cache type for scope
+     * Switch cache type for scope
      */
-//    fun __switchRef(scopes: MutableSet<Class<*>?>?, param: SwitchCacheParam?)
+    public fun __switchRef(scopes: Set<KClass<*>>, __params: SwitchCacheParam)
 
     /**
      * Clear null refs.

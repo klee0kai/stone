@@ -67,4 +67,16 @@ class MultiKeyMapItemHolderHelper(
         providingType.value = returnType.toClassName()
     }.collect()
 
+    override fun statementSwitchRef(
+        paramsCode: CodeBlock,
+    ): CodeBlock = CodeBlock.builder()
+        .addStatement("%L.switchCache(%L)", fieldName, paramsCode)
+        .build()
+
+
+    override fun clearNullsStatement(): CodeBlock = CodeBlock.Builder()
+        .addStatement("%L.clearNulls()", fieldName)
+        .build()
+
+
 }
