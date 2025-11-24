@@ -6,17 +6,17 @@ import com.github.klee0kai.stone.annotations.component.GcStrongScope
 import com.github.klee0kai.stone.annotations.component.GcWeakScope
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Provide
-import kotlin.reflect.KClass
+import com.squareup.kotlinpoet.asClassName
 
 enum class ItemCacheType {
     Strong, Soft, Weak;
 
-    val gcScopeClassName: KClass<out Annotation>
+    val gcScopeClassName
         get() = when (this) {
             Weak -> GcWeakScope::class
             Strong -> GcStrongScope::class
             Soft -> GcSoftScope::class
-        }
+        }.asClassName()
 }
 
 fun ItemCacheType.toRefTypeSingle(

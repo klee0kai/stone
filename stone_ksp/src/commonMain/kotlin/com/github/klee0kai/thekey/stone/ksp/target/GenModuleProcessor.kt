@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.__hidden__.IModule
 import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
 import com.github.klee0kai.stone.__hidden__.types.holders.SingleItemHolder
 import com.github.klee0kai.stone.__hidden__.types.holders.StoneRefType
+import com.github.klee0kai.stone.annotations.component.GcAllScope
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
@@ -59,6 +60,7 @@ class GenModuleProcessor : TargetFileProcessor {
         val switchRefMethodBody: SmartCode = SmartCode(),
         val updateBindInstancesFromBody: SmartCode = SmartCode(),
         val clearNullsMethodBody: SmartCode = SmartCode(),
+        val switchRefStatementBuilders: MutableMap<Set<TypeName>, CodeBlock.Builder> = mutableMapOf()
     )
 
 
@@ -122,6 +124,10 @@ class GenModuleProcessor : TargetFileProcessor {
                         val returnType = function.returnType?.resolve() ?: return@forEachIndexed
                         val nonWrappedType = returnType.noWrappedType(wrapperTypes)
                         val isListReturnType = nonWrappedType.isListType()
+                        val gcScopes = (function.scopeAnnotations
+                            .map { it.annotationType.resolve().toClassName() }
+                            .toSet() + GcAllScope::class.asClassName()).toMutableSet()
+
 
                         when {
                             bindAnn != null -> {
@@ -131,6 +137,10 @@ class GenModuleProcessor : TargetFileProcessor {
                                     idArguments = idArguments,
                                     cacheType = bindAnn.cache.toItemCacheType(),
                                 )
+                                gcScopes += bindAnn.cache.toItemCacheType().gcScopeClassName
+                                codeBlocks.switchRefStatementBuilders.getOrPut(gcScopes) { CodeBlock.builder() }
+                                    .add(itemHolderHelper.statementSwitchRef(CodeBlock.of("__params")))
+
                                 codeBlocks.clearNullsMethodBody.add(itemHolderHelper.clearNullsStatement())
 
                                 with(itemHolderHelper) {
@@ -154,6 +164,9 @@ class GenModuleProcessor : TargetFileProcessor {
                                     idArguments = idArguments,
                                     cacheType = provideAnn.cache.toItemCacheType() ?: return@forEachIndexed,
                                 )
+                                gcScopes += provideAnn.cache.toItemCacheType()!!.gcScopeClassName
+                                codeBlocks.switchRefStatementBuilders.getOrPut(gcScopes) { CodeBlock.builder() }
+                                    .add(itemHolderHelper.statementSwitchRef(CodeBlock.of("__params")))
                                 codeBlocks.clearNullsMethodBody.add(itemHolderHelper.clearNullsStatement())
                                 with(itemHolderHelper) {
                                     genCacheField()
@@ -168,7 +181,6 @@ class GenModuleProcessor : TargetFileProcessor {
                                     function = function,
                                     idArguments = idArguments,
                                     itemHolderHelper = itemHolderHelper,
-                                    wrapperHelper = wrapperHelper,
                                 )
                             }
                         }
@@ -252,7 +264,6 @@ class GenModuleProcessor : TargetFileProcessor {
         function: KSFunctionDeclaration,
         idArguments: List<KSValueParameter>,
         itemHolderHelper: ItemHolderHelper,
-        wrapperHelper: WrapHelper,
     ) {
         val returnType = function.returnType?.resolve()?.toClassName() ?: return
         genFun(function.cacheControlMethodName) {
@@ -352,14 +363,23 @@ class GenModuleProcessor : TargetFileProcessor {
                     )
             )
             addParameter("__params", SwitchCacheParam::class)
+
+            codeBlocks.switchRefStatementBuilders.forEach { (key, value) ->
+                addCode("if (listOf(")
+                key.forEachIndexed { idx,scope->
+                    if (idx >0) addCode(", ")
+                    addCode("%T::class", scope)
+                }
+                beginControlFlow(").containsAll(scopes))")
+                addCode(value.build())
+                endControlFlow()
+            }
         }
 
         genFun(updateBindInstancesFrom) {
             addModifiers(KModifier.OVERRIDE)
             addParameter("m", IModule::class)
             addStatement("if (m == this) return")
-
-
         }
 
         genFun(clearNullsMethodName) {
