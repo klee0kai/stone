@@ -13,6 +13,7 @@ import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
+import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.annotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.ItemHolderHelper
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.of
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.toItemCacheType
@@ -28,6 +29,7 @@ import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.add
 import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.smartCode
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
+import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -188,7 +190,11 @@ class GenModuleProcessor : TargetFileProcessor {
                     }
 
 
-                genIModelMethods(moduleCl, codeBlocks)
+                genIModelMethods(
+                    moduleCl = moduleCl,
+                    identifierTypes = identifierTypes,
+                    codeBlocks = codeBlocks,
+                )
             }
         }
 
@@ -309,9 +315,10 @@ class GenModuleProcessor : TargetFileProcessor {
 
     private fun TypeSpec.Builder.genIModelMethods(
         moduleCl: KSClassDeclaration,
+        identifierTypes: List<KSType>,
         codeBlocks: DelayedCodeBlocks,
+    ) {
 
-        ) {
         genProperty(
             name = factoryFieldName,
             type = moduleCl.toClassName(),
@@ -341,7 +348,36 @@ class GenModuleProcessor : TargetFileProcessor {
         genFun(initCachesFromMethodName) {
             addModifiers(KModifier.OVERRIDE)
             addParameter("m", IModule::class)
-            //TODO
+            addStatement("if (m == this) return")
+            (sequenceOf(moduleCl) + moduleCl.getAllSuperTypes().map { it.declaration })
+                .filter { it.annotations(Module::class.asClassName()).any() }
+                .mapNotNull { it as? KSClassDeclaration }
+                .forEach { cl ->
+                    val cacheControlCl = cl.cacheControlStoneClName
+                    beginControlFlow("if ( m is %T )", cacheControlCl)
+                    addStatement("val module = m as %T", cacheControlCl)
+
+                    cl.getAllMethods(
+                        includeObjectMethods = false,
+                        allowDoubles = false,
+                        exceptNames = arrayOf("<init>"),
+                    ).forEach { protoProvideMethod ->
+                        val cacheControlMethod = protoProvideMethod.cacheControlMethodName
+                        val idArguments = protoProvideMethod.parameters
+                            .filter { it.type.resolve() in identifierTypes }
+                        if (!idArguments.isEmpty()) {
+                            // TODO https://github.com/klee0kai/stone/issues/42
+                            return@forEach
+                        }
+
+                        addStatement(
+                            "%L( %T.setIfNullValueAction( module.%L( %T.getValueAction ) ) )",
+                            cacheControlMethod, CacheAction::class,
+                            protoProvideMethod, CacheAction::class,
+                        );
+                    }
+                    endControlFlow()
+                }
         }
 
         genFun(bindMethodName) {
@@ -366,8 +402,8 @@ class GenModuleProcessor : TargetFileProcessor {
 
             codeBlocks.switchRefStatementBuilders.forEach { (key, value) ->
                 addCode("if (listOf(")
-                key.forEachIndexed { idx,scope->
-                    if (idx >0) addCode(", ")
+                key.forEachIndexed { idx, scope ->
+                    if (idx > 0) addCode(", ")
                     addCode("%T::class", scope)
                 }
                 beginControlFlow(").containsAll(scopes))")

@@ -21,7 +21,6 @@ fun KSDeclaration.isAnyType(
     vararg cl: KClass<*>,
 ) = cl.any { isType(it) }
 
-
 fun KSDeclaration.isType(cl: KClass<*>): Boolean = qualifiedName?.asString() == cl.qualifiedName.toString()
 
 fun KSDeclaration.isType(cl: ClassName): Boolean = qualifiedName?.asString() == cl.toString()

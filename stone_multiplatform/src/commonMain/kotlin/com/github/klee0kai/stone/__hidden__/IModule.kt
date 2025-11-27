@@ -39,9 +39,9 @@ interface IModule {
     /**
      * bind instance objects
      *
-     * @param object - An instance of bindable objects
+     * @param or - An instance of bindable objects
      */
-    fun __bind(`object`: Any?): Boolean
+    fun __bind(or: Any): Boolean
 
 
     /**

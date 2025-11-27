@@ -2,7 +2,9 @@ package com.github.klee0kai.thekey.stone.ksp.helpers.annotations
 
 import com.github.klee0kai.stone.annotations.component.Component
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 
@@ -10,6 +12,18 @@ class ComponentAnnMirror(
     val identifiers: List<KSType>,
     val wrapperProviders: List<KSType>,
 )
+
+
+fun KSAnnotated.annotations(
+    className: ClassName,
+): Sequence<KSAnnotation> = annotations
+    .filter { it.annotationType.resolve().toClassName() == className }
+
+fun KSType.annotations(
+    className: ClassName,
+): Sequence<KSAnnotation> = annotations
+    .filter { it.annotationType.resolve().toClassName() == className }
+
 
 @Suppress("UNCHECKED_CAST")
 fun KSAnnotated.findComponentAnnotation(
