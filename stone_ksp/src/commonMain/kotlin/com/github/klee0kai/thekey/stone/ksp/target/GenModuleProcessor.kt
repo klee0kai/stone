@@ -150,6 +150,13 @@ class GenModuleProcessor : TargetFileProcessor {
                                     genOverrideFun(function) {
 
                                     }
+
+                                    codeBlocks.bindMethodBody.add {
+                                        add("if (or::class == %T::class) {\n", nonWrappedType)
+                                        add(codeSetCachedValue(CodeBlock.of("or"), false))
+                                        add("%L = true", appliedLocalFieldName)
+                                        add("}")
+                                    }
                                 }
                             }
 
@@ -342,7 +349,38 @@ class GenModuleProcessor : TargetFileProcessor {
             addModifiers(KModifier.OVERRIDE)
             returns(BOOLEAN)
             addParameter("or", Any::class)
-            //TODO
+            addStatement("if (or === this) return false")
+            addStatement("var %L = false", appliedLocalFieldName)
+
+            // check module class
+            beginControlFlow(
+                "if ( (or is %T) ) ",
+                moduleCl.cacheControlStoneClName,
+            )
+            addStatement(
+                "%L.set(onlyIfNull = false) { or }",
+                overridedModuleFieldName,
+            )
+            addStatement(
+                "%L = (or as %T).%L as %T",
+                factoryFieldName,
+                IModule::class.asClassName(),
+                factoryFieldName,
+                moduleCl.toClassName(),
+            )
+            addStatement("%L = true", appliedLocalFieldName)
+            endControlFlow() // check factory class
+            beginControlFlow("else if (or is %T) ", moduleCl.toClassName())
+            addStatement(
+                "%L = or as %T",
+                factoryFieldName,
+                moduleCl.toClassName(),
+
+                )
+            addStatement("%L = true", appliedLocalFieldName)
+            endControlFlow() // get module factory by module class
+
+            addStatement("return %L", appliedLocalFieldName)
         }
 
         genFun(initCachesFromMethodName) {
@@ -384,8 +422,11 @@ class GenModuleProcessor : TargetFileProcessor {
             addModifiers(KModifier.OVERRIDE)
             addParameter("or", Any::class)
             returns(BOOLEAN)
+            addStatement("%L.get()?.%L(or)", overridedModuleFieldName, bindMethodName)
 
             addStatement("var %L = false", appliedLocalFieldName)
+            addCode(codeBlocks.bindMethodBody.collect())
+            addStatement("return %L", appliedLocalFieldName)
         }
 
         genFun(switchRefMethodName) {
