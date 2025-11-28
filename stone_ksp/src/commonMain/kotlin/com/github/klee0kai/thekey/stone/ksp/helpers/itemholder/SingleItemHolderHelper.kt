@@ -47,7 +47,7 @@ class SingleItemHolderHelper(
         val setMethod = if (isListCaching) "setList" else "set"
         add("%L.%L(onlyIfNull = %L ){ ", fieldName, setMethod, onlyIfNull)
         add(value)
-        add("}")
+        add(" }")
         providingType.value = returnType.toClassName()
     }.collect()
 

@@ -27,6 +27,9 @@ class Property<T>(
     fun subscribeChanges(
         block: (T) -> Unit,
     ) {
+        if (block === updateThisValueSubscription) {
+            return
+        }
         subscriptions += block
         block(value)
     }

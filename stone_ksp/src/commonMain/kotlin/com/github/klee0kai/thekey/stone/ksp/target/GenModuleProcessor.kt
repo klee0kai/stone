@@ -55,16 +55,10 @@ class GenModuleProcessor : TargetFileProcessor {
     }
 
     class DelayedCodeBlocks(
-        val initMethodBody: SmartCode = SmartCode(),
-        val initCachesFromMethodBody: SmartCode = SmartCode(),
         val bindMethodBody: SmartCode = SmartCode(),
-        val getFactoryMethodBody: SmartCode = SmartCode(),
-        val switchRefMethodBody: SmartCode = SmartCode(),
-        val updateBindInstancesFromBody: SmartCode = SmartCode(),
         val clearNullsMethodBody: SmartCode = SmartCode(),
         val switchRefStatementBuilders: MutableMap<Set<TypeName>, CodeBlock.Builder> = mutableMapOf()
     )
-
 
     override suspend fun findSymbolsToProcess(
         resolver: Resolver,
@@ -147,22 +141,48 @@ class GenModuleProcessor : TargetFileProcessor {
 
                                 with(itemHolderHelper) {
                                     genCacheField()
-                                    genOverrideFun(function) {
-
-                                    }
 
                                     codeBlocks.bindMethodBody.add {
-                                        add("if (or::class == %T::class) {\n", nonWrappedType)
+                                        add(
+                                            "if (or is %T && or::class == %T::class) {\n",
+                                            nonWrappedType.toClassName().copy(nullable = false),
+                                            nonWrappedType.toClassName().copy(nullable = false),
+                                        )
                                         add(codeSetCachedValue(CodeBlock.of("or"), false))
-                                        add("%L = true", appliedLocalFieldName)
-                                        add("}")
+                                        add("\n")
+                                        add("%L = true\n", appliedLocalFieldName)
+                                        add("}\n")
                                     }
                                 }
+
+                                genBindInstance(
+                                    function = function,
+                                    idArguments = idArguments,
+                                    itemHolderHelper = itemHolderHelper,
+                                    wrapperHelper = wrapperHelper,
+                                )
+                                genCacheControlFun(
+                                    function = function,
+                                    idArguments = idArguments,
+                                    itemHolderHelper = itemHolderHelper,
+                                )
+
+
                             }
 
                             provideAnn == null || provideAnn.cache == Provide.CacheType.Factory -> {
                                 genOverrideFun(function) {
-
+                                    addStatement(
+                                        "return %L.%L(%L)", factoryFieldName,
+                                        function.simpleName.asString(),
+                                        function.parameters.joinToString(", ") { it.name!!.asString() })
+                                }
+                                genFun(function.cacheControlMethodName) {
+                                    modifiers.add(KModifier.OVERRIDE)
+                                    val returnType = function.returnType?.resolve()?.toClassName()
+                                    returnType?.let { returns(returnType.copy(nullable = true)) }
+                                    addParameter("__action", CacheAction::class)
+                                    addStatement("return null")
                                 }
                             }
 
@@ -210,6 +230,59 @@ class GenModuleProcessor : TargetFileProcessor {
             // https://kotlinlang.org/docs/ksp-incremental.html
             dependencies = Dependencies(aggregating = false, fileOwner),
         )
+    }
+
+
+    private fun TypeSpec.Builder.genBindInstance(
+        function: KSFunctionDeclaration,
+        idArguments: List<KSValueParameter>,
+        itemHolderHelper: ItemHolderHelper,
+        wrapperHelper: WrapHelper,
+    ) {
+        val returnType = function.returnType?.resolve() ?: return
+        val setValueArg = function.parameters.firstOrNull { it.type.resolve() == returnType }
+
+        genOverrideFun(function) {
+            addStatement(
+                "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
+                overridedModuleFieldName,
+                function.cacheControlMethodName,
+                CacheAction::class.asClassName(),
+                idArguments.joinToString(", ") { it.name!!.asString() },
+            )
+            addCode("if (cached != null ) return ")
+            addCode(
+                wrapperHelper.transform(
+                    code = smartCode {
+                        providingType.value = wrapperHelper.listWrapTypeIfNeed(returnType.toClassName())
+                        add("cached")
+                    },
+                    wannaType = returnType.toClassName(),
+                ).collect()
+            )
+            addStatement("")
+
+            if (setValueArg != null) {
+                beginControlFlow("if (%L != null)", setValueArg.name!!.asString())
+                addCode(
+                    itemHolderHelper.codeSetCachedValue(
+                        value = CodeBlock.of("%L", setValueArg.name!!.asString()),
+                        onlyIfNull = false
+                    )
+                )
+                endControlFlow();
+            }
+
+
+            addCode("return ")
+            addCode(
+                wrapperHelper.transform(
+                    code = itemHolderHelper.codeGetCachedValue(),
+                    wannaType = returnType.toClassName(),
+                ).collect()
+            )
+            addCode(" as %T", returnType.toClassName())
+        }
     }
 
     private fun TypeSpec.Builder.genProvideCachedFun(
@@ -411,7 +484,7 @@ class GenModuleProcessor : TargetFileProcessor {
                         addStatement(
                             "%L( %T.setIfNullValueAction( module.%L( %T.getValueAction ) ) )",
                             cacheControlMethod, CacheAction::class,
-                            protoProvideMethod, CacheAction::class,
+                            cacheControlMethod, CacheAction::class,
                         );
                     }
                     endControlFlow()

@@ -84,7 +84,11 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                         genOverrideFun(function) {
                             when {
                                 bindInstanceAnn != null -> {
-                                    addStatement("return null")
+                                    addStatement(
+                                        "throw %T(%S)",
+                                        NotImplementedError::class.asClassName(),
+                                        "Object generation is not available for bind instance methods"
+                                    )
                                 }
 
                                 constructorFun != null -> {
