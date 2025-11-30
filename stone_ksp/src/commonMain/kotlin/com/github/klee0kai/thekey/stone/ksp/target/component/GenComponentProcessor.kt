@@ -4,11 +4,11 @@ import com.github.klee0kai.stone.__hidden__.IModule
 import com.github.klee0kai.stone.__hidden__.IPrivateComponent
 import com.github.klee0kai.stone.__hidden__.types.WeakList
 import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.dependencies.Dependencies
+import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
-import com.github.klee0kai.thekey.stone.ksp.helpers.allIdentifierTypes
-import com.github.klee0kai.thekey.stone.ksp.helpers.componentStoneClName
-import com.github.klee0kai.thekey.stone.ksp.helpers.hiddenModuleStoneClName
-import com.github.klee0kai.thekey.stone.ksp.helpers.wrapperProviders
+import com.github.klee0kai.thekey.stone.ksp.helpers.*
+import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.anyAnnotation
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
@@ -17,7 +17,6 @@ import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAllSuperTypes
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
@@ -26,6 +25,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.google.devtools.ksp.processing.Dependencies as KspDependencies
 
 class GenComponentProcessor : TargetFileProcessor {
 
@@ -102,19 +102,77 @@ class GenComponentProcessor : TargetFileProcessor {
                 componentsAllMethods.forEach { m ->
                     when {
                         m.isModuleProvideMethod -> {
-
+                            val moduleCl = m.returnType?.resolve()?.declaration as? KSClassDeclaration
+                                ?: throw IncorrectSignatureException(
+                                    message = "wrong return type. Must by Module type",
+                                    element = m
+                                )
+                            genProperty(m.simpleName.asString(), moduleCl.moduleStoneClName) {
+                                addModifiers(KModifier.PRIVATE)
+                                initializer("%T()", moduleCl.moduleStoneClName)
+                            }
+                            genOverrideFun(m) {
+                                returns(moduleCl.moduleStoneClName)
+                                addStatement("return %L", m.simpleName.asString())
+                            }
                         }
 
                         m.isModuleFactoryProvideMethod -> {
-
+                            val providingModuleFun = componentsAllMethods
+                                .filter { it.isModuleProvideMethod }
+                                .firstOrNull {
+                                    it.returnType?.resolve()?.toClassName() == m.returnType?.resolve()?.toClassName()
+                                }
+                                ?: throw IncorrectSignatureException(
+                                    message = "Component must also have providing module simple method with same type",
+                                    element = m.returnType,
+                                )
+                            genOverrideFun(m) {
+                                addStatement(
+                                    "return %L.%L",
+                                    providingModuleFun.simpleName.asString(),
+                                    GenModuleProcessor.factoryFieldName
+                                )
+                            }
                         }
 
                         m.isDepsProvideMethod -> {
-
+                            //TODO
                         }
 
                         m.isModuleInitMethod -> {
+                            genOverrideFun(m) {
+                                m.parameters.forEach { param ->
+                                    val paramType = param.type.resolve()
+                                        .declaration as? KSClassDeclaration
+                                        ?: throw IncorrectSignatureException(
+                                            message = "wrong return type. Must by Module type",
+                                            element = param,
+                                        )
+                                    when {
+                                        paramType.anyAnnotation(
+                                            Module::class.asClassName(),
+                                            Component::class.asClassName()
+                                        ).any() -> {
+                                            addStatement("%L( %L )", initMethodName, param.name!!.asString());
+                                        }
 
+                                        paramType.anyAnnotation(
+                                            Dependencies::class.asClassName(),
+                                        ).any() -> {
+                                            addStatement("%L( %L )", initDepsMethodName, param.name!!.asString());
+                                        }
+
+                                        else -> {
+                                            throw IncorrectSignatureException(
+                                                message = "wrong return type. Must by Module type",
+                                                element = param,
+                                            )
+                                        }
+                                    }
+
+                                }
+                            }
                         }
 
                         m.isExtOfMethod(componentCl) -> {
@@ -166,7 +224,7 @@ class GenComponentProcessor : TargetFileProcessor {
         return GenSpec(
             fileSpec = fileSpec,
             // https://kotlinlang.org/docs/ksp-incremental.html
-            dependencies = Dependencies(aggregating = false, fileOwner),
+            dependencies = KspDependencies(aggregating = false, fileOwner),
         )
     }
 
@@ -180,12 +238,14 @@ class GenComponentProcessor : TargetFileProcessor {
             name = relatedComponentsListFieldName,
             type = relatedListType,
         ) {
+            addModifiers(KModifier.PRIVATE)
             initializer("%T()", relatedListType)
         }
         genProperty(
             name = protectRecursiveField,
             type = BOOLEAN,
         ) {
+            addModifiers(KModifier.PRIVATE)
             mutable(true)
             initializer("false")
         }
