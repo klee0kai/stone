@@ -14,7 +14,7 @@ interface IPrivateComponent {
      * - a factory class
      */
     @Deprecated("Create init method with module type as argument")
-    fun __init(vararg modules: Any?)
+    fun __init(vararg modules: Any)
 
     /**
      * init dependencies

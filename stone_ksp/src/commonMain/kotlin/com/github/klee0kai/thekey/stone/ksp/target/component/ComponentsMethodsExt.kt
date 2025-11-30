@@ -32,10 +32,16 @@ val KSFunctionDeclaration.isModuleFactoryProvideMethod: Boolean
         if (!annotations(ModuleOriginFactory::class.asClassName()).any()) return false
 
         if (parameters.isNotEmpty()) {
-            throw IncorrectSignatureException("${simpleName.asString()} must no have arguments")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must no have arguments",
+                element = this,
+            )
         }
         if (!hasOnlyAnnotation(ModuleOriginFactory::class.asClassName())) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have only one annotation ${ModuleOriginFactory::class.simpleName}")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have only one annotation ${ModuleOriginFactory::class.simpleName}",
+                element = this,
+            )
         }
         checkMethodNameBusy()
 
@@ -50,10 +56,16 @@ val KSFunctionDeclaration.isModuleProvideMethod: Boolean
         if (annotations(ModuleOriginFactory::class.asClassName()).any()) return false
 
         if (parameters.isNotEmpty()) {
-            throw IncorrectSignatureException("${simpleName.asString()} must no have arguments")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must no have arguments",
+                element = this,
+            )
         }
         if (annotations.any()) {
-            throw IncorrectSignatureException("${simpleName.asString()} must no have annotations")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must no have annotations",
+                element = this,
+            )
         }
         checkMethodNameBusy()
 
@@ -66,10 +78,16 @@ val KSFunctionDeclaration.isDepsProvideMethod: Boolean
         val depCl = returnType?.resolve()?.declaration as? KSClassDeclaration ?: return false
         if (!depCl.annotations(Dependencies::class.asClassName()).any()) return false
         if (parameters.isNotEmpty()) {
-            throw IncorrectSignatureException("${simpleName.asString()} must no have arguments")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must no have arguments",
+                element = this,
+            )
         }
         if (annotations.any()) {
-            throw IncorrectSignatureException("${simpleName.asString()} must no have annotations")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must no have annotations",
+                element = this,
+            )
         }
         checkMethodNameBusy()
         return true
@@ -83,23 +101,38 @@ val KSFunctionDeclaration.isModuleInitMethod: Boolean
         if (!annotations(Init::class.asClassName()).any()) return false
 
         if (!hasOnlyAnnotation(Init::class.asClassName())) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have only one annotation ${Init::class.simpleName}")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have only one annotation ${Init::class.simpleName}",
+                element = this,
+            )
         }
         if (parameters.size != 1) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have only one parameter of Dependency or Module instance")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
+                element = this,
+            )
         }
         if (returnType?.resolve()?.isUnit == false) {
-            throw IncorrectSignatureException("${simpleName.asString()} must return unit")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must return unit",
+                element = this,
+            )
         }
 
         parameters.forEach {
             val clDeclaration = it.type
                 .resolve()
                 .declaration as? KSClassDeclaration
-                ?: throw IncorrectSignatureException("${simpleName.asString()} must have only one parameter of Dependency or Module instance")
+                ?: throw IncorrectSignatureException(
+                    message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
+                    element = this,
+                )
 
             if (!clDeclaration.anyAnnotation(Module::class.asClassName(), Dependencies::class.asClassName()).any()) {
-                throw IncorrectSignatureException("${simpleName.asString()} must have only one parameter of Dependency or Module instance")
+                throw IncorrectSignatureException(
+                    message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
+                    element = this,
+                )
             }
         }
         checkMethodNameBusy()
@@ -112,25 +145,41 @@ fun KSFunctionDeclaration.isExtOfMethod(
     if (!annotations(ExtendOf::class.asClassName()).any()) return false
 
     if (!hasOnlyAnnotation(ExtendOf::class.asClassName())) {
-        throw IncorrectSignatureException("${simpleName.asString()} must have only one annotation ${ExtendOf::class.simpleName}")
+        throw IncorrectSignatureException(
+            message = "${simpleName.asString()} must have only one annotation ${ExtendOf::class.simpleName}",
+            element = this,
+        )
     }
     if (parameters.size != 1) {
-        throw IncorrectSignatureException("${simpleName.asString()} must have only one parameter of Component instance")
+        throw IncorrectSignatureException(
+            message = "${simpleName.asString()} must have only one parameter of Component instance",
+            element = this,
+        )
     }
     if (returnType?.resolve()?.isUnit == false) {
-        throw IncorrectSignatureException("${simpleName.asString()} must return unit")
+        throw IncorrectSignatureException(
+            message = "${simpleName.asString()} must return unit",
+            element = this,
+        )
     }
     val argumentType = parameters.firstOrNull()?.type
         ?.resolve() as? KSClassDeclaration
-        ?: throw IncorrectSignatureException("${simpleName.asString()} must have only one parameter of Component instance")
+        ?: throw IncorrectSignatureException(
+            message = "${simpleName.asString()} must have only one parameter of Component instance",
+            element = this,
+        )
 
     if (!argumentType.annotations(Component::class.asClassName()).any()) {
-        throw IncorrectSignatureException("${argumentType.simpleName.asString()} must have @Component annotation")
+        throw IncorrectSignatureException(
+            message = "${argumentType.simpleName.asString()} must have @Component annotation",
+            element = this,
+        )
     }
     if (!clOwner.getAllSuperTypes().any { parent -> parent.toClassName() == argumentType.toClassName() }) {
         throw IncorrectSignatureException(
             message = "The argument for the method ${simpleName.asString()} must be the parent class of the class ${clOwner.toClassName()}. " +
-                    "The class ${argumentType.toClassName()} is not a parent to the class ${clOwner.toClassName()}."
+                    "The class ${argumentType.toClassName()} is not a parent to the class ${clOwner.toClassName()}.",
+            element = this,
         )
     }
 
@@ -144,10 +193,16 @@ val KSFunctionDeclaration.isBindInstanceMethod: BindInstanceType?
         if (!annotations(BindInstance::class.asClassName()).any()) return null
 
         if (!hasOnlyAnnotation(BindInstance::class.asClassName())) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have only one annotation ${BindInstance::class.simpleName}")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have only one annotation ${BindInstance::class.simpleName}",
+                element = this,
+            )
         }
         if (parameters.size != 1) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have only one parameter of binding type")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have only one parameter of binding type",
+                element = this,
+            )
         }
         checkMethodNameBusy()
 
@@ -168,11 +223,17 @@ val KSFunctionDeclaration.isGcMethod: Boolean
     get() {
         if (!annotations(RunGc::class.asClassName()).any()) return false
         if (!scopeAnnotations.any()) {
-            throw IncorrectSignatureException("${simpleName.asString()} must use GC scope annotation")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must use GC scope annotation",
+                element = this,
+            )
         }
 
         if (returnType?.resolve()?.isUnit == false) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have return type is Unit")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have return type is Unit",
+                element = this,
+            )
         }
 
         checkMethodNameBusy()
@@ -185,13 +246,22 @@ val KSFunctionDeclaration.isSwitchCacheMethod: Boolean
         if (!annotations(SwitchCache::class.asClassName()).any()) return false
 
         if (!hasOnlyAnnotation(SwitchCache::class.asClassName())) {
-            throw IncorrectSignatureException("${simpleName.asString()} must use only ${SwitchCache::class.simpleName} annotation")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must use only ${SwitchCache::class.simpleName} annotation",
+                element = this,
+            )
         }
         if (parameters.isNotEmpty()) {
-            throw IncorrectSignatureException("${simpleName.asString()} must no have arguments")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must no have arguments",
+                element = this,
+            )
         }
         if (returnType?.resolve()?.isUnit == false) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have return type is Unit")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have return type is Unit",
+                element = this,
+            )
         }
         checkMethodNameBusy()
         return true
@@ -201,7 +271,7 @@ val KSFunctionDeclaration.isInjectMethod: Boolean
     get() {
         if (annotations.any()) return false
         if (returnType?.resolve()?.isUnit == false) return false
-        if (parameters.size != 1) return false
+        if (parameters.isEmpty()) return false
         checkMethodNameBusy()
         return true
     }
@@ -210,10 +280,16 @@ val KSFunctionDeclaration.isProtectInjectedMethod: Boolean
     get() {
         if (!annotations(ProtectInjected::class.asClassName()).any()) return false
         if (returnType?.resolve()?.isUnit == false) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have return type is Unit")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have return type is Unit",
+                element = this,
+            )
         }
         if (parameters.size != 1) {
-            throw IncorrectSignatureException("${simpleName.asString()} must have only one parameter")
+            throw IncorrectSignatureException(
+                message = "${simpleName.asString()} must have only one parameter",
+                element = this,
+            )
         }
         checkMethodNameBusy()
         return true
@@ -223,7 +299,12 @@ val KSFunctionDeclaration.isProtectInjectedMethod: Boolean
 fun KSFunctionDeclaration.checkMethodNameBusy() {
     val reserved =
         simpleName.asString() in GenModuleProcessor.allReserveMethodNames + GenComponentProcessor.allReserveMethodNames
-    if (reserved) throw IncorrectSignatureException("Function name ${simpleName.asString()} is reserved by stone library")
+    if (reserved) {
+        throw IncorrectSignatureException(
+            message = "Function name ${simpleName.asString()} is reserved by stone library",
+            element = this,
+        )
+    }
 }
 
 
