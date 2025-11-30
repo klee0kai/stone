@@ -1,6 +1,5 @@
 package com.github.klee0kai.tests.kotlin_models.interface_delegates
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.KConnectType
 import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.MonitorSize
 import com.github.klee0kai.test_kotlin.di.interface_delegates.InterfaceDelegatesComponent
@@ -12,7 +11,7 @@ class InterfaceDelegatesTest {
     @Test
     fun provideKeyboardTest() {
         //Given
-        val DI = Stone.createComponent(InterfaceDelegatesComponent::class.java)
+        val DI: InterfaceDelegatesComponent = TODO()
 
         //When
         val keyboard1 = DI.factory().keyboard()
@@ -33,7 +32,7 @@ class InterfaceDelegatesTest {
     @Test
     fun provideMonitorTest() {
         //Given
-        val DI = Stone.createComponent(InterfaceDelegatesComponent::class.java)
+        val DI: InterfaceDelegatesComponent = TODO()
 
         //When
         val monitor = DI.factory().monitor(MonitorSize("2"))
@@ -47,7 +46,7 @@ class InterfaceDelegatesTest {
     @Test
     fun provideMouseTest() {
         //Given
-        val DI = Stone.createComponent(InterfaceDelegatesComponent::class.java)
+        val DI: InterfaceDelegatesComponent = TODO()
 
         //When
         val mouse1 = DI.factory().mouse()

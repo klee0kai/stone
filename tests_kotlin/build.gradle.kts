@@ -8,8 +8,10 @@ tasks.test {
 }
 
 dependencies {
+    implementation(project(":tests"))
+
     implementation(project(":stone_multiplatform"))
-    ksp(project(":stone_ksp"))
+//    ksp(project(":stone_ksp"))
 
     testImplementation(libs.bundles.junit)
 
