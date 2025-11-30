@@ -52,6 +52,15 @@ class GenModuleProcessor : TargetFileProcessor {
         const val bindMethodName: String = "__bind"
         const val switchRefMethodName: String = "__switchRef"
         const val clearNullsMethodName: String = "__clearNulls"
+
+        val allReserveMethodNames = listOf(
+            initMethodName,
+            initCachesFromMethodName,
+            updateBindInstancesFrom,
+            bindMethodName,
+            switchRefMethodName,
+            clearNullsMethodName,
+        )
     }
 
     class DelayedCodeBlocks(

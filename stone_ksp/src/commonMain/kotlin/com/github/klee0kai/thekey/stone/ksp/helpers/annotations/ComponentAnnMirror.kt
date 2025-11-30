@@ -19,6 +19,20 @@ fun KSAnnotated.annotations(
 ): Sequence<KSAnnotation> = annotations
     .filter { it.annotationType.resolve().toClassName() == className }
 
+
+fun KSAnnotated.anyAnnotation(
+    vararg classNames: ClassName,
+): Sequence<KSAnnotation> = annotations
+    .filter { it.annotationType.resolve().toClassName() in classNames }
+
+
+fun KSAnnotated.hasOnlyAnnotation(
+    className: ClassName,
+): Boolean {
+    if (annotations.count() != 1) return false
+    return annotations.first().annotationType.resolve().toClassName() == className
+}
+
 fun KSType.annotations(
     className: ClassName,
 ): Sequence<KSAnnotation> = annotations

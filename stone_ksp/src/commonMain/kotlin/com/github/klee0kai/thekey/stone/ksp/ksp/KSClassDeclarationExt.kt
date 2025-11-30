@@ -62,3 +62,29 @@ fun KSClassDeclaration.getAllMethods(
             }
     )
 }
+
+
+val KSType.isUnit: Boolean get() = declaration.qualifiedName?.asString() == "kotlin.Unit"
+
+val KSType.isNotPrimitive: Boolean
+    get() {
+        return declaration.qualifiedName?.asString() !in setOf(
+            "java.lang.Boolean",
+            "java.lang.Byte",
+            "java.lang.Short",
+            "java.lang.Integer",
+            "java.lang.Long",
+            "java.lang.Character",
+            "java.lang.Float",
+            "java.lang.Double",
+            "kotlin.Boolean",
+            "kotlin.Byte",
+            "kotlin.Short",
+            "kotlin.Int",
+            "kotlin.Long",
+            "kotlin.Char",
+            "kotlin.Float",
+            "kotlin.Double",
+            "kotlin.Unit",
+        )
+    }

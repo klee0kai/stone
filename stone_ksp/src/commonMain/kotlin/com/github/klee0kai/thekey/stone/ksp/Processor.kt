@@ -6,6 +6,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.filter
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.nowTakeOnly
+import com.github.klee0kai.thekey.stone.ksp.target.component.GenComponentProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleCacheControlProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleFactoryProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
@@ -68,6 +69,7 @@ class Processor(
         GenModuleFactoryProcessor(),
         GenModuleCacheControlProcessor(),
         GenModuleProcessor(),
+        GenComponentProcessor(),
     )
 
     override fun process(
