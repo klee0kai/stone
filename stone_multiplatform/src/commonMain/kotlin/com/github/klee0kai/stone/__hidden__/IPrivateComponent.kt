@@ -6,6 +6,12 @@ package com.github.klee0kai.stone.__hidden__
  * Each Stone component implement this interface.
  */
 interface IPrivateComponent {
+
+    /**
+     * hidden module
+     */
+    val __hiddenModule: IModule
+
     /**
      * init modules.
      *
@@ -22,28 +28,24 @@ interface IPrivateComponent {
      * @param dependencies - An instance of dependencies
      */
     @Deprecated("Create init method with dependency type as argument")
-    fun __initDependencies(vararg dependencies: Any?)
+    fun __initDependencies(vararg dependencies: Any)
 
     /**
      * bind instance objects
      *
      * @param objects - An instance of bindable objects
      */
-    fun __bind(vararg objects: Any?)
+    fun __bind(vararg objects: Any)
 
     /**
      * this component extends of other
      */
-    fun __extOf(components: com.github.klee0kai.stone.__hidden__.IPrivateComponent?)
+    fun __extOf(components: IPrivateComponent)
 
-    /**
-     * hidden module
-     */
-    fun __hidden(): com.github.klee0kai.stone.__hidden__.IModule?
 
     /**
      *
      * @param callback
      */
-    fun __eachModule(callback: (com.github.klee0kai.stone.__hidden__.IModule) -> Unit)
+    fun __eachModule(callback: (IModule) -> Unit)
 }

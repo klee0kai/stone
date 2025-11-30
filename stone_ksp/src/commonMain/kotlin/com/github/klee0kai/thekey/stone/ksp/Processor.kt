@@ -6,10 +6,11 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.filter
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.nowTakeOnly
-import com.github.klee0kai.thekey.stone.ksp.target.component.GenComponentProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleCacheControlProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleFactoryProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.component.GenComponentProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule.GenHiddenModuleProcessor
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -69,6 +70,7 @@ class Processor(
         GenModuleFactoryProcessor(),
         GenModuleCacheControlProcessor(),
         GenModuleProcessor(),
+        GenHiddenModuleProcessor(),
         GenComponentProcessor(),
     )
 

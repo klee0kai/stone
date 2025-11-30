@@ -63,7 +63,7 @@ class GenModuleProcessor : TargetFileProcessor {
         )
     }
 
-    class DelayedCodeBlocks(
+    private class DelayedCodeBlocks(
         val bindMethodBody: SmartCode = SmartCode(),
         val clearNullsMethodBody: SmartCode = SmartCode(),
         val switchRefStatementBuilders: MutableMap<Set<TypeName>, CodeBlock.Builder> = mutableMapOf()
