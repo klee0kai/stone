@@ -13,7 +13,6 @@ class ComponentAnnMirror(
     val wrapperProviders: List<KSType>,
 )
 
-
 fun KSAnnotated.annotations(
     className: ClassName,
 ): Sequence<KSAnnotation> = annotations

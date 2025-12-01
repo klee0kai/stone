@@ -60,8 +60,8 @@ class Processor(
         debugPkgFilter = options["debugPkgFilter"]
 
         // force changes
-        debug = true
-        debugPkgFilter = "com.github.klee0kai.test_kotlin.di.base_comp"
+//        debug = true
+//        debugPkgFilter = "com.github.klee0kai.test_kotlin.di.base_comp"
     }
 
 

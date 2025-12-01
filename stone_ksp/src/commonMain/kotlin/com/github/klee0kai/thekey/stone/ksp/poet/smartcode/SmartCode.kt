@@ -10,7 +10,7 @@ class SmartCode(
 
     private val codes = Property<List<SmartCodeBlock>>(emptyList())
 
-    val declareLocalVariable = Property<Pair<String, TypeName>?>(null)
+    val declareLocalVariable = Property<DeclareLocalVariable?>(null)
     val providingType = Property<TypeName?>(null)
 
     val availableVariables = Property<Map<String, TypeName>>(emptyMap())
@@ -34,7 +34,7 @@ class SmartCode(
         val optimizedCode = codes.value.filter { childCode ->
             childCode.smartCode == null
                     || childCode.smartCode.declareLocalVariable.value == null
-                    || childCode.smartCode.declareLocalVariable.value?.first in allUsedVariables
+                    || childCode.smartCode.declareLocalVariable.value?.variableName in allUsedVariables
         }
 
         val codeBlock = CodeBlock.Builder()

@@ -1,5 +1,8 @@
 package com.github.klee0kai.tests.kotlin_models.identifiers
 
+import com.github.klee0kai.stone.Stone
+import com.github.klee0kai.stone.type.wrappers.getValue
+import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.test_kotlin.di.compfactory.CompFactoryComponent
 import com.github.klee0kai.test_kotlin.tech.components.Monitor
 import org.junit.jupiter.api.Assertions.*
@@ -11,15 +14,15 @@ class MonitorFactoryWrappersTests {
     @Test
     fun lazyProvideTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorLazy()
+        val monitor: Ref<Monitor> = DI.monitorLazy()
 
         //Then
         assertEquals(
-            monitor.get()!!.uuid,
-            monitor.get()!!.uuid
+            monitor.get().uuid,
+            monitor.get().uuid
         )
     }
 
@@ -27,7 +30,7 @@ class MonitorFactoryWrappersTests {
     @Test
     fun softRefProvideTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
         val monitor: Reference<Monitor> = DI.monitorSoft()
@@ -39,7 +42,7 @@ class MonitorFactoryWrappersTests {
     @Test
     fun weakRefProvideTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
         val monitor: Reference<Monitor> = DI.monitorWeak()
@@ -51,37 +54,37 @@ class MonitorFactoryWrappersTests {
     @Test
     fun phantom1ProvideTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorPhantomProvide()
+        val monitor: Ref<Monitor> = DI.monitorPhantomProvide()
 
         //Then
         assertNotEquals(
-            monitor.get()!!.uuid,
-            monitor.get()!!.uuid
+            monitor.get().uuid,
+            monitor.get().uuid
         )
     }
 
     @Test
     fun phantomProvideTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorPhantomProvide()
+        val monitor: Ref<Monitor> = DI.monitorPhantomProvide()
 
         //Then
         assertNotEquals(
-            monitor.get()!!.uuid,
-            monitor.get()!!.uuid
+            monitor.get().uuid,
+            monitor.get().uuid
         )
     }
 
     @Test
     fun phantom3ProvideTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
         val monitor = DI.monitorProviderIRef()
@@ -97,7 +100,7 @@ class MonitorFactoryWrappersTests {
     @Test
     fun kotlinLazyProvideTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
         val monitor = DI.monitorLazyDelegate()
@@ -110,18 +113,19 @@ class MonitorFactoryWrappersTests {
     }
 
 
+
     @Test
     fun lazyDelegateTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorLazy()
+        val monitor by DI.monitorLazy()
 
         //Then
         assertEquals(
-            monitor.get()!!.uuid,
-            monitor.get()!!.uuid
+            monitor.uuid,
+            monitor.uuid
         )
     }
 
@@ -129,69 +133,69 @@ class MonitorFactoryWrappersTests {
     @Test
     fun softRefDelegateTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorSoft()
+        val monitor by DI.monitorSoft()
 
         //Then
-        assertNotNull(monitor.get())
+        assertNotNull(monitor)
     }
 
     @Test
     fun weakRefDelegateTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorWeak()
+        val monitor by DI.monitorWeak()
 
         //Then
-        assertNotNull(monitor.get())
+        assertNotNull(monitor)
     }
 
     @Test
     fun phantom1DelegateTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorPhantomProvide()
+        val monitor by DI.monitorPhantomProvide()
 
         //Then
         assertNotEquals(
-            monitor.get()!!.uuid,
-            monitor.get()!!.uuid
+            monitor.uuid,
+            monitor.uuid
         )
     }
 
     @Test
     fun phantom2DelegateTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorPhantomProvide()
+        val monitor by DI.monitorPhantomProvide()
 
         //Then
         assertNotEquals(
-            monitor.get()!!.uuid,
-            monitor.get()!!.uuid
+            monitor.uuid,
+            monitor.uuid
         )
     }
 
     @Test
     fun phantom3DelegateTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
-        val monitor = DI.monitorProviderIRef()
+        val monitor by DI.monitorProviderIRef()
 
         //Then
         assertNotEquals(
-            monitor.get()!!.uuid,
-            monitor.get()!!.uuid
+            monitor.uuid,
+            monitor.uuid
         )
     }
 
@@ -199,7 +203,7 @@ class MonitorFactoryWrappersTests {
     @Test
     fun kotlinLazyDelegateTest() {
         //Given
-        val DI: CompFactoryComponent = TODO()
+        val DI = Stone.createComponent(CompFactoryComponent::class.java)
 
         //When
         val monitor by DI.monitorLazyDelegate()
@@ -210,6 +214,8 @@ class MonitorFactoryWrappersTests {
             monitor.uuid
         )
     }
+
+
 
 
 }

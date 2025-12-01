@@ -1,5 +1,6 @@
 package com.github.klee0kai.tests.kotlin_models.inject
 
+import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponent
 import com.github.klee0kai.test_kotlin.mowgli.University
 import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
@@ -13,7 +14,7 @@ class GorillaProtectInjectWrappersTests {
     @Test
     fun lazyWrapperProtectTest() {
         // Given
-        val DI: RainForestComponent = TODO()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
         val university = University()
 
 
@@ -32,7 +33,7 @@ class GorillaProtectInjectWrappersTests {
     @Throws(InterruptedException::class)
     fun withProtectInjectTest() {
         // Given
-        val DI: RainForestComponent = TODO()
+        val DI = Stone.createComponent(RainForestComponent::class.java)
         var gorilla: Gorilla? = Gorilla()
 
         //When

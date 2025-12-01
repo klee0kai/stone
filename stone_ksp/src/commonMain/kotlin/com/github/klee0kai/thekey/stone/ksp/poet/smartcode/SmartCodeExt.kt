@@ -1,7 +1,10 @@
 package com.github.klee0kai.thekey.stone.ksp.poet.smartcode
 
 import com.github.klee0kai.thekey.stone.ksp.poet.PoetDsl
+import com.github.klee0kai.thekey.stone.ksp.property.map
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.asTypeName
 
 fun SmartCode.add(
     code: String,
@@ -14,6 +17,24 @@ fun SmartCode.add(
     vararg arg: Any
 ) {
     add(CodeBlock.of(code, *arg))
+}
+
+fun SmartCode.declareLocalVariable(
+    variableName: String,
+    qualifiers: List<KSAnnotation>,
+    initVariable: SmartCode,
+) = add {
+    initVariable.providingType.map { type ->
+        DeclareLocalVariable(
+            variableName = variableName,
+            type = type ?: Unit::class.asTypeName(),
+            qualifierAnnotations = qualifiers,
+        )
+    }
+
+    add("val %L = ", variableName)
+    add(initVariable)
+    add("\n")
 }
 
 

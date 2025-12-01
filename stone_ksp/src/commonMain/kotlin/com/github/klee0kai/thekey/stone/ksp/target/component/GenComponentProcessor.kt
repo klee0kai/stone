@@ -6,13 +6,16 @@ import com.github.klee0kai.stone.__hidden__.types.WeakList
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies
 import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.anyAnnotation
+import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.ModulesGraph
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
+import com.github.klee0kai.thekey.stone.ksp.ksp.isChildOf
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.containingFile
@@ -22,6 +25,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -196,7 +200,10 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isInjectMethod -> {
-
+                            genInjectMethod(
+                                componentCl = componentCl,
+                                method = m,
+                            )
                         }
 
                         m.isProtectInjectedMethod -> {
@@ -228,6 +235,46 @@ class GenComponentProcessor : TargetFileProcessor {
         )
     }
 
+
+    private fun TypeSpec.Builder.genInjectMethod(
+        componentCl: KSClassDeclaration,
+        method: KSFunctionDeclaration,
+        modulesGraph: ModulesGraph,
+    ) {
+        val identifierTypes = componentCl.allIdentifierTypes.toList()
+        val idArguments = method.parameters.filter { it.type.resolve() in identifierTypes }
+        val lifeCycleOwnerArg = method.parameters.firstOrNull {
+            (it.type.resolve().declaration as? KSClassDeclaration)
+                ?.isChildOf(StoneLifeCycleOwner::class.asClassName()) == true
+        }
+        val injectableArguments = method.parameters.filter { it.type.resolve() !in identifierTypes }
+        if (originatingElements.isEmpty()) {
+            throw IncorrectSignatureException(
+                message = "No injectable parameter at ${method.simpleName.asString()}",
+                element = method,
+            )
+        }
+
+        genOverrideFun(method) {
+            for (injectableArgument in injectableArguments) {
+                val injectableCl = injectableArgument.type.resolve().declaration as? KSClassDeclaration
+                    ?: throw IncorrectSignatureException(
+                        message = "parameter must be a class",
+                        element = injectableArgument,
+                    )
+
+                for (injectField in injectableCl.getAllProperties()) {
+                    val provideCode = modulesGraph.codeProvideType(
+                        methodName = null,
+                        returnType = injectField.type.resolve().toClassName(),
+                        qualifierAnns = injectField.qualifierAnnotations.toList(),
+                    )
+                    // TODO
+                }
+            }
+
+        }
+    }
 
     private fun TypeSpec.Builder.genIComponentMethods(
         componentCl: KSClassDeclaration,
