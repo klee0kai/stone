@@ -81,14 +81,14 @@ public class ModuleFactoryBuilder {
             builder.addParameter(p.type, p.name);
 
         String argStr = m.args == null ? "" : String.join("", ListUtils.format(m.args, (it) -> ", " + it.name));
-        SmartCode genCode = SmartCode.builder()
-                .add(CodeBlock.of("$T.$L( null $L )", defaultImpl.className, m.methodName, argStr))
-                .providingType(providingClass.className);
 
         builder.addCode(
                 SmartCode.builder()
                         .add("return ")
-                        .add(WrapHelper.transform(genCode, m.returnType))
+                        .add(WrapHelper.transform(providingClass.className,
+                                m.returnType,
+                                CodeBlock.of("$T.$L( null $L )", defaultImpl.className, m.methodName, argStr)
+                        ))
                         .add(";\n")
                         .build(m.args)
         );
@@ -119,14 +119,14 @@ public class ModuleFactoryBuilder {
             builder.addParameter(p.type, p.name);
 
         String argStr = m.args == null ? "" : String.join(",", ListUtils.format(m.args, (it) -> it.name));
-        SmartCode genCode = SmartCode.builder()
-                .add(CodeBlock.of("new $T( $L )", providingClass.className, argStr))
-                .providingType(providingClass.className);
-
         builder.addCode(
                 SmartCode.builder()
                         .add("return ")
-                        .add(WrapHelper.transform(genCode, m.returnType))
+                        .add(
+                                WrapHelper.transform(providingClass.className, m.returnType,
+                                        CodeBlock.of("new $T( $L )", providingClass.className, argStr)
+                                )
+                        )
                         .add(";\n")
                         .build(m.args)
         );

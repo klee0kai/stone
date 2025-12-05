@@ -66,11 +66,6 @@ public class ClassNameUtils {
         return type;
     }
 
-    public static String simpleName(TypeName typeName) {
-        TypeName raw = rawTypeOf(typeName);
-        if (raw instanceof ClassName)
-            return ((ClassName) raw).simpleName();
-        return null;
-    }
+
 
 }

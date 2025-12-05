@@ -429,9 +429,10 @@ public class ModuleBuilder {
                     )
                     .addCode("if (cached != null ) return ")
                     .addCode(transform(
-                                    SmartCode.of("cached").providingType(listWrapTypeIfNeed(m.returnType)),
-                                    m.returnType
-                            ).build(null)
+                                    listWrapTypeIfNeed(m.returnType),
+                                    m.returnType,
+                                    CodeBlock.of("cached")
+                            )
                     ).addCode(";\n")
                     .endControlFlow();
         }
@@ -513,10 +514,12 @@ public class ModuleBuilder {
                             String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
                     )
                     .addCode("if (cached != null ) return ")
-                    .addCode(transform(
-                                    SmartCode.of("cached").providingType(listWrapTypeIfNeed(m.returnType)),
-                                    m.returnType
-                            ).build(null)
+                    .addCode(
+                            transform(
+                                    listWrapTypeIfNeed(m.returnType),
+                                    m.returnType,
+                                    CodeBlock.of("cached")
+                            )
                     ).addCode(";\n")
                     .endControlFlow();
         }

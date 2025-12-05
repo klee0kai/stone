@@ -495,8 +495,9 @@ public class ComponentBuilder {
                             typeName -> SmartCode.builder()
                                     .add(CodeBlock.of("$T.setValueAction(", CacheAction.class))
                                     .add(transform(
-                                            SmartCode.of(setValueArg.name).providingType(setValueArg.type),
-                                            cacheControlType
+                                            setValueArg.type,
+                                            cacheControlType,
+                                            CodeBlock.of(setValueArg.name)
                                     ))
                                     .add(")")
                                     .build(null)
