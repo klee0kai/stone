@@ -492,15 +492,16 @@ public class ComponentBuilder {
             boolean isListCache = isList(cacheControlInvoke.rawReturnType());
             TypeName cacheControlType = isListCache ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedBindType) : nonWrappedBindType;
             builder.addStatement(cacheControlInvoke.invokeCode(qFields,
-                            typeName -> SmartCode.builder()
-                                    .add(CodeBlock.of("$T.setValueAction(", CacheAction.class))
-                                    .add(transform(
-                                            setValueArg.type,
-                                            cacheControlType,
-                                            CodeBlock.of(setValueArg.name)
-                                    ))
-                                    .add(")")
-                                    .build(null)
+                            typeName ->
+                                    CodeBlock.builder()
+                                            .add("$T.setValueAction(", CacheAction.class)
+                                            .add(transform(
+                                                    setValueArg.type,
+                                                    cacheControlType,
+                                                    CodeBlock.of(setValueArg.name)
+                                            ))
+                                            .add(")")
+                                            .build()
                     ))
                     .addStatement(
                             "$L( (module) -> { module.$L( $L() ); } )",

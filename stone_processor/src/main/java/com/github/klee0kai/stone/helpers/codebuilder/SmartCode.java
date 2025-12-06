@@ -42,14 +42,6 @@ public class SmartCode implements ISmartCode {
         return builder;
     }
 
-    public static SmartCode of(CodeBlock code) {
-        return of(code, null);
-    }
-
-    public static SmartCode of(String code) {
-        return of(code, null);
-    }
-
     // delayed code block
     private SmartCode() {
 
