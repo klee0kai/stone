@@ -46,7 +46,9 @@ public class InvokeCall {
      *
      * @param callSequence ordered methods in invoke sequence
      */
-    public InvokeCall(MethodDetail... callSequence) {
+    public InvokeCall(
+            MethodDetail... callSequence
+    ) {
         this.flags = 0;
         this.invokeSequenceVariants.add(Arrays.asList(callSequence));
     }
@@ -58,7 +60,10 @@ public class InvokeCall {
      *                     {@code INVOKE_PROVIDE_OBJECT_CACHED} providing cached object
      * @param callSequence ordered methods in invoke sequence
      */
-    public InvokeCall(int flags, MethodDetail... callSequence) {
+    public InvokeCall(
+            int flags,
+            MethodDetail... callSequence
+    ) {
         this.flags = flags;
         this.invokeSequenceVariants.add(Arrays.asList(callSequence));
     }
@@ -68,7 +73,9 @@ public class InvokeCall {
      *
      * @param variants all variants from best to worse
      */
-    public InvokeCall(Collection<InvokeCall> variants) {
+    public InvokeCall(
+            Collection<InvokeCall> variants
+    ) {
         int mergeflag = 0;
         for (InvokeCall v : variants) {
             mergeflag |= v.flags;
@@ -82,7 +89,9 @@ public class InvokeCall {
         return invokeSequenceVariants.get(0);
     }
 
-    public Set<QualifierAnn> qualifierAnnotations(boolean crossing) {
+    public Set<QualifierAnn> qualifierAnnotations(
+            boolean crossing
+    ) {
         List<Set<QualifierAnn>> allQualifiersLists = new LinkedList<>(new HashSet<>());
         for (List<MethodDetail> variant : invokeSequenceVariants) {
             Set<QualifierAnn> qualifiers = new HashSet<>();
@@ -168,11 +177,11 @@ public class InvokeCall {
 
     public SmartCode invokeAllToList() {
         TypeName provType = ParameterizedTypeName.get(ClassName.get(List.class), resultType());
+        String listFieldName = genLocalFieldName();
         return SmartCode
                 .builder()
                 .providingType(provType)
                 .withLocals(builder -> {
-                    String listFieldName = genLocalFieldName();
                     builder.add(CodeBlock.of("new $T( ( $L ) -> { \n",
                             ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), resultType()), listFieldName
                     ));
@@ -196,7 +205,9 @@ public class InvokeCall {
     }
 
 
-    private SmartCode invokeSequence(List<MethodDetail> sequence) {
+    private SmartCode invokeSequence(
+            List<MethodDetail> sequence
+    ) {
         return SmartCode.builder().withLocals(builder -> {
                     int invokeCount = 0;
                     for (MethodDetail m : sequence) {

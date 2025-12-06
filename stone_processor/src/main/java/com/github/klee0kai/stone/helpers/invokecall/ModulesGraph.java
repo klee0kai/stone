@@ -115,7 +115,6 @@ public class ModulesGraph {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
             FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), null);
             FieldDetail listDepField = FieldDetail.simple(genLocalFieldName(), null);
-            boolean isListInv = inv.invokeSequenceVariants.size() > 1;
 
             builder.withLocals(localBuilder -> {
                 // provide single objects

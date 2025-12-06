@@ -446,7 +446,7 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
-            CodeBlock codeBlock = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns, qFields);
+            CodeBlock codeBlock = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns, m.args);
             if (codeBlock == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
@@ -490,7 +490,7 @@ public class ComponentBuilder {
 
             boolean isListCache = isList(cacheControlInvoke.rawReturnType());
             TypeName cacheControlType = isListCache ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedBindType) : nonWrappedBindType;
-            builder.addStatement(cacheControlInvoke.invokeCode(qFields,
+            builder.addStatement(cacheControlInvoke.invokeCode(m.args,
                             typeName ->
                                     CodeBlock.builder()
                                             .add("$T.setValueAction(", CacheAction.class)
@@ -553,7 +553,7 @@ public class ComponentBuilder {
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns, qFields);
+                    CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns, m.args);
                     if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
