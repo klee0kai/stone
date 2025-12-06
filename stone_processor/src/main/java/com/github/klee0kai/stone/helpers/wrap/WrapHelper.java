@@ -116,7 +116,8 @@ public class WrapHelper {
             return code;
         }
 
-        SmartCode smartCode = SmartCode.builder().add(code);
+        SmartCode smartCode = SmartCode.builder().add(code)
+                .providingType(providingType);
         LinkedList<TypeName> wrapPathNames = new LinkedList<>(allParamTypes(wannaType));
         LinkedList<TypeName> unwrapPathNames = new LinkedList<>(allParamTypes(providingType));
         Collections.reverse(wrapPathNames);

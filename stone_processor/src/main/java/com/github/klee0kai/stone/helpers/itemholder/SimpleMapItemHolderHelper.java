@@ -8,8 +8,6 @@ import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
-
 public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
 
     public String fieldName;
@@ -38,10 +36,9 @@ public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
     }
 
     @Override
-    public SmartCode codeGetCachedValue() {
+    public CodeBlock codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
-        return SmartCode.of(CodeBlock.of("$L.$L($L)", fieldName, getMethod, keyParam.name))
-                .providingType(listWrapTypeIfNeed(returnType));
+        return CodeBlock.of("$L.$L($L)", fieldName, getMethod, keyParam.name);
     }
 
     @Override

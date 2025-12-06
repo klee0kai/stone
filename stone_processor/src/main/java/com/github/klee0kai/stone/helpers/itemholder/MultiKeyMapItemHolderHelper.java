@@ -10,8 +10,6 @@ import com.squareup.javapoet.*;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
-
 public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
 
     public String fieldName;
@@ -38,11 +36,10 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
 
 
     @Override
-    public SmartCode codeGetCachedValue() {
+    public CodeBlock codeGetCachedValue() {
         String getMethod = isListCaching ? "getList" : "get";
-        return SmartCode.of(CodeBlock.of("$L.$L(new $T($L) )", fieldName, getMethod, multiKeyClassName,
-                        String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
-                .providingType(listWrapTypeIfNeed(returnType));
+        return CodeBlock.of("$L.$L(new $T($L) )", fieldName, getMethod, multiKeyClassName,
+                String.join(",", ListUtils.format(keyArgs, (k) -> k.name)));
     }
 
     @Override

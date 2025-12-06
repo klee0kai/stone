@@ -59,7 +59,7 @@ public interface ItemHolderCodeHelper {
 
     CodeBlock clearNullsStatement();
 
-    SmartCode codeGetCachedValue();
+    CodeBlock codeGetCachedValue();
 
     CodeBlock codeSetCachedValue(CodeBlock value, boolean onlyIfNull);
 

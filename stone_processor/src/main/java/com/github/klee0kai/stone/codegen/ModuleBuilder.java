@@ -9,7 +9,6 @@ import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.itemholder.ItemCacheType;
 import com.github.klee0kai.stone.helpers.itemholder.ItemHolderCodeHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -450,8 +449,11 @@ public class ModuleBuilder {
         }
         provideMethodBuilder.addStatement(
                 "return $L",
-                transform(itemHolderCodeHelper.codeGetCachedValue(), m.returnType)
-                        .build(null)
+                transform(
+                        listWrapTypeIfNeed(m.returnType),
+                        m.returnType,
+                        itemHolderCodeHelper.codeGetCachedValue()
+                )
         );
         provideMethodBuilders.add(provideMethodBuilder);
 
@@ -535,19 +537,22 @@ public class ModuleBuilder {
                 .addCode(";\n")
                 .addStatement(
                         itemHolderCodeHelper.codeSetCachedValue(
-                                transform(SmartCode.builder()
-                                                .add(CodeBlock.of("creator.get()"))
-                                                .providingType(m.returnType),
-                                        listWrapTypeIfNeed(m.returnType))
-                                        .build(null),
+                                transform(
+                                        m.returnType,
+                                        listWrapTypeIfNeed(m.returnType),
+                                        CodeBlock.of("creator.get()")
+                                ),
                                 true
                         )
                 )
                 //get cached value
                 .addStatement(
                         "return $L ",
-                        transform(itemHolderCodeHelper.codeGetCachedValue(), m.returnType)
-                                .build(null)
+                        transform(
+                                listWrapTypeIfNeed(m.returnType),
+                                m.returnType,
+                                itemHolderCodeHelper.codeGetCachedValue()
+                        )
                 );
 
 
@@ -614,7 +619,7 @@ public class ModuleBuilder {
                 .addStatement("break")
                 .endControlFlow()
                 .endControlFlow()
-                .addStatement("return $L ", itemHolderCodeHelper.codeGetCachedValue().build(null));
+                .addStatement("return $L ", itemHolderCodeHelper.codeGetCachedValue());
 
         cacheControlMethodBuilders.add(cacheControldMethodBuilder);
         return this;
