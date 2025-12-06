@@ -513,11 +513,8 @@ public class ComponentBuilder {
 
             if (isProvideMethod) {
                 builder.addCode("return ")
-                        .addCode(
-                                transform(
-                                        orComponentCl.modulesGraph.codeProvideType(hidingProvideName, nonWrappedBindType, m.qualifierAnns),
-                                        m.returnType
-                                ).build(m.args))
+                        .addCode(orComponentCl.modulesGraph.codeProvideType(hidingProvideName, m.returnType, m.qualifierAnns)
+                                .build(m.args))
                         .addCode(";\n");
             }
 

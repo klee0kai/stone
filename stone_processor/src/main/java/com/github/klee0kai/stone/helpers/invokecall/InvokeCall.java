@@ -163,10 +163,7 @@ public class InvokeCall {
     }
 
     public SmartCode invokeBest() {
-        return SmartCode
-                .builder()
-                .providingType(resultType())
-                .withLocals(builder -> transform(invokeSequence(bestSequence()), resultType()));
+        return transform(invokeSequence(bestSequence()), resultType());
     }
 
     public SmartCode invokeAllToList() {
