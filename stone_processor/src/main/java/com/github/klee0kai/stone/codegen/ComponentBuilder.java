@@ -10,7 +10,6 @@ import com.github.klee0kai.stone.checks.ComponentMethods;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.helpers.SetFieldHelper;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.invokecall.InvokeCall;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -447,8 +446,8 @@ public class ComponentBuilder {
 
         provideObjMethods.add(builder);
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
-            SmartCode smartCode = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns);
-            if (smartCode == null) {
+            CodeBlock codeBlock = orComponentCl.modulesGraph.codeProvideType(null, m.returnType, m.qualifierAnns, qFields);
+            if (codeBlock == null) {
                 throw new ObjectNotProvidedException(
                         createErrorMes()
                                 .errorProvideTypeRequiredIn(
@@ -461,7 +460,7 @@ public class ComponentBuilder {
                 );
             }
             builder.addCode("return ")
-                    .addCode(smartCode.build(qFields))
+                    .addCode(codeBlock)
                     .addCode(";\n");
         });
         return this;
@@ -513,8 +512,7 @@ public class ComponentBuilder {
 
             if (isProvideMethod) {
                 builder.addCode("return ")
-                        .addCode(orComponentCl.modulesGraph.codeProvideType(hidingProvideName, m.returnType, m.qualifierAnns)
-                                .build(m.args))
+                        .addCode(orComponentCl.modulesGraph.codeProvideType(hidingProvideName, m.returnType, m.qualifierAnns, m.args))
                         .addCode(";\n");
             }
 
@@ -555,7 +553,7 @@ public class ComponentBuilder {
                 for (FieldDetail injectField : injectableCl.getAllFields()) {
                     if (!injectField.injectAnnotation) continue;
                     SetFieldHelper setFieldHelper = new SetFieldHelper(injectField, injectableCl);
-                    SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns);
+                    CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns, qFields);
                     if (provideCode == null) {
                         throw new ObjectNotProvidedException(
                                 createErrorMes()
@@ -570,7 +568,7 @@ public class ComponentBuilder {
                     }
                     builder.addCode(injectableField.name)
                             .addCode(".")
-                            .addCode(setFieldHelper.codeSetField(provideCode.build(qFields)))
+                            .addCode(setFieldHelper.codeSetField(provideCode))
                             .addCode(";\n");
                 }
 
@@ -579,7 +577,7 @@ public class ComponentBuilder {
 
                     CodeBlock.Builder providingArgsCode = CodeBlock.builder();
                     for (FieldDetail injectField : injectMethod.args) {
-                        SmartCode provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns);
+                        CodeBlock provideCode = orComponentCl.modulesGraph.codeProvideType(null, injectField.type, injectField.qualifierAnns, m.args);
                         if (provideCode == null) {
                             throw new ObjectNotProvidedException(
                                     createErrorMes()
@@ -594,7 +592,7 @@ public class ComponentBuilder {
                         }
 
                         if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ");
-                        providingArgsCode.add(provideCode.build(m.args));
+                        providingArgsCode.add(provideCode);
                     }
 
                     builder.addCode("$L.$L( ", injectableField.name, injectMethod.methodName)

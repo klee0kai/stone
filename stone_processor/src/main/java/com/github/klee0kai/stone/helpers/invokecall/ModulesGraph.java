@@ -81,7 +81,12 @@ public class ModulesGraph {
         }
     }
 
-    public SmartCode codeProvideType(String methodName, TypeName returnType, Set<QualifierAnn> qualifierAnns) {
+    public CodeBlock codeProvideType(
+            String methodName,
+            TypeName returnType,
+            Set<QualifierAnn> qualifierAnns,
+            Collection<FieldDetail> declaredFields
+    ) {
         boolean isWrappedReturn = isSupport(returnType);
         boolean isListReturn = isList(returnType);
         TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
@@ -93,11 +98,11 @@ public class ModulesGraph {
 
         if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !isListReturn) {
             InvokeCall invokeCall = provideTypeInvokes.get(0);
-            return WrapHelper.transform(
-                    SmartCode.builder()
-                            .add(invokeCall.invokeBest())
-                            .providingType(invokeCall.resultType()),
-                    returnType);
+            return transform(
+                    invokeCall.resultType(),
+                    returnType,
+                    invokeCall.invokeBest().build(declaredFields)
+            );
         }
 
         SmartCode builder = SmartCode.builder();
@@ -177,13 +182,22 @@ public class ModulesGraph {
 
         builder.add("\n  })");
         if (WrapHelper.isList(returnType)) {
-            builder.add(".all() ")
-                    .providingType(ParameterizedTypeName.get(ClassName.get(List.class), providingType));
+            builder.add(".all() ");
+
+            return transform(
+                    ParameterizedTypeName.get(ClassName.get(List.class), providingType),
+                    returnType,
+                    builder.build(declaredFields)
+            );
         } else {
-            builder.add(".first() ")
-                    .providingType(providingType);
+            builder.add(".first() ");
+
+            return transform(
+                    providingType,
+                    returnType,
+                    builder.build(declaredFields)
+            );
         }
-        return WrapHelper.transform(builder, returnType);
     }
 
 
