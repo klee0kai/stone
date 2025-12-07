@@ -3,7 +3,6 @@ package com.github.klee0kai.stone.helpers.wrap;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone._hidden_.types.NullGet;
 import com.github.klee0kai.stone.exceptions.StoneException;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.wrappers.AsyncProvide;
 import com.github.klee0kai.stone.wrappers.LazyProvide;
 import com.github.klee0kai.stone.wrappers.PhantomProvide;
@@ -116,7 +115,7 @@ public class WrapHelper {
             return code;
         }
 
-        SmartCode smartCode = SmartCode.builder().add(code);
+        CodeBlock.Builder codeBuilder = CodeBlock.builder().add(code);
         LinkedList<TypeName> wrapPathNames = new LinkedList<>(allParamTypes(wannaType));
         LinkedList<TypeName> unwrapPathNames = new LinkedList<>(allParamTypes(providingType));
         Collections.reverse(wrapPathNames);
@@ -152,16 +151,16 @@ public class WrapHelper {
                     TypeName wrapItemType = paramType(wrapPathNames.get(wrapListIndex));
                     WrapType wrapListType = wrapPath.get(wrapListIndex);
 
-                    smartCode = SmartCode.of(wrapListType.inListFormat.formatCode(
+                    codeBuilder = wrapListType.inListFormat.formatCode(
                             unwrapType.typeName,
-                            smartCode.build(null),
+                            codeBuilder.build(),
                             (inListType, listItemCode) ->
                                     transform(
                                             unWrapItemType,
                                             wrapItemType,
                                             listItemCode
                                     )
-                    ), null);
+                    ).toBuilder();
 
                     for (int i = 0; i <= wrapListIndex; i++) {
                         wrapPath.pollFirst();
@@ -172,19 +171,22 @@ public class WrapHelper {
                     break;
                 }
             }
-            smartCode = SmartCode.of(unwrapType.unwrap.formatCode(unwrapType.typeName, smartCode.build(null)), null);
+            codeBuilder = unwrapType.unwrap.formatCode(unwrapType.typeName, codeBuilder.build())
+                    .toBuilder();
+
             unwrapPath.pollFirst();
             unwrapPathNames.pollFirst();
         }
 
         while (!wrapPath.isEmpty()) {
-            smartCode = SmartCode.of(wrapPath.get(0).wrap.formatCode(null, smartCode.build(null)), null);
+            codeBuilder = wrapPath.get(0).wrap.formatCode(null, codeBuilder.build())
+                    .toBuilder();
+
             wrapPath.pollFirst();
             wrapPathNames.pollFirst();
         }
 
-        return smartCode
-                .build(null);
+        return codeBuilder.build();
     }
 
     private static void std() {
