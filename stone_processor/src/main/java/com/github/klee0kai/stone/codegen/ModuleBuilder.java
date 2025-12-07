@@ -8,6 +8,7 @@ import com.github.klee0kai.stone._hidden_.types.holders.SingleItemHolder;
 import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
 import com.github.klee0kai.stone.annotations.component.GcAllScope;
 import com.github.klee0kai.stone.annotations.module.BindInstance;
+import com.github.klee0kai.stone.checks.ModuleMethods;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.helpers.itemholder.ItemCacheType;
 import com.github.klee0kai.stone.helpers.itemholder.ItemHolderCodeHelper;
@@ -27,12 +28,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
-import static com.github.klee0kai.stone.checks.ModuleMethods.*;
+import static com.github.klee0kai.stone.AnnotationProcessor.wrapHelper;
 import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuilder.cacheControlMethodName;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.itemholder.ItemCacheType.cacheTypeFrom;
 import static com.github.klee0kai.stone.helpers.itemholder.ItemHolderCodeHelper.of;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.ClassNameUtils.rawTypeOf;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genCacheControlInterfaceModuleNameMirror;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
@@ -68,6 +68,7 @@ public class ModuleBuilder {
     public final List<MethodSpec.Builder> cacheControlMethodBuilders = new LinkedList<>();
     public final HashMap<Set<TypeName>, CodeBlock.Builder> switchRefStatementBuilders = new HashMap<>();
     private final LinkedList<Runnable> collectRuns = new LinkedList<>();
+    private static ModuleMethods moduleMethods = new ModuleMethods(wrapHelper);
 
     public static ModuleBuilder from(
             ClassDetail orModuleCl,
@@ -91,12 +92,12 @@ public class ModuleBuilder {
 
             int cacheFieldsCount = builder.cacheFields.size();
 
-            if (isProvideFactoryObject(m)) {
+            if (moduleMethods.isProvideFactoryObject(m)) {
                 builder.provideFactory(m)
                         .mockControl(m);
-            } else if (isProvideCachedObject(m)) {
+            } else if (moduleMethods.isProvideCachedObject(m)) {
                 ItemCacheType cacheType = cacheTypeFrom(m.ann(ProvideAnn.class).cacheType);
-                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, idFields, cacheType);
+                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, idFields, cacheType, wrapHelper);
                 builder.provideCached(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
                         .switchRefFor(itemHolderCodeHelper,
@@ -107,9 +108,9 @@ public class ModuleBuilder {
                                 ));
 
                 builder.iModuleMethodBuilders.get(clearNullsMethodName).addCode(itemHolderCodeHelper.clearNullsStatement());
-            } else if (isBindInstanceMethod(m)) {
+            } else if (moduleMethods.isBindInstanceMethod(m)) {
                 ItemCacheType cacheType = cacheTypeFrom(m.ann(BindInstanceAnn.class).cacheType);
-                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, idFields, cacheType);
+                ItemHolderCodeHelper itemHolderCodeHelper = of(m.methodName + cacheFieldsCount, m.returnType, idFields, cacheType, wrapHelper);
                 builder.bindInstance(m, itemHolderCodeHelper)
                         .cacheControl(m, itemHolderCodeHelper)
                         .switchRefFor(itemHolderCodeHelper,
@@ -422,13 +423,13 @@ public class ModuleBuilder {
             provideMethodBuilder
                     .beginControlFlow("if ($L.get() != null )", overridedModuleFieldName)
                     .addStatement("$T cached = $L.get().$L( null $L ) ",
-                            listWrapTypeIfNeed(m.returnType),
+                            wrapHelper.listWrapTypeIfNeed(m.returnType),
                             overridedModuleFieldName, cacheControlMethodName,
                             String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
                     )
                     .addCode("if (cached != null ) return ")
-                    .addCode(transform(
-                                    listWrapTypeIfNeed(m.returnType),
+                    .addCode(wrapHelper.transform(
+                                    wrapHelper.listWrapTypeIfNeed(m.returnType),
                                     m.returnType,
                                     CodeBlock.of("cached")
                             )
@@ -449,8 +450,8 @@ public class ModuleBuilder {
         }
         provideMethodBuilder.addStatement(
                 "return $L",
-                transform(
-                        listWrapTypeIfNeed(m.returnType),
+                wrapHelper.transform(
+                        wrapHelper.listWrapTypeIfNeed(m.returnType),
                         m.returnType,
                         itemHolderCodeHelper.codeGetCachedValue()
                 )
@@ -461,10 +462,10 @@ public class ModuleBuilder {
         // bind item code.
         // old design non-supports lists
         MethodSpec.Builder bindMethodBuilder = iModuleMethodBuilders.get(bindMethodName);
-        if (bindMethodBuilder != null && !isList(m.returnType)) {
-            bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, rawTypeOf(nonWrappedType(m.returnType)))
+        if (bindMethodBuilder != null && !wrapHelper.isList(m.returnType)) {
+            bindMethodBuilder.beginControlFlow("if ($T.equals(or.getClass(), $T.class)) ", Objects.class, rawTypeOf(wrapHelper.nonWrappedType(m.returnType)))
                     .addStatement(itemHolderCodeHelper.codeSetCachedValue(
-                            CodeBlock.of("($T) or", nonWrappedType(m.returnType)), false
+                            CodeBlock.of("($T) or", wrapHelper.nonWrappedType(m.returnType)), false
                     ))
                     .addStatement("$L = true", appliedLocalFieldName)
                     .endControlFlow();
@@ -511,14 +512,14 @@ public class ModuleBuilder {
             provideMethodBuilder
                     .beginControlFlow("if ($L.get() != null )", overridedModuleFieldName)
                     .addStatement("$T cached = $L.get().$L( null $L ) ",
-                            listWrapTypeIfNeed(m.returnType),
+                            wrapHelper.listWrapTypeIfNeed(m.returnType),
                             overridedModuleFieldName, cacheControlMethodName,
                             String.join("", ListUtils.format(qFields, (it) -> ", " + it.name))
                     )
                     .addCode("if (cached != null ) return ")
                     .addCode(
-                            transform(
-                                    listWrapTypeIfNeed(m.returnType),
+                            wrapHelper.transform(
+                                    wrapHelper.listWrapTypeIfNeed(m.returnType),
                                     m.returnType,
                                     CodeBlock.of("cached")
                             )
@@ -537,9 +538,9 @@ public class ModuleBuilder {
                 .addCode(";\n")
                 .addStatement(
                         itemHolderCodeHelper.codeSetCachedValue(
-                                transform(
+                                wrapHelper.transform(
                                         m.returnType,
-                                        listWrapTypeIfNeed(m.returnType),
+                                        wrapHelper.listWrapTypeIfNeed(m.returnType),
                                         CodeBlock.of("creator.get()")
                                 ),
                                 true
@@ -548,8 +549,8 @@ public class ModuleBuilder {
                 //get cached value
                 .addStatement(
                         "return $L ",
-                        transform(
-                                listWrapTypeIfNeed(m.returnType),
+                        wrapHelper.transform(
+                                wrapHelper.listWrapTypeIfNeed(m.returnType),
                                 m.returnType,
                                 itemHolderCodeHelper.codeGetCachedValue()
                         )
@@ -563,7 +564,7 @@ public class ModuleBuilder {
 
     public ModuleBuilder cacheControl(MethodDetail m, ItemHolderCodeHelper itemHolderCodeHelper) {
         String cacheControlMethodName = cacheControlMethodName(m.methodName);
-        TypeName cacheControlType = listWrapTypeIfNeed(m.returnType);
+        TypeName cacheControlType = wrapHelper.listWrapTypeIfNeed(m.returnType);
         List<FieldDetail> qFields = ListUtils.filter(m.args,
                 (inx, it) -> (it.type instanceof ClassName) && allClassesHelper.allIdentifiers.contains(it.type)
         );
@@ -634,7 +635,7 @@ public class ModuleBuilder {
 
         MethodSpec.Builder cacheControldMethodBuilder = methodBuilder(cacheControlMethodName)
                 .addModifiers(Modifier.PUBLIC)
-                .returns(listWrapTypeIfNeed(m.returnType))
+                .returns(wrapHelper.listWrapTypeIfNeed(m.returnType))
                 .addParameter(ParameterSpec.builder(CacheAction.class, "__action").build())
                 .addStatement("return null");
         if (orModuleCl != null) cacheControldMethodBuilder.addAnnotation(Override.class);

@@ -19,8 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.AnnotationProcessor.wrapHelper;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 import static com.github.klee0kai.stone.utils.StoneNamingUtils.genFactoryNameMirror;
 import static com.squareup.javapoet.MethodSpec.methodBuilder;
 
@@ -71,7 +71,7 @@ public class ModuleFactoryBuilder {
     }
 
     public ModuleFactoryBuilder provideMethodFrom(MethodDetail m, ClassDetail defaultImpl) {
-        ClassDetail providingClass = allClassesHelper.findForType(nonWrappedType(m.returnType));
+        ClassDetail providingClass = allClassesHelper.findForType(wrapHelper.nonWrappedType(m.returnType));
         MethodSpec.Builder builder = methodBuilder(m.methodName)
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
@@ -84,7 +84,7 @@ public class ModuleFactoryBuilder {
         builder.addCode(
                 CodeBlock.builder()
                         .add("return ")
-                        .add(WrapHelper.transform(providingClass.className,
+                        .add(wrapHelper.transform(providingClass.className,
                                 m.returnType,
                                 CodeBlock.of("$T.$L( null $L )", defaultImpl.className, m.methodName, argStr)
                         ))
@@ -98,7 +98,7 @@ public class ModuleFactoryBuilder {
     }
 
     public ModuleFactoryBuilder provideMethod(MethodDetail m) {
-        ClassDetail providingClass = allClassesHelper.findForType(nonWrappedType(m.returnType));
+        ClassDetail providingClass = allClassesHelper.findForType(wrapHelper.nonWrappedType(m.returnType));
         boolean hasConstructor = providingClass.findMethod(MethodDetail.constructorMethod(m.args), false) != null;
         if (!hasConstructor) {
             List<String> argTypes = ListUtils.format(m.args, (it) -> it.type.toString());
@@ -122,7 +122,7 @@ public class ModuleFactoryBuilder {
                 CodeBlock.builder()
                         .add("return ")
                         .add(
-                                WrapHelper.transform(providingClass.className, m.returnType,
+                                wrapHelper.transform(providingClass.className, m.returnType,
                                         CodeBlock.of("new $T( $L )", providingClass.className, argStr)
                                 )
                         )

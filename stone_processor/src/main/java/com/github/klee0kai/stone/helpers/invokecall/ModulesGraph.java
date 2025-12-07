@@ -8,6 +8,7 @@ import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecursiveProviding;
 import com.github.klee0kai.stone.exceptions.StoneException;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -28,7 +29,6 @@ import static com.github.klee0kai.stone.codegen.ModuleCacheControlInterfaceBuild
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_BIND_INSTANCE;
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
 
 public class ModulesGraph {
@@ -39,6 +39,11 @@ public class ModulesGraph {
     private final HashMap<TypeName, Set<InvokeCall>> provideTypeCodes = new HashMap<>();
     private final HashMap<TypeName, Set<InvokeCall>> cacheControlTypeCodes = new HashMap<>();
 
+    private final WrapHelper wrapHelper;
+
+    public ModulesGraph(WrapHelper wrapHelper) {
+        this.wrapHelper = wrapHelper;
+    }
 
     /**
      * Methods graph build.
@@ -49,7 +54,7 @@ public class ModulesGraph {
     public void collectFromModule(MethodDetail provideModuleMethod, ClassDetail module) {
         ClassDetail iModuleInterface = AnnotationProcessor.allClassesHelper.iModule;
         for (MethodDetail m : module.getAllMethods(false, true, "<init>")) {
-            TypeName provTypeName = nonWrappedType(m.returnType);
+            TypeName provTypeName = wrapHelper.nonWrappedType(m.returnType);
             if (provTypeName.isPrimitive() || provTypeName == TypeName.VOID)
                 continue;
             if (iModuleInterface.findMethod(m, false) != null)
@@ -60,7 +65,7 @@ public class ModulesGraph {
             invokeProvideFlags |= isBindInstance ? INVOKE_PROVIDE_BIND_INSTANCE : 0;
 
             provideTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
-            provideTypeCodes.get(provTypeName).add(new InvokeCall(invokeProvideFlags, provideModuleMethod, m));
+            provideTypeCodes.get(provTypeName).add(new InvokeCall(wrapHelper, invokeProvideFlags, provideModuleMethod, m));
 
             MethodDetail cacheControlMethod = new MethodDetail();
             cacheControlMethod.methodName = cacheControlMethodName(m.methodName);
@@ -70,11 +75,11 @@ public class ModulesGraph {
                     continue;
                 cacheControlMethod.args.add(it);
             }
-            cacheControlMethod.returnType = listWrapTypeIfNeed(m.returnType);
+            cacheControlMethod.returnType = wrapHelper.listWrapTypeIfNeed(m.returnType);
             cacheControlMethod.qualifierAnns = m.qualifierAnns;
 
             cacheControlTypeCodes.putIfAbsent(provTypeName, new HashSet<>());
-            cacheControlTypeCodes.get(provTypeName).add(new InvokeCall(provideModuleMethod, cacheControlMethod));
+            cacheControlTypeCodes.get(provTypeName).add(new InvokeCall(wrapHelper, provideModuleMethod, cacheControlMethod));
         }
     }
 
@@ -84,19 +89,19 @@ public class ModulesGraph {
             Set<QualifierAnn> qualifierAnns,
             Collection<FieldDetail> declaredFields
     ) {
-        boolean isWrappedReturn = isSupport(returnType);
-        TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
+        boolean isWrappedReturn = wrapHelper.isSupport(returnType);
+        TypeName providingType = isWrappedReturn ? wrapHelper.nonWrappedType(returnType) : returnType;
 
         Set<ProvideDep> provideDeps = new HashSet<>();
-        provideDeps.add(new ProvideDep(methodName, returnType, qualifierAnns));
+        provideDeps.add(new ProvideDep(methodName, wrapHelper.listWrapTypeIfNeed(returnType), qualifierAnns));
         List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(provideDeps.iterator().next());
         if (provideTypeInvokes == null || provideTypeInvokes.isEmpty()) {
             return null;
         }
         for (InvokeCall provideTypeInvoke : provideTypeInvokes) provideDeps.addAll(provideTypeInvoke.argDeps());
-        if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !isList(returnType)) {
+        if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !wrapHelper.isList(returnType)) {
             InvokeCall invokeCall = provideTypeInvokes.get(0).best();
-            return transform(
+            return wrapHelper.transform(
                     invokeCall.rawReturnType(),
                     returnType,
                     invokeCall.invokeCode(declaredFields)
@@ -114,12 +119,12 @@ public class ModulesGraph {
         for (InvokeCall inv : provideTypeInvokes) {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
             boolean isSingleDepRequired = ListUtils.contains(provideDeps, (idx, it) ->
-                    Objects.equals(nonWrappedType(it.typeName), nonWrappedType(inv.resultType()))
-                            && !isList(it.typeName)
+                    Objects.equals(wrapHelper.nonWrappedType(it.typeName), wrapHelper.nonWrappedType(inv.resultType()))
+                            && !wrapHelper.isList(it.typeName)
             );
             boolean isListDepRequired = ListUtils.contains(provideDeps, (idx, it) ->
-                    Objects.equals(nonWrappedType(it.typeName), nonWrappedType(inv.resultType()))
-                            && isList(it.typeName)
+                    Objects.equals(wrapHelper.nonWrappedType(it.typeName), wrapHelper.nonWrappedType(inv.resultType()))
+                            && wrapHelper.isList(it.typeName)
             );
             FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), inv.resultType());
             singleDepField.qualifierAnns = inv.qualifierAnnotations(true);
@@ -134,7 +139,7 @@ public class ModulesGraph {
                 if (isCacheProvide) {
                     codeBlock.add("$T $L = ", inv.resultType(), singleDepField.name)
                             .addStatement(
-                                    transform(
+                                    wrapHelper.transform(
                                             inv.best().rawReturnType(),
                                             inv.resultType(),
                                             inv.best().invokeCode(localVariables))
@@ -145,7 +150,7 @@ public class ModulesGraph {
                 } else {
                     singleDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
                     codeBlock.add("$T $L = () -> ", singleDepField.type, singleDepField.name)
-                            .addStatement(transform(inv.best().rawReturnType(), inv.resultType(), inv.best().invokeCode(localVariables)));
+                            .addStatement(wrapHelper.transform(inv.best().rawReturnType(), inv.resultType(), inv.best().invokeCode(localVariables)));
 
                     localVariables.add(singleDepField);
                 }
@@ -159,9 +164,9 @@ public class ModulesGraph {
 
 
             if (Objects.equals(inv.resultType(), providingType)) {
-                if (isList(returnType)) {
+                if (wrapHelper.isList(returnType)) {
                     codeBlock.add("$L.addAll( $L );\n", listFieldName,
-                            transform(
+                            wrapHelper.transform(
                                     listDepField.type,
                                     provideBuilderList,
                                     CodeBlock.of(listDepField.name)
@@ -169,23 +174,23 @@ public class ModulesGraph {
                     );
                 } else {
                     codeBlock.add("$L.add( $L );\n", listFieldName,
-                            transform(
+                            wrapHelper.transform(
                                     singleDepField.type,
                                     providingType,
                                     CodeBlock.of(singleDepField.name)
                             )
                     );
                 }
-                if (!isList(returnType))
+                if (!wrapHelper.isList(returnType))
                     break;
             }
         }
 
         codeBlock.add("\n  })");
-        if (isList(returnType)) {
+        if (wrapHelper.isList(returnType)) {
             codeBlock.add(".all() ");
 
-            return transform(
+            return wrapHelper.transform(
                     ParameterizedTypeName.get(ClassName.get(List.class), providingType),
                     returnType,
                     codeBlock.build()
@@ -193,7 +198,7 @@ public class ModulesGraph {
         } else {
             codeBlock.add(".first() ");
 
-            return transform(
+            return wrapHelper.transform(
                     providingType,
                     returnType,
                     codeBlock.build()
@@ -213,8 +218,8 @@ public class ModulesGraph {
         // provide dependencies while not provide all
         while (!needProvideDeps.isEmpty()) {
             ProvideDep rawDep = needProvideDeps.pollFirst();
-            TypeName dep = nonWrappedType(rawDep.typeName);
-            InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, dep, rawDep.qualifierAnns, rawDep.methodName, isList(rawDep.typeName));
+            TypeName dep = wrapHelper.nonWrappedType(rawDep.typeName);
+            InvokeCall invokeCall = provideTypeInvokeCall(provideTypeCodes, dep, rawDep.qualifierAnns, rawDep.methodName, wrapHelper.isList(rawDep.typeName));
             if (invokeCall == null) {
                 if (Objects.equals(provideDep, rawDep)) {
                     return null;
@@ -234,7 +239,7 @@ public class ModulesGraph {
                     return false;
                 }
                 // qualifies not need to provide
-                TypeName argNonWrapped = nonWrappedType(it.typeName);
+                TypeName argNonWrapped = wrapHelper.nonWrappedType(it.typeName);
                 return argNonWrapped instanceof ClassName && !allClassesHelper.allIdentifiers.contains(argNonWrapped);
             });
 
@@ -310,7 +315,7 @@ public class ModulesGraph {
                             .add(String.join(" and \n", ListUtils.format(filtered, InvokeCall::toString)))
                             .build());
         }
-        return !filtered.isEmpty() ? new InvokeCall(filtered) : null;
+        return !filtered.isEmpty() ? new InvokeCall(wrapHelper, filtered) : null;
     }
 
 }

@@ -2,6 +2,7 @@ package com.github.klee0kai.stone.checks;
 
 import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
+import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
 import com.github.klee0kai.stone.model.annotations.*;
@@ -15,11 +16,16 @@ import java.util.Set;
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
 import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.checkWrapperClass;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
 
 public class ComponentChecks {
 
-    public static void checkComponentClass(ClassDetail cl) {
+    private final WrapHelper wrapHelper;
+
+    public ComponentChecks(WrapHelper wrapHelper) {
+        this.wrapHelper = wrapHelper;
+    }
+
+    public void checkComponentClass(ClassDetail cl) {
         try {
             checkClassAnnotations(cl);
             checkClassNoHaveFields(cl);
@@ -39,7 +45,7 @@ public class ComponentChecks {
         }
     }
 
-    private static void checkClassAnnotations(ClassDetail cl) {
+    private void checkClassAnnotations(ClassDetail cl) {
         if (cl.hasAnyAnnotation(WrapperCreatorsAnn.class)) {
             throw new IncorrectSignatureException(
                     createErrorMes()
@@ -75,7 +81,7 @@ public class ComponentChecks {
         }
     }
 
-    private static void checkNoModuleDoubles(ClassDetail cl) {
+    private void checkNoModuleDoubles(ClassDetail cl) {
         Set<MethodDetail> moduleProvideMethods = new HashSet<>();
         for (MethodDetail m : cl.getAllMethods(false, true)) {
             if (m.hasAnyAnnotation(ModuleOriginFactoryAnn.class)) continue;
@@ -105,7 +111,7 @@ public class ComponentChecks {
         }
     }
 
-    private static void checkMethodSignature(MethodDetail m) {
+    private void checkMethodSignature(MethodDetail m) {
         IAnnotation prohibitedAnn = m.anyAnnotation(ProvideAnn.class, QualifierAnn.class, SingletonAnn.class);
         if (prohibitedAnn != null) {
             throw new IncorrectSignatureException(
@@ -118,7 +124,7 @@ public class ComponentChecks {
         }
 
         Set<TypeName> identifiers = new HashSet<>(allClassesHelper.allIdentifiers);
-        if (identifiers.contains(nonWrappedType(m.returnType))) {
+        if (identifiers.contains(wrapHelper.nonWrappedType(m.returnType))) {
             throw new IncorrectSignatureException(
                     createErrorMes()
                             .method(m.methodName)

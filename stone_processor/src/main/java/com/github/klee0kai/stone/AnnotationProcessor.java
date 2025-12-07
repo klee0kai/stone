@@ -42,6 +42,8 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     public static ProcessingEnvironment env;
     public static Messager messager;
+    public static WrapHelper wrapHelper = new WrapHelper();
+    public static ComponentChecks componentChecks = new ComponentChecks(wrapHelper);
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
@@ -49,7 +51,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         AnnotationProcessor.env = env;
         messager = env.getMessager();
         allClassesHelper.reInit(env.getElementUtils());
-        WrapHelper.reInit();
+        wrapHelper.reInit();
     }
 
     @Override
@@ -154,7 +156,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                     continue;
                 }
 
-                ComponentChecks.checkComponentClass(component);
+                componentChecks.checkComponentClass(component);
 
                 ComponentBuilder.from(component)
                         .buildAndWrite();

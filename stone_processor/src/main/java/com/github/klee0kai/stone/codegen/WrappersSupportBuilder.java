@@ -14,6 +14,7 @@ import javax.lang.model.element.Modifier;
 import java.util.LinkedList;
 import java.util.Objects;
 
+import static com.github.klee0kai.stone.AnnotationProcessor.wrapHelper;
 import static com.github.klee0kai.stone.checks.WrappersCreatorChecks.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
 
@@ -70,7 +71,7 @@ public class WrappersSupportBuilder {
             };
             wrapType.unwrap = (or) -> {
                 CodeBlock.Builder builder = CodeBlock.builder();
-                TypeName paramType = WrapHelper.paramType(wrapType.typeName);
+                TypeName paramType = wrapHelper.paramType(wrapType.typeName);
                 if (isCycleWrapper) {
 
                     builder.add("$T.$L.unwrap( $T.class , $T.class, ", className, name, wrapper, paramType)
@@ -85,7 +86,7 @@ public class WrappersSupportBuilder {
                 return builder.build();
             };
 
-            WrapHelper.support(wrapType);
+            wrapHelper.support(wrapType);
         }
         return this;
     }

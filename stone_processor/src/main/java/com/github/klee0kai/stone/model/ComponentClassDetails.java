@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.AnnotationProcessor.wrapHelper;
 import static com.github.klee0kai.stone.checks.ComponentMethods.isDepsProvide;
 import static com.github.klee0kai.stone.checks.ComponentMethods.isModuleProvideMethod;
 import static com.github.klee0kai.stone.codegen.ComponentBuilder.hiddenModuleMethodName;
@@ -26,7 +27,7 @@ import static com.github.klee0kai.stone.utils.StoneNamingUtils.genHiddenModuleNa
  */
 public class ComponentClassDetails extends ClassDetail {
 
-    public final ModulesGraph modulesGraph = new ModulesGraph();
+    public final ModulesGraph modulesGraph = new ModulesGraph(wrapHelper);
     public final Set<ClassName> identifiers = new HashSet<>();
     public ClassDetail hiddenModule = null;
     public ClassName hiddenModuleCacheControlInterface = null;

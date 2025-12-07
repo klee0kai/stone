@@ -6,8 +6,6 @@ import com.squareup.javapoet.TypeName;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.listWrapTypeIfNeed;
-
 public class ProvideDep {
 
     public String methodName = null;
@@ -16,13 +14,13 @@ public class ProvideDep {
     public Set<QualifierAnn> qualifierAnns;
 
     public ProvideDep(TypeName typeName, Set<QualifierAnn> qualifierAnns) {
-        this.typeName = listWrapTypeIfNeed(typeName);
+        this.typeName = typeName;
         this.qualifierAnns = qualifierAnns;
     }
 
     public ProvideDep(String methodName, TypeName typeName, Set<QualifierAnn> qualifierAnns) {
         this.methodName = methodName;
-        this.typeName = listWrapTypeIfNeed(typeName);
+        this.typeName = typeName;
         this.qualifierAnns = qualifierAnns;
     }
 

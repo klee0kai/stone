@@ -26,6 +26,7 @@ import javax.lang.model.element.Modifier;
 import java.util.*;
 
 import static com.github.klee0kai.stone.AnnotationProcessor.allClassesHelper;
+import static com.github.klee0kai.stone.AnnotationProcessor.wrapHelper;
 import static com.github.klee0kai.stone.checks.ComponentMethods.BindInstanceType.BindInstanceAndProvide;
 import static com.github.klee0kai.stone.checks.ComponentMethods.*;
 import static com.github.klee0kai.stone.exceptions.ExceptionStringBuilder.createErrorMes;
@@ -472,8 +473,8 @@ public class ComponentBuilder {
                 (inx, it) -> (it.type instanceof ClassName) && orComponentCl.identifiers.contains(it.type)
         );
         FieldDetail setValueArg = ListUtils.first(m.args, (inx, it) -> !(it.type instanceof ClassName) || !orComponentCl.identifiers.contains(it.type));
-        TypeName nonWrappedBindType = nonWrappedType(setValueArg.type);
-        boolean isProvideMethod = Objects.equals(nonWrappedType(m.returnType), nonWrappedBindType);
+        TypeName nonWrappedBindType = wrapHelper.nonWrappedType(setValueArg.type);
+        boolean isProvideMethod = Objects.equals(wrapHelper.nonWrappedType(m.returnType), nonWrappedBindType);
         String hidingProvideName = isProvideMethod ? m.methodName : null;
 
         MethodSpec.Builder builder = methodBuilder(m.methodName)
@@ -488,13 +489,13 @@ public class ComponentBuilder {
             // bind object declared in module
             InvokeCall cacheControlInvoke = orComponentCl.modulesGraph.invokeControlCacheForType(hidingProvideName, nonWrappedBindType, m.qualifierAnns);
 
-            boolean isListCache = isList(cacheControlInvoke.rawReturnType());
+            boolean isListCache = wrapHelper.isList(cacheControlInvoke.rawReturnType());
             TypeName cacheControlType = isListCache ? ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedBindType) : nonWrappedBindType;
             builder.addStatement(cacheControlInvoke.invokeCode(m.args,
                             typeName ->
                                     CodeBlock.builder()
                                             .add("$T.setValueAction(", CacheAction.class)
-                                            .add(transform(
+                                            .add(wrapHelper.transform(
                                                     setValueArg.type,
                                                     cacheControlType,
                                                     CodeBlock.of(setValueArg.name)
@@ -613,7 +614,7 @@ public class ComponentBuilder {
                     subscrCode.beginControlFlow("$L.subscribe( (timeMillis) -> ", lifeCycleOwner.name);
                     for (FieldDetail injectField : injectableCl.getAllFields()) {
                         if (!injectField.injectAnnotation) continue;
-                        if (WrapHelper.isNonCachingWrapper(injectField.type))
+                        if (wrapHelper.isNonCachingWrapper(injectField.type))
                             //nothing to protect
                             continue;
 
@@ -649,7 +650,7 @@ public class ComponentBuilder {
         collectRuns.execute(createErrorMes().errorImplementMethod(m.methodName).build(), m.sourceEl, () -> {
             for (FieldDetail injectField : injectableCl.fields) {
                 if (!injectField.injectAnnotation) continue;
-                if (WrapHelper.isNonCachingWrapper(injectField.type))
+                if (wrapHelper.isNonCachingWrapper(injectField.type))
                     //nothing to protect
                     continue;
 

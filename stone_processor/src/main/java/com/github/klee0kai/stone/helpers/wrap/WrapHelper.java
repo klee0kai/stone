@@ -21,23 +21,23 @@ import static com.github.klee0kai.stone.utils.ClassNameUtils.rawTypeOf;
 
 public class WrapHelper {
 
-    public static HashMap<TypeName, WrapType> wrapTypes = new HashMap<>();
+    HashMap<TypeName, WrapType> wrapTypes = new HashMap<>();
 
-    public static void reInit() {
+    public void reInit() {
         wrapTypes.clear();
         std();
     }
 
-    public static void support(WrapType wrapType) {
+    public void support(WrapType wrapType) {
         wrapTypes.putIfAbsent(wrapType.typeName, wrapType);
     }
 
 
-    public static boolean isSupport(TypeName typeName) {
+    public boolean isSupport(TypeName typeName) {
         return wrapTypes.containsKey(rawTypeOf(typeName));
     }
 
-    public static boolean isNonCachingWrapper(TypeName typeName) {
+    public boolean isNonCachingWrapper(TypeName typeName) {
         for (TypeName t : allParamTypes(typeName)) {
             WrapType wrapType = wrapTypes.get(rawTypeOf(t));
             if (wrapType != null && wrapType.isNoCachingWrapper)
@@ -46,7 +46,7 @@ public class WrapHelper {
         return false;
     }
 
-    public static boolean isAsyncProvider(TypeName typeName) {
+    public boolean isAsyncProvider(TypeName typeName) {
         for (TypeName t : allParamTypes(typeName)) {
             WrapType wrapType = wrapTypes.get(rawTypeOf(t));
             if (wrapType != null && wrapType.isAsyncProvider)
@@ -55,7 +55,7 @@ public class WrapHelper {
         return false;
     }
 
-    public static boolean isList(TypeName typeName) {
+    public boolean isList(TypeName typeName) {
         return ListUtils.indexOf(allParamTypes(typeName), (i, it) -> {
             WrapType wrapType = wrapTypes.get(rawTypeOf(it));
             return wrapType != null && wrapType.isList();
@@ -63,7 +63,7 @@ public class WrapHelper {
     }
 
 
-    public static TypeName paramType(TypeName typeName) {
+    public TypeName paramType(TypeName typeName) {
         if (typeName instanceof ParameterizedTypeName) {
             ParameterizedTypeName par = (ParameterizedTypeName) typeName;
             if (isSupport(par.rawType) && par.typeArguments != null && !par.typeArguments.isEmpty())
@@ -76,7 +76,7 @@ public class WrapHelper {
      * com.github.klee0kai.stone.wrappers.LazyProvide<com.github.klee0kai.test.tech.components.Battery> -> com.github.klee0kai.test.tech.components.Battery
      * ? extends java.lang.ref.WeakReference<com.github.klee0kai.test.car.model.Window> -> com.github.klee0kai.test.car.model.Window
      */
-    public static TypeName nonWrappedType(TypeName typeName) {
+    public TypeName nonWrappedType(TypeName typeName) {
         if (typeName instanceof ParameterizedTypeName) {
             ParameterizedTypeName par = (ParameterizedTypeName) typeName;
             if (isSupport(par.rawType) && par.typeArguments != null && !par.typeArguments.isEmpty())
@@ -91,16 +91,16 @@ public class WrapHelper {
     }
 
     /**
-     *  java.util.List<com.github.klee0kai.stone.wrappers.Ref<com.github.klee0kai.test.boxed.model.CarBox<com.github.klee0kai.test.car.model.Window>>> ->
-     *          java.util.List<com.github.klee0kai.test.boxed.model.CarBox<com.github.klee0kai.test.car.model.Window>>
+     * java.util.List<com.github.klee0kai.stone.wrappers.Ref<com.github.klee0kai.test.boxed.model.CarBox<com.github.klee0kai.test.car.model.Window>>> ->
+     * java.util.List<com.github.klee0kai.test.boxed.model.CarBox<com.github.klee0kai.test.car.model.Window>>
      */
-    public static TypeName listWrapTypeIfNeed(TypeName typeName) {
+    public TypeName listWrapTypeIfNeed(TypeName typeName) {
         if (isList(typeName))
             return ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedType(typeName));
         return nonWrappedType(typeName);
     }
 
-    public static List<TypeName> allParamTypes(TypeName typeName) {
+    public List<TypeName> allParamTypes(TypeName typeName) {
         typeName = noWildCardType(typeName);
         List<TypeName> allParams = new LinkedList<>();
         while (true) {
@@ -113,7 +113,7 @@ public class WrapHelper {
     }
 
 
-    public static CodeBlock transform(
+    public CodeBlock transform(
             TypeName providingType,
             TypeName wannaType,
             CodeBlock code
@@ -197,7 +197,7 @@ public class WrapHelper {
         return codeBuilder.build();
     }
 
-    private static void std() {
+    private void std() {
         for (Class cl : Arrays.asList(WeakReference.class, SoftReference.class, Reference.class)) {
             ClassName wrapper = ClassName.get(cl);
             ClassName creator = !Objects.equals(cl, Reference.class) ? wrapper : ClassName.get(WeakReference.class);

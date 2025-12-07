@@ -14,9 +14,6 @@ import com.squareup.javapoet.TypeName;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
 import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
 
 /**
@@ -27,6 +24,7 @@ import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
  * Arguments for chaining are reused by type.
  */
 public class InvokeCall {
+
 
     /**
      * Invoke sequence provides the object, which caching in DI.
@@ -39,6 +37,7 @@ public class InvokeCall {
 
     public final List<List<MethodDetail>> invokeSequenceVariants = new LinkedList<>();
     public final int flags;
+    private final WrapHelper wrapHelper;
 
     /**
      * Create new invoke sequence
@@ -46,15 +45,19 @@ public class InvokeCall {
      * @param callSequence ordered methods in invoke sequence
      */
     public InvokeCall(
+            WrapHelper wrapHelper,
             MethodDetail... callSequence
     ) {
+        this.wrapHelper = wrapHelper;
         this.flags = 0;
         this.invokeSequenceVariants.add(Arrays.asList(callSequence));
     }
 
     public InvokeCall(
+            WrapHelper wrapHelper,
             List<MethodDetail> callSequence
     ) {
+        this.wrapHelper = wrapHelper;
         this.flags = 0;
         this.invokeSequenceVariants.add(callSequence);
     }
@@ -67,10 +70,12 @@ public class InvokeCall {
      * @param callSequence ordered methods in invoke sequence
      */
     public InvokeCall(
+            WrapHelper wrapHelper,
             int flags,
             MethodDetail... callSequence
     ) {
         this.flags = flags;
+        this.wrapHelper = wrapHelper;
         this.invokeSequenceVariants.add(Arrays.asList(callSequence));
     }
 
@@ -80,8 +85,10 @@ public class InvokeCall {
      * @param variants all variants from best to worse
      */
     public InvokeCall(
+            WrapHelper wrapHelper,
             Collection<InvokeCall> variants
     ) {
+        this.wrapHelper = wrapHelper;
         int mergeflag = 0;
         for (InvokeCall v : variants) {
             mergeflag |= v.flags;
@@ -124,7 +131,7 @@ public class InvokeCall {
         Set<ProvideDep> argsTypes = new HashSet<>();
         for (List<MethodDetail> invokeSequence : invokeSequenceVariants)
             for (MethodDetail m : invokeSequence) {
-                List<ProvideDep> types = ListUtils.format(m.args, (it) -> new ProvideDep(it.type, it.qualifierAnns));
+                List<ProvideDep> types = ListUtils.format(m.args, (it) -> new ProvideDep(wrapHelper.listWrapTypeIfNeed(it.type), it.qualifierAnns));
                 argsTypes.addAll(types);
             }
         return argsTypes;
@@ -136,16 +143,12 @@ public class InvokeCall {
      * @return return type
      */
     public TypeName resultType() {
-        return nonWrappedType(rawReturnType());
+        return wrapHelper.nonWrappedType(rawReturnType());
     }
 
     public TypeName rawReturnType() {
         List<MethodDetail> invokeSequence = bestSequence();
         return invokeSequence.get(invokeSequence.size() - 1).returnType;
-    }
-
-    public TypeName listResultType() {
-        return ParameterizedTypeName.get(ClassName.get(List.class), resultType());
     }
 
     /**
@@ -183,7 +186,7 @@ public class InvokeCall {
     }
 
     public InvokeCall best() {
-        return new InvokeCall(bestSequence());
+        return new InvokeCall(wrapHelper, bestSequence());
     }
 
     public CodeBlock invokeAllToList(
@@ -197,23 +200,43 @@ public class InvokeCall {
                 ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), resultType()), listFieldName
         ));
         for (List<MethodDetail> sequence : invokeSequenceVariants) {
-            InvokeCall invokeCall = new InvokeCall(sequence);
+            InvokeCall invokeCall = new InvokeCall(wrapHelper, sequence);
             CodeBlock seqCodeBlock = invokeCall.invokeCode(declaredFields);
 
-            if (WrapHelper.isList(invokeCall.rawReturnType())) {
+            if (wrapHelper.isList(invokeCall.rawReturnType())) {
                 builder.add(listFieldName)
                         .add(".addAll(")
-                        .add(transform(invokeCall.rawReturnType(), provType, seqCodeBlock))
+                        .add(wrapHelper.transform(invokeCall.rawReturnType(), provType, seqCodeBlock))
                         .add(");\n");
             } else {
                 builder.add(listFieldName)
                         .add(".add(")
-                        .add(transform(invokeCall.rawReturnType(), resultType(), seqCodeBlock))
+                        .add(wrapHelper.transform(invokeCall.rawReturnType(), resultType(), seqCodeBlock))
                         .add(");\n");
             }
         }
         builder.add(" }).all() ");
         return builder.build();
+    }
+
+    Function<FieldDetail, CodeBlock> unwrapArgument(Collection<FieldDetail> envFields) {
+        return arg -> {
+            boolean isWannaList = wrapHelper.isList(arg.type);
+            List<FieldDetail> typeFields = ListUtils.filter(envFields, (i, f) ->
+                    Objects.equals(wrapHelper.nonWrappedType(f.type), wrapHelper.nonWrappedType(arg.type)));
+            FieldDetail field = isWannaList ? ListUtils.first(typeFields, (i, f) ->
+                    wrapHelper.isList(f.type) && Objects.equals(f.qualifierAnns, arg.qualifierAnns)) : null;
+
+            if (field == null) {
+                //non list
+                field = ListUtils.first(typeFields, (i, f) -> Objects.equals(f.qualifierAnns, arg.qualifierAnns));
+            }
+
+            if (field != null) {
+                return wrapHelper.transform(field.type, arg.type, CodeBlock.of(field.name));
+            }
+            return null;
+        };
     }
 
 
