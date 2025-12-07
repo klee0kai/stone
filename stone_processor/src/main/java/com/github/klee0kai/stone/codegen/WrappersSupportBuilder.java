@@ -51,7 +51,7 @@ public class WrappersSupportBuilder {
             WrapType wrapType = new WrapType();
             wrapType.isNoCachingWrapper = !isAsyncWrapper;
             wrapType.typeName = wrapper;
-            wrapType.wrap = or -> {
+            wrapType.wrap = (providingType, or)  -> {
                 SmartCode builder = SmartCode.builder();
 
                 if (isSimpleWrapper) {
@@ -64,25 +64,22 @@ public class WrappersSupportBuilder {
                             .add(")");
                 } else {
                     throw new IncorrectSignatureException(createErrorMes()
-                            .typeTransformNonSupport(or.providingType, wrapper)
+                            .typeTransformNonSupport(providingType, wrapper)
                             .build());
                 }
-                if (or.providingType != null)
-                    builder.providingType(ParameterizedTypeName.get(wrapper, or.providingType));
                 return builder;
             };
-            wrapType.unwrap = or -> {
+            wrapType.unwrap = (providingType, or) -> {
                 SmartCode builder = SmartCode.builder();
-                TypeName paramType = WrapHelper.paramType(or.providingType);
+                TypeName paramType = WrapHelper.paramType(providingType);
                 if (isCycleWrapper) {
 
                     builder.add(CodeBlock.of("$T.$L.unwrap( $T.class , $T.class, ", className, name, wrapper, paramType))
                             .add(or)
-                            .add(")")
-                            .providingType(paramType);
+                            .add(")");
                 } else {
                     throw new IncorrectSignatureException(createErrorMes()
-                            .typeTransformNonSupport(or.providingType, wrapper)
+                            .typeTransformNonSupport(providingType, wrapper)
                             .build());
                 }
 

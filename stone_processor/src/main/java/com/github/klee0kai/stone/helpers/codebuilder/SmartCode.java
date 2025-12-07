@@ -89,17 +89,6 @@ public class SmartCode implements ISmartCode {
     }
 
 
-    public SmartCode localVariable(String fieldName, Set<QualifierAnn> qualifiers, SmartCode initVariable) {
-        this.providingType = initVariable.providingType;
-        this.fieldName = fieldName;
-        this.qualifierAnns.addAll(qualifiers);
-
-        add(CodeBlock.of("$T $L = ", providingType, fieldName), null);
-        add(initVariable);
-        add(";\n");
-        return this;
-    }
-
     public int getSize() {
         int size = 1;
         for (ISmartCode s : codes) {
@@ -161,12 +150,12 @@ public class SmartCode implements ISmartCode {
             if (smartCode == null) continue;
             collectedCode.add(smartCode.collect(declaredFields));
 
-            if (smartCode.fieldName != null && smartCode.providingType != null) {
-                FieldDetail field = FieldDetail.simple(smartCode.fieldName, smartCode.providingType);
-                field.qualifierAnns = smartCode.qualifierAnns;
-                declaredFields.add(field);
-            }
-            usedFields.addAll(smartCode.usedFields);
+//            if (smartCode.fieldName != null && smartCode.providingType != null) {
+//                FieldDetail field = FieldDetail.simple(smartCode.fieldName, smartCode.providingType);
+//                field.qualifierAnns = smartCode.qualifierAnns;
+//                declaredFields.add(field);
+//            }
+//            usedFields.addAll(smartCode.usedFields);
         }
 
         this.declaredFields = Collections.emptySet();
