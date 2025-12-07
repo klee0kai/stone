@@ -2,7 +2,6 @@ package com.github.klee0kai.stone.helpers.invokecall;
 
 import com.github.klee0kai.stone._hidden_.provide.ProvideBuilder;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -16,9 +15,9 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.github.klee0kai.stone.helpers.invokecall.GenArgumentFunctions.unwrapArgument;
-import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.nonWrappedType;
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.transform;
 import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
-import static java.util.Collections.singleton;
 
 /**
  * Invoke sequence or call sequence.
@@ -51,6 +50,13 @@ public class InvokeCall {
     ) {
         this.flags = 0;
         this.invokeSequenceVariants.add(Arrays.asList(callSequence));
+    }
+
+    public InvokeCall(
+            List<MethodDetail> callSequence
+    ) {
+        this.flags = 0;
+        this.invokeSequenceVariants.add(callSequence);
     }
 
     /**
@@ -138,6 +144,10 @@ public class InvokeCall {
         return invokeSequence.get(invokeSequence.size() - 1).returnType;
     }
 
+    public TypeName listResultType() {
+        return ParameterizedTypeName.get(ClassName.get(List.class), resultType());
+    }
+
     /**
      * Generate invoke code bloke
      *
@@ -147,10 +157,10 @@ public class InvokeCall {
      */
     @SafeVarargs
     public final CodeBlock invokeCode(
-            List<FieldDetail> envFields,
-            Function<TypeName, CodeBlock>... argGen
+            Collection<FieldDetail> envFields,
+            Function<FieldDetail, CodeBlock>... argGen
     ) {
-        List<Function<TypeName, CodeBlock>> argGens = new LinkedList<>();
+        List<Function<FieldDetail, CodeBlock>> argGens = new LinkedList<>();
         argGens.add(unwrapArgument(envFields));
         argGens.addAll(Arrays.asList(argGen));
 
@@ -161,99 +171,51 @@ public class InvokeCall {
             CodeBlock.Builder argsCodeBuilder = CodeBlock.builder();
             for (FieldDetail arg : m.args) {
                 if (argCount++ > 0) argsCodeBuilder.add(",");
-                CodeBlock argCode = ListUtils.firstNotNull(argGens, it -> it.apply(arg.type));
+                CodeBlock argCode = ListUtils.firstNotNull(argGens, it -> it.apply(arg));
                 argsCodeBuilder.add(argCode != null ? argCode : CodeBlock.of("null"));
             }
 
             if (invokeCount++ > 0) invokeBuilder.add(".");
             invokeBuilder.add("$L($L)", m.methodName, argsCodeBuilder.build());
         }
+
         return invokeBuilder.build();
     }
 
-    public SmartCode invokeBest(
-            Collection<FieldDetail> declaredFields
-    ) {
-        return transform(invokeSequence(declaredFields, bestSequence()), resultType());
+    public InvokeCall best() {
+        return new InvokeCall(bestSequence());
     }
 
-    public SmartCode invokeAllToList(
+    public CodeBlock invokeAllToList(
             Collection<FieldDetail> declaredFields
     ) {
         TypeName provType = ParameterizedTypeName.get(ClassName.get(List.class), resultType());
         String listFieldName = genLocalFieldName();
-        return SmartCode
-                .builder()
-                .providingType(provType)
-                .withLocals(builder -> {
-                    builder.add(CodeBlock.of("new $T( ( $L ) -> { \n",
-                            ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), resultType()), listFieldName
-                    ));
-                    for (List<MethodDetail> sequence : invokeSequenceVariants) {
-                        SmartCode seqCode = invokeSequence(declaredFields, sequence);
-                        if (WrapHelper.isList(seqCode.providingType)) {
-                            builder.add(listFieldName)
-                                    .add(".addAll(")
-                                    .add(transform(seqCode, provType))
-                                    .add(");\n");
-                        } else {
-                            builder.add(listFieldName)
-                                    .add(".add(")
-                                    .add(transform(seqCode, resultType()))
-                                    .add(");\n");
-                        }
-                    }
-                    builder.add(" }).all() ");
-                    return builder;
-                });
+        CodeBlock.Builder builder = CodeBlock.builder();
+
+        builder.add(CodeBlock.of("new $T( ( $L ) -> { \n",
+                ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), resultType()), listFieldName
+        ));
+        for (List<MethodDetail> sequence : invokeSequenceVariants) {
+            InvokeCall invokeCall = new InvokeCall(sequence);
+            CodeBlock seqCodeBlock = invokeCall.invokeCode(declaredFields);
+
+            if (WrapHelper.isList(invokeCall.rawReturnType())) {
+                builder.add(listFieldName)
+                        .add(".addAll(")
+                        .add(transform(invokeCall.rawReturnType(), provType, seqCodeBlock))
+                        .add(");\n");
+            } else {
+                builder.add(listFieldName)
+                        .add(".add(")
+                        .add(transform(invokeCall.rawReturnType(), resultType(), seqCodeBlock))
+                        .add(");\n");
+            }
+        }
+        builder.add(" }).all() ");
+        return builder.build();
     }
 
-
-    private SmartCode invokeSequence(
-            Collection<FieldDetail> declaredFields,
-            List<MethodDetail> sequence
-    ) {
-        return SmartCode.builder().withLocals(builder -> {
-                    int invokeCount = 0;
-                    for (MethodDetail m : sequence) {
-                        if (invokeCount++ > 0) builder.add(".");
-                        builder.add(m.methodName)
-                                .add("(");
-
-                        int argCount = 0;
-                        for (FieldDetail arg : m.args) {
-                            if (argCount++ > 0) builder.add(", ");
-                            boolean isList = isList(arg.type);
-                            List<FieldDetail> typeFields = ListUtils.filter(
-                                    declaredFields != null ? declaredFields : builder.getDeclaredFields(),
-                                    (i, f) -> Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type)));
-
-                            FieldDetail field = isList ? ListUtils.first(typeFields, (i, f) ->
-                                    isList(f.type) && Objects.equals(f.qualifierAnns, arg.qualifierAnns)
-                            ) : null;
-                            if (field == null) {
-                                //non list
-                                field = ListUtils.first(typeFields, (i, f) -> Objects.equals(f.qualifierAnns, arg.qualifierAnns));
-                            }
-
-                            if (field == null) {
-                                builder.add("null", null);
-                            } else {
-                                // unwrap type
-                                builder.add(
-                                        transform(SmartCode.of(field.name, singleton(field.name))
-                                                        .providingType(field.type),
-                                                arg.type
-                                        ));
-                            }
-                        }
-
-                        builder.add(")");
-                    }
-                    return builder;
-                })
-                .providingType(sequence.get(sequence.size() - 1).returnType);
-    }
 
     @Override
     public String toString() {

@@ -9,9 +9,12 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+
+import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 
 public class GenArgumentFunctions {
 
@@ -25,21 +28,21 @@ public class GenArgumentFunctions {
      * @param envFields available fields
      * @return unwrapped field get code, or null
      */
-    public static Function<TypeName, CodeBlock> unwrapArgument(List<FieldDetail> envFields) {
-        List<Pair<TypeName, String>> provideFields = ListUtils.format(envFields, it -> {
-            if (it.type instanceof ParameterizedTypeName) {
-                ParameterizedTypeName type = (ParameterizedTypeName) it.type;
-                TypeName orType = type.typeArguments.get(type.typeArguments.size() - 1);
-                if (Objects.equals(type.rawType, ClassName.get(PhantomProvide.class)))
-                    return new Pair<>(orType, it.name + ".get()");
-            }
-            return new Pair<>(it.type, it.name);
-        });
+    public static Function<FieldDetail, CodeBlock> unwrapArgument(Collection<FieldDetail> envFields) {
+        return arg -> {
+            boolean isWannaList = isList(arg.type);
+            List<FieldDetail> typeFields = ListUtils.filter(envFields, (i, f) ->
+                    Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type)));
+            FieldDetail field = isWannaList ? ListUtils.first(typeFields, (i, f) ->
+                    isList(f.type) && Objects.equals(f.qualifierAnns, arg.qualifierAnns)) : null;
 
-        return wannaType -> {
-            for (Pair<TypeName, String> provideField : provideFields) {
-                if (Objects.equals(wannaType, provideField.first))
-                    return CodeBlock.of(provideField.second);
+            if (field == null) {
+                //non list
+                field = ListUtils.first(typeFields, (i, f) -> Objects.equals(f.qualifierAnns, arg.qualifierAnns));
+            }
+
+            if (field != null) {
+                return transform(field.type, arg.type, CodeBlock.of(field.name));
             }
             return null;
         };

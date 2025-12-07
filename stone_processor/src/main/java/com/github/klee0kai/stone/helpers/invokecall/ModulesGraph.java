@@ -95,11 +95,11 @@ public class ModulesGraph {
         }
         for (InvokeCall provideTypeInvoke : provideTypeInvokes) provideDeps.addAll(provideTypeInvoke.argDeps());
         if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !isList(returnType)) {
-            InvokeCall invokeCall = provideTypeInvokes.get(0);
+            InvokeCall invokeCall = provideTypeInvokes.get(0).best();
             return transform(
-                    invokeCall.resultType(),
+                    invokeCall.rawReturnType(),
                     returnType,
-                    invokeCall.invokeBest(declaredFields).build(declaredFields)
+                    invokeCall.invokeCode(declaredFields)
             );
         }
 
@@ -133,14 +133,19 @@ public class ModulesGraph {
             if (isSingleDepRequired) {
                 if (isCacheProvide) {
                     codeBlock.add("$T $L = ", inv.resultType(), singleDepField.name)
-                            .addStatement(inv.invokeBest(localVariables).build(localVariables));
+                            .addStatement(
+                                    transform(
+                                            inv.best().rawReturnType(),
+                                            inv.resultType(),
+                                            inv.best().invokeCode(localVariables))
+                            );
 
 
                     localVariables.add(singleDepField);
                 } else {
                     singleDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
                     codeBlock.add("$T $L = () -> ", singleDepField.type, singleDepField.name)
-                            .addStatement(inv.invokeBest(localVariables).build(localVariables));
+                            .addStatement(transform(inv.best().rawReturnType(), inv.resultType(), inv.best().invokeCode(localVariables)));
 
                     localVariables.add(singleDepField);
                 }
@@ -148,7 +153,7 @@ public class ModulesGraph {
 
             if (isListDepRequired) {
                 codeBlock.add("$T $L = () -> ", listDepField.type, listDepField.name)
-                        .addStatement(inv.invokeAllToList(localVariables).build(localVariables));
+                        .addStatement(inv.invokeAllToList(localVariables));
                 localVariables.add(listDepField);
             }
 
