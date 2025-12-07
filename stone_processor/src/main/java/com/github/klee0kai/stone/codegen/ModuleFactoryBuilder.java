@@ -3,7 +3,6 @@ package com.github.klee0kai.stone.codegen;
 import com.github.klee0kai.stone._hidden_.IModuleFactory;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
@@ -83,14 +82,14 @@ public class ModuleFactoryBuilder {
         String argStr = m.args == null ? "" : String.join("", ListUtils.format(m.args, (it) -> ", " + it.name));
 
         builder.addCode(
-                SmartCode.builder()
+                CodeBlock.builder()
                         .add("return ")
                         .add(WrapHelper.transform(providingClass.className,
                                 m.returnType,
                                 CodeBlock.of("$T.$L( null $L )", defaultImpl.className, m.methodName, argStr)
                         ))
                         .add(";\n")
-                        .build(m.args)
+                        .build()
         );
 
 
@@ -120,7 +119,7 @@ public class ModuleFactoryBuilder {
 
         String argStr = m.args == null ? "" : String.join(",", ListUtils.format(m.args, (it) -> it.name));
         builder.addCode(
-                SmartCode.builder()
+                CodeBlock.builder()
                         .add("return ")
                         .add(
                                 WrapHelper.transform(providingClass.className, m.returnType,
@@ -128,7 +127,7 @@ public class ModuleFactoryBuilder {
                                 )
                         )
                         .add(";\n")
-                        .build(m.args)
+                        .build()
         );
 
 
