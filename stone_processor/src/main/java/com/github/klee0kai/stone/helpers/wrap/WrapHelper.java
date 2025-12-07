@@ -152,16 +152,16 @@ public class WrapHelper {
                     TypeName wrapItemType = paramType(wrapPathNames.get(wrapListIndex));
                     WrapType wrapListType = wrapPath.get(wrapListIndex);
 
-                    smartCode = wrapListType.inListFormat.formatCode(
+                    smartCode = SmartCode.of(wrapListType.inListFormat.formatCode(
                             unwrapType.typeName,
-                            smartCode,
+                            smartCode.build(null),
                             (inListType, listItemCode) ->
                                     transform(
                                             unWrapItemType,
                                             wrapItemType,
                                             listItemCode
                                     )
-                    );
+                    ), null);
 
                     for (int i = 0; i <= wrapListIndex; i++) {
                         wrapPath.pollFirst();
@@ -257,27 +257,27 @@ public class WrapHelper {
                     .build();
 
             wrapType.inListFormat = (originalListType, originalListCode, itemTransformFun) -> {
-                SmartCode builder = SmartCode.builder();
+                CodeBlock.Builder builder = CodeBlock.builder();
                 boolean isListNeedConstructor = needConstructor
                         || originalListType != null && !Objects.equals(rawTypeOf(wrapper), rawTypeOf(originalListType));
 
-                if (isListNeedConstructor) builder.add(CodeBlock.of("$T.let( ", NullGet.class));
+                if (isListNeedConstructor) builder.add("$T.let( ", NullGet.class);
 
                 CodeBlock itemTransform = itemTransformFun.formatCode(null, CodeBlock.of("it"));
                 if (Objects.equals(itemTransform.toString(), "it")) {
                     //no transforms
                     builder.add(originalListCode);
                 } else {
-                    builder.add(CodeBlock.of("$T.format( ", ListUtils.class))
+                    builder.add("$T.format( ", ListUtils.class)
                             .add(originalListCode)
                             .add(", it ->  ")
                             .add(itemTransformFun.formatCode(null, CodeBlock.of("it")))
                             .add(") ");
 
                 }
-                if (isListNeedConstructor) builder.add(CodeBlock.of(", $T::new)", createType));
+                if (isListNeedConstructor) builder.add(", $T::new)", createType);
 
-                return builder;
+                return builder.build();
             };
             support(wrapType);
 

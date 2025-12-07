@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.helpers.wrap;
 
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 
 public interface FormatInList {
@@ -10,6 +10,6 @@ public interface FormatInList {
      * @param itemTransformFun format each type
      * @return
      */
-    SmartCode formatCode(TypeName originalListType, SmartCode originalListCode, FormatSimple itemTransformFun);
+    CodeBlock formatCode(TypeName originalListType, CodeBlock originalListCode, FormatSimple itemTransformFun);
 
 }
