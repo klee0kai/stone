@@ -3,7 +3,6 @@ package com.github.klee0kai.stone.codegen;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone.codegen.model.WrapperCreatorField;
 import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.helpers.wrap.WrapType;
 import com.github.klee0kai.stone.model.ClassDetail;
@@ -51,8 +50,8 @@ public class WrappersSupportBuilder {
             WrapType wrapType = new WrapType();
             wrapType.isNoCachingWrapper = !isAsyncWrapper;
             wrapType.typeName = wrapper;
-            wrapType.wrap = (providingType, or)  -> {
-                SmartCode builder = SmartCode.builder();
+            wrapType.wrap = (providingType, or) -> {
+                CodeBlock.Builder builder = CodeBlock.builder();
 
                 if (isSimpleWrapper) {
                     builder.add(CodeBlock.of("$T.$L.wrap( $T.class , ", className, name, wrapper))
@@ -67,14 +66,14 @@ public class WrappersSupportBuilder {
                             .typeTransformNonSupport(providingType, wrapper)
                             .build());
                 }
-                return builder;
+                return builder.build();
             };
             wrapType.unwrap = (providingType, or) -> {
-                SmartCode builder = SmartCode.builder();
+                CodeBlock.Builder builder = CodeBlock.builder();
                 TypeName paramType = WrapHelper.paramType(providingType);
                 if (isCycleWrapper) {
 
-                    builder.add(CodeBlock.of("$T.$L.unwrap( $T.class , $T.class, ", className, name, wrapper, paramType))
+                    builder.add("$T.$L.unwrap( $T.class , $T.class, ", className, name, wrapper, paramType)
                             .add(or)
                             .add(")");
                 } else {
@@ -83,7 +82,7 @@ public class WrappersSupportBuilder {
                             .build());
                 }
 
-                return builder;
+                return builder.build();
             };
 
             WrapHelper.support(wrapType);
