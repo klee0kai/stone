@@ -151,84 +151,11 @@ public class WrapHelper {
                     TypeName unWrapItemType = paramType(unwrapPathNames.get(0));
                     TypeName wrapItemType = paramType(wrapPathNames.get(wrapListIndex));
                     WrapType wrapListType = wrapPath.get(wrapListIndex);
+
                     smartCode = wrapListType.inListFormat.formatCode(
                             unwrapType.typeName,
                             smartCode,
                             (inListType, listItemCode) ->
-                                    transform(
-                                            listItemCode.providingType(unWrapItemType),
-                                            wrapItemType
-                                    ));
-
-
-                    for (int i = 0; i <= wrapListIndex; i++) {
-                        wrapPath.pollFirst();
-                        wrapPathNames.pollFirst();
-                    }
-                    unwrapPath.clear();
-                    unwrapPathNames.clear();
-                    break;
-                }
-            }
-            smartCode = unwrapType.unwrap.formatCode(unwrapType.typeName, smartCode);
-            unwrapPath.pollFirst();
-            unwrapPathNames.pollFirst();
-        }
-
-        while (!wrapPath.isEmpty()) {
-            smartCode = wrapPath.get(0).wrap.formatCode(null, smartCode);
-            wrapPath.pollFirst();
-            wrapPathNames.pollFirst();
-        }
-
-        return smartCode
-                .providingType(wannaType)
-                .build(null);
-    }
-
-
-    public static SmartCode transform(SmartCode code, TypeName wannaType) {
-        if (code.providingType == null || Objects.equals(code.providingType, wannaType)) {
-            return code;
-        }
-
-        SmartCode smartCode = SmartCode.builder().add(code);
-        LinkedList<TypeName> wrapPathNames = new LinkedList<>(allParamTypes(wannaType));
-        LinkedList<TypeName> unwrapPathNames = new LinkedList<>(allParamTypes(code.providingType));
-        Collections.reverse(wrapPathNames);
-        while (!wrapPathNames.isEmpty() && !unwrapPathNames.isEmpty()
-                && Objects.equals(rawTypeOf(unwrapPathNames.getLast()), rawTypeOf(wrapPathNames.getFirst()))) {
-            unwrapPathNames.pollLast();
-            wrapPathNames.pollFirst();
-        }
-
-        ListUtils.IFormat<TypeName, WrapType> wrapTypeFormat = it -> {
-            WrapType type = wrapTypes.get(rawTypeOf(it));
-            if (type == null) {
-                throw new StoneException(
-                        createErrorMes()
-                                .typeTransformNonSupport(noWildCardType(code.providingType), wannaType)
-                                .classNonFound(it.toString())
-                                .build(),
-                        null
-                );
-            }
-            return type;
-        };
-
-        LinkedList<WrapType> unwrapPath = new LinkedList<>(ListUtils.format(unwrapPathNames, wrapTypeFormat));
-        LinkedList<WrapType> wrapPath = new LinkedList<>(ListUtils.format(wrapPathNames, wrapTypeFormat));
-
-        while (!unwrapPath.isEmpty()) {
-            WrapType unwrapType = unwrapPath.get(0);
-            if (unwrapType.isList()) {
-                int wrapListIndex = ListUtils.indexOf(wrapPath, (i, it) -> it.isList());
-                if (wrapListIndex >= 0) {
-                    TypeName unWrapItemType = paramType(unwrapPathNames.get(0));
-                    TypeName wrapItemType = paramType(wrapPathNames.get(wrapListIndex));
-                    WrapType wrapListType = wrapPath.get(wrapListIndex);
-                    smartCode = wrapListType.inListFormat.formatCode(
-                            unwrapType.typeName, smartCode, (inListType, listItemCode) ->
                                     SmartCode.of(transform(
                                             unWrapItemType,
                                             wrapItemType,
@@ -257,7 +184,7 @@ public class WrapHelper {
         }
 
         return smartCode
-                .providingType(wannaType);
+                .build(null);
     }
 
     private static void std() {
@@ -273,7 +200,6 @@ public class WrapHelper {
                         .add(CodeBlock.of("$T.let(", NullGet.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::new )", creator));
-                if (orType != null) builder.providingType(ParameterizedTypeName.get(wrapper, orType));
                 return builder;
             };
 
@@ -282,8 +208,6 @@ public class WrapHelper {
                         .add(CodeBlock.of("$T.let( ", NullGet.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", cl));
-                if (orType != null)
-                    builder.providingType(paramType(orType));
                 return builder;
             };
 
@@ -304,7 +228,6 @@ public class WrapHelper {
                         .add(CodeBlock.of("new $T( () -> ", wrapType.isNoCachingWrapper ? ClassName.get(PhantomProvide.class) : wrapper))
                         .add(or)
                         .add(" )");
-                if (orType != null) builder.providingType(ParameterizedTypeName.get(wrapper, orType));
                 return builder;
             };
 
@@ -314,7 +237,6 @@ public class WrapHelper {
                         .add(CodeBlock.of("$T.let( ", NullGet.class))
                         .add(or)
                         .add(CodeBlock.of(", $T::get ) ", cl));
-                if (orType != null) builder.providingType(paramType(orType));
                 return builder;
             };
             support(wrapType);
@@ -347,7 +269,6 @@ public class WrapHelper {
                         .add(CodeBlock.of("$T.first( ", ListUtils.class))
                         .add(or)
                         .add(CodeBlock.of(") "));
-                if (orType != null) builder.providingType(paramType(orType));
                 return builder;
             };
 
@@ -359,7 +280,7 @@ public class WrapHelper {
                 if (isListNeedConstructor) builder.add(CodeBlock.of("$T.let( ", NullGet.class));
 
                 SmartCode itemTransform = itemTransformFun.formatCode(null, SmartCode.of("it", null));
-                if (itemTransform.getSize() <= 1) {
+                if (Objects.equals(itemTransform.build(null).toString(), "it")) {
                     //no transforms
                     builder.add(originalListCode);
                 } else {
@@ -372,8 +293,6 @@ public class WrapHelper {
                 }
                 if (isListNeedConstructor) builder.add(CodeBlock.of(", $T::new)", createType));
 
-                if (originalListCode.providingType != null)
-                    builder.providingType(rawTypeOf(originalListCode.providingType));
                 return builder;
             };
             support(wrapType);
