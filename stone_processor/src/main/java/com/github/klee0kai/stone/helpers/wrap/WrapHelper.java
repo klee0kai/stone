@@ -154,7 +154,7 @@ public class WrapHelper {
                     codeBuilder = wrapListType.inListFormat.formatCode(
                             unwrapType.typeName,
                             codeBuilder.build(),
-                            (inListType, listItemCode) ->
+                            (listItemCode) ->
                                     transform(
                                             unWrapItemType,
                                             wrapItemType,
@@ -171,7 +171,7 @@ public class WrapHelper {
                     break;
                 }
             }
-            codeBuilder = unwrapType.unwrap.formatCode(unwrapType.typeName, codeBuilder.build())
+            codeBuilder = unwrapType.unwrap.formatCode(codeBuilder.build())
                     .toBuilder();
 
             unwrapPath.pollFirst();
@@ -179,7 +179,7 @@ public class WrapHelper {
         }
 
         while (!wrapPath.isEmpty()) {
-            codeBuilder = wrapPath.get(0).wrap.formatCode(null, codeBuilder.build())
+            codeBuilder = wrapPath.get(0).wrap.formatCode(codeBuilder.build())
                     .toBuilder();
 
             wrapPath.pollFirst();
@@ -197,14 +197,14 @@ public class WrapHelper {
             WrapType wrapType = new WrapType();
             wrapType.isNoCachingWrapper = false;
             wrapType.typeName = wrapper;
-            wrapType.wrap = (orType, or) ->
+            wrapType.wrap = (or) ->
                     CodeBlock.builder()
-                            .add(CodeBlock.of("$T.let(", NullGet.class))
+                            .add("$T.let(", NullGet.class)
                             .add(or)
                             .add(", $T::new )", creator)
                             .build();
 
-            wrapType.unwrap = (orType, or) ->
+            wrapType.unwrap = (or) ->
                     CodeBlock.builder()
                             .add("$T.let( ", NullGet.class)
                             .add(or)
@@ -222,14 +222,14 @@ public class WrapHelper {
             wrapType.isAsyncProvider = true;
             wrapType.typeName = wrapper;
 
-            wrapType.wrap = (orType, or) ->
+            wrapType.wrap = (or) ->
                     CodeBlock.builder()
                             .add("new $T( () -> ", wrapType.isNoCachingWrapper ? ClassName.get(PhantomProvide.class) : wrapper)
                             .add(or)
                             .add(" )")
                             .build();
 
-            wrapType.unwrap = (orType, or) ->
+            wrapType.unwrap = (or) ->
                     CodeBlock.builder()
                             .add("$T.let( ", NullGet.class)
                             .add(or)
@@ -246,7 +246,7 @@ public class WrapHelper {
 
             WrapType wrapType = new WrapType();
             wrapType.typeName = wrapper;
-            wrapType.wrap = (orType, or) -> {
+            wrapType.wrap = (or) -> {
                 CodeBlock.Builder builder = CodeBlock.builder();
                 if (needConstructor) builder.add("$T.let( ", NullGet.class);
                 builder.add("$T.list( $L ) ", NullGet.class, or);
@@ -254,7 +254,7 @@ public class WrapHelper {
                 return builder.build();
             };
 
-            wrapType.unwrap = (orType, or) -> CodeBlock.builder()
+            wrapType.unwrap = (or) -> CodeBlock.builder()
                     .add("$T.first( $L )", ListUtils.class, or)
                     .build();
 
@@ -265,7 +265,7 @@ public class WrapHelper {
 
                 if (isListNeedConstructor) builder.add("$T.let( ", NullGet.class);
 
-                CodeBlock itemTransform = itemTransformFun.formatCode(null, CodeBlock.of("it"));
+                CodeBlock itemTransform = itemTransformFun.formatCode(CodeBlock.of("it"));
                 if (Objects.equals(itemTransform.toString(), "it")) {
                     //no transforms
                     builder.add(originalListCode);
@@ -273,7 +273,7 @@ public class WrapHelper {
                     builder.add("$T.format( ", ListUtils.class)
                             .add(originalListCode)
                             .add(", it ->  ")
-                            .add(itemTransformFun.formatCode(null, CodeBlock.of("it")))
+                            .add(itemTransformFun.formatCode(CodeBlock.of("it")))
                             .add(") ");
 
                 }
