@@ -8,8 +8,6 @@ import com.github.klee0kai.stone.exceptions.IncorrectSignatureException;
 import com.github.klee0kai.stone.exceptions.ObjectNotProvidedException;
 import com.github.klee0kai.stone.exceptions.RecursiveProviding;
 import com.github.klee0kai.stone.exceptions.StoneException;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
-import com.github.klee0kai.stone.helpers.wrap.WrapHelper;
 import com.github.klee0kai.stone.model.ClassDetail;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.github.klee0kai.stone.model.MethodDetail;
@@ -32,7 +30,6 @@ import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PRO
 import static com.github.klee0kai.stone.helpers.invokecall.InvokeCall.INVOKE_PROVIDE_OBJECT_CACHED;
 import static com.github.klee0kai.stone.helpers.wrap.WrapHelper.*;
 import static com.github.klee0kai.stone.utils.LocalFieldName.genLocalFieldName;
-import static java.util.Collections.singleton;
 
 public class ModulesGraph {
 
@@ -88,115 +85,116 @@ public class ModulesGraph {
             Collection<FieldDetail> declaredFields
     ) {
         boolean isWrappedReturn = isSupport(returnType);
-        boolean isListReturn = isList(returnType);
         TypeName providingType = isWrappedReturn ? nonWrappedType(returnType) : returnType;
 
-        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(new ProvideDep(methodName, returnType, qualifierAnns));
+        Set<ProvideDep> provideDeps = new HashSet<>();
+        provideDeps.add(new ProvideDep(methodName, returnType, qualifierAnns));
+        List<InvokeCall> provideTypeInvokes = provideInvokesWithDeps(provideDeps.iterator().next());
         if (provideTypeInvokes == null || provideTypeInvokes.isEmpty()) {
             return null;
         }
-
-        if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !isListReturn) {
+        for (InvokeCall provideTypeInvoke : provideTypeInvokes) provideDeps.addAll(provideTypeInvoke.argDeps());
+        if (SIMPLE_PROVIDE_OPTIMIZING && provideTypeInvokes.size() == 1 && !isList(returnType)) {
             InvokeCall invokeCall = provideTypeInvokes.get(0);
             return transform(
                     invokeCall.resultType(),
                     returnType,
-                    invokeCall.invokeBest().build(declaredFields)
+                    invokeCall.invokeBest(declaredFields).build(declaredFields)
             );
         }
 
-        SmartCode builder = SmartCode.builder();
         TypeName provideBuilder = ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), providingType);
         TypeName provideBuilderList = ParameterizedTypeName.get(ClassName.get(Collection.class), providingType);
         String listFieldName = genLocalFieldName();
-        builder.add(CodeBlock.of("new $T( ( $L ) -> { \n", provideBuilder, listFieldName), null);
+        List<FieldDetail> localVariables = new LinkedList<>(declaredFields);
+
+        CodeBlock.Builder codeBlock = CodeBlock.builder();
+        codeBlock.add("new $T( ( $L ) -> { \n", provideBuilder, listFieldName);
 
         for (InvokeCall inv : provideTypeInvokes) {
             boolean isCacheProvide = (inv.flags & INVOKE_PROVIDE_OBJECT_CACHED) != 0;
-            FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), null);
-            FieldDetail listDepField = FieldDetail.simple(genLocalFieldName(), null);
+            boolean isSingleDepRequired = ListUtils.contains(provideDeps, (idx, it) ->
+                    Objects.equals(nonWrappedType(it.typeName), nonWrappedType(inv.resultType()))
+                            && !isList(it.typeName)
+            );
+            boolean isListDepRequired = ListUtils.contains(provideDeps, (idx, it) ->
+                    Objects.equals(nonWrappedType(it.typeName), nonWrappedType(inv.resultType()))
+                            && isList(it.typeName)
+            );
+            FieldDetail singleDepField = FieldDetail.simple(genLocalFieldName(), inv.resultType());
+            singleDepField.qualifierAnns = inv.qualifierAnnotations(true);
 
-            builder.withLocals(localBuilder -> {
-                // provide single objects
+            FieldDetail listDepField = FieldDetail.simple(
+                    genLocalFieldName(),
+                    ParameterizedTypeName.get(ClassName.get(Ref.class), ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())));
+            listDepField.qualifierAnns = inv.qualifierAnnotations(true);
+
+
+            if (isSingleDepRequired) {
                 if (isCacheProvide) {
-                    localBuilder.localVariable(singleDepField.name, inv.qualifierAnnotations(true), inv.invokeBest());
-                    singleDepField.type = inv.resultType();
+                    codeBlock.add("$T $L = ", inv.resultType(), singleDepField.name)
+                            .addStatement(inv.invokeBest(localVariables).build(localVariables));
+
+
+                    localVariables.add(singleDepField);
                 } else {
                     singleDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class), inv.resultType());
-                    localBuilder.localVariable(singleDepField.name, inv.qualifierAnnotations(true), SmartCode.builder()
-                            .add("() -> ")
-                            .add(inv.invokeBest())
-                            .providingType(singleDepField.type)
-                    );
-                }
-                return localBuilder;
-            });
+                    codeBlock.add("$T $L = () -> ", singleDepField.type, singleDepField.name)
+                            .addStatement(inv.invokeBest(localVariables).build(localVariables));
 
-            builder.withLocals(localBuilder -> {
-                // provide list objects
-                listDepField.type = ParameterizedTypeName.get(ClassName.get(Ref.class),
-                        ParameterizedTypeName.get(ClassName.get(List.class), inv.resultType())
-                );
-                localBuilder.localVariable(listDepField.name, inv.qualifierAnnotations(true), SmartCode.builder()
-                        .add("() -> ")
-                        .add(inv.invokeAllToList())
-                        .providingType(listDepField.type)
-                );
-                return localBuilder;
-            });
+                    localVariables.add(singleDepField);
+                }
+            }
+
+            if (isListDepRequired) {
+                codeBlock.add("$T $L = () -> ", listDepField.type, listDepField.name)
+                        .addStatement(inv.invokeAllToList(localVariables).build(localVariables));
+                localVariables.add(listDepField);
+            }
+
 
             if (Objects.equals(inv.resultType(), providingType)) {
-                builder.withLocals(localBuilder -> {
-                    if (isListReturn) {
-                        localBuilder
-                                .add(listFieldName)
-                                .add(".addAll( ")
-                                .add(
-                                        transform(
-                                                SmartCode.of(listDepField.name, singleton(listDepField.name))
-                                                        .providingType(listDepField.type),
-                                                provideBuilderList
-                                        )
-                                ).add(");\n");
-                    } else {
-                        localBuilder
-                                .add(listFieldName)
-                                .add(".add( ")
-                                .add(
-                                        transform(
-                                                SmartCode.of(singleDepField.name, singleton(singleDepField.name))
-                                                        .providingType(singleDepField.type),
-                                                providingType
-                                        )
-                                ).add(");\n");
-
-                    }
-                    return localBuilder;
-                });
-                if (!isListReturn)
+                if (isList(returnType)) {
+                    codeBlock.add("$L.addAll( $L );\n", listFieldName,
+                            transform(
+                                    listDepField.type,
+                                    provideBuilderList,
+                                    CodeBlock.of(listDepField.name)
+                            )
+                    );
+                } else {
+                    codeBlock.add("$L.add( $L );\n", listFieldName,
+                            transform(
+                                    singleDepField.type,
+                                    providingType,
+                                    CodeBlock.of(singleDepField.name)
+                            )
+                    );
+                }
+                if (!isList(returnType))
                     break;
             }
         }
 
-
-        builder.add("\n  })");
-        if (WrapHelper.isList(returnType)) {
-            builder.add(".all() ");
+        codeBlock.add("\n  })");
+        if (isList(returnType)) {
+            codeBlock.add(".all() ");
 
             return transform(
                     ParameterizedTypeName.get(ClassName.get(List.class), providingType),
                     returnType,
-                    builder.build(declaredFields)
+                    codeBlock.build()
             );
         } else {
-            builder.add(".first() ");
+            codeBlock.add(".first() ");
 
             return transform(
                     providingType,
                     returnType,
-                    builder.build(declaredFields)
+                    codeBlock.build()
             );
         }
+
     }
 
 

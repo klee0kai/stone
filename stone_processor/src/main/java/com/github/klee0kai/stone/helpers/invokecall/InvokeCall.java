@@ -171,11 +171,15 @@ public class InvokeCall {
         return invokeBuilder.build();
     }
 
-    public SmartCode invokeBest() {
-        return transform(invokeSequence(bestSequence()), resultType());
+    public SmartCode invokeBest(
+            Collection<FieldDetail> declaredFields
+    ) {
+        return transform(invokeSequence(declaredFields, bestSequence()), resultType());
     }
 
-    public SmartCode invokeAllToList() {
+    public SmartCode invokeAllToList(
+            Collection<FieldDetail> declaredFields
+    ) {
         TypeName provType = ParameterizedTypeName.get(ClassName.get(List.class), resultType());
         String listFieldName = genLocalFieldName();
         return SmartCode
@@ -186,7 +190,7 @@ public class InvokeCall {
                             ParameterizedTypeName.get(ClassName.get(ProvideBuilder.class), resultType()), listFieldName
                     ));
                     for (List<MethodDetail> sequence : invokeSequenceVariants) {
-                        SmartCode seqCode = invokeSequence(sequence);
+                        SmartCode seqCode = invokeSequence(declaredFields, sequence);
                         if (WrapHelper.isList(seqCode.providingType)) {
                             builder.add(listFieldName)
                                     .add(".addAll(")
@@ -206,6 +210,7 @@ public class InvokeCall {
 
 
     private SmartCode invokeSequence(
+            Collection<FieldDetail> declaredFields,
             List<MethodDetail> sequence
     ) {
         return SmartCode.builder().withLocals(builder -> {
@@ -219,8 +224,9 @@ public class InvokeCall {
                         for (FieldDetail arg : m.args) {
                             if (argCount++ > 0) builder.add(", ");
                             boolean isList = isList(arg.type);
-                            List<FieldDetail> typeFields = ListUtils.filter(builder.getDeclaredFields(), (i, f) ->
-                                    Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type)));
+                            List<FieldDetail> typeFields = ListUtils.filter(
+                                    declaredFields != null ? declaredFields : builder.getDeclaredFields(),
+                                    (i, f) -> Objects.equals(nonWrappedType(f.type), nonWrappedType(arg.type)));
 
                             FieldDetail field = isList ? ListUtils.first(typeFields, (i, f) ->
                                     isList(f.type) && Objects.equals(f.qualifierAnns, arg.qualifierAnns)

@@ -33,7 +33,7 @@ public class ListUtils {
         return touts;
     }
 
-    public static <T> boolean contains(List<T> list, IFilter<T> filter) {
+    public static <T> boolean contains(Collection<T> list, IFilter<T> filter) {
         int idx = 0;
         if (list != null) for (T it : list) {
             if (filter.filter(idx++, it))
