@@ -72,6 +72,10 @@ public class WrapHelper {
         return typeName;
     }
 
+    /**
+     * com.github.klee0kai.stone.wrappers.LazyProvide<com.github.klee0kai.test.tech.components.Battery> -> com.github.klee0kai.test.tech.components.Battery
+     * ? extends java.lang.ref.WeakReference<com.github.klee0kai.test.car.model.Window> -> com.github.klee0kai.test.car.model.Window
+     */
     public static TypeName nonWrappedType(TypeName typeName) {
         if (typeName instanceof ParameterizedTypeName) {
             ParameterizedTypeName par = (ParameterizedTypeName) typeName;
@@ -86,6 +90,10 @@ public class WrapHelper {
         return typeName;
     }
 
+    /**
+     *  java.util.List<com.github.klee0kai.stone.wrappers.Ref<com.github.klee0kai.test.boxed.model.CarBox<com.github.klee0kai.test.car.model.Window>>> ->
+     *          java.util.List<com.github.klee0kai.test.boxed.model.CarBox<com.github.klee0kai.test.car.model.Window>>
+     */
     public static TypeName listWrapTypeIfNeed(TypeName typeName) {
         if (isList(typeName))
             return ParameterizedTypeName.get(ClassName.get(List.class), nonWrappedType(typeName));
@@ -130,7 +138,7 @@ public class WrapHelper {
             if (type == null) {
                 throw new StoneException(
                         createErrorMes()
-                                .typeTransformNonSupport(noWildCardType(providingType), wannaType)
+                                .typeTransformNonSupport(rawTypeOf(providingType), wannaType)
                                 .classNonFound(it.toString())
                                 .build(),
                         null

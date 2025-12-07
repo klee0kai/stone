@@ -47,6 +47,13 @@ public class ClassNameUtils {
 
     }
 
+    /**
+     * com.github.klee0kai.test.wire.Wire<com.github.klee0kai.test.wire.types.Usb, com.github.klee0kai.test.wire.types.MiniUsb> -> com.github.klee0kai.test.wire.Wire
+     * <p>
+     * <p>
+     * ? extends com.github.klee0kai.test.di.base_forest.UnitedModule ( at Class<? extends UnitedModule> ) -> com.github.klee0kai.test.di.base_forest.UnitedModule
+     *
+     */
     public static TypeName rawTypeOf(TypeName typeName) {
         if (typeName instanceof ParameterizedTypeName)
             return rawTypeOf(((ParameterizedTypeName) typeName).rawType);
@@ -57,7 +64,9 @@ public class ClassNameUtils {
         return typeName;
     }
 
-
+    /**
+     * ? extends java.lang.ref.WeakReference<com.github.klee0kai.test.car.model.Window> -> java.lang.ref.WeakReference<com.github.klee0kai.test.car.model.Window>
+     */
     public static TypeName noWildCardType(TypeName type) {
         if (type instanceof WildcardTypeName) {
             List<TypeName> upperBounds = ((WildcardTypeName) type).upperBounds;
@@ -65,7 +74,6 @@ public class ClassNameUtils {
         }
         return type;
     }
-
 
 
 }
