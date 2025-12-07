@@ -1,6 +1,7 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.wrap
 
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.TypeName
 
 fun interface FormatInList {
 
@@ -9,8 +10,9 @@ fun interface FormatInList {
      * @return
      */
     fun formatCode(
-        or: SmartCode,
+        originalListType: TypeName,
+        or: CodeBlock,
         itemTransformFun: FormatSimple,
-    ): SmartCode
+    ): CodeBlock
 
 }

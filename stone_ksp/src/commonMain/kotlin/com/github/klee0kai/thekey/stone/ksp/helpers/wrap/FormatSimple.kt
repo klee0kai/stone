@@ -1,6 +1,6 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.wrap
 
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
+import com.squareup.kotlinpoet.CodeBlock
 
 
 fun interface FormatSimple {
@@ -10,6 +10,6 @@ fun interface FormatSimple {
      * @return code witch return wanna type
      */
     fun formatCode(
-        or: SmartCode,
-    ): SmartCode
+        or: CodeBlock,
+    ): CodeBlock
 }

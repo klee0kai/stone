@@ -4,142 +4,24 @@ import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.stone.wrappers.PhantomProvide
-import com.github.klee0kai.thekey.stone.ksp.exceptions.ExceptionStringBuilder
 import com.github.klee0kai.thekey.stone.ksp.exceptions.StoneException
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils.noWildCardType
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils.rawTypeOf
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.add
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.smartCode
-import com.github.klee0kai.thekey.stone.ksp.property.map
-import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.WildcardTypeName
-import com.squareup.kotlinpoet.asClassName
 import java.lang.ref.Reference
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
+import java.util.*
 import javax.inject.Provider
+
 
 class WrapHelper {
 
     private var wrapTypes = HashMap<TypeName, WrapType>()
 
     init {
-        fillStdWrappers()
-    }
-
-    fun isList(typeName: TypeName): Boolean = allParamTypes(typeName).any {
-        val wrapType = wrapTypes[rawTypeOf(it)]
-        wrapType != null && wrapType.isList
-    }
-
-
-    fun listWrapTypeIfNeed(typeName: TypeName): TypeName {
-        if (isList(typeName)) List::class
-            .asClassName()
-            .parameterizedBy(nonWrappedType(typeName))
-
-        return nonWrappedType(typeName);
-    }
-
-    fun transform(code: SmartCode, wannaType: TypeName): SmartCode {
-        if (code.providingType.value == null || code.providingType.value == wannaType) {
-            return code
-        }
-        var smartCode = SmartCode().apply { add(code) }
-
-        var wrapPathNames = allParamTypes(wannaType).reversed()
-        var unwrapPathNames = allParamTypes(code.providingType.value!!)
-        while (
-            !wrapPathNames.isEmpty() && !unwrapPathNames.isEmpty()
-            && rawTypeOf(unwrapPathNames.last()) == rawTypeOf(wrapPathNames.first())
-        ) {
-            unwrapPathNames = unwrapPathNames.dropLast(1)
-            wrapPathNames = wrapPathNames.drop(1)
-        }
-
-        val wrapTypeFormat: (TypeName) -> WrapType = {
-            wrapTypes.getOrElse(rawTypeOf(it)) {
-                throw StoneException(
-                    ExceptionStringBuilder.createErrorMes()
-                        .typeTransformNonSupport(
-                            ClassNameUtils.noWildCardType(code.providingType.value!!),
-                            wannaType
-                        )
-                        .classNonFound(it.toString())
-                        .build(),
-                )
-            }
-        }
-
-        var unwrapPath = unwrapPathNames.map(wrapTypeFormat)
-        var wrapPath = wrapPathNames.map(wrapTypeFormat)
-
-        while (!unwrapPath.isEmpty()) {
-            val unwrapType = unwrapPath.first()
-            if (unwrapType.isList) {
-                val wrapListIndex = wrapPath.indexOfFirst { it.isList }
-                if (wrapListIndex >= 0) {
-                    val unWrapItemType = paramType(unwrapPathNames.first())
-                    val wrapItemType = paramType(wrapPathNames[wrapListIndex])
-                    val wrapListType = wrapPath[wrapListIndex]
-                    smartCode = wrapListType.inListFormat!!.formatCode(
-                        smartCode,
-                        FormatSimple { listItemCode ->
-                            listItemCode.providingType.value = unWrapItemType
-                            transform(listItemCode, wrapItemType)
-                        })
-
-                    for (i in 0..wrapListIndex) {
-                        wrapPath = wrapPath.drop(1)
-                        wrapPathNames.drop(1)
-                    }
-                    unwrapPath = emptyList()
-                    unwrapPathNames = emptyList()
-                    break
-                }
-            }
-            smartCode = unwrapType.unwrap.formatCode(smartCode)
-            unwrapPath = unwrapPath.drop(1)
-            unwrapPathNames = unwrapPathNames.drop(1)
-        }
-
-        while (!wrapPath.isEmpty()) {
-            smartCode = wrapPath[0].wrap.formatCode(smartCode)
-            wrapPath = wrapPath.drop(1)
-            wrapPathNames = wrapPathNames.drop(1)
-        }
-
-        smartCode.providingType.value = wannaType
-        return smartCode
-    }
-
-    fun nonWrappedType(typeName: TypeName): TypeName {
-        if (typeName is ParameterizedTypeName) {
-            if (isSupport(typeName.rawType) && !typeName.typeArguments.isEmpty()) {
-                return nonWrappedType(typeName.typeArguments.first())
-            }
-        }
-        if (typeName is WildcardTypeName) {
-            if (!typeName.outTypes.isEmpty()) {
-                return nonWrappedType(typeName.outTypes.first())
-            }
-        }
-        return typeName
-    }
-
-    fun allParamTypes(typeName: TypeName): List<TypeName> {
-        var typeName = typeName
-        typeName = ClassNameUtils.noWildCardType(typeName)
-        val allParams = mutableListOf<TypeName>()
-        while (true) {
-            allParams.add(typeName)
-            val paramType = typeName as? ParameterizedTypeName
-            if (paramType == null || paramType.typeArguments.isEmpty()) break
-            typeName = ClassNameUtils.noWildCardType(paramType.typeArguments.first())
-        }
-        return allParams
+        std()
     }
 
     fun support(wrapType: WrapType) {
@@ -147,6 +29,27 @@ class WrapHelper {
     }
 
     fun isSupport(typeName: TypeName): Boolean = wrapTypes.containsKey(rawTypeOf(typeName))
+
+    fun isNonCachingWrapper(typeName: TypeName): Boolean {
+        for (t in allParamTypes(typeName)) {
+            val wrapType = wrapTypes.get(rawTypeOf(t))
+            if (wrapType != null && wrapType.isNoCachingWrapper) return true
+        }
+        return false
+    }
+
+    fun isAsyncProvider(typeName: TypeName): Boolean {
+        for (t in allParamTypes(typeName)) {
+            val wrapType = wrapTypes.get(rawTypeOf(t))
+            if (wrapType != null && wrapType.isAsyncProvider) return true
+        }
+        return false
+    }
+
+    fun isList(typeName: TypeName): Boolean = allParamTypes(typeName).any {
+        val wrapType = wrapTypes.get(rawTypeOf(it))
+        wrapType != null && wrapType.isList
+    }
 
     fun paramType(typeName: TypeName): TypeName {
         if (typeName is ParameterizedTypeName) {
@@ -157,41 +60,140 @@ class WrapHelper {
         return typeName
     }
 
-    private fun fillStdWrappers() {
+    /**
+     * com.github.klee0kai.stone.wrappers.LazyProvide<com.github.klee0kai.test.tech.components.Battery> -> com.github.klee0kai.test.tech.components.Battery
+     * ? extends java.lang.ref.WeakReference<com.github.klee0kai.test.car.model.Window> -> com.github.klee0kai.test.car.model.Window
+    </com.github.klee0kai.test.car.model.Window></com.github.klee0kai.test.tech.components.Battery> */
+    fun nonWrappedType(typeName: TypeName): TypeName {
+        if (typeName is ParameterizedTypeName) {
+            if (isSupport(typeName.rawType) && !typeName.typeArguments.isEmpty()) {
+                return nonWrappedType(typeName.typeArguments.first())
+            }
+        }
+        if (typeName is WildcardTypeName) {
+            if (!typeName.outTypes.isEmpty()) return nonWrappedType(typeName.outTypes.first())
+        }
+        return typeName
+    }
+
+    /**
+     * java.util.List<com.github.klee0kai.stone.wrappers.Ref></com.github.klee0kai.stone.wrappers.Ref><com.github.klee0kai.test.boxed.model.CarBox></com.github.klee0kai.test.boxed.model.CarBox><com.github.klee0kai.test.car.model.Window>>> ->
+     * java.util.List<com.github.klee0kai.test.boxed.model.CarBox></com.github.klee0kai.test.boxed.model.CarBox><com.github.klee0kai.test.car.model.Window>>
+    </com.github.klee0kai.test.car.model.Window></com.github.klee0kai.test.car.model.Window> */
+    fun listWrapTypeIfNeed(typeName: TypeName): TypeName {
+        if (isList(typeName)) return List::class.asClassName().parameterizedBy(nonWrappedType(typeName))
+        return nonWrappedType(typeName)
+    }
+
+    fun allParamTypes(typeName: TypeName): List<TypeName> {
+        var typeName = noWildCardType(typeName)
+        val allParams = LinkedList<TypeName>()
+        while (true) {
+            allParams.add(typeName)
+            val paramType = typeName as? ParameterizedTypeName
+            if (paramType == null || paramType.typeArguments.isEmpty()) break
+            typeName = noWildCardType(paramType.typeArguments[0])
+        }
+        return allParams
+    }
+
+
+    fun transform(
+        providingType: TypeName,
+        wannaType: TypeName,
+        code: CodeBlock
+
+    ): CodeBlock {
+        if (providingType == wannaType) return code
+
+        var codeBuilder = CodeBlock.builder().add(code)
+        val wrapPathNames = LinkedList<TypeName>(allParamTypes(wannaType))
+        val unwrapPathNames = LinkedList<TypeName>(allParamTypes(providingType))
+        wrapPathNames.reverse()
+
+        while (!wrapPathNames.isEmpty() && !unwrapPathNames.isEmpty()
+            && rawTypeOf(unwrapPathNames.last()) == rawTypeOf(wrapPathNames.first())
+        ) {
+            unwrapPathNames.pollLast()
+            wrapPathNames.pollFirst()
+        }
+
+        val wrapTypeFormat: (TypeName) -> WrapType = { it: TypeName ->
+            wrapTypes[rawTypeOf(it)]
+                ?: throw StoneException(message = "Type Transform non support $providingType -> $wannaType")
+        }
+
+        val unwrapPath = LinkedList(unwrapPathNames.map(wrapTypeFormat))
+        val wrapPath = LinkedList(wrapPathNames.map(wrapTypeFormat))
+
+        while (!unwrapPath.isEmpty()) {
+            val unwrapType = unwrapPath[0]
+            if (unwrapType.isList) {
+                val wrapListIndex = wrapPath.indexOfFirst { it.isList }
+                if (wrapListIndex >= 0) {
+                    val unWrapItemType = paramType(unwrapPathNames[0])
+                    val wrapItemType = paramType(wrapPathNames[wrapListIndex])
+                    val wrapListType = wrapPath[wrapListIndex]
+
+                    codeBuilder = wrapListType.inListFormat!!.formatCode(
+                        originalListType = unwrapType.typeName,
+                        or = codeBuilder.build(),
+                        itemTransformFun = { listItemCode ->
+                            transform(unWrapItemType, wrapItemType, listItemCode)
+                        }
+                    ).toBuilder()
+
+                    for (i in 0..wrapListIndex) {
+                        wrapPath.pollFirst()
+                        wrapPathNames.pollFirst()
+                    }
+                    unwrapPath.clear()
+                    unwrapPathNames.clear()
+                    break
+                }
+            }
+            codeBuilder = unwrapType.unwrap.formatCode(codeBuilder.build())
+                .toBuilder()
+
+            unwrapPath.pollFirst()
+            unwrapPathNames.pollFirst()
+        }
+
+        while (!wrapPath.isEmpty()) {
+            codeBuilder = wrapPath[0].wrap.formatCode(codeBuilder.build())
+                .toBuilder()
+
+            wrapPath.pollFirst()
+            wrapPathNames.pollFirst()
+        }
+
+        return codeBuilder.build()
+    }
+
+    private fun std() {
         for (cl in listOf(
             WeakReference::class,
             SoftReference::class,
-            Reference::class
+            Reference::class,
         )) {
             val wrapper = cl.asClassName()
-            val creator = if (cl != Reference::class) wrapper else WeakReference::class.asClassName()
+            val creator = if (cl != Reference::class.java) wrapper else WeakReference::class.asClassName()
 
-            support(
-                WrapType(
-                    isNoCachingWrapper = false,
-                    typeName = wrapper,
-                    wrap = FormatSimple { or ->
-                        smartCode {
-                            add(or)
-                            add("?.let{ %T( it ) }", creator)
-
-                            providingType.source = or.providingType.map { orType ->
-                                orType?.let { wrapper.parameterizedBy(it) }
-                            }
-                        }
-                    },
-                    unwrap = FormatSimple { or ->
-                        smartCode {
-                            add("or")
-                            add("?.get()")
-
-                            providingType.source = or.providingType.map { orType ->
-                                orType?.let { paramType(it) }
-                            }
-                        }
-                    },
-                )
+            val wrapType = WrapType(
+                typeName = wrapper,
+                isNoCachingWrapper = false,
+                wrap = { or ->
+                    CodeBlock.builder()
+                        .add("%L?.let{ %T(it) }", or, creator)
+                        .build()
+                },
+                unwrap = { or ->
+                    CodeBlock.builder()
+                        .add("%L?.get()", or)
+                        .build()
+                }
             )
+            support(wrapType)
         }
 
         for (cl in listOf(
@@ -199,93 +201,64 @@ class WrapHelper {
             Ref::class,
             Provider::class,
             LazyProvide::class,
-            AsyncCoroutineProvide::class,
+            AsyncCoroutineProvide::class
         )) {
             val wrapper = cl.asClassName()
-
-            val isNoCachingWrapper = cl !in listOf(LazyProvide::class, AsyncCoroutineProvide::class)
-            val creator = if (isNoCachingWrapper) PhantomProvide::class.asClassName() else wrapper
-            support(
-                WrapType(
-                    typeName = wrapper,
-                    isNoCachingWrapper = cl != LazyProvide::class && cl != AsyncCoroutineProvide::class,
-                    isAsyncProvider = true,
-                    wrap = FormatSimple { or ->
-                        smartCode {
-                            add("%S{", creator)
-                            add(or)
-                            add("} ")
-
-                            providingType.source = or.providingType.map { orType ->
-                                orType?.let { wrapper.parameterizedBy(it) }
-                            }
-                        }
-                    },
-                    unwrap = FormatSimple { or ->
-                        smartCode {
-                            add("or")
-                            add("?.get()")
-                            providingType.source = or.providingType.map { orType ->
-                                orType?.let { paramType(it) }
-                            }
-                        }
-                    }
-                )
+            val isNoCachingWrapper = cl != LazyProvide::class.java && cl != AsyncCoroutineProvide::class
+            val wrapType = WrapType(
+                typeName = wrapper,
+                isNoCachingWrapper = isNoCachingWrapper,
+                isAsyncProvider = true,
+                wrap = { or ->
+                    CodeBlock.of(
+                        "%T{ %L } ",
+                        if (isNoCachingWrapper) PhantomProvide::class.asClassName() else wrapper,
+                        or,
+                    )
+                },
+                unwrap = { or -> CodeBlock.of("%L?.get()", or) },
             )
+            support(wrapType)
         }
 
-        for (cl in listOf(
-            List::class,
-            Array::class,
-            MutableList::class,
-            MutableCollection::class
-        )) {
+        var index = 0
+        for (cl in listOf(LinkedList::class, ArrayList::class, MutableList::class, MutableCollection::class)) {
             val wrapper = cl.asClassName()
-            val creatorFun = when (cl) {
-                List::class -> "listOf"
-                Array::class -> "arrayOf"
-                MutableList::class,
-                MutableCollection::class -> "mutableListOf"
+            val needConstructor = listOf(LinkedList::class, ArrayList::class).contains(cl)
+            val createType = if (index++ <= 0) wrapper else ArrayList::class.asClassName()
 
-                else -> "listOf"
-            }
+            val wrapType = WrapType(
+                typeName = wrapper,
+                wrap = { or ->
+                    val builder = CodeBlock.builder()
+                    builder.add("listOfNotNull( %L ) ", or)
+                    if (needConstructor) builder.add(".let { %T(it) }", createType)
+                    builder.build()
+                },
+                unwrap = { or ->
+                    CodeBlock.builder()
+                        .add("%L.first( %L )", or)
+                        .build()
+                },
+                inListFormat = { originalListType, originalListCode, itemTransformFun ->
+                    val builder = CodeBlock.builder()
+                    val isListNeedConstructor =
+                        needConstructor && rawTypeOf(wrapper) != rawTypeOf(originalListType)
 
-            support(
-                WrapType(
-                    typeName = wrapper,
-                    wrap = FormatSimple { or ->
-                        smartCode {
-                            add("%L(", creatorFun)
-                            add(or)
-                            add(")")
-
-                            providingType.source = or.providingType.map { orType ->
-                                orType?.let { wrapper.parameterizedBy(it) }
-                            }
-                        }
-                    },
-                    unwrap = FormatSimple { or ->
-                        smartCode {
-                            add("or")
-                            add("?.firstOrNull()")
-                            providingType.source = or.providingType.map { orType ->
-                                orType?.let { paramType(it) }
-                            }
-                        }
-                    },
-                    inListFormat = FormatInList { originalListCode, itemTransformFun ->
-                        smartCode {
-                            add(originalListCode)
-                            add(".map { ")
-                            with(itemTransformFun) {
-                                formatCode(smartCode("it"))
-                            }
-                            add(" }")
-                        }
+                    val itemTransform = itemTransformFun.formatCode(CodeBlock.of("it"))
+                    if (itemTransform.toString() == "it") {
+                        //no transforms
+                        builder.add(originalListCode)
+                    } else {
+                        builder.add("%L.map{ it -> %L }", originalListCode, itemTransform)
                     }
-                ))
 
+                    if (isListNeedConstructor) builder.add(".let { %T(it) }", createType)
+                    builder.build()
+                },
+            )
+
+            support(wrapType)
         }
-
     }
 }

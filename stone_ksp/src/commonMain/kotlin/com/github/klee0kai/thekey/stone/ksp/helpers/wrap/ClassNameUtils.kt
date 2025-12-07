@@ -67,13 +67,5 @@ object ClassNameUtils {
         return type
     }
 
-    @Deprecated("use careful")
-    fun simpleName(typeName: TypeName): String? {
-        val raw = rawTypeOf(typeName)
-        if (raw is ClassName) {
-            return raw.simpleName
-        }
-        return null
-    }
 
 }
