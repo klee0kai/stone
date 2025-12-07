@@ -3,7 +3,6 @@ package com.github.klee0kai.stone.helpers.itemholder;
 import com.github.klee0kai.stone._hidden_.types.ListUtils;
 import com.github.klee0kai.stone._hidden_.types.holders.MapItemHolder;
 import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
 
@@ -45,12 +44,12 @@ public class MultiKeyMapItemHolderHelper implements ItemHolderCodeHelper {
     @Override
     public CodeBlock codeSetCachedValue(CodeBlock value, boolean isOnlyIfNeed) {
         String setMethod = isListCaching ? "setList" : "set";
-        return SmartCode.builder()
+        return CodeBlock.builder()
                 .add(CodeBlock.of("$L.$L( new $T( $L ), () ->  ", fieldName, setMethod, multiKeyClassName,
                         String.join(",", ListUtils.format(keyArgs, (k) -> k.name))))
                 .add(value)
                 .add(CodeBlock.of(", $L )", isOnlyIfNeed))
-                .build(null);
+                .build();
     }
 
     @Override

@@ -38,11 +38,11 @@ public class SingleItemHolderHelper implements ItemHolderCodeHelper {
     @Override
     public CodeBlock codeSetCachedValue(CodeBlock value, boolean onlyIfNull) {
         String setMethod = isListCaching ? "setList" : "set";
-        return SmartCode.builder()
+        return CodeBlock.builder()
                 .add(CodeBlock.of("$L.$L( ()-> ", fieldName, setMethod))
                 .add(value)
                 .add(CodeBlock.of(", $L)", onlyIfNull))
-                .build(null);
+                .build();
     }
 
     @Override

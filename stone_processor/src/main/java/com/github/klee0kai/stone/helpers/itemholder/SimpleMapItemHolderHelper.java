@@ -2,7 +2,6 @@ package com.github.klee0kai.stone.helpers.itemholder;
 
 import com.github.klee0kai.stone._hidden_.types.holders.MapItemHolder;
 import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.github.klee0kai.stone.model.FieldDetail;
 import com.squareup.javapoet.*;
 
@@ -44,11 +43,11 @@ public class SimpleMapItemHolderHelper implements ItemHolderCodeHelper {
     @Override
     public CodeBlock codeSetCachedValue(CodeBlock value, boolean isOnlyIfNeed) {
         String setMethod = isListCaching ? "setList" : "set";
-        return SmartCode.builder()
+        return CodeBlock.builder()
                 .add(CodeBlock.of("$L.$L( $L, () -> ", fieldName, setMethod, keyParam.name))
                 .add(value)
                 .add(CodeBlock.of(", $L )", isOnlyIfNeed))
-                .build(null);
+                .build();
     }
 
     @Override
