@@ -2,7 +2,6 @@ package com.github.klee0kai.stone.helpers.itemholder;
 
 import com.github.klee0kai.stone._hidden_.types.holders.SingleItemHolder;
 import com.github.klee0kai.stone._hidden_.types.holders.StoneRefType;
-import com.github.klee0kai.stone.helpers.codebuilder.SmartCode;
 import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
