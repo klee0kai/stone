@@ -138,7 +138,7 @@ public class WrapHelper {
             if (type == null) {
                 throw new StoneException(
                         createErrorMes()
-                                .typeTransformNonSupport(rawTypeOf(providingType), wannaType)
+                                .typeTransformNonSupport(providingType, wannaType)
                                 .classNonFound(it.toString())
                                 .build(),
                         null
