@@ -1,16 +1,15 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.invokecall
 
-import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.GenArgumentFunctions.unwrapArgument
-import com.github.klee0kai.thekey.stone.ksp.helpers.qualifierAnnotations
-import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.smartCode
+import com.github.klee0kai.stone.__hidden__.provide.ProvideBuilder
+import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.FieldDetail
+import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.MethodDetail
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
+import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.asClassName
 import java.util.*
 
 /**
@@ -22,7 +21,8 @@ import java.util.*
  * Arguments for chaining are reused by type.
  */
 class InvokeCall(
-    val invokeSequenceVariants: List<List<KSFunctionDeclaration>>,
+    var wrapHelper: WrapHelper,
+    val invokeSequenceVariants: List<List<MethodDetail>>,
     val flags: InvokeProvideFlags = InvokeProvideFlags(),
 ) {
 
@@ -32,10 +32,12 @@ class InvokeCall(
      * @param callSequence ordered methods in invoke sequence
      */
     constructor(
-        vararg callSequence: KSFunctionDeclaration,
+        wrapHelper: WrapHelper,
+        callSequence: List<MethodDetail>,
         flags: InvokeProvideFlags = InvokeProvideFlags()
     ) : this(
-        invokeSequenceVariants = listOf(callSequence.toList()),
+        wrapHelper = wrapHelper,
+        invokeSequenceVariants = listOf(callSequence),
         flags = flags,
     )
 
@@ -44,13 +46,16 @@ class InvokeCall(
      *
      * @param variants all variants from best to worse
      */
-    constructor(variants: MutableCollection<InvokeCall>) : this(
+    constructor(
+        wrapHelper: WrapHelper,
+        variants: List<InvokeCall>,
+    ) : this(
+        wrapHelper = wrapHelper,
         invokeSequenceVariants = variants.flatMap { it.invokeSequenceVariants },
         flags = variants.fold(InvokeProvideFlags()) { acc, value -> acc.merge(value.flags) }
     )
 
-    fun bestSequence(): List<KSFunctionDeclaration> = invokeSequenceVariants[0]
-
+    fun bestSequence(): List<MethodDetail> = invokeSequenceVariants[0]
 
     fun qualifierAnnotations(
         crossing: Boolean,
@@ -58,7 +63,7 @@ class InvokeCall(
         val allQualifiersLists = LinkedList<MutableSet<KSAnnotation>>()
         for (variant in invokeSequenceVariants) {
             val qualifiers = HashSet<KSAnnotation>()
-            for (m in variant) qualifiers.addAll(m.qualifierAnnotations)
+            for (m in variant) qualifiers.addAll(m.qualifierAnns)
             allQualifiersLists.add(qualifiers)
         }
         if (allQualifiersLists.isEmpty()) return mutableSetOf()
@@ -82,10 +87,11 @@ class InvokeCall(
         for (invokeSequence in invokeSequenceVariants) {
             for (m in invokeSequence) {
                 argsTypes.addAll(
-                    m.parameters.map {
+                    m.args.map {
                         ProvideDep(
-                            type = it.type.resolve(),
-                            qualifiers = m.qualifierAnnotations.toList(),
+                            methodName = null,
+                            typeName = wrapHelper.listWrapTypeIfNeed(it.type),
+                            qualifierAnns = m.qualifierAnns.toSet(),
                         )
                     })
             }
@@ -98,14 +104,14 @@ class InvokeCall(
      *
      * @return return type
      */
-    fun resultType(): TypeName {
-        return ClassNameUtils.rawTypeOf(rawReturnType())
-    }
+    fun resultType(): TypeName = wrapHelper.nonWrappedType(rawReturnType())
 
     fun rawReturnType(): TypeName {
         val invokeSequence = bestSequence()
-        return invokeSequence[invokeSequence.size - 1].returnType?.resolve()!!.toClassName()
+        return invokeSequence[invokeSequence.size - 1].returnType
     }
+
+    fun best() = InvokeCall(wrapHelper, bestSequence())
 
     /**
      * Generate invoke code bloke
@@ -115,10 +121,10 @@ class InvokeCall(
      * @return new code block without semicolon
      */
     fun invokeCode(
-        envFields: List<KSValueParameter>,
-        vararg argGen: (TypeName) -> CodeBlock,
+        envFields: List<FieldDetail>,
+        vararg argGen: (FieldDetail) -> CodeBlock?,
     ): CodeBlock {
-        val argGens = LinkedList<(TypeName) -> CodeBlock>()
+        val argGens = LinkedList<(FieldDetail) -> CodeBlock?>()
         argGens.add(unwrapArgument(envFields))
         argGens.addAll(argGen)
 
@@ -126,119 +132,102 @@ class InvokeCall(
         var invokeCount = 0
         for (m in bestSequence()) {
             var argCount = 0
-            val argsCodeBuilder: CodeBlock.Builder = CodeBlock.builder()
-            for (arg in m.parameters) {
+            val argsCodeBuilder = CodeBlock.builder()
+            for (arg in m.args) {
                 if (argCount++ > 0) argsCodeBuilder.add(",")
-                val argCode = argGens.firstNotNullOf { it.invoke(arg.type.resolve().toClassName()) }
-                argsCodeBuilder.add(argCode)
+                val argCode = argGens.firstNotNullOfOrNull { it.invoke(arg) }
+                argsCodeBuilder.add(argCode ?: CodeBlock.of("null"))
             }
 
             if (invokeCount++ > 0) invokeBuilder.add(".")
-            invokeBuilder.add("%L(%L)", m.simpleName.asString(), argsCodeBuilder.build())
+            invokeBuilder.add("%L(%L)", m.methodName, argsCodeBuilder.build())
         }
+
         return invokeBuilder.build()
     }
 
-    fun invokeBest(): SmartCode = smartCode {
-        providingType.value = resultType()
-// TODO        transform(invokeSequence(bestSequence()), resultType())
+    fun invokeAllToList(
+        declaredFields: List<FieldDetail>,
+    ): CodeBlock {
+        val provType = List::class.asClassName().parameterizedBy(resultType())
+        val listFieldName: String = LocalFieldName.genLocalFieldName()
+
+        val builder = CodeBlock.builder()
+
+        builder.add(
+            "%T{ %L -> \n",
+            ProvideBuilder::class.asClassName().parameterizedBy(resultType()),
+            listFieldName,
+        )
+
+        builder.add(CodeBlock.of("buildList<%T>{  \n", resultType()))
+        for (sequence in invokeSequenceVariants) {
+            val invokeCall = InvokeCall(wrapHelper, sequence)
+            val seqCodeBlock = invokeCall.invokeCode(declaredFields)
+
+            if (wrapHelper.isList(invokeCall.rawReturnType())) {
+                builder
+                    .add(listFieldName)
+                    .add(".addAll(")
+                    .add(
+                        wrapHelper.transform(
+                            invokeCall.rawReturnType(),
+                            provType,
+                            seqCodeBlock
+                        )
+                    )
+                    .add(");\n")
+            } else {
+                builder
+                    .add(listFieldName)
+                    .add(".add(")
+                    .add(
+                        wrapHelper.transform(
+                            invokeCall.rawReturnType(),
+                            resultType(),
+                            seqCodeBlock
+                        )
+                    )
+                    .add(");\n")
+            }
+        }
+        builder.add(" }.all() ")
+        return builder.build()
     }
 
-//        return SmartCode
-//            .builder()
-//            .providingType(resultType())
-//            .withLocals({ builder -})
-//    }
 
-    fun invokeAllToList() = smartCode {
-//        TODO
-//        val provType: TypeName? = ParameterizedTypeName.get(ClassName.get(MutableList::class.java), resultType())
-//        return SmartCode
-//            .builder()
-//            .providingType(provType)
-//            .withLocals({ builder ->
-//                val listFieldName: String? = genLocalFieldName()
-//                builder.add(
-//                    CodeBlock.of(
-//                        "new \$T( ( \$L ) -> { \n",
-//                        ParameterizedTypeName.get(ClassName.get(ProvideBuilder::class.java), resultType()),
-//                        listFieldName
-//                    )
-//                )
-//                for (sequence in invokeSequenceVariants) {
-//                    val seqCode: SmartCode = invokeSequence(sequence)
-//                    if (WrapHelper.isList(seqCode.providingType)) {
-//                        builder.add(listFieldName)
-//                            .add(".addAll(")
-//                            .add(transform(seqCode, provType))
-//                            .add(");\n")
-//                    } else {
-//                        builder.add(listFieldName)
-//                            .add(".add(")
-//                            .add(transform(seqCode, resultType()))
-//                            .add(");\n")
-//                    }
-//                }
-//                builder.add(" }).all() ")
-//                builder
-//            })
-    }
+    private fun unwrapArgument(
+        envFields: List<FieldDetail>,
+    ): (FieldDetail) -> CodeBlock? {
+        return { arg ->
+            val isWannaList = wrapHelper.isList(arg.type)
+            val typeFields = envFields.filter { f ->
+                wrapHelper.nonWrappedType(f.type) == wrapHelper.nonWrappedType(arg.type)
+            }
+            var field = if (isWannaList) typeFields.firstOrNull { f ->
+                wrapHelper.isList(f.type) && f.qualifierAnns == arg.qualifierAnns
+            } else null
 
+            if (field == null) {
+                //non list
+                field = typeFields.firstOrNull { f -> f.qualifierAnns == arg.qualifierAnns }
+            }
 
-    private fun invokeSequence(
-        sequence: List<KSFunctionDeclaration>,
-    ): SmartCode {
-        TODO()
-//        return SmartCode.builder().withLocals({ builder ->
-//            var invokeCount = 0
-//            for (m in sequence) {
-//                if (invokeCount++ > 0) builder.add(".")
-//                builder.add(m.methodName)
-//                    .add("(")
-//
-//                var argCount = 0
-//                for (arg in m.args) {
-//                    if (argCount++ > 0) builder.add(", ")
-//                    val isList: Boolean = isList(arg.type)
-//                    val typeFields: MutableList<FieldDetail?>? = ListUtils.filter(
-//                        builder.getDeclaredFields(),
-//                        { i, f -> nonWrappedType(f.type) == nonWrappedType(arg.type) })
-//
-//                    var field: FieldDetail? = if (isList) ListUtils.first(
-//                        typeFields,
-//                        { i, f -> isList(f.type) && f.qualifierAnns == arg.qualifierAnns }
-//                    ) else null
-//                    if (field == null) {
-//                        //non list
-//                        field = ListUtils.first(typeFields, { i, f -> f.qualifierAnns == arg.qualifierAnns })
-//                    }
-//
-//                    if (field == null) {
-//                        builder.add("null", null)
-//                    } else {
-//                        // unwrap type
-//                        builder.add(
-//                            transform(
-//                                SmartCode.of(field.name, mutableSetOf<T?>(field.name))
-//                                    .providingType(field.type),
-//                                arg.type
-//                            )
-//                        )
-//                    }
-//                }
-//
-//                builder.add(")")
-//            }
-//            builder
-//        })
-//            .providingType(sequence.get(sequence.size - 1).returnType)
+            if (field != null) {
+                wrapHelper.transform(field.type, arg.type, CodeBlock.of(field.name))
+            } else {
+                null
+            }
+        }
     }
 
     override fun toString(): String {
         val builder = StringBuilder()
-        if (invokeSequenceVariants.size <= 1) for (qualifierAnn in qualifierAnnotations(false)) {
-            builder.append(qualifierAnn.toString())
-                .append("    ")
+        if (invokeSequenceVariants.size <= 1) {
+            for (qualifierAnn in qualifierAnnotations(false)) {
+                builder.append(qualifierAnn.toString())
+                    .append("    ")
+            }
         }
         var variantIndx = 0
         for (variant in invokeSequenceVariants) {
@@ -246,9 +235,9 @@ class InvokeCall(
             var secIndx = 0
             for (m in variant) {
                 if (secIndx++ > 0) builder.append(".")
-                builder.append(m.simpleName.asString())
+                builder.append(m.methodName)
                     .append("(")
-                    .append(m.parameters.joinToString(", ") { it.type.resolve().toClassName().simpleName })
+                    .append(m.args.joinToString(", ") { it.type.toString() })
                     .append(")")
             }
         }

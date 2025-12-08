@@ -4,7 +4,7 @@ class ProvideBuilder<T>(
     private val provideBody: ProvideBody<T>
 ) {
 
-    interface ProvideBody<T> {
+    fun interface ProvideBody<T> {
         fun provide(consumer: ProvideConsumer<T>)
     }
 
@@ -21,3 +21,5 @@ class ProvideBuilder<T>(
     }
 
 }
+
+

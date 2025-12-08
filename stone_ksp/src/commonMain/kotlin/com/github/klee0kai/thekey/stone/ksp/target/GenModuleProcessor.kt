@@ -123,8 +123,7 @@ class GenModuleProcessor : TargetFileProcessor {
                     .forEachIndexed { funIdx, function ->
                         val bindAnn = function.getAnnotationsByType(BindInstance::class).firstOrNull()
                         val provideAnn = function.getAnnotationsByType(Provide::class).firstOrNull()
-                        val idArguments = function.parameters
-                            .filter { it.type.resolve() in identifierTypes }
+                        val idArguments = function.identifierParameters(identifierTypes)
 
                         val returnType = function.returnType?.resolve() ?: return@forEachIndexed
                         val nonWrappedType = returnType.noWrappedType(wrapperTypes)

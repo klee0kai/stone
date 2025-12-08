@@ -9,11 +9,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnn
 import com.github.klee0kai.thekey.stone.ksp.ksp.isType
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -38,6 +34,11 @@ val KSClassDeclaration.allIdentifierTypes: Sequence<KSType>
             .flatMap { it.findComponentAnnotation() }
             .flatMap { it.identifiers }
     }
+
+fun KSFunctionDeclaration.identifierParameters(
+    allIdentifierTypes: List<KSType>,
+) = parameters.filter { it.type.resolve() in allIdentifierTypes }
+
 
 val KSClassDeclaration.wrapperProviders: Sequence<KSType>
     get() {

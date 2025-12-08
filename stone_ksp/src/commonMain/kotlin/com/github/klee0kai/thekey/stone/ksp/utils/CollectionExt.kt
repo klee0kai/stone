@@ -5,11 +5,11 @@ import java.util.*
 
 fun <T> List<T>.removeDoubles(
     compare: (T, T) -> Boolean,
-): LinkedList<T> {
+): List<T> {
     val out = LinkedList<T>()
     for (item in this) {
         val contains = out.any { compare.invoke(item, it) }
         if (!contains) out.add(item)
     }
-    return out
+    return out.toList()
 }
