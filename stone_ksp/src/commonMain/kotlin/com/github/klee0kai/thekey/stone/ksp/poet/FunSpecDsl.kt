@@ -3,6 +3,7 @@ package com.github.klee0kai.thekey.stone.ksp.poet
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 
+@PoetDsl
 fun CodeBlock.Builder.controlFlow(
     controlFlow: String,
     vararg args: Any,
@@ -13,6 +14,7 @@ fun CodeBlock.Builder.controlFlow(
         .endControlFlow()
 }
 
+@PoetDsl
 fun FunSpec.Builder.controlFlow(
     controlFlow: String,
     vararg args: Any,

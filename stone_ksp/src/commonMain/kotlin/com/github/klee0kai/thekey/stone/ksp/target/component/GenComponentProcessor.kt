@@ -2,21 +2,27 @@ package com.github.klee0kai.thekey.stone.ksp.target.component
 
 import com.github.klee0kai.stone.__hidden__.IModule
 import com.github.klee0kai.stone.__hidden__.IPrivateComponent
+import com.github.klee0kai.stone.__hidden__.collections.RefCollection
 import com.github.klee0kai.stone.__hidden__.types.WeakList
+import com.github.klee0kai.stone.__hidden__.types.holders.TimeHolder
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies
 import com.github.klee0kai.stone.annotations.module.Module
-import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.stone.weakref.Inject
 import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
+import com.github.klee0kai.thekey.stone.ksp.exceptions.ObjectNotProvidedException
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.anyAnnotation
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.ModulesGraph
+import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.toFieldDetail
+import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.toQualifierAnn
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
-import com.github.klee0kai.thekey.stone.ksp.ksp.isChildOf
 import com.github.klee0kai.thekey.stone.ksp.poet.*
+import com.github.klee0kai.thekey.stone.ksp.poet.member.CoroutinesMemberFunctions.SupervisorJob
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAllSuperTypes
@@ -29,13 +35,15 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
+import kotlinx.coroutines.CoroutineScope
 import com.google.devtools.ksp.processing.Dependencies as KspDependencies
 
 class GenComponentProcessor : TargetFileProcessor {
 
     companion object {
         val refCollectionGlFieldName = "__refCollection"
-        val scheduleGlFieldName = "__scheduler"
+        val scopeFieldName = "__scope"
         val hiddenModuleFieldName = "__hiddenModule"
         val relatedComponentsListFieldName = "__related"
         val protectRecursiveField = "__protectRecursive"
@@ -47,7 +55,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
         val allReserveMethodNames = listOf<String>(
             refCollectionGlFieldName,
-            scheduleGlFieldName,
+            scopeFieldName,
             hiddenModuleFieldName,
             relatedComponentsListFieldName,
             protectRecursiveField,
@@ -83,9 +91,9 @@ class GenComponentProcessor : TargetFileProcessor {
         val componentCl = validSymbol as? KSClassDeclaration ?: return null
 
         val identifierTypes = componentCl.allIdentifierTypes.toList()
-        val wrapperTypes = componentCl.wrapperProviders.toList()
+        val wrapHelper = componentCl.collectWrapHelper()
+        val modulesGraph = componentCl.collectComponentGraph()
         val delayedCodeBlocks = DelayedCodeBlocks()
-
 
         val genComponentClassName = componentCl.componentStoneClName
 
@@ -109,7 +117,7 @@ class GenComponentProcessor : TargetFileProcessor {
                             val moduleCl = m.returnType?.resolve()?.declaration as? KSClassDeclaration
                                 ?: throw IncorrectSignatureException(
                                     message = "wrong return type. Must by Module type",
-                                    element = m
+                                    element = m,
                                 )
                             genProperty(m.simpleName.asString(), moduleCl.moduleStoneClName) {
                                 addModifiers(KModifier.PRIVATE)
@@ -125,7 +133,7 @@ class GenComponentProcessor : TargetFileProcessor {
                             val providingModuleFun = componentsAllMethods
                                 .filter { it.isModuleProvideMethod }
                                 .firstOrNull {
-                                    it.returnType?.resolve()?.toClassName() == m.returnType?.resolve()?.toClassName()
+                                    it.returnType?.resolve()?.toTypeName() == m.returnType?.resolve()?.toTypeName()
                                 }
                                 ?: throw IncorrectSignatureException(
                                     message = "Component must also have providing module simple method with same type",
@@ -203,6 +211,8 @@ class GenComponentProcessor : TargetFileProcessor {
                             genInjectMethod(
                                 componentCl = componentCl,
                                 method = m,
+                                wrapHelper = wrapHelper,
+                                modulesGraph = modulesGraph,
                             )
                         }
 
@@ -239,16 +249,14 @@ class GenComponentProcessor : TargetFileProcessor {
     private fun TypeSpec.Builder.genInjectMethod(
         componentCl: KSClassDeclaration,
         method: KSFunctionDeclaration,
+        wrapHelper: WrapHelper,
         modulesGraph: ModulesGraph,
     ) {
         val identifierTypes = componentCl.allIdentifierTypes.toList()
-        val idArguments = method.parameters.filter { it.type.resolve() in identifierTypes }
-        val lifeCycleOwnerArg = method.parameters.firstOrNull {
-            (it.type.resolve().declaration as? KSClassDeclaration)
-                ?.isChildOf(StoneLifeCycleOwner::class.asClassName()) == true
-        }
-        val injectableArguments = method.parameters.filter { it.type.resolve() !in identifierTypes }
-        if (originatingElements.isEmpty()) {
+        val idArguments = method.parameters.identifierParameters(identifierTypes)
+        val lifeCycleOwnerArg = method.parameters.lifeCycleParameter()
+        val injectableArguments = method.parameters.notIdentifierParameters(identifierTypes)
+        if (injectableArguments.isEmpty()) {
             throw IncorrectSignatureException(
                 message = "No injectable parameter at ${method.simpleName.asString()}",
                 element = method,
@@ -256,23 +264,112 @@ class GenComponentProcessor : TargetFileProcessor {
         }
 
         genOverrideFun(method) {
-            for (injectableArgument in injectableArguments) {
-                val injectableCl = injectableArgument.type.resolve().declaration as? KSClassDeclaration
+            for (injectableField in injectableArguments) {
+                val injectableCl = injectableField.type.resolve().declaration as? KSClassDeclaration
                     ?: throw IncorrectSignatureException(
                         message = "parameter must be a class",
-                        element = injectableArgument,
+                        element = injectableField,
                     )
+
 
                 for (injectField in injectableCl.getAllProperties()) {
+                    if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
+
                     val provideCode = modulesGraph.codeProvideType(
                         methodName = null,
-                        returnType = injectField.type.resolve().toClassName(),
-                        qualifierAnns = injectField.qualifierAnnotations.toList(),
+                        returnType = injectField.type.resolve().toTypeName(),
+                        qualifierAnns = injectField.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
+                        declaredFields = method.parameters.map { it.toFieldDetail() },
                     )
-                    // TODO
+
+                    if (provideCode == null) {
+                        throw ObjectNotProvidedException(
+                            message = "Error provide type ${injectField.type.resolve().toTypeName()}. " +
+                                    "Required in ${injectableCl.toClassName()}.${injectField.simpleName.asString()}",
+                            element = method,
+                        )
+                    }
+
+                    addStatement(
+                        "%L.%L = %L",
+                        injectableField.name!!.asString(),
+                        injectField.simpleName.asString(),
+                        provideCode,
+                    )
                 }
+
+                for (injectMethod in injectableCl.getAllMethods(false, false, "<init>")) {
+                    if (!injectMethod.anyAnnotation(Inject::class.asClassName()).any()) continue
+                    val providingArgsCode = CodeBlock.builder()
+                    for (injectField in injectMethod.parameters) {
+                        val provideCode = modulesGraph.codeProvideType(
+                            null,
+                            injectField.type.resolve().toTypeName(),
+                            injectField.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
+                            method.parameters.map { it.toFieldDetail() },
+                        )
+
+                        if (provideCode == null) {
+                            throw ObjectNotProvidedException(
+                                message = "Error provide type ${injectField.type.resolve().toTypeName()}. " +
+                                        "Required in ${injectableCl.toClassName()}.${injectMethod.simpleName.asString()}",
+                                element = method,
+                            )
+                        }
+
+                        if (!providingArgsCode.isEmpty()) providingArgsCode.add(", ")
+                        providingArgsCode.add(provideCode)
+                    }
+
+                    addCode("%L.%L( ", injectableField.name, injectMethod.simpleName.asString())
+                        .addCode(providingArgsCode.build())
+                        .addStatement(")");
+                }
+
             }
 
+
+            //protect by lifecycle owner
+            for (injectableField in injectableArguments) {
+                val injectableCl = injectableField.type.resolve().declaration as? KSClassDeclaration
+                    ?: throw IncorrectSignatureException(
+                        message = "parameter must be a class",
+                        element = injectableField,
+                    )
+
+
+                val subscrCode = CodeBlock.builder()
+                var emptyCode = true
+                if (lifeCycleOwnerArg != null) {
+                    subscrCode.beginControlFlow(
+                        "%L?.subscribe{ timeMillis -> ",
+                        lifeCycleOwnerArg.name!!.asString(),
+                    )
+                    for (injectField in injectableCl.getAllProperties()) {
+                        if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
+                        if (wrapHelper.isNonCachingWrapper(
+                                injectField.type.resolve().toClassName()
+                            )
+                        )  //nothing to protect
+                            continue
+
+                        emptyCode = false
+                        subscrCode.addStatement(
+                            "%L.add( %T( %L, %L.%L , timeMillis) )",
+                            refCollectionGlFieldName,
+                            TimeHolder::class.asClassName(),
+                            scopeFieldName,
+                            injectableField.name!!.asString(),
+                            injectField.simpleName.asString()
+                        )
+                    }
+
+                    subscrCode
+                        .endControlFlow()
+
+                    if (!emptyCode) addCode(subscrCode.build())
+                }
+            }
         }
     }
 
@@ -295,6 +392,23 @@ class GenComponentProcessor : TargetFileProcessor {
             addModifiers(KModifier.PRIVATE)
             mutable(true)
             initializer("false")
+        }
+        genProperty(
+            name = refCollectionGlFieldName,
+            type = RefCollection::class.asClassName().parameterizedBy(ANY),
+        ) {
+            addModifiers(KModifier.PRIVATE)
+            mutable(true)
+            initializer("%T()", RefCollection::class.asClassName().parameterizedBy(ANY))
+        }
+
+        genProperty(
+            name = scopeFieldName,
+            type = CoroutineScope::class.asClassName(),
+        ) {
+            addModifiers(KModifier.PRIVATE)
+            mutable(true)
+            initializer("%T(%M())", CoroutineScope::class.asClassName(),SupervisorJob)
         }
 
         genProperty(

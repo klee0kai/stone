@@ -73,7 +73,7 @@ class WrapHelper {
         if (typeName is WildcardTypeName) {
             if (!typeName.outTypes.isEmpty()) return nonWrappedType(typeName.outTypes.first())
         }
-        return typeName
+        return typeName.copy(nullable = false)
     }
 
     /**

@@ -9,6 +9,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlin.reflect.KClass
 
 fun KSClassDeclaration.findConstructor(
@@ -70,7 +71,7 @@ fun KSClassDeclaration.isChildOf(
 ): Boolean {
     if (toClassName() == parentType) return true
     superTypes.forEach { type ->
-        if (type.resolve().toClassName() == type) return true
+        if (type.resolve().toTypeName() == type) return true
         if ((type.resolve().declaration as? KSClassDeclaration)?.isChildOf(parentType) == true) return true
     }
     return false

@@ -32,7 +32,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 import java.util.*
 
 class ModulesGraph(
@@ -55,7 +55,7 @@ class ModulesGraph(
         val module = provideModuleMethod?.returnType?.resolve()?.declaration as? KSClassDeclaration ?: return
         for (m in module.getAllMethods(false, true, "<init>")) {
             if (m.returnType?.resolve()?.isNotPrimitive == false) continue
-            val returnType = m.returnType?.resolve()?.toClassName() ?: continue
+            val returnType = m.returnType?.resolve()?.toTypeName() ?: continue
             val provTypeName = wrapHelper.nonWrappedType(returnType)
             val isCached = m.getAnnotationsByType(Provide::class)
                 .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)
@@ -63,7 +63,7 @@ class ModulesGraph(
 
             provideTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
             provideTypeCodes[provTypeName]?.add(
-                InvokeCall(
+                InvokeCall.fromSequence(
                     wrapHelper = wrapHelper,
                     callSequence = listOf(provideModuleMethod.toMethodDetail(), m.toMethodDetail()),
                     flags = InvokeProvideFlags(
@@ -76,17 +76,17 @@ class ModulesGraph(
             val cacheControlMethod = MethodDetail(
                 methodName = m.cacheControlMethodName,
                 returnType = wrapHelper.listWrapTypeIfNeed(returnType),
-                qualifierAnns = m.qualifierAnnotations.toList(),
+                qualifierAnns = m.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
                 args = buildList {
                     add(FieldDetail.simple("__action", CacheAction::class.asClassName()))
-                    addAll(m.identifierParameters(identifierTypes).map { it.toFieldDetail() })
+                    addAll(m.parameters.identifierParameters(identifierTypes).map { it.toFieldDetail() })
                 },
             )
 
             cacheControlTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
             cacheControlTypeCodes.get(provTypeName)
                 ?.add(
-                    InvokeCall(
+                    InvokeCall.fromSequence(
                         wrapHelper = wrapHelper,
                         callSequence = listOf(provideModuleMethod.toMethodDetail(), cacheControlMethod)
                     )
@@ -97,7 +97,7 @@ class ModulesGraph(
     fun codeProvideType(
         methodName: String?,
         returnType: TypeName,
-        qualifierAnns: Set<KSAnnotation>,
+        qualifierAnns: Set<QualifierAnn>,
         declaredFields: List<FieldDetail>
     ): CodeBlock? {
         val isWrappedReturn = wrapHelper.isSupport(returnType)
@@ -280,7 +280,7 @@ class ModulesGraph(
                 }
                 // qualifies not need to provide
                 val argNonWrapped = wrapHelper.nonWrappedType(it.typeName)
-                argNonWrapped is ClassName && !identifierTypes.any { it.toClassName() == argNonWrapped }
+                argNonWrapped is ClassName && !identifierTypes.any { it.toTypeName() == argNonWrapped }
             }
             needProvideDeps.addAll(newDeps)
 
@@ -321,7 +321,7 @@ class ModulesGraph(
     fun invokeControlCacheForType(
         provideMethodName: String,
         typeName: TypeName,
-        qualifierAnns: Set<KSAnnotation>
+        qualifierAnns: Set<QualifierAnn>
     ): InvokeCall? = provideTypeInvokeCall(
         cacheControlTypeCodes,
         typeName,
@@ -334,7 +334,7 @@ class ModulesGraph(
     private fun provideTypeInvokeCall(
         provideTypeCodes: Map<TypeName, Set<InvokeCall>>,
         typeName: TypeName,
-        qualifierAnns: Set<KSAnnotation>,
+        qualifierAnns: Set<QualifierAnn>,
         provideMethodName: String?,
         listVariants: Boolean,
     ): InvokeCall? {
@@ -342,7 +342,9 @@ class ModulesGraph(
         if (invokeCalls == null || invokeCalls.isEmpty()) return null
 
         var filtered = if (!listVariants || !qualifierAnns.isEmpty()) {
-            invokeCalls.filter { it.qualifierAnnotations(false) == qualifierAnns }
+            invokeCalls.filter {
+                it.qualifierAnnotations(false) == qualifierAnns
+            }
         } else {
             invokeCalls
         }
@@ -358,7 +360,7 @@ class ModulesGraph(
                         filtered.joinToString(" and ")
             )
         }
-        return if (!filtered.isEmpty()) InvokeCall(wrapHelper, variants = filtered.toList()) else null
+        return if (!filtered.isEmpty()) InvokeCall.fromVariants(wrapHelper, variants = filtered.toList()) else null
     }
 
     companion object {

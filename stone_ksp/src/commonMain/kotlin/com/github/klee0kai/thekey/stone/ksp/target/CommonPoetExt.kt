@@ -17,7 +17,7 @@ val KSFunctionDeclaration.isSuspend: Boolean get() = modifiers.contains(Modifier
 
 val KSFunctionDeclaration.asyncReturnType: TypeName?
     get() {
-        val returnType = returnType?.resolve()?.toClassName()
+        val returnType = returnType?.resolve()?.toTypeName()
         return when {
             returnType != null && !isSuspend -> returnType
             returnType != null && returnType != Unit::class.asClassName() ->
@@ -31,8 +31,8 @@ val KSFunctionDeclaration.asyncReturnType: TypeName?
 fun FunSpec.Builder.declareSameParameters(
     function: KSFunctionDeclaration,
 ) = apply {
-    function.returnType?.resolve()?.toClassName()?.let { returns(it) }
-    function.extensionReceiver?.resolve()?.toClassName()?.let { receiver(it) }
+    function.returnType?.resolve()?.toTypeName()?.let { returns(it) }
+    function.extensionReceiver?.resolve()?.toTypeName()?.let { receiver(it) }
 
     function.parameters.forEach { param ->
         addParameter(

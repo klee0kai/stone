@@ -15,6 +15,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.asClassName
 
 class GenHiddenModuleProcessor : TargetFileProcessor {
@@ -44,6 +45,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
 
             genClass(genHiddenModuleCl) {
                 addSuperinterface(IModule::class)
+                addModifiers(KModifier.ABSTRACT)
 
             }
 

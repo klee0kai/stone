@@ -7,6 +7,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 class ComponentAnnMirror(
     val identifiers: List<KSType>,
@@ -16,32 +17,32 @@ class ComponentAnnMirror(
 fun KSAnnotated.annotations(
     className: ClassName,
 ): Sequence<KSAnnotation> = annotations
-    .filter { it.annotationType.resolve().toClassName() == className }
+    .filter { it.annotationType.resolve().toTypeName() == className }
 
 
 fun KSAnnotated.anyAnnotation(
     vararg classNames: ClassName,
 ): Sequence<KSAnnotation> = annotations
-    .filter { it.annotationType.resolve().toClassName() in classNames }
+    .filter { it.annotationType.resolve().toTypeName() in classNames }
 
 
 fun KSAnnotated.hasOnlyAnnotation(
     className: ClassName,
 ): Boolean {
     if (annotations.count() != 1) return false
-    return annotations.first().annotationType.resolve().toClassName() == className
+    return annotations.first().annotationType.resolve().toTypeName() == className
 }
 
 fun KSType.annotations(
     className: ClassName,
 ): Sequence<KSAnnotation> = annotations
-    .filter { it.annotationType.resolve().toClassName() == className }
+    .filter { it.annotationType.resolve().toTypeName() == className }
 
 
 @Suppress("UNCHECKED_CAST")
 fun KSAnnotated.findComponentAnnotation(
 ): Sequence<ComponentAnnMirror> = annotations
-    .filter { it.annotationType.resolve().toClassName() == Component::class.asClassName() }
+    .filter { it.annotationType.resolve().toTypeName() == Component::class.asClassName() }
     .map { compAnn ->
         val identifiers = compAnn.arguments
             .firstOrNull { it.name?.asString() == "identifiers" }

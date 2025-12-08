@@ -2,18 +2,17 @@ package com.github.klee0kai.thekey.stone.ksp.helpers.itemholder
 
 import com.github.klee0kai.thekey.stone.ksp.helpers.isListType
 import com.github.klee0kai.thekey.stone.ksp.helpers.noWrappedType
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.TypeSpec
 
-interface ItemHolderHelper {
+interface ItemHolderCodeHelper {
     companion object;
 
     fun TypeSpec.Builder.genCacheField()
 
-    fun codeGetCachedValue(): SmartCode
+    fun codeGetCachedValue(): CodeBlock
 
     fun codeSetCachedValue(
         value: CodeBlock,
@@ -28,12 +27,12 @@ interface ItemHolderHelper {
 
 }
 
-fun ItemHolderHelper.Companion.of(
+fun ItemHolderCodeHelper.Companion.of(
     fieldName: String,
     returnType: KSType,
     idArguments: List<KSValueParameter>,
     cacheType: ItemCacheType,
-): ItemHolderHelper {
+): ItemHolderCodeHelper {
     val noWrappedReturnType = returnType
         .noWrappedType(
             wrappedTypes = idArguments.map { it.type.resolve() }
@@ -45,7 +44,7 @@ fun ItemHolderHelper.Companion.of(
     }
 
     return when {
-        idArguments.isEmpty() -> SingleItemHolderHelper(
+        idArguments.isEmpty() -> SingleItemHolderCodeHelper(
             fieldName = fieldName,
             returnType = returnType,
             nonWrappedReturnType = noWrappedReturnType,
@@ -54,7 +53,7 @@ fun ItemHolderHelper.Companion.of(
             defRefType = defRefType,
         )
 
-        idArguments.size == 1 -> SimpleMapItemHolderHelper(
+        idArguments.size == 1 -> SimpleMapItemHolderCodeHelper(
             fieldName = fieldName,
             returnType = returnType,
             nonWrappedReturnType = noWrappedReturnType,
@@ -64,7 +63,7 @@ fun ItemHolderHelper.Companion.of(
             keyParam = idArguments.first(),
         )
 
-        else -> MultiKeyMapItemHolderHelper(
+        else -> MultiKeyMapItemHolderCodeHelper(
             fieldName = fieldName,
             returnType = returnType,
             nonWrappedReturnType = noWrappedReturnType,

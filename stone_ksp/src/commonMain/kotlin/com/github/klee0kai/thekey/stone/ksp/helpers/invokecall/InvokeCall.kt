@@ -3,6 +3,7 @@ package com.github.klee0kai.thekey.stone.ksp.helpers.invokecall
 import com.github.klee0kai.stone.__hidden__.provide.ProvideBuilder
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.FieldDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.MethodDetail
+import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.QualifierAnn
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName
 import com.google.devtools.ksp.symbol.KSAnnotation
@@ -26,43 +27,16 @@ class InvokeCall(
     val flags: InvokeProvideFlags = InvokeProvideFlags(),
 ) {
 
-    /**
-     * Create new invoke sequence
-     *
-     * @param callSequence ordered methods in invoke sequence
-     */
-    constructor(
-        wrapHelper: WrapHelper,
-        callSequence: List<MethodDetail>,
-        flags: InvokeProvideFlags = InvokeProvideFlags()
-    ) : this(
-        wrapHelper = wrapHelper,
-        invokeSequenceVariants = listOf(callSequence),
-        flags = flags,
-    )
-
-    /**
-     * Merge variants. All should return same type
-     *
-     * @param variants all variants from best to worse
-     */
-    constructor(
-        wrapHelper: WrapHelper,
-        variants: List<InvokeCall>,
-    ) : this(
-        wrapHelper = wrapHelper,
-        invokeSequenceVariants = variants.flatMap { it.invokeSequenceVariants },
-        flags = variants.fold(InvokeProvideFlags()) { acc, value -> acc.merge(value.flags) }
-    )
+    companion object;
 
     fun bestSequence(): List<MethodDetail> = invokeSequenceVariants[0]
 
     fun qualifierAnnotations(
         crossing: Boolean,
-    ): Set<KSAnnotation> {
-        val allQualifiersLists = LinkedList<MutableSet<KSAnnotation>>()
+    ): Set<QualifierAnn> {
+        val allQualifiersLists = LinkedList<MutableSet<QualifierAnn>>()
         for (variant in invokeSequenceVariants) {
-            val qualifiers = HashSet<KSAnnotation>()
+            val qualifiers = HashSet<QualifierAnn>()
             for (m in variant) qualifiers.addAll(m.qualifierAnns)
             allQualifiersLists.add(qualifiers)
         }
@@ -111,7 +85,7 @@ class InvokeCall(
         return invokeSequence[invokeSequence.size - 1].returnType
     }
 
-    fun best() = InvokeCall(wrapHelper, bestSequence())
+    fun best() = InvokeCall.fromSequence(wrapHelper, bestSequence())
 
     /**
      * Generate invoke code bloke
@@ -162,7 +136,7 @@ class InvokeCall(
 
         builder.add(CodeBlock.of("buildList<%T>{  \n", resultType()))
         for (sequence in invokeSequenceVariants) {
-            val invokeCall = InvokeCall(wrapHelper, sequence)
+            val invokeCall = InvokeCall.fromSequence(wrapHelper, sequence)
             val seqCodeBlock = invokeCall.invokeCode(declaredFields)
 
             if (wrapHelper.isList(invokeCall.rawReturnType())) {
@@ -256,3 +230,24 @@ class InvokeCall(
         return Objects.hash(invokeSequenceVariants)
     }
 }
+
+
+fun InvokeCall.Companion.fromSequence(
+    wrapHelper: WrapHelper,
+    callSequence: List<MethodDetail>,
+    flags: InvokeProvideFlags = InvokeProvideFlags(),
+) = InvokeCall(
+    wrapHelper = wrapHelper,
+    invokeSequenceVariants = listOf(callSequence),
+    flags = flags,
+)
+
+
+fun InvokeCall.Companion.fromVariants(
+    wrapHelper: WrapHelper,
+    variants: List<InvokeCall>,
+) = InvokeCall(
+    wrapHelper = wrapHelper,
+    invokeSequenceVariants = variants.flatMap { it.invokeSequenceVariants },
+    flags = variants.fold(InvokeProvideFlags()) { acc, value -> acc.merge(value.flags) }
+)

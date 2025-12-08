@@ -1,31 +1,36 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.itemholder
 
-import com.github.klee0kai.stone.__hidden__.types.holders.SingleItemHolder
+import com.github.klee0kai.stone.__hidden__.types.MultiKey
+import com.github.klee0kai.stone.__hidden__.types.holders.MapItemHolder
 import com.github.klee0kai.stone.__hidden__.types.holders.StoneRefType
+import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.github.klee0kai.thekey.stone.ksp.poet.genProperty
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.add
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.smartCode
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
-class SingleItemHolderHelper(
+class MultiKeyMapItemHolderCodeHelper(
     val fieldName: String,
     val returnType: KSType,
     val nonWrappedReturnType: KSType,
     val itemCacheType: ItemCacheType,
     val isListCaching: Boolean,
     val defRefType: StoneRefType,
-) : ItemHolderHelper {
+    val keyArguments: List<KSValueParameter>,
+) : ItemHolderCodeHelper {
 
     override fun TypeSpec.Builder.genCacheField() {
-        val cacheType = SingleItemHolder::class.asClassName()
-            .parameterizedBy(nonWrappedReturnType.toClassName())
+        val cacheType = MapItemHolder::class.asClassName()
+            .parameterizedBy(
+                MultiKey::class.asClassName(),
+                nonWrappedReturnType.toTypeName(),
+            )
 
         genProperty(fieldName, cacheType) {
             addModifiers(KModifier.PRIVATE)
@@ -33,23 +38,31 @@ class SingleItemHolderHelper(
         }
     }
 
+
     override fun codeGetCachedValue(
-    ): SmartCode = smartCode {
+    ) = codeBlock {
         val getMethod = if (isListCaching) "getList" else "get"
-        add("%L.%L()", fieldName, getMethod)
-        providingType.value = returnType.toClassName()
+        add(
+            "%L.%L(key = %T(%L))",
+            fieldName, getMethod,
+            MultiKey::class.asClassName(), keyArguments.joinToString(",") { it.name!!.asString() },
+        )
     }
 
     override fun codeSetCachedValue(
         value: CodeBlock,
         onlyIfNull: Boolean
-    ): CodeBlock = smartCode {
+    ) = codeBlock {
         val setMethod = if (isListCaching) "setList" else "set"
-        add("%L.%L(onlyIfNull = %L ){ ", fieldName, setMethod, onlyIfNull)
+        add(
+            "%L.%L(key = %T(%L), onlyIfNull = %L ){ ",
+            fieldName, setMethod,
+            MultiKey::class.asClassName(), keyArguments.joinToString(",") { it.name!!.asString() },
+            onlyIfNull
+        )
         add(value)
-        add(" }")
-        providingType.value = returnType.toClassName()
-    }.collect()
+        add("}")
+    }
 
     override fun statementSwitchRef(
         paramsCode: CodeBlock,
@@ -57,6 +70,10 @@ class SingleItemHolderHelper(
         .addStatement("%L.switchCache(%L)", fieldName, paramsCode)
         .build()
 
-    override fun clearNullsStatement(): CodeBlock = CodeBlock.of("")
+
+    override fun clearNullsStatement(): CodeBlock = CodeBlock.Builder()
+        .addStatement("%L.clearNulls()", fieldName)
+        .build()
+
 
 }

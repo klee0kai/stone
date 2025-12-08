@@ -3,9 +3,11 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers
 
 import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.stone.weakref.Named
 import com.github.klee0kai.stone.weakref.Qualifier
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnnotation
+import com.github.klee0kai.thekey.stone.ksp.ksp.isChildOf
 import com.github.klee0kai.thekey.stone.ksp.ksp.isType
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
@@ -13,6 +15,7 @@ import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 fun Resolver.findComponentForModuleOrDep(
     moduleCl: ClassName,
@@ -35,9 +38,18 @@ val KSClassDeclaration.allIdentifierTypes: Sequence<KSType>
             .flatMap { it.identifiers }
     }
 
-fun KSFunctionDeclaration.identifierParameters(
+fun List<KSValueParameter>.identifierParameters(
     allIdentifierTypes: List<KSType>,
-) = parameters.filter { it.type.resolve() in allIdentifierTypes }
+) = filter { it.type.resolve() in allIdentifierTypes }
+
+fun List<KSValueParameter>.notIdentifierParameters(
+    allIdentifierTypes: List<KSType>,
+) = filter { it.type.resolve() !in allIdentifierTypes }
+
+fun List<KSValueParameter>.lifeCycleParameter() = firstOrNull {
+    (it.type.resolve().declaration as? KSClassDeclaration)
+        ?.isChildOf(StoneLifeCycleOwner::class.asClassName()) == true
+}
 
 
 val KSClassDeclaration.wrapperProviders: Sequence<KSType>
@@ -82,7 +94,7 @@ val KSAnnotated.qualifierAnnotations: Sequence<KSAnnotation>
 fun KSAnnotation.isSameAsQualifier(
     ann: KSAnnotation
 ): Boolean {
-    if (annotationType.resolve().toClassName() != ann.annotationType.resolve().toClassName()) return false
+    if (annotationType.resolve().toClassName() != ann.annotationType.resolve().toTypeName()) return false
     val annArguments1 = arguments.map { it.name?.asString() to it.value }.sortedBy { it.first }
     val annArguments2 = ann.arguments.map { it.name?.asString() to it.value }.sortedBy { it.first }
     return annArguments1 == annArguments2

@@ -26,6 +26,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlin.reflect.KClass
 
 class GenModuleCacheControlProcessor : TargetFileProcessor {
@@ -102,7 +103,7 @@ class GenModuleCacheControlProcessor : TargetFileProcessor {
                             )
                             addParameter("__action", CacheAction::class)
                             idArguments.forEach {
-                                addParameter(it.name!!.asString(), it.type.resolve().toClassName())
+                                addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
                             }
                         }
                     }

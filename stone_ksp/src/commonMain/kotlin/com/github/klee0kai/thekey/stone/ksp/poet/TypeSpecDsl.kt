@@ -5,6 +5,7 @@ import com.github.klee0kai.thekey.stone.ksp.target.isSuspend
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 @PoetDsl
 fun TypeSpec.Builder.genProperty(
@@ -78,7 +79,7 @@ fun TypeSpec.Builder.genOverrideFun(
         addModifiers(KModifier.OVERRIDE)
         if (func.isSuspend) addModifiers(KModifier.SUSPEND)
         declareSameParameters(func)
-        func.returnType?.resolve()?.toClassName()?.let { returns(it) }
+        func.returnType?.resolve()?.toTypeName()?.let { returns(it) }
 
         block()
     }

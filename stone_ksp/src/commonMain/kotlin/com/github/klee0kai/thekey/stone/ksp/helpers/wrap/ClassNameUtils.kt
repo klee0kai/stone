@@ -51,7 +51,7 @@ object ClassNameUtils {
                 return rawTypeOf(upperBounds.first())
             }
         }
-        return typeName
+        return typeName.copy(nullable = false)
     }
 
 

@@ -2,10 +2,8 @@ package com.github.klee0kai.thekey.stone.ksp.helpers.itemholder
 
 import com.github.klee0kai.stone.__hidden__.types.holders.MapItemHolder
 import com.github.klee0kai.stone.__hidden__.types.holders.StoneRefType
+import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.github.klee0kai.thekey.stone.ksp.poet.genProperty
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.SmartCode
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.add
-import com.github.klee0kai.thekey.stone.ksp.poet.smartcode.smartCode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.squareup.kotlinpoet.CodeBlock
@@ -14,8 +12,9 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
-class SimpleMapItemHolderHelper(
+class SimpleMapItemHolderCodeHelper(
     val fieldName: String,
     val returnType: KSType,
     val nonWrappedReturnType: KSType,
@@ -23,13 +22,13 @@ class SimpleMapItemHolderHelper(
     val isListCaching: Boolean,
     val defRefType: StoneRefType,
     val keyParam: KSValueParameter,
-) : ItemHolderHelper {
+) : ItemHolderCodeHelper {
 
     override fun TypeSpec.Builder.genCacheField() {
         val cacheType = MapItemHolder::class.asClassName()
             .parameterizedBy(
-                keyParam.type.resolve().toClassName(),
-                nonWrappedReturnType.toClassName(),
+                keyParam.type.resolve().toTypeName(),
+                nonWrappedReturnType.toTypeName(),
             )
 
         genProperty(fieldName, cacheType) {
@@ -39,19 +38,18 @@ class SimpleMapItemHolderHelper(
     }
 
     override fun codeGetCachedValue(
-    ): SmartCode = smartCode {
+    ) = codeBlock {
         val getMethod = if (isListCaching) "getList" else "get"
         add(
             "%L.%L(key = %L)",
             fieldName, getMethod, keyParam.name!!.asString()
         )
-        providingType.value = returnType.toClassName()
     }
 
     override fun codeSetCachedValue(
         value: CodeBlock,
         onlyIfNull: Boolean
-    ): CodeBlock = smartCode {
+    ) = codeBlock {
         val setMethod = if (isListCaching) "setList" else "set"
         add(
             "%L.%L(key = %L, onlyIfNull = %L ){ ",
@@ -59,8 +57,7 @@ class SimpleMapItemHolderHelper(
         )
         add(value)
         add("}")
-        providingType.value = returnType.toClassName()
-    }.collect()
+    }
 
     override fun statementSwitchRef(
         paramsCode: CodeBlock,

@@ -49,8 +49,8 @@ package com.github.klee0kai.stone.lifecycle
  * }
 `</pre> *
  */
-interface StoneLifeCycleOwner {
+fun interface StoneLifeCycleOwner {
 
-    fun subscribe(listener: StoneLifeCycleListener?)
+    fun subscribe(listener: StoneLifeCycleListener)
 
 }

@@ -18,6 +18,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 enum class BindInstanceType {
     BindInstance,
@@ -175,7 +176,7 @@ fun KSFunctionDeclaration.isExtOfMethod(
             element = this,
         )
     }
-    if (!clOwner.getAllSuperTypes().any { parent -> parent.toClassName() == argumentType.toClassName() }) {
+    if (!clOwner.getAllSuperTypes().any { parent -> parent.toTypeName() == argumentType.toClassName() }) {
         throw IncorrectSignatureException(
             message = "The argument for the method ${simpleName.asString()} must be the parent class of the class ${clOwner.toClassName()}. " +
                     "The class ${argumentType.toClassName()} is not a parent to the class ${clOwner.toClassName()}.",
@@ -211,7 +212,7 @@ val KSFunctionDeclaration.isBindInstanceMethod: BindInstanceType?
                 return BindInstanceType.BindInstance
             }
 
-            returnType?.resolve()?.toClassName() == parameters.first().type.resolve().toClassName() -> {
+            returnType?.resolve()?.toTypeName() == parameters.first().type.resolve().toTypeName() -> {
                 return BindInstanceType.BindInstanceAndProvide
             }
         }
