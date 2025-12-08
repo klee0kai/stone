@@ -107,12 +107,6 @@ val KSFunctionDeclaration.isModuleInitMethod: Boolean
                 element = this,
             )
         }
-        if (parameters.size != 1) {
-            throw IncorrectSignatureException(
-                message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
-                element = this,
-            )
-        }
         if (returnType?.resolve()?.isUnit == false) {
             throw IncorrectSignatureException(
                 message = "${simpleName.asString()} must return unit",
@@ -124,10 +118,12 @@ val KSFunctionDeclaration.isModuleInitMethod: Boolean
             val clDeclaration = it.type
                 .resolve()
                 .declaration as? KSClassDeclaration
-                ?: throw IncorrectSignatureException(
-                    message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
-                    element = this,
-                )
+                ?:
+                    throw IncorrectSignatureException(
+                        message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
+                        element = this,
+                    )
+
 
             if (!clDeclaration.anyAnnotation(Module::class.asClassName(), Dependencies::class.asClassName()).any()) {
                 throw IncorrectSignatureException(

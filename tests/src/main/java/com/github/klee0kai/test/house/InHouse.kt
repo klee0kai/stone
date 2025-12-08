@@ -1,27 +1,29 @@
-package com.github.klee0kai.test.house;
+package com.github.klee0kai.test.house
 
-import com.github.klee0kai.test.house.kitchen.Kichen;
-import com.github.klee0kai.test.house.kitchen.storagearea.StoreArea;
-import com.github.klee0kai.test.house.rooms.BathRoom;
-import com.github.klee0kai.test.house.rooms.Garage;
+import com.github.klee0kai.test.house.kitchen.Kichen
+import com.github.klee0kai.test.house.kitchen.storagearea.StoreArea
+import com.github.klee0kai.test.house.rooms.BathRoom
+import com.github.klee0kai.test.house.rooms.Garage
+import javax.inject.Inject
 
-import javax.inject.Inject;
-
-public class InHouse {
-
+class InHouse {
+    @JvmField
     @Inject
-    public Kichen kichen;
+    var kichen: Kichen? = null
 
+    @JvmField
     @Inject
-    public BathRoom bathRoom;
+    var bathRoom: BathRoom? = null
 
+    @JvmField
     @Inject
-    public BathRoom bedRoom;
+    var bedRoom: BathRoom? = null
 
+    @JvmField
     @Inject
-    public Garage garage;
+    var garage: Garage? = null
 
+    @JvmField
     @Inject
-    public StoreArea bedStoreArea;
-
+    var bedStoreArea: StoreArea? = null
 }

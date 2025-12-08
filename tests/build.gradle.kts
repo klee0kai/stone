@@ -1,5 +1,6 @@
 plugins {
-    java
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 tasks.test {
@@ -7,8 +8,8 @@ tasks.test {
 }
 
 dependencies {
-    implementation(project(":stone_lib"))
-    annotationProcessor(project(":stone_processor"))
+    implementation(project(":stone_multiplatform"))
+    ksp(project(":stone_ksp"))
 
     testImplementation(libs.bundles.junit)
 }

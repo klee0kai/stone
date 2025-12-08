@@ -1,24 +1,25 @@
-package com.github.klee0kai.test.tech.components;
+package com.github.klee0kai.test.tech.components
 
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion;
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion
+import java.util.*
 
-import java.util.UUID;
+class OperationSystem {
+    @JvmField
+    val uuid: UUID = UUID.randomUUID()
+    @JvmField
+    val phoneOsType: PhoneOsType?
+    @JvmField
+    val version: PhoneOsVersion?
 
-public class OperationSystem {
 
-    public final UUID uuid = UUID.randomUUID();
-    public final PhoneOsType phoneOsType;
-    public final PhoneOsVersion version;
-
-
-    public OperationSystem(PhoneOsType phoneOsType) {
-        this.phoneOsType = phoneOsType;
-        this.version = new PhoneOsVersion("default");
+    constructor(phoneOsType: PhoneOsType?) {
+        this.phoneOsType = phoneOsType
+        this.version = PhoneOsVersion("default")
     }
 
-    public OperationSystem(PhoneOsType phoneOsType, PhoneOsVersion version) {
-        this.phoneOsType = phoneOsType;
-        this.version = version;
+    constructor(phoneOsType: PhoneOsType?, version: PhoneOsVersion?) {
+        this.phoneOsType = phoneOsType
+        this.version = version
     }
 }

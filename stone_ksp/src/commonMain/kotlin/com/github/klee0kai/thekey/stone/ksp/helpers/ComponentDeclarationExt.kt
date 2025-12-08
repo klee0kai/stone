@@ -6,9 +6,12 @@ import com.github.klee0kai.stone.annotations.component.*
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.stone.weakref.Named
 import com.github.klee0kai.stone.weakref.Qualifier
+import com.github.klee0kai.stone.weakref.Scope
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnnotation
+import com.github.klee0kai.thekey.stone.ksp.ksp.isAnyType
 import com.github.klee0kai.thekey.stone.ksp.ksp.isChildOf
 import com.github.klee0kai.thekey.stone.ksp.ksp.isType
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
@@ -69,9 +72,13 @@ val KSAnnotated.scopeAnnotations: Sequence<KSAnnotation>
         )
 
         return annotations.filter { funAnnotation ->
-            standardScopeAnnotations.any { funAnnotation.annotationType.resolve().declaration.isType(it) }
-                    || funAnnotation.annotationType.resolve().annotations.any { annotationOfAnnotation ->
-                annotationOfAnnotation.annotationType.resolve().declaration.isType(GcScopeAnnotation::class)
+            standardScopeAnnotations.any { funAnnotation.annotationType.resolveAlias().declaration.isType(it) }
+                    || funAnnotation.annotationType.resolveAlias().declaration.annotations.any { annotationOfAnnotation ->
+                annotationOfAnnotation.annotationType.resolveAlias().declaration.isAnyType(
+                    GcScopeAnnotation::class,
+                    Scope::class,
+                    javax.inject.Scope::class
+                )
             }
         }
     }

@@ -1,28 +1,26 @@
-package com.github.klee0kai.test.di.bindinstance.simple_inject;
+package com.github.klee0kai.test.di.bindinstance.simple_inject
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.test.mowgli.MoonSky;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
-import com.github.klee0kai.test.mowgli.galaxy.Mercury;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.test.mowgli.MoonSky
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.IPlanet
+import com.github.klee0kai.test.mowgli.galaxy.Mercury
 
 @Component
-public interface SevenPlanetComponent {
+interface SevenPlanetComponent {
+    fun planets(): SevenPlanetModule?
 
-
-    SevenPlanetModule planets();
-
-    StarsModule stars();
+    fun stars(): StarsModule?
 
     @BindInstance
-    void bind(Earth earth);
+    fun bind(earth: Earth?)
 
     @BindInstance
-    void bind(Mercury mercury);
+    fun bind(mercury: Mercury?)
 
     @BindInstance
-    void bindPlanet(IPlanet planet);
+    fun bindPlanet(planet: IPlanet?)
 
-    void inject(MoonSky moonSky);
+    fun inject(moonSky: MoonSky?)
 }

@@ -1,51 +1,46 @@
-package com.github.klee0kai.test.di.base_forest;
+package com.github.klee0kai.test.di.base_forest
 
-import com.github.klee0kai.stone.annotations.component.*;
-import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
-import com.github.klee0kai.test.mowgli.School;
-import com.github.klee0kai.test.mowgli.animal.Horse;
-import com.github.klee0kai.test.mowgli.animal.Mowgli;
-import com.github.klee0kai.test.mowgli.animal.Snake;
+import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.test.mowgli.School
+import com.github.klee0kai.test.mowgli.animal.Horse
+import com.github.klee0kai.test.mowgli.animal.Mowgli
+import com.github.klee0kai.test.mowgli.animal.Snake
 
 @Component
-public interface ForestComponent {
+interface ForestComponent {
+    fun united(): UnitedModule?
 
-    UnitedModule united();
+    fun identity(): IdentityModule?
 
-    IdentityModule identity();
+    fun inject(horse: Horse?, stoneLifeCycleOwner: StoneLifeCycleOwner?)
 
-    void inject(Horse horse, StoneLifeCycleOwner stoneLifeCycleOwner);
-
-    void inject(Horse horse);
+    fun inject(horse: Horse?)
 
 
-    void inject(Mowgli mowgli);
+    fun inject(mowgli: Mowgli?)
 
-    void inject(Snake snake);
+    fun inject(snake: Snake?)
 
-    void inject(School school);
-
-    @Init
-    void initUnitedModule(UnitedModule unitedModule);
+    fun inject(school: School?)
 
     @Init
-    void initUnitedModule(Class<? extends UnitedModule> unitedModule);
+    fun initUnitedModule(unitedModule: UnitedModule?)
 
     @Init
-    void iniAllModules(UnitedModule unitedModule, IdentityModule identityModule);
+    fun iniAllModules(unitedModule: UnitedModule?, identityModule: IdentityModule?)
 
     @RunGc
     @GcAllScope
-    void gcAll();
+    fun gcAll()
 
     @ProtectInjected(timeMillis = 30)
-    void protectInjected(Horse horse);
+    fun protectInjected(horse: Horse?)
 
 
     @ProtectInjected(timeMillis = 30)
-    void protectInjected(Mowgli horse);
+    fun protectInjected(horse: Mowgli?)
 
     @ProtectInjected(timeMillis = 30)
-    void protectInjected(School school);
-
+    fun protectInjected(school: School?)
 }

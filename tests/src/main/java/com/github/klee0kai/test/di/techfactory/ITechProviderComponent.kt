@@ -1,45 +1,41 @@
-package com.github.klee0kai.test.di.techfactory;
+package com.github.klee0kai.test.di.techfactory
 
-import com.github.klee0kai.stone.wrappers.LazyProvide;
-import com.github.klee0kai.stone.wrappers.PhantomProvide;
-import com.github.klee0kai.stone.wrappers.Ref;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion;
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.tech.components.Battery;
-import com.github.klee0kai.test.tech.components.OperationSystem;
-import com.github.klee0kai.test.tech.components.Ram;
+import com.github.klee0kai.stone.wrappers.LazyProvide
+import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.stone.wrappers.Ref
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.tech.components.Battery
+import com.github.klee0kai.test.tech.components.OperationSystem
+import com.github.klee0kai.test.tech.components.Ram
+import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
+import javax.inject.Named
+import javax.inject.Provider
 
-import javax.inject.Named;
-import javax.inject.Provider;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
+interface ITechProviderComponent {
+    fun batteryLazy(): LazyProvide<Battery?>?
 
-public interface ITechProviderComponent {
+    fun batteryProviderIRef(): Ref<Battery?>?
 
-    LazyProvide<Battery> batteryLazy();
+    fun batteryPhantomProvider(): PhantomProvide<Battery?>?
 
-    Ref<Battery> batteryProviderIRef();
+    fun batteryProvider(): Provider<Battery?>?
 
-    PhantomProvide<Battery> batteryPhantomProvider();
+    fun batterySoft(): SoftReference<Battery?>?
 
-    Provider<Battery> batteryProvider();
-
-    SoftReference<Battery> batterySoft();
-
-    WeakReference<Battery> batteryWeak();
+    fun batteryWeak(): WeakReference<Battery?>?
 
     @Named("null_args")
-    Ram ram();
+    fun ram(): Ram?
 
-    Ram ram(RamSize ramSize);
+    fun ram(ramSize: RamSize?): Ram?
 
     @Named("null_args")
-    OperationSystem phoneOs();
+    fun phoneOs(): OperationSystem?
 
-    OperationSystem phoneOs(PhoneOsType osType);
+    fun phoneOs(osType: PhoneOsType?): OperationSystem?
 
-    OperationSystem phoneOs(PhoneOsType phoneOsType, PhoneOsVersion version);
-
-
+    fun phoneOs(phoneOsType: PhoneOsType?, version: PhoneOsVersion?): OperationSystem?
 }

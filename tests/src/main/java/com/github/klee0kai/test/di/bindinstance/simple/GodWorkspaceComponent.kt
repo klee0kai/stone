@@ -1,33 +1,31 @@
-package com.github.klee0kai.test.di.bindinstance.simple;
+package com.github.klee0kai.test.di.bindinstance.simple
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
-import com.github.klee0kai.test.mowgli.galaxy.Saturn;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.IPlanet
+import com.github.klee0kai.test.mowgli.galaxy.Saturn
+import com.github.klee0kai.test.mowgli.galaxy.Sun
 
 @Component
-public interface GodWorkspaceComponent {
-
-    SunSystemModule sunSystem();
-
-    @BindInstance
-    void bindPlanet(IPlanet planet);
+interface GodWorkspaceComponent {
+    fun sunSystem(): SunSystemModule?
 
     @BindInstance
-    IPlanet planet(IPlanet planet);
+    fun bindPlanet(planet: IPlanet?)
 
     @BindInstance
-    void bindSun(Sun sun);
+    fun planet(planet: IPlanet?): IPlanet?
 
     @BindInstance
-    void bindEarth(Earth earth);
+    fun bindSun(sun: Sun?)
 
     @BindInstance
-    void bindSaturn(Saturn saturn);
+    fun bindEarth(earth: Earth?)
+
+    @BindInstance
+    fun bindSaturn(saturn: Saturn?)
 
 
-    IPlanet providePlanet();
-
+    fun providePlanet(): IPlanet?
 }

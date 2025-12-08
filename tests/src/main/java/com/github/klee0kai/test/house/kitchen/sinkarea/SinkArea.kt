@@ -1,9 +1,7 @@
-package com.github.klee0kai.test.house.kitchen.sinkarea;
+package com.github.klee0kai.test.house.kitchen.sinkarea
 
-import java.util.UUID;
+import java.util.*
 
-public class SinkArea {
-
-    public UUID uuid = UUID.randomUUID();
-
+class SinkArea {
+    var uuid: UUID = UUID.randomUUID()
 }

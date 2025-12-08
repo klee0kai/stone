@@ -1,26 +1,25 @@
-package com.github.klee0kai.test.di.earthmirror;
+package com.github.klee0kai.test.di.earthmirror
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.mowgli.earth.*;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.mowgli.earth.*
+import com.github.klee0kai.test.mowgli.earth.Cave.CaveType
 
 @Module
-public abstract class WestModule {
-
+abstract class WestModule {
     @Provide(cache = Provide.CacheType.Factory)
-    public IRiver riverImpl() {
-        return new River();
+    open fun riverImpl(): IRiver? {
+        return River()
     }
 
     @Provide(cache = Provide.CacheType.Soft)
-    public IMountain mountainImp() {
-        return new Mountain();
+    open fun mountainImp(): IMountain? {
+        return Mountain()
     }
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave();
+    abstract fun cave(): Cave?
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract Cave cave(Cave.CaveType type, Integer deep);
-
+    abstract fun cave(type: CaveType?, deep: Int?): Cave?
 }

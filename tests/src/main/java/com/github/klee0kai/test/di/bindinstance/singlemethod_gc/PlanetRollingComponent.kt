@@ -1,62 +1,59 @@
-package com.github.klee0kai.test.di.bindinstance.singlemethod_gc;
+package com.github.klee0kai.test.di.bindinstance.singlemethod_gc
 
-import com.github.klee0kai.stone.annotations.component.*;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.test.di.bindinstance.singlemethod.SunModule;
-import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope;
-import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
+import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.test.di.bindinstance.singlemethod.SunModule
+import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope
+import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.IPlanet
 
 @Component
-public interface PlanetRollingComponent {
-
-    SunModule sunModule();
+interface PlanetRollingComponent {
+    fun sunModule(): SunModule?
 
     @GcPlanetScope
     @BindInstance(cache = BindInstance.CacheType.Strong)
-    Earth earthStrong(Earth earth);
+    fun earthStrong(earth: Earth?): Earth?
 
     @GcPlanetScope
     @BindInstance(cache = BindInstance.CacheType.Soft)
-    Earth earthSoft(Earth earth);
+    fun earthSoft(earth: Earth?): Earth?
 
     @GcPlanetScope
     @BindInstance(cache = BindInstance.CacheType.Weak)
-    IPlanet planet(IPlanet planet);
+    fun planet(planet: IPlanet?): IPlanet?
 
     @GcPlanetScope
     @BindInstance(cache = BindInstance.CacheType.Weak)
-    Earth earth(Earth earth);
+    fun earth(earth: Earth?): Earth?
 
-    IPlanet providePlanet();
+    fun providePlanet(): IPlanet?
 
     @RunGc
     @GcAllScope
-    void gcAll();
+    fun gcAll()
 
     @RunGc
     @GcStrongScope
-    void gcStrong();
+    fun gcStrong()
 
     @RunGc
     @GcSoftScope
-    void gcSoft();
+    fun gcSoft()
 
     @RunGc
     @GcWeakScope
-    void gcWeak();
+    fun gcWeak()
 
 
     @RunGc
     @GcSoftScope
     @GcSunScope
-    void gcSoftSun();
+    fun gcSoftSun()
 
     @RunGc
     @GcSoftScope
     @GcPlanetScope
-    void gcSoftPlanets();
-
-
+    fun gcSoftPlanets()
 }

@@ -1,24 +1,16 @@
-package com.github.klee0kai.test.di.base_phone.identifiers;
+package com.github.klee0kai.test.di.base_phone.identifiers
 
-import java.util.Objects;
+import java.util.*
 
-public class PhoneOsVersion {
-    public String version;
-
-    public PhoneOsVersion(String version) {
-        this.version = version;
+class PhoneOsVersion(@JvmField var version: String?) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as PhoneOsVersion
+        return version == that.version
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PhoneOsVersion that = (PhoneOsVersion) o;
-        return Objects.equals(version, that.version);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(version);
+    override fun hashCode(): Int {
+        return Objects.hash(version)
     }
 }

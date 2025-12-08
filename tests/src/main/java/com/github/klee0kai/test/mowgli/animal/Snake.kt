@@ -1,24 +1,30 @@
-package com.github.klee0kai.test.mowgli.animal;
+package com.github.klee0kai.test.mowgli.animal
 
-import com.github.klee0kai.test.mowgli.body.Blood;
-import com.github.klee0kai.test.mowgli.community.History;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.identity.Conscience;
-import com.github.klee0kai.test.mowgli.identity.Knowledge;
+import com.github.klee0kai.test.mowgli.body.Blood
+import com.github.klee0kai.test.mowgli.community.History
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.identity.Conscience
+import com.github.klee0kai.test.mowgli.identity.Knowledge
+import javax.inject.Inject
 
-import javax.inject.Inject;
+class Snake : IAnimal {
+    @JvmField
+    @Inject
+    var blood: Blood? = null
 
-public class Snake implements IAnimal {
+    @JvmField
+    @Inject
+    var earth: Earth? = null
 
+    @JvmField
     @Inject
-    public Blood blood;
-    @Inject
-    public Earth earth;
-    @Inject
-    public History history;
-    @Inject
-    public Conscience conscience;
-    @Inject
-    public Knowledge knowledge;
+    var history: History? = null
 
+    @JvmField
+    @Inject
+    var conscience: Conscience? = null
+
+    @JvmField
+    @Inject
+    var knowledge: Knowledge? = null
 }

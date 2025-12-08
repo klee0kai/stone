@@ -1,45 +1,41 @@
-package com.github.klee0kai.test.di.base_phone;
+package com.github.klee0kai.test.di.base_phone
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion;
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.tech.components.Battery;
-import com.github.klee0kai.test.tech.components.DataStorage;
-import com.github.klee0kai.test.tech.components.OperationSystem;
-import com.github.klee0kai.test.tech.components.Ram;
-
-import javax.inject.Named;
-
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.tech.components.Battery
+import com.github.klee0kai.test.tech.components.DataStorage
+import com.github.klee0kai.test.tech.components.OperationSystem
+import com.github.klee0kai.test.tech.components.Ram
+import javax.inject.Named
 
 @Module
-public interface TechModule {
-
+interface TechModule {
     @Provide(cache = Provide.CacheType.Weak)
-    Battery battery();
+    fun battery(): Battery?
 
     @Named("null_args")
     @Provide(cache = Provide.CacheType.Weak)
-    DataStorage dataStorage();
+    fun dataStorage(): DataStorage?
 
     @Provide(cache = Provide.CacheType.Weak)
-    DataStorage dataStorage(DataStorageSize size);
+    fun dataStorage(size: DataStorageSize?): DataStorage?
 
     @Provide(cache = Provide.CacheType.Weak)
-    Ram ram(RamSize ramSize);
+    fun ram(ramSize: RamSize?): Ram?
 
 
     @Named("null_args")
     @Provide(cache = Provide.CacheType.Weak)
-    Ram ram();
+    fun ram(): Ram?
 
     @Named("null_args")
     @Provide(cache = Provide.CacheType.Weak)
-    OperationSystem phoneOs(PhoneOsType osType);
+    fun phoneOs(osType: PhoneOsType?): OperationSystem?
 
     @Provide(cache = Provide.CacheType.Weak)
-    OperationSystem phoneOs(PhoneOsType osType, PhoneOsVersion version);
-
+    fun phoneOs(osType: PhoneOsType?, version: PhoneOsVersion?): OperationSystem?
 }

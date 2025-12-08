@@ -1,26 +1,23 @@
-package com.github.klee0kai.test.di.wire;
+package com.github.klee0kai.test.di.wire
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.test.wire.Wire;
-import com.github.klee0kai.test.wire.types.Hdmi;
-import com.github.klee0kai.test.wire.types.MiniUsb;
-import com.github.klee0kai.test.wire.types.Usb;
-
-import java.lang.ref.WeakReference;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.test.wire.Wire
+import com.github.klee0kai.test.wire.types.Hdmi
+import com.github.klee0kai.test.wire.types.MiniUsb
+import com.github.klee0kai.test.wire.types.Usb
+import java.lang.ref.WeakReference
 
 @Component
-public abstract class WireComponent {
+abstract class WireComponent {
+    abstract fun module(): WireModule?
 
-    public abstract WireModule module();
+    abstract fun usb_hdmi(): Wire<Usb?, Hdmi?>?
 
-    public abstract Wire<Usb, Hdmi> usb_hdmi();
+    abstract fun usb_usb(): WeakReference<Wire<Usb?, Usb?>?>?
 
-    public abstract WeakReference<Wire<Usb, Usb>> usb_usb();
-
-    public abstract Wire simple();
+    abstract fun simple(): Wire<*, *>?
 
     @BindInstance
-    public abstract Wire<MiniUsb, MiniUsb> miniusb_miniusb(Wire<MiniUsb, MiniUsb>  wire);
-
+    abstract fun miniusb_miniusb(wire: Wire<MiniUsb?, MiniUsb?>?): Wire<MiniUsb?, MiniUsb?>?
 }

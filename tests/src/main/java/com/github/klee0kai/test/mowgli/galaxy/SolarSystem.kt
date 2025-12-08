@@ -1,12 +1,7 @@
-package com.github.klee0kai.test.mowgli.galaxy;
+package com.github.klee0kai.test.mowgli.galaxy
 
-public class SolarSystem {
+class SolarSystem {
+    constructor()
 
-
-    public SolarSystem() {
-    }
-
-    public SolarSystem(Sun sun, Earth earth) {
-
-    }
+    constructor(sun: Sun?, earth: Earth?)
 }

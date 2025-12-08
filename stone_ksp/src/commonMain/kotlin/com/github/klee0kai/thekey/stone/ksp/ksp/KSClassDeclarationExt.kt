@@ -3,14 +3,24 @@ package com.github.klee0kai.thekey.stone.ksp.ksp
 import com.github.klee0kai.thekey.stone.ksp.utils.removeDoubles
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
+import com.squareup.kotlinpoet.ksp.toClassNameOrNull
 import kotlin.reflect.KClass
+
+
+fun KSTypeReference.resolveAlias(): KSType = resolve().unwrapAlias()
+
+fun KSType.unwrapAlias(): KSType {
+    var current: KSType = this
+    while (current.declaration is KSTypeAlias) {
+        val alias = current.declaration as KSTypeAlias
+        current = alias.type.resolve()
+    }
+    return current
+}
+
 
 fun KSClassDeclaration.findConstructor(
     parameters: List<KSType>,
@@ -71,7 +81,7 @@ fun KSClassDeclaration.isChildOf(
 ): Boolean {
     if (toClassName() == parentType) return true
     superTypes.forEach { type ->
-        if (type.resolve().toTypeName() == type) return true
+        if (type.resolve().toClassNameOrNull() == type) return true
         if ((type.resolve().declaration as? KSClassDeclaration)?.isChildOf(parentType) == true) return true
     }
     return false

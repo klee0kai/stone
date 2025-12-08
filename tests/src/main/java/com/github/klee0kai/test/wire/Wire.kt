@@ -1,13 +1,12 @@
-package com.github.klee0kai.test.wire;
+package com.github.klee0kai.test.wire
 
-import java.util.UUID;
+import java.util.*
 
-public class Wire<Input, Output> {
+class Wire<Input, Output> {
 
-    public final UUID uuid = UUID.randomUUID();
+    val uuid: UUID = UUID.randomUUID()
 
-    public Input input;
+    var input: Input? = null
 
-    public Output output;
-
+    var output: Output? = null
 }

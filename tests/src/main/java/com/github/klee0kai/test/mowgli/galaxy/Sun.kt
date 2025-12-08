@@ -1,9 +1,8 @@
-package com.github.klee0kai.test.mowgli.galaxy;
+package com.github.klee0kai.test.mowgli.galaxy
 
-import java.util.UUID;
+import java.util.*
 
-public class Sun implements IStar{
-
-    public UUID uuid = UUID.randomUUID();
-
+class Sun : IStar {
+    @JvmField
+    var uuid: UUID = UUID.randomUUID()
 }

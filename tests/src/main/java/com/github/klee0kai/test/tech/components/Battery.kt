@@ -1,9 +1,8 @@
-package com.github.klee0kai.test.tech.components;
+package com.github.klee0kai.test.tech.components
 
-import java.util.UUID;
+import java.util.*
 
-public class Battery {
-
-    public final UUID uuid = UUID.randomUUID();
-
+class Battery {
+    @JvmField
+    val uuid: UUID = UUID.randomUUID()
 }

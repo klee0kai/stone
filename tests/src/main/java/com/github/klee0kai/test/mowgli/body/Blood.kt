@@ -1,15 +1,15 @@
-package com.github.klee0kai.test.mowgli.body;
+package com.github.klee0kai.test.mowgli.body
 
-import java.awt.*;
-import java.util.UUID;
+import java.awt.Color
+import java.util.*
 
-public class Blood {
+class Blood(color: Color?) {
 
-    public UUID uuid = UUID.randomUUID();
+    var uuid: UUID = UUID.randomUUID()
 
-    public Color color = null;
+    var color: Color? = null
 
-    public Blood(Color color) {
-        this.color = color;
+    init {
+        this.color = color
     }
 }

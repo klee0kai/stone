@@ -1,36 +1,32 @@
-package com.github.klee0kai.test.di.house.simple;
+package com.github.klee0kai.test.di.house.simple
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.component.ModuleOriginFactory;
-import com.github.klee0kai.test.house.House;
-import com.github.klee0kai.test.house.InHouse;
-import com.github.klee0kai.test.house.identifiers.StoreAreaType;
-import com.github.klee0kai.test.house.kitchen.storagearea.Sanitizers;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.component.ModuleOriginFactory
+import com.github.klee0kai.test.house.House
+import com.github.klee0kai.test.house.InHouse
+import com.github.klee0kai.test.house.identifiers.StoreAreaType
+import com.github.klee0kai.test.house.kitchen.storagearea.Sanitizers
 
-@Component(
-        identifiers = {StoreAreaType.class}
-)
-public interface HouseComponent {
-
-    HouseModule module();
+@Component(identifiers = [StoreAreaType::class])
+interface HouseComponent {
+    fun module(): HouseModule?
 
     @ModuleOriginFactory
-    HouseModule moduleFactory();
+    fun moduleFactory(): HouseModule?
 
-    RoomsModule rooms();
+    fun rooms(): RoomsModule?
 
-    AreasModule area();
+    fun area(): AreasModule?
 
-    ToolsModule tools();
+    fun tools(): ToolsModule?
 
-    House house();
+    fun house(): House?
 
-    Sanitizers sanitizers();
+    fun sanitizers(): Sanitizers?
 
-    House house(StoreAreaType type);
+    fun house(type: StoreAreaType?): House?
 
-    void inject(StoreAreaType storeAreaType, InHouse inHouse);
+    fun inject(storeAreaType: StoreAreaType?, inHouse: InHouse?)
 
-    void inject(InHouse inHouse);
-
+    fun inject(inHouse: InHouse?)
 }

@@ -1,10 +1,8 @@
-package com.github.klee0kai.test.mowgli.galaxy;
+package com.github.klee0kai.test.mowgli.galaxy
 
-import java.util.UUID;
+import java.util.*
 
-public class Saturn implements IPlanet {
-
-    public UUID uuid = UUID.randomUUID();
-
-
+class Saturn : IPlanet {
+    @JvmField
+    var uuid: UUID = UUID.randomUUID()
 }

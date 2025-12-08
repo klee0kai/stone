@@ -1,10 +1,7 @@
-package com.github.klee0kai.test.mowgli.community;
+package com.github.klee0kai.test.mowgli.community
 
-import java.util.UUID;
+import java.util.*
 
-public class History {
-
-    public UUID uuid = UUID.randomUUID();
-
-
+class History {
+    var uuid: UUID = UUID.randomUUID()
 }

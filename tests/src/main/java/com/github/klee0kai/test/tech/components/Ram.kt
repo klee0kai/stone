@@ -1,20 +1,20 @@
-package com.github.klee0kai.test.tech.components;
+package com.github.klee0kai.test.tech.components
 
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import java.util.*
 
-import java.util.UUID;
+open class Ram {
+    @JvmField
+    val uuid: UUID = UUID.randomUUID()
 
-public class Ram {
+    @JvmField
+    val size: String?
 
-    public final UUID uuid = UUID.randomUUID();
-
-    public final String size;
-
-    public Ram() {
-        size = "default";
+    constructor() {
+        size = "default"
     }
 
-    public Ram(RamSize ramSize) {
-        this.size = ramSize.size;
+    constructor(ramSize: RamSize) {
+        this.size = ramSize.size
     }
 }

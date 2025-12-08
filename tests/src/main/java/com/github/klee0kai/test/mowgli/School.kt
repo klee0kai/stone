@@ -1,27 +1,27 @@
-package com.github.klee0kai.test.mowgli;
+package com.github.klee0kai.test.mowgli
 
-import com.github.klee0kai.stone.wrappers.LazyProvide;
-import com.github.klee0kai.stone.wrappers.PhantomProvide;
-import com.github.klee0kai.stone.wrappers.Ref;
-import com.github.klee0kai.test.mowgli.community.History;
-import com.github.klee0kai.test.mowgli.identity.Knowledge;
+import com.github.klee0kai.stone.weakref.Ref
+import com.github.klee0kai.stone.wrappers.LazyProvide
+import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.test.mowgli.community.History
+import com.github.klee0kai.test.mowgli.identity.Knowledge
+import javax.inject.Inject
+import javax.inject.Provider
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-
-public class School {
-
+class School {
+    @JvmField
     @Inject
-    public LazyProvide<History> historyLazyProvide;
+    var historyLazyProvide: LazyProvide<History?>? = null
 
+    @JvmField
     @Inject
-    public Ref<Knowledge> knowledgePhantomProvide2;
+    var knowledgePhantomProvide2: Ref<Knowledge?>? = null
 
+    @JvmField
     @Inject
-    public Provider<Knowledge> knowledgePhantomProvide3;
+    var knowledgePhantomProvide3: Provider<Knowledge?>? = null
 
+    @JvmField
     @Inject
-    public PhantomProvide<Knowledge> knowledgePhantomProvide;
-
-
+    var knowledgePhantomProvide: PhantomProvide<Knowledge?>? = null
 }

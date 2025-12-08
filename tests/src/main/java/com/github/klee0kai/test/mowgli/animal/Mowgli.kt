@@ -1,82 +1,95 @@
-package com.github.klee0kai.test.mowgli.animal;
+package com.github.klee0kai.test.mowgli.animal
 
-import com.github.klee0kai.stone.wrappers.LazyProvide;
-import com.github.klee0kai.stone.wrappers.PhantomProvide;
-import com.github.klee0kai.stone.wrappers.Ref;
-import com.github.klee0kai.test.mowgli.body.Blood;
-import com.github.klee0kai.test.mowgli.community.History;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.identity.Conscience;
-import com.github.klee0kai.test.mowgli.identity.Knowledge;
+import com.github.klee0kai.stone.weakref.Ref
+import com.github.klee0kai.stone.wrappers.LazyProvide
+import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.test.mowgli.body.Blood
+import com.github.klee0kai.test.mowgli.community.History
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.identity.Conscience
+import com.github.klee0kai.test.mowgli.identity.Knowledge
+import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
+import javax.inject.Inject
+import javax.inject.Provider
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-
-public class Mowgli implements IAnimal {
-
-    @Inject
-    public Blood blood;
-    @Inject
-    public Earth earth;
-    @Inject
-    public History history;
-    @Inject
-    public Conscience conscience;
-    @Inject
-    public Knowledge knowledge;
+class Mowgli : IAnimal {
 
     @Inject
-    public WeakReference<Knowledge> knowledgeWeakRef;
+    var blood: Blood? = null
 
     @Inject
-    public SoftReference<Knowledge> knowledgeSoftRef;
+    var earth: Earth? = null
 
     @Inject
-    public LazyProvide<Knowledge> knowledgeLazyProvide;
+    var history: History? = null
 
     @Inject
-    public Ref<Knowledge> knowledgePhantomProvide2;
+    var conscience: Conscience? = null
+
+    @JvmField
+    @Inject
+    var knowledge: Knowledge? = null
+
+    @JvmField
+    @Inject
+    var knowledgeWeakRef: WeakReference<Knowledge?>? = null
+
+    @JvmField
+    @Inject
+    var knowledgeSoftRef: SoftReference<Knowledge?>? = null
+
+    @JvmField
+    @Inject
+    var knowledgeLazyProvide: LazyProvide<Knowledge?>? = null
+
+    @JvmField
+    @Inject
+    var knowledgePhantomProvide2: Ref<Knowledge?>? = null
 
     @Inject
-    public Provider<Knowledge> knowledgePhantomProvide3;
+    var knowledgePhantomProvide3: Provider<Knowledge?>? = null
+
+    @JvmField
+    @Inject
+    var knowledgePhantomProvide: PhantomProvide<Knowledge?>? = null
+
+
+    @JvmField
+    var methodKnowledgeWeakRef: WeakReference<Knowledge?>? = null
+
+    @JvmField
+    var methodKnowledgeSoftRef: SoftReference<Knowledge?>? = null
+
+    @JvmField
+    var methodKnowledgeLazyProvide: LazyProvide<Knowledge?>? = null
+
+    @JvmField
+    var methodKnowledgePhantomProvide2: Ref<Knowledge?>? = null
+
+    @JvmField
+    var methodKnowledgePhantomProvide3: Provider<Knowledge?>? = null
+
+    @JvmField
+    var methodKnowledgePhantomProvide: PhantomProvide<Knowledge?>? = null
 
     @Inject
-    public PhantomProvide<Knowledge> knowledgePhantomProvide;
-
-
-    public WeakReference<Knowledge> methodKnowledgeWeakRef;
-
-    public SoftReference<Knowledge> methodKnowledgeSoftRef;
-
-    public LazyProvide<Knowledge> methodKnowledgeLazyProvide;
-
-    public Ref<Knowledge> methodKnowledgePhantomProvide2;
-
-    public Provider<Knowledge> methodKnowledgePhantomProvide3;
-
-    public PhantomProvide<Knowledge> methodKnowledgePhantomProvide;
-
-    @Inject
-    public void refInject(WeakReference<Knowledge> knowledgeWeakRef, SoftReference<Knowledge> knowledgeSoftRef) {
-        methodKnowledgeWeakRef = knowledgeWeakRef;
-        methodKnowledgeSoftRef = knowledgeSoftRef;
+    fun refInject(knowledgeWeakRef: WeakReference<Knowledge?>?, knowledgeSoftRef: SoftReference<Knowledge?>?) {
+        methodKnowledgeWeakRef = knowledgeWeakRef
+        methodKnowledgeSoftRef = knowledgeSoftRef
     }
 
 
     @Inject
-    public void wrapperInject(
-            LazyProvide<Knowledge> knowledgeLazyProvide,
-            Ref<Knowledge> knowledgePhantomProvide2,
-            Provider<Knowledge> knowledgePhantomProvide3,
-            PhantomProvide<Knowledge> knowledgePhantomProvide
+    fun wrapperInject(
+        knowledgeLazyProvide: LazyProvide<Knowledge?>?,
+        knowledgePhantomProvide2: Ref<Knowledge?>?,
+        knowledgePhantomProvide3: Provider<Knowledge?>?,
+        knowledgePhantomProvide: PhantomProvide<Knowledge?>?
     ) {
-        methodKnowledgeLazyProvide = knowledgeLazyProvide;
-        methodKnowledgePhantomProvide2 = knowledgePhantomProvide2;
-        methodKnowledgePhantomProvide3 = knowledgePhantomProvide3;
-        methodKnowledgePhantomProvide = knowledgePhantomProvide;
+        methodKnowledgeLazyProvide = knowledgeLazyProvide
+        methodKnowledgePhantomProvide2 = knowledgePhantomProvide2
+        methodKnowledgePhantomProvide3 = knowledgePhantomProvide3
+        methodKnowledgePhantomProvide = knowledgePhantomProvide
     }
-
-
 }

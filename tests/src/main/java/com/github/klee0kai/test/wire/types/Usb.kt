@@ -1,9 +1,7 @@
-package com.github.klee0kai.test.wire.types;
+package com.github.klee0kai.test.wire.types
 
-import java.util.UUID;
+import java.util.*
 
-public class Usb {
-
-    public final UUID uuid = UUID.randomUUID();
-
+class Usb {
+    val uuid: UUID = UUID.randomUUID()
 }

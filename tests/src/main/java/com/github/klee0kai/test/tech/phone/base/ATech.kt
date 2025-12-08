@@ -1,29 +1,23 @@
-package com.github.klee0kai.test.tech.phone.base;
+package com.github.klee0kai.test.tech.phone.base
 
-import java.util.LinkedList;
+import java.util.*
 
-public abstract class ATech {
+abstract class ATech {
+    private val listeners = LinkedList<ATechLifecycle>()
 
-    private LinkedList<ATechLifecycle> listeners = new LinkedList<>();
-
-    public void subscribe(ATechLifecycle listener) {
-        this.listeners.add(listener);
+    fun subscribe(listener: ATechLifecycle?) {
+        this.listeners.add(listener!!)
     }
 
-    public void onBuy() {
-        for (ATechLifecycle lis : listeners)
-            lis.onBuy();
+    fun onBuy() {
+        for (lis in listeners) lis.onBuy()
     }
 
-    public void onBroken() {
-        for (ATechLifecycle lis : listeners)
-            lis.onBroken();
+    fun onBroken() {
+        for (lis in listeners) lis.onBroken()
     }
 
-    public void onDrown() {
-        for (ATechLifecycle lis : listeners)
-            lis.onDrown();
+    fun onDrown() {
+        for (lis in listeners) lis.onDrown()
     }
-
-
 }

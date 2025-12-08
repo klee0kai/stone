@@ -1,9 +1,7 @@
-package com.github.klee0kai.test.mowgli.earth;
+package com.github.klee0kai.test.mowgli.earth
 
-import java.util.UUID;
+import java.util.*
 
-public class River implements IRiver {
-
-    public UUID uuid = UUID.randomUUID();
-
+open class River : IRiver {
+    var uuid: UUID = UUID.randomUUID()
 }

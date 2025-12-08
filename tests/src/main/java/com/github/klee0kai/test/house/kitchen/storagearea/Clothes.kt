@@ -1,9 +1,7 @@
-package com.github.klee0kai.test.house.kitchen.storagearea;
+package com.github.klee0kai.test.house.kitchen.storagearea
 
-import java.util.UUID;
+import java.util.*
 
-public class Clothes {
-
-    public UUID uuid = UUID.randomUUID();
-
+class Clothes {
+    var uuid: UUID = UUID.randomUUID()
 }

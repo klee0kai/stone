@@ -1,15 +1,14 @@
-package com.github.klee0kai.test.di.bindinstance.solarsystem;
+package com.github.klee0kai.test.di.bindinstance.solarsystem
 
-import com.github.klee0kai.stone.wrappers.LazyProvide;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.Mercury;
-import com.github.klee0kai.test.mowgli.galaxy.Saturn;
+import com.github.klee0kai.stone.wrappers.LazyProvide
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.Mercury
+import com.github.klee0kai.test.mowgli.galaxy.Saturn
 
-public interface SolarSystemDependencies {
+interface SolarSystemDependencies {
+    fun earth(): LazyProvide<Earth?>?
 
-    LazyProvide<Earth> earth();
+    fun mercury(): LazyProvide<Mercury?>?
 
-    LazyProvide<Mercury> mercury();
-
-    LazyProvide<Saturn> saturn();
+    fun saturn(): LazyProvide<Saturn?>?
 }

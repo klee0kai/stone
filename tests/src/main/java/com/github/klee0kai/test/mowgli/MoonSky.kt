@@ -1,26 +1,27 @@
-package com.github.klee0kai.test.mowgli;
+package com.github.klee0kai.test.mowgli
 
-import com.github.klee0kai.test.mowgli.galaxy.*;
+import com.github.klee0kai.test.mowgli.galaxy.*
+import javax.inject.Inject
 
-import javax.inject.Inject;
-
-public class MoonSky {
-
+class MoonSky {
+    @JvmField
     @Inject
-    public IStar star;
+    var star: IStar? = null
 
+    @JvmField
     @Inject
-    public Sun sun;
+    var sun: Sun? = null
 
 
+    @JvmField
     @Inject
-    public IPlanet planet;
+    var planet: IPlanet? = null
 
+    @JvmField
     @Inject
-    public Mercury mercury;
+    var mercury: Mercury? = null
 
+    @JvmField
     @Inject
-    public Earth earth;
-
-
+    var earth: Earth? = null
 }

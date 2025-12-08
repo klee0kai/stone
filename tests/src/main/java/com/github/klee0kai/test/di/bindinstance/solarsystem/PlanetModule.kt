@@ -1,31 +1,28 @@
-package com.github.klee0kai.test.di.bindinstance.solarsystem;
+package com.github.klee0kai.test.di.bindinstance.solarsystem
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.mowgli.galaxy.*;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.mowgli.galaxy.*
 
 @Module
-public class PlanetModule {
-
+open class PlanetModule {
     @Provide(cache = Provide.CacheType.Strong)
-    Sun sun(SolarSystem solarSystem) {
-        return new Sun();
+    open fun sun(solarSystem: SolarSystem?): Sun? {
+        return Sun()
     }
 
     @Provide(cache = Provide.CacheType.Soft)
-    Earth earth(Sun sun){
-        return new Earth();
+    open fun earth(sun: Sun?): Earth? {
+        return Earth()
     }
 
     @Provide(cache = Provide.CacheType.Soft)
-    Mercury mercury(Sun sun){
-        return new Mercury();
+    open fun mercury(sun: Sun?): Mercury? {
+        return Mercury()
     }
 
     @Provide(cache = Provide.CacheType.Soft)
-    Saturn saturn(Sun sun){
-        return new Saturn();
+    open fun saturn(sun: Sun?): Saturn? {
+        return Saturn()
     }
-
-
 }

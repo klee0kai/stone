@@ -1,9 +1,7 @@
-package com.github.klee0kai.test.house.kitchen.cookingarea;
+package com.github.klee0kai.test.house.kitchen.cookingarea
 
-import java.util.UUID;
+import java.util.*
 
-public class CookingArea {
-
-    public UUID uuid = UUID.randomUUID();
-
+class CookingArea {
+    var uuid: UUID = UUID.randomUUID()
 }

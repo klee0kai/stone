@@ -1,10 +1,7 @@
-package com.github.klee0kai.test.mowgli.galaxy;
+package com.github.klee0kai.test.mowgli.galaxy
 
-import java.util.UUID;
+import java.util.*
 
-public class Mercury implements IPlanet {
-
-    public UUID uuid = UUID.randomUUID();
-
-
+class Mercury : IPlanet {
+    var uuid: UUID = UUID.randomUUID()
 }

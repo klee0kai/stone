@@ -1,25 +1,28 @@
-package com.github.klee0kai.test.di.house.simple;
+package com.github.klee0kai.test.di.house.simple
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.house.identifiers.StoreAreaType;
-import com.github.klee0kai.test.house.kitchen.cookingarea.CookingArea;
-import com.github.klee0kai.test.house.kitchen.sinkarea.SinkArea;
-import com.github.klee0kai.test.house.kitchen.storagearea.*;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.house.identifiers.StoreAreaType
+import com.github.klee0kai.test.house.kitchen.cookingarea.CookingArea
+import com.github.klee0kai.test.house.kitchen.sinkarea.SinkArea
+import com.github.klee0kai.test.house.kitchen.storagearea.*
 
 @Module
-abstract class AreasModule {
+internal abstract class AreasModule {
+    @Provide(cache = Provide.CacheType.Soft)
+    abstract fun cookingArea(): CookingArea?
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract CookingArea cookingArea();
-
-    @Provide(cache = Provide.CacheType.Soft)
-    public abstract SinkArea sinkArea();
+    abstract fun sinkArea(): SinkArea?
 
     @Provide(cache = Provide.CacheType.Factory)
-    public abstract StoreArea storeArea(StoreAreaType type, Cookware cookware, Clothes clothes, Sanitizers sanitizers);
+    abstract fun storeArea(
+        type: StoreAreaType?,
+        cookware: Cookware?,
+        clothes: Clothes?,
+        sanitizers: Sanitizers?
+    ): StoreArea?
 
     @Provide(cache = Provide.CacheType.Soft)
-    abstract public GarageStore garageStore(Cookware cookware, Clothes clothes, Sanitizers sanitizers);
-
+    abstract fun garageStore(cookware: Cookware?, clothes: Clothes?, sanitizers: Sanitizers?): GarageStore?
 }

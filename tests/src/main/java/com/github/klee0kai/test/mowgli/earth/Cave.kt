@@ -1,22 +1,15 @@
-package com.github.klee0kai.test.mowgli.earth;
+package com.github.klee0kai.test.mowgli.earth
 
-import java.util.UUID;
+import java.util.*
 
+class Cave : IMountain {
+    var uuid: UUID = UUID.randomUUID()
 
-public class Cave implements IMountain {
+    constructor()
 
-    public UUID uuid = UUID.randomUUID();
+    constructor(type: CaveType?, deep: Int?)
 
-    public Cave() {
-        //nothing
-    }
-
-    public Cave(CaveType type, Integer deep) {
-        //nothing
-    }
-
-    public enum CaveType {
+    enum class CaveType {
         Solutional, Glacier, Fracture
     }
-
 }

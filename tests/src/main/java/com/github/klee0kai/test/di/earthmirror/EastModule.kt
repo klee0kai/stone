@@ -1,16 +1,15 @@
-package com.github.klee0kai.test.di.earthmirror;
+package com.github.klee0kai.test.di.earthmirror
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.mowgli.earth.Cave;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.mowgli.earth.Cave
+import com.github.klee0kai.test.mowgli.earth.Cave.CaveType
 
 @Module
-public interface EastModule {
+interface EastModule {
+    @Provide(cache = Provide.CacheType.Soft)
+    fun cave(): Cave?
 
     @Provide(cache = Provide.CacheType.Soft)
-    Cave cave();
-
-    @Provide(cache = Provide.CacheType.Soft)
-    Cave cave(Cave.CaveType type, Integer deep);
-
+    fun cave(type: CaveType?, deep: Int?): Cave?
 }

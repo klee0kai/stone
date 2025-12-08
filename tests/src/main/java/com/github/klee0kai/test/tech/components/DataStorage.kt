@@ -1,21 +1,20 @@
-package com.github.klee0kai.test.tech.components;
+package com.github.klee0kai.test.tech.components
 
-import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize;
+import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
+import java.util.*
 
-import java.util.UUID;
+class DataStorage {
+    @JvmField
+    val uuid: UUID = UUID.randomUUID()
 
-public class DataStorage {
+    @JvmField
+    val size: String?
 
-    public final UUID uuid = UUID.randomUUID();
-
-    public final String size;
-
-    public DataStorage() {
-        size = null;
+    constructor() {
+        size = null
     }
 
-    public DataStorage(DataStorageSize size) {
-        this.size = size.size;
+    constructor(size: DataStorageSize) {
+        this.size = size.size
     }
-
 }

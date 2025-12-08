@@ -9,10 +9,10 @@ open class StoneException(
     val element: KSNode? = null,
 ) : IllegalStateException(message, cause) {
 
-    fun findErrorElement(): KSNode? {
+    fun findLastErrorElement(): KSNode? {
         var sourceElement: KSNode? = null
         if (cause is StoneException) {
-            sourceElement = (cause as StoneException).findErrorElement()
+            sourceElement = (cause as StoneException).findLastErrorElement()
         }
         if (sourceElement == null) sourceElement = element
         return sourceElement

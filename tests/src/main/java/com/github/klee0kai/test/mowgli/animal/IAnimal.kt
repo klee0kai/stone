@@ -1,6 +1,3 @@
-package com.github.klee0kai.test.mowgli.animal;
+package com.github.klee0kai.test.mowgli.animal
 
-public interface IAnimal {
-
-
-}
+interface IAnimal 

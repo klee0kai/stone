@@ -1,11 +1,9 @@
-package com.github.klee0kai.test.tech.phone.base;
+package com.github.klee0kai.test.tech.phone.base
 
-public interface ATechLifecycle {
+interface ATechLifecycle {
+    fun onBuy()
 
-    void onBuy();
+    fun onBroken()
 
-    void onBroken();
-
-    void onDrown();
-
+    fun onDrown()
 }

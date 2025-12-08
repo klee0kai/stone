@@ -1,25 +1,23 @@
-package com.github.klee0kai.test.di.bindinstance.singlemethod;
+package com.github.klee0kai.test.di.bindinstance.singlemethod
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.IPlanet
+import com.github.klee0kai.test.mowgli.galaxy.Sun
 
 @Component
-public interface PlanetComponent {
-
-    SunModule sunModule();
+interface PlanetComponent {
+    fun sunModule(): SunModule?
 
     @BindInstance
-    IPlanet planet(IPlanet planet);
+    fun planet(planet: IPlanet?): IPlanet?
 
     @BindInstance(cache = BindInstance.CacheType.Weak)
-    Earth earth(Earth earth);
+    fun earth(earth: Earth?): Earth?
 
-    IPlanet providePlanet();
+    fun providePlanet(): IPlanet?
 
     @BindInstance
-    void bindSun(Sun sun);
-
+    fun bindSun(sun: Sun?)
 }

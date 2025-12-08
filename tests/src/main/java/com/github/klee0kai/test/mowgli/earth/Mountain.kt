@@ -1,9 +1,8 @@
-package com.github.klee0kai.test.mowgli.earth;
+package com.github.klee0kai.test.mowgli.earth
 
-import java.util.UUID;
+import java.util.*
 
-public class Mountain implements IMountain{
-
-    public UUID uuid = UUID.randomUUID();
-
+class Mountain : IMountain {
+    @JvmField
+    var uuid: UUID = UUID.randomUUID()
 }

@@ -1,26 +1,16 @@
-package com.github.klee0kai.test.di.base_phone.identifiers;
+package com.github.klee0kai.test.di.base_phone.identifiers
 
-import java.util.Objects;
+import java.util.*
 
-public class RamSize {
-
-    public String size;
-
-    public RamSize(String size) {
-        this.size = size;
+class RamSize(var size: String?) {
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as RamSize
+        return size == that.size
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RamSize that = (RamSize) o;
-        return Objects.equals(size, that.size);
+    override fun hashCode(): Int {
+        return Objects.hash(size)
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(size);
-    }
-
 }

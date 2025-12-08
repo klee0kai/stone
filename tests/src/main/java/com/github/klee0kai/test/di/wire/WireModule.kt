@@ -1,30 +1,27 @@
-package com.github.klee0kai.test.di.wire;
+package com.github.klee0kai.test.di.wire
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.wire.Wire;
-import com.github.klee0kai.test.wire.types.Hdmi;
-import com.github.klee0kai.test.wire.types.MiniUsb;
-import com.github.klee0kai.test.wire.types.Usb;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.wire.Wire
+import com.github.klee0kai.test.wire.types.Hdmi
+import com.github.klee0kai.test.wire.types.MiniUsb
+import com.github.klee0kai.test.wire.types.Usb
 
 @Module
-public abstract class WireModule {
+abstract class WireModule {
+    @Provide(cache = Provide.CacheType.Soft)
+    abstract fun usb_miniusb(): Wire<Usb?, MiniUsb?>?
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract Wire<Usb, MiniUsb> usb_miniusb();
+    abstract fun usb_usb(): Wire<Usb?, Usb?>?
 
     @Provide(cache = Provide.CacheType.Soft)
-    public abstract Wire<Usb, Usb> usb_usb();
-
-    @Provide(cache = Provide.CacheType.Soft)
-    public Wire<Usb, Hdmi> usb_hdmi() {
-        return new Wire<>();
+    open fun usb_hdmi(): Wire<Usb?, Hdmi?>? {
+        return Wire<Usb?, Hdmi?>()
     }
 
     @Provide(cache = Provide.CacheType.Soft)
-    public Wire simple() {
-        return new Wire<Usb, Usb>();
+    open fun simple(): Wire<*, *>? {
+        return Wire<Usb?, Usb?>()
     }
-
-
 }

@@ -1,6 +1,6 @@
-package com.github.klee0kai.test.di.base_phone.identifiers;
+package com.github.klee0kai.test.di.base_phone.identifiers
 
-public enum PhoneOsType {
+enum class PhoneOsType {
     Android,
     Ios,
     UbuntuTouch,

@@ -1,29 +1,24 @@
-package com.github.klee0kai.test.tech.phone.base;
+package com.github.klee0kai.test.tech.phone.base
 
-import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleListener
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 
-public class LifecycleUtils {
-
-    public static StoneLifeCycleOwner createFromATech(ATech phone){
-        return listener -> phone.subscribe(
-                new ATechLifecycle() {
-                    @Override
-                    public void onBuy() {
-
+object LifecycleUtils {
+    fun createFromATech(phone: ATech): StoneLifeCycleOwner {
+        return StoneLifeCycleOwner { listener: StoneLifeCycleListener? ->
+            phone.subscribe(
+                object : ATechLifecycle {
+                    override fun onBuy() {
                     }
 
-                    @Override
-                    public void onBroken() {
-
+                    override fun onBroken() {
                     }
 
-                    @Override
-                    public void onDrown() {
-                        listener.protectForInjected(100);
+                    override fun onDrown() {
+                        listener!!.protectForInjected(100)
                     }
                 }
-        );
+            )
+        }
     }
-
-
 }

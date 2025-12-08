@@ -1,14 +1,11 @@
-package com.github.klee0kai.test.mowgli.identity;
+package com.github.klee0kai.test.mowgli.identity
 
-import java.util.UUID;
+import java.util.*
 
-public class Ideology {
+open class Ideology {
+    var uuid: UUID = UUID.randomUUID()
 
-    public UUID uuid = UUID.randomUUID();
 
-
-    public boolean isFamilyIdeology(){
-        return false;
-    }
-
+    open val isFamilyIdeology: Boolean
+        get() = false
 }

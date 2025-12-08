@@ -1,45 +1,47 @@
-package com.github.klee0kai.test.tech.phone;
+package com.github.klee0kai.test.tech.phone
 
-import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
-import com.github.klee0kai.test.tech.components.Battery;
-import com.github.klee0kai.test.tech.components.DataStorage;
-import com.github.klee0kai.test.tech.components.OperationSystem;
-import com.github.klee0kai.test.tech.components.Ram;
-import com.github.klee0kai.test.tech.phone.base.ATech;
-import com.github.klee0kai.test.tech.phone.base.LifecycleUtils;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.test.tech.components.Battery
+import com.github.klee0kai.test.tech.components.DataStorage
+import com.github.klee0kai.test.tech.components.OperationSystem
+import com.github.klee0kai.test.tech.components.Ram
+import com.github.klee0kai.test.tech.phone.base.ATech
+import com.github.klee0kai.test.tech.phone.base.LifecycleUtils
+import javax.inject.Inject
 
-import javax.inject.Inject;
-
-public class GoodPhone extends ATech {
-
-    public StoneLifeCycleOwner lifeCycleOwner = LifecycleUtils.createFromATech(this);
+class GoodPhone : ATech() {
+    @JvmField
+    var lifeCycleOwner: StoneLifeCycleOwner = LifecycleUtils.createFromATech(this)
 
 
+    @JvmField
     @Inject
-    public Battery battery;
+    var battery: Battery? = null
 
+    @JvmField
     @Inject
-    public DataStorage dataStorage;
+    var dataStorage: DataStorage? = null
 
 
+    @JvmField
     @Inject
-    public Ram ram;
+    var ram: Ram? = null
 
+    @JvmField
     @Inject
-    public OperationSystem os;
+    var os: OperationSystem? = null
 
-    public void dropToWater() {
-        onDrown();
-        battery = null;
-        dataStorage = null;
-        ram = null;
+    fun dropToWater() {
+        onDrown()
+        battery = null
+        dataStorage = null
+        ram = null
     }
 
-    public void broke() {
-        onBroken();
-        battery = null;
-        dataStorage = null;
-        ram = null;
+    fun broke() {
+        onBroken()
+        battery = null
+        dataStorage = null
+        ram = null
     }
-
 }

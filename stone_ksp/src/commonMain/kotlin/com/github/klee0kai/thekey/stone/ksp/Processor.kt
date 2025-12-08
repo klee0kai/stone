@@ -131,7 +131,7 @@ class Processor(
                                 }
                         )
                     } catch (e: StoneException) {
-                        logger.error(e.toString(), e.findErrorElement())
+                        logger.error(e.toString(), e.findLastErrorElement())
                     }
 
                 }

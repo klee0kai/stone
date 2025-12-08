@@ -1,14 +1,11 @@
-package com.github.klee0kai.test.mowgli.identity;
+package com.github.klee0kai.test.mowgli.identity
 
-import java.util.UUID;
+import java.util.*
 
-public class Conscience {
+class Conscience {
+    @JvmField
+    var uuid: UUID = UUID.randomUUID()
 
-    public UUID uuid = UUID.randomUUID();
-
-    public boolean isOldConscience() {
-        return false;
-    }
-
-
+    val isOldConscience: Boolean
+        get() = false
 }

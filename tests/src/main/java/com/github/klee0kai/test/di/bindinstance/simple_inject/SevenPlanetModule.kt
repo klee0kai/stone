@@ -1,22 +1,19 @@
-package com.github.klee0kai.test.di.bindinstance.simple_inject;
+package com.github.klee0kai.test.di.bindinstance.simple_inject
 
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.IPlanet;
-import com.github.klee0kai.test.mowgli.galaxy.Mercury;
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.IPlanet
+import com.github.klee0kai.test.mowgli.galaxy.Mercury
 
 @Module
-public interface SevenPlanetModule {
-
+interface SevenPlanetModule {
+    @BindInstance
+    fun earth(): Earth?
 
     @BindInstance
-    Earth earth();
+    fun mercury(): Mercury?
 
     @BindInstance
-    Mercury mercury();
-
-    @BindInstance
-    IPlanet planet();
-
+    fun planet(): IPlanet?
 }

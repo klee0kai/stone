@@ -1,29 +1,27 @@
-package com.github.klee0kai.test.di.house.simple;
+package com.github.klee0kai.test.di.house.simple
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.house.kitchen.Kichen;
-import com.github.klee0kai.test.house.kitchen.cookingarea.CookingArea;
-import com.github.klee0kai.test.house.kitchen.sinkarea.SinkArea;
-import com.github.klee0kai.test.house.kitchen.storagearea.GarageStore;
-import com.github.klee0kai.test.house.kitchen.storagearea.StoreArea;
-import com.github.klee0kai.test.house.rooms.BathRoom;
-import com.github.klee0kai.test.house.rooms.BedRoom;
-import com.github.klee0kai.test.house.rooms.Garage;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.house.kitchen.Kichen
+import com.github.klee0kai.test.house.kitchen.cookingarea.CookingArea
+import com.github.klee0kai.test.house.kitchen.sinkarea.SinkArea
+import com.github.klee0kai.test.house.kitchen.storagearea.GarageStore
+import com.github.klee0kai.test.house.kitchen.storagearea.StoreArea
+import com.github.klee0kai.test.house.rooms.BathRoom
+import com.github.klee0kai.test.house.rooms.BedRoom
+import com.github.klee0kai.test.house.rooms.Garage
 
 @Module
-public interface RoomsModule {
+interface RoomsModule {
+    @Provide(cache = Provide.CacheType.Soft)
+    fun kitchen(cookingArea: CookingArea?, sinkArea: SinkArea?, storeArea: StoreArea?): Kichen?
 
     @Provide(cache = Provide.CacheType.Soft)
-    Kichen kitchen(CookingArea cookingArea, SinkArea sinkArea, StoreArea storeArea);
+    fun bathRoom(storeArea: StoreArea?): BathRoom?
 
     @Provide(cache = Provide.CacheType.Soft)
-    BathRoom bathRoom(StoreArea storeArea);
+    fun bedRoom(storeArea: StoreArea?): BedRoom?
 
     @Provide(cache = Provide.CacheType.Soft)
-    BedRoom bedRoom(StoreArea storeArea);
-
-    @Provide(cache = Provide.CacheType.Soft)
-    Garage garage(GarageStore garageStore);
-
+    fun garage(garageStore: GarageStore?): Garage?
 }

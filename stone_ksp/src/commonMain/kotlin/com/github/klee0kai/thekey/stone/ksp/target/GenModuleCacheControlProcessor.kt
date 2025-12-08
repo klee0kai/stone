@@ -95,12 +95,7 @@ class GenModuleCacheControlProcessor : TargetFileProcessor {
                         }
                         genFun(function.cacheControlMethodName) {
                             modifiers.add(KModifier.ABSTRACT)
-                            returns(
-                                returnType = function.returnType!!
-                                    .resolve()
-                                    .toClassName()
-                                    .copy(nullable = true)
-                            )
+                            returns(returnType = function.returnType!!.resolve().toTypeName().copy(nullable = true))
                             addParameter("__action", CacheAction::class)
                             idArguments.forEach {
                                 addParameter(it.name!!.asString(), it.type.resolve().toTypeName())

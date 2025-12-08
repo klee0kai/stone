@@ -1,27 +1,24 @@
-package com.github.klee0kai.test.di.bindinstance.simple;
+package com.github.klee0kai.test.di.bindinstance.simple
 
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.test.mowgli.galaxy.*
 
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.test.mowgli.galaxy.*;
 
 @Module
-public interface SunSystemModule {
+interface SunSystemModule {
+    @BindInstance
+    fun sun(): Sun?
 
     @BindInstance
-    Sun sun();
+    fun star(): IStar?
 
     @BindInstance
-    IStar star();
+    fun planet(): IPlanet?
 
     @BindInstance
-    IPlanet planet();
+    fun earth(): Earth?
 
     @BindInstance
-    Earth earth();
-
-    @BindInstance
-    Saturn saturn();
-
-
+    fun saturn(): Saturn?
 }

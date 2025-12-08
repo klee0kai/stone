@@ -1,4 +1,3 @@
-package com.github.klee0kai.test.mowgli.earth;
+package com.github.klee0kai.test.mowgli.earth
 
-public interface IRiver {
-}
+interface IRiver 

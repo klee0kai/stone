@@ -1,61 +1,58 @@
-package com.github.klee0kai.test.di.gcforest;
+package com.github.klee0kai.test.di.gcforest
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.di.gcforest.scopes.GcMountainScope;
-import com.github.klee0kai.test.di.gcforest.scopes.GcRiverScope;
-import com.github.klee0kai.test.mowgli.earth.Mountain;
-import com.github.klee0kai.test.mowgli.earth.River;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.di.gcforest.scopes.GcMountainScope
+import com.github.klee0kai.test.di.gcforest.scopes.GcRiverScope
+import com.github.klee0kai.test.mowgli.earth.Mountain
+import com.github.klee0kai.test.mowgli.earth.River
 
 @Module
-public abstract class GcEarthModule {
-
+abstract class GcEarthModule {
     @GcMountainScope
     @Provide(cache = Provide.CacheType.Strong)
-    abstract public Mountain mountainStrong();
+    abstract fun mountainStrong(): Mountain?
 
     @GcMountainScope
     @Provide(cache = Provide.CacheType.Soft)
-    abstract public Mountain mountainSoft();
+    abstract fun mountainSoft(): Mountain?
 
     @GcMountainScope
     @Provide(cache = Provide.CacheType.Weak)
-    abstract public Mountain mountainWeak();
+    abstract fun mountainWeak(): Mountain?
 
     @GcMountainScope
     @Provide(cache = Provide.CacheType.Factory)
-    public Mountain mountainFactory() {
-        return new Mountain();
+    open fun mountainFactory(): Mountain? {
+        return Mountain()
     }
 
     @GcMountainScope
     @Provide
-    abstract public Mountain mountainDefaultFactory();
+    abstract fun mountainDefaultFactory(): Mountain?
 
     @GcMountainScope
-    abstract public Mountain mountainDefault2Factory();
+    abstract fun mountainDefault2Factory(): Mountain?
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Strong)
-    abstract public River riverStrong();
+    abstract fun riverStrong(): River?
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Soft)
-    abstract public River riverSoft();
+    abstract fun riverSoft(): River?
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Weak)
-    abstract public River riverWeak();
+    abstract fun riverWeak(): River?
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Factory)
-    abstract public River riverFactory();
+    abstract fun riverFactory(): River?
 
     @GcRiverScope
     @Provide
-    public River riverDefaultSoft() {
-        return new River();
+    open fun riverDefaultSoft(): River? {
+        return River()
     }
-
-
 }

@@ -1,15 +1,16 @@
-package com.github.klee0kai.test.house.kitchen.storagearea;
+package com.github.klee0kai.test.house.kitchen.storagearea
 
-import java.util.UUID;
+import java.util.*
 
-public class Sanitizers {
+class Sanitizers {
+    @JvmField
+    var uuid: UUID = UUID.randomUUID()
 
-    public static int createCount = 0;
-
-    public UUID uuid = UUID.randomUUID();
-
-    public Sanitizers() {
-        createCount++;
+    init {
+        createCount++
     }
 
+    companion object {
+        var createCount: Int = 0
+    }
 }
