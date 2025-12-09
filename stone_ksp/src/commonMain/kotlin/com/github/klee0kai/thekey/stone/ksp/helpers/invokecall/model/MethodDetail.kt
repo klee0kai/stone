@@ -11,6 +11,7 @@ data class MethodDetail(
     val returnType: TypeName,
     val args: List<FieldDetail> = emptyList(),
     val qualifierAnns: Set<QualifierAnn> = emptySet(),
+    val isProperty: Boolean = false,
 ) {
     companion object;
 }

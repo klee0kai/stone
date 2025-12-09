@@ -6,7 +6,6 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.MethodDetai
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.QualifierAnn
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
@@ -114,7 +113,11 @@ class InvokeCall(
             }
 
             if (invokeCount++ > 0) invokeBuilder.add(".")
-            invokeBuilder.add("%L(%L)", m.methodName, argsCodeBuilder.build())
+            if (m.isProperty) {
+                invokeBuilder.add("%L", m.methodName)
+            } else {
+                invokeBuilder.add("%L(%L)", m.methodName, argsCodeBuilder.build())
+            }
         }
 
         return invokeBuilder.build()

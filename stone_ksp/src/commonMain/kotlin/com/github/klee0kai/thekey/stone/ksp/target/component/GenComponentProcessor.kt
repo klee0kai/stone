@@ -292,7 +292,7 @@ class GenComponentProcessor : TargetFileProcessor {
                     }
 
                     addStatement(
-                        "%L.%L = %L",
+                        "%L?.%L = %L",
                         injectableField.name!!.asString(),
                         injectField.simpleName.asString(),
                         provideCode,

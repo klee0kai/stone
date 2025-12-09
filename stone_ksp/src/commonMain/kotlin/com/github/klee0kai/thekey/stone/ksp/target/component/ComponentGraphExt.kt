@@ -24,12 +24,6 @@ fun KSClassDeclaration.collectComponentGraph(
         wrapHelper = collectWrapHelper(),
         identifierTypes = allIdentifierTypes.toList(),
     )
-    for (m in getAllMethods(false, false, "<init>")) {
-        if (m.isModuleProvideMethod) {
-            modulesGraph.collectFromModule(m)
-        } else if (m.isDepsProvideMethod) {
-            modulesGraph.collectFromModule(m)
-        }
-    }
+    modulesGraph.collectFromComponent(this)
     return modulesGraph
 }

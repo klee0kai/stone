@@ -7,25 +7,22 @@ import com.github.klee0kai.stone.__hidden__.provide.ProvideBuilder
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Provide
 import com.github.klee0kai.stone.weakref.Ref
-import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
-import com.github.klee0kai.thekey.stone.ksp.exceptions.ObjectNotProvidedException
-import com.github.klee0kai.thekey.stone.ksp.exceptions.RecursiveProviding
-import com.github.klee0kai.thekey.stone.ksp.exceptions.StoneException
+import com.github.klee0kai.thekey.stone.ksp.exceptions.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.cacheControlMethodName
+import com.github.klee0kai.thekey.stone.ksp.helpers.hiddenModuleStoneClName
 import com.github.klee0kai.thekey.stone.ksp.helpers.identifierParameters
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.qualifierAnnotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
+import com.github.klee0kai.thekey.stone.ksp.target.component.*
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName.genLocalFieldName
 import com.github.klee0kai.thekey.stone.ksp.utils.RecursiveDetector
 import com.github.klee0kai.thekey.stone.ksp.utils.removeDoubles
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -43,56 +40,112 @@ class ModulesGraph(
     private val provideTypeCodes = HashMap<TypeName, HashSet<InvokeCall>>()
     private val cacheControlTypeCodes = HashMap<TypeName, HashSet<InvokeCall>>()
 
-    /**
-     * Methods graph build.
-     *
-     * @param provideModuleMethod module's provide method
-     * @param module              module's class
-     */
-    fun collectFromModule(
-        provideModuleMethod: KSFunctionDeclaration?,
+
+    fun collectFromComponent(
+        componentCl: KSClassDeclaration,
     ) {
-        val module = provideModuleMethod?.returnType?.resolve()?.declaration as? KSClassDeclaration ?: return
-        for (m in module.getAllMethods(false, true, "<init>")) {
-            if (m.returnType?.resolve()?.isNotPrimitive == false) continue
-            val returnType = m.returnType?.resolve()?.toTypeName() ?: continue
-            val provTypeName = wrapHelper.nonWrappedType(returnType)
-            val isCached = m.getAnnotationsByType(Provide::class)
-                .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)
-            val isBindInstance = m.getAnnotationsByType(BindInstance::class).firstOrNull() != null
+        val componentsAllMethods = componentCl
+            .getAllMethods(includeObjectMethods = false, allowDoubles = false, "<init>")
+        val hiddenModuleProvideMethod = MethodDetail(
+            methodName = GenComponentProcessor.hiddenModuleFieldName,
+            returnType = componentCl.hiddenModuleStoneClName,
+            isProperty = true,
+        )
 
-            provideTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
-            provideTypeCodes[provTypeName]?.add(
-                InvokeCall.fromSequence(
-                    wrapHelper = wrapHelper,
-                    callSequence = listOf(provideModuleMethod.toMethodDetail(), m.toMethodDetail()),
-                    flags = InvokeProvideFlags(
-                        provideObjectCached = isCached,
-                        provideBindInstance = isBindInstance,
-                    ),
-                )
-            )
+        componentsAllMethods.forEachFun { _, componentMethod ->
+            when {
+                componentMethod.isModuleProvideMethod || componentMethod.isDepsProvideMethod -> {
+                    val module =
+                        componentMethod.returnType?.resolve()?.declaration as? KSClassDeclaration ?: return@forEachFun
+                    for (m in module.getAllMethods(false, true, "<init>")) {
+                        if (m.returnType?.resolve()?.isNotPrimitive == false) continue
 
-            val cacheControlMethod = MethodDetail(
-                methodName = m.cacheControlMethodName,
-                returnType = wrapHelper.listWrapTypeIfNeed(returnType),
-                qualifierAnns = m.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
-                args = buildList {
-                    add(FieldDetail.simple("__action", CacheAction::class.asClassName()))
-                    addAll(m.parameters.identifierParameters(identifierTypes).map { it.toFieldDetail() })
-                },
-            )
+                        val returnType = m.returnType?.resolve()?.toTypeName() ?: continue
+                        val provTypeName = wrapHelper.nonWrappedType(returnType)
+                        val isCached = m.getAnnotationsByType(Provide::class)
+                            .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)
+                        val isBindInstance = m.getAnnotationsByType(BindInstance::class).firstOrNull() != null
 
-            cacheControlTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
-            cacheControlTypeCodes.get(provTypeName)
-                ?.add(
-                    InvokeCall.fromSequence(
-                        wrapHelper = wrapHelper,
-                        callSequence = listOf(provideModuleMethod.toMethodDetail(), cacheControlMethod)
+                        provideTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
+                        provideTypeCodes[provTypeName]?.add(
+                            InvokeCall.fromSequence(
+                                wrapHelper = wrapHelper,
+                                callSequence = listOf(componentMethod.toMethodDetail(), m.toMethodDetail()),
+                                flags = InvokeProvideFlags(
+                                    provideObjectCached = isCached,
+                                    provideBindInstance = isBindInstance,
+                                ),
+                            )
+                        )
+
+                        val cacheControlMethod = MethodDetail(
+                            methodName = m.cacheControlMethodName,
+                            returnType = wrapHelper.listWrapTypeIfNeed(returnType),
+                            qualifierAnns = m.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
+                            args = buildList {
+                                add(FieldDetail.simple("__action", CacheAction::class.asClassName()))
+                                addAll(m.parameters.identifierParameters(identifierTypes).map { it.toFieldDetail() })
+                            },
+                        )
+
+                        cacheControlTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
+                        cacheControlTypeCodes.get(provTypeName)
+                            ?.add(
+                                InvokeCall.fromSequence(
+                                    wrapHelper = wrapHelper,
+                                    callSequence = listOf(componentMethod.toMethodDetail(), cacheControlMethod)
+                                )
+                            )
+                    }
+
+                }
+
+                componentMethod.isBindInstanceMethod == BindInstanceType.BindInstanceAndProvide -> {
+                    val returnType = componentMethod.returnType?.resolve()?.toTypeName() ?: return@forEachFun
+                    val provTypeName = wrapHelper.nonWrappedType(returnType)
+                    val isCached = componentMethod.getAnnotationsByType(Provide::class)
+                        .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)
+                    val isBindInstance = componentMethod.getAnnotationsByType(BindInstance::class).firstOrNull() != null
+
+                    provideTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
+                    provideTypeCodes[provTypeName]?.add(
+                        InvokeCall.fromSequence(
+                            wrapHelper = wrapHelper,
+                            callSequence = listOf(hiddenModuleProvideMethod, componentMethod.toMethodDetail()),
+                            flags = InvokeProvideFlags(
+                                provideObjectCached = isCached,
+                                provideBindInstance = isBindInstance,
+                            ),
+                        )
                     )
-                )
+
+                    val cacheControlMethod = MethodDetail(
+                        methodName = componentMethod.cacheControlMethodName,
+                        returnType = wrapHelper.listWrapTypeIfNeed(returnType),
+                        qualifierAnns = componentMethod.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
+                        args = buildList {
+                            add(FieldDetail.simple("__action", CacheAction::class.asClassName()))
+                            addAll(
+                                componentMethod.parameters.identifierParameters(identifierTypes)
+                                    .map { it.toFieldDetail() })
+                        },
+                    )
+
+                    cacheControlTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
+                    cacheControlTypeCodes[provTypeName]
+                        ?.add(
+                            InvokeCall.fromSequence(
+                                wrapHelper = wrapHelper,
+                                callSequence = listOf(componentMethod.toMethodDetail(), cacheControlMethod)
+                            )
+                        )
+                }
+            }
         }
+
+
     }
+
 
     fun codeProvideType(
         methodName: String?,
