@@ -151,7 +151,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                 }
 
                 genIModelMethods(
-                    genHiddenModuleCl = genHiddenModuleCl,
+                    componentCl = componentCl,
                     codeBlocks = codeBlocks,
                 )
             }
@@ -172,7 +172,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         wrapHelper: WrapHelper,
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
-        val setValueArg = function.parameters.firstOrNull { it.type.resolve() == returnType }
+        val setValueArg = function.parameters.firstOrNull { it.type.resolve().toTypeName() == returnType }
 
         genOverrideFun(function) {
             addStatement(
@@ -209,7 +209,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                 wrapHelper.transform(
                     wrapHelper.listWrapTypeIfNeed(returnType),
                     returnType,
-                    CodeBlock.of("cached"),
+                    itemHolderCodeHelper.codeGetCachedValue(),
                 )
             )
             addStatement(" as %T", returnType)
@@ -265,7 +265,8 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
     }
 
     private fun TypeSpec.Builder.genIModelMethods(
-        genHiddenModuleCl: ClassName,
+        componentCl: KSClassDeclaration,
+
         codeBlocks: DelayedCodeBlocks,
     ) {
         genProperty(
@@ -277,7 +278,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         }
 
         val cacheControlHolder = SingleItemHolder::class.asClassName()
-            .parameterizedBy(genHiddenModuleCl.cacheControlStoneClName)
+            .parameterizedBy(componentCl.hiddenModuleStoneClName.cacheControlStoneClName)
         genProperty(
             name = overridedModuleFieldName,
             type = cacheControlHolder,
@@ -296,11 +297,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             addStatement("return %L", appliedLocalFieldName)
         }
 
-        genFun(initCachesFromMethodName) {
-            addModifiers(KModifier.OVERRIDE)
-            addParameter("m", IModule::class)
-            addStatement("if (m == this) return")
-        }
+
 
         genFun(bindMethodName) {
             addModifiers(KModifier.OVERRIDE)
@@ -335,10 +332,60 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             }
         }
 
+        genFun(initCachesFromMethodName) {
+            addModifiers(KModifier.OVERRIDE)
+            addParameter("m", IModule::class)
+            addStatement("if (m == this) return")
+
+            val cacheControlCl = componentCl.hiddenModuleStoneClName.cacheControlStoneClName
+            beginControlFlow("if ( m is %T )", cacheControlCl)
+            addStatement("val module = m as %T", cacheControlCl)
+            componentCl.getAllMethods(
+                includeObjectMethods = false,
+                allowDoubles = false,
+                exceptNames = arrayOf("<init>"),
+            ).forEach { protoProvideMethod ->
+                if (protoProvideMethod.isBindInstanceMethod != BindInstanceType.BindInstanceAndProvide) {
+                    return@forEach
+                }
+
+                val cacheControlMethod = protoProvideMethod.cacheControlMethodName
+
+                addStatement(
+                    "%L( %T.setIfNullValueAction( module.%L( %T.getValueAction ) ) )",
+                    cacheControlMethod, CacheAction::class,
+                    cacheControlMethod, CacheAction::class,
+                )
+            }
+            endControlFlow()
+        }
+
         genFun(updateBindInstancesFrom) {
             addModifiers(KModifier.OVERRIDE)
             addParameter("m", IModule::class)
             addStatement("if (m == this) return")
+
+            val cacheControlCl = componentCl.hiddenModuleStoneClName.cacheControlStoneClName
+            beginControlFlow("if ( m is %T )", cacheControlCl)
+            addStatement("val module = m as %T", cacheControlCl)
+            componentCl.getAllMethods(
+                includeObjectMethods = false,
+                allowDoubles = false,
+                exceptNames = arrayOf("<init>"),
+            ).forEach { protoProvideMethod ->
+                if (protoProvideMethod.isBindInstanceMethod != BindInstanceType.BindInstanceAndProvide) {
+                    return@forEach
+                }
+
+                val cacheControlMethod = protoProvideMethod.cacheControlMethodName
+
+                addStatement(
+                    "%L( %T.setValueAction( module.%L( %T.getValueAction ) ) )",
+                    cacheControlMethod, CacheAction::class,
+                    cacheControlMethod, CacheAction::class,
+                );
+            }
+            endControlFlow()
         }
 
         genFun(clearNullsMethodName) {

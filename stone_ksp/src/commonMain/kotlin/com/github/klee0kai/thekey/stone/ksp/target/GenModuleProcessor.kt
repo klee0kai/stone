@@ -15,6 +15,7 @@ import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.annotations
+import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.anyAnnotation
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.ItemHolderCodeHelper
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.of
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.toItemCacheType
@@ -249,7 +250,7 @@ class GenModuleProcessor : TargetFileProcessor {
         wrapHelper: WrapHelper,
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
-        val setValueArg = function.parameters.firstOrNull { it.type.resolve() == returnType }
+        val setValueArg = function.parameters.firstOrNull { it.type.resolve().toTypeName() == returnType }
 
         genOverrideFun(function) {
             addStatement(
@@ -286,7 +287,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 wrapHelper.transform(
                     wrapHelper.listWrapTypeIfNeed(returnType),
                     returnType,
-                    CodeBlock.of("cached"),
+                    itemHolderCodeHelper.codeGetCachedValue(),
                 )
             )
             addStatement(" as %T", returnType)
@@ -461,40 +462,7 @@ class GenModuleProcessor : TargetFileProcessor {
             addStatement("return %L", appliedLocalFieldName)
         }
 
-        genFun(initCachesFromMethodName) {
-            addModifiers(KModifier.OVERRIDE)
-            addParameter("m", IModule::class)
-            addStatement("if (m == this) return")
-            (sequenceOf(moduleCl) + moduleCl.getAllSuperTypes().map { it.declaration })
-                .filter { it.annotations(Module::class.asClassName()).any() }
-                .mapNotNull { it as? KSClassDeclaration }
-                .forEach { cl ->
-                    val cacheControlCl = cl.toClassName().cacheControlStoneClName
-                    beginControlFlow("if ( m is %T )", cacheControlCl)
-                    addStatement("val module = m as %T", cacheControlCl)
 
-                    cl.getAllMethods(
-                        includeObjectMethods = false,
-                        allowDoubles = false,
-                        exceptNames = arrayOf("<init>"),
-                    ).forEach { protoProvideMethod ->
-                        val cacheControlMethod = protoProvideMethod.cacheControlMethodName
-                        val idArguments = protoProvideMethod.parameters
-                            .filter { it.type.resolve() in identifierTypes }
-                        if (!idArguments.isEmpty()) {
-                            // TODO https://github.com/klee0kai/stone/issues/42
-                            return@forEach
-                        }
-
-                        addStatement(
-                            "%L( %T.setIfNullValueAction( module.%L( %T.getValueAction ) ) )",
-                            cacheControlMethod, CacheAction::class,
-                            cacheControlMethod, CacheAction::class,
-                        );
-                    }
-                    endControlFlow()
-                }
-        }
 
         genFun(bindMethodName) {
             addModifiers(KModifier.OVERRIDE)
@@ -531,10 +499,81 @@ class GenModuleProcessor : TargetFileProcessor {
             }
         }
 
+
+        genFun(initCachesFromMethodName) {
+            addModifiers(KModifier.OVERRIDE)
+            addParameter("m", IModule::class)
+            addStatement("if (m == this) return")
+            (sequenceOf(moduleCl) + moduleCl.getAllSuperTypes().map { it.declaration })
+                .filter { it.annotations(Module::class.asClassName()).any() }
+                .mapNotNull { it as? KSClassDeclaration }
+                .forEach { cl ->
+                    val cacheControlCl = cl.toClassName().cacheControlStoneClName
+                    beginControlFlow("if ( m is %T )", cacheControlCl)
+                    addStatement("val module = m as %T", cacheControlCl)
+
+                    cl.getAllMethods(
+                        includeObjectMethods = false,
+                        allowDoubles = false,
+                        exceptNames = arrayOf("<init>"),
+                    ).forEach { protoProvideMethod ->
+                        val cacheControlMethod = protoProvideMethod.cacheControlMethodName
+                        val idArguments = protoProvideMethod.parameters
+                            .filter { it.type.resolve() in identifierTypes }
+                        if (!idArguments.isEmpty()) {
+                            // TODO https://github.com/klee0kai/stone/issues/42
+                            return@forEach
+                        }
+
+                        addStatement(
+                            "%L( %T.setIfNullValueAction( module.%L( %T.getValueAction ) ) )",
+                            cacheControlMethod, CacheAction::class,
+                            cacheControlMethod, CacheAction::class,
+                        );
+                    }
+                    endControlFlow()
+                }
+        }
+
         genFun(updateBindInstancesFrom) {
             addModifiers(KModifier.OVERRIDE)
             addParameter("m", IModule::class)
             addStatement("if (m == this) return")
+            moduleCl.getAllSuperTypes()
+
+            (sequenceOf(moduleCl) + moduleCl.getAllSuperTypes().map { it.declaration })
+                .filter { it.annotations(Module::class.asClassName()).any() }
+                .mapNotNull { it as? KSClassDeclaration }
+                .forEach { cl ->
+                    val cacheControlCl = cl.toClassName().cacheControlStoneClName
+                    beginControlFlow("if ( m is %T )", cacheControlCl)
+                    addStatement("val module = m as %T", cacheControlCl)
+
+                    cl.getAllMethods(
+                        includeObjectMethods = false,
+                        allowDoubles = false,
+                        exceptNames = arrayOf("<init>"),
+                    ).forEach { protoProvideMethod ->
+                        if (protoProvideMethod.anyAnnotation(BindInstance::class.asClassName()).none()) {
+                            return@forEach
+                        }
+
+                        val cacheControlMethod = protoProvideMethod.cacheControlMethodName
+                        val idArguments = protoProvideMethod.parameters
+                            .filter { it.type.resolve() in identifierTypes }
+                        if (!idArguments.isEmpty()) {
+                            // TODO https://github.com/klee0kai/stone/issues/42
+                            return@forEach
+                        }
+
+                        addStatement(
+                            "%L( %T.setValueAction( module.%L( %T.getValueAction ) ) )",
+                            cacheControlMethod, CacheAction::class,
+                            cacheControlMethod, CacheAction::class,
+                        );
+                    }
+                    endControlFlow()
+                }
         }
 
         genFun(clearNullsMethodName) {
