@@ -12,6 +12,7 @@ import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
 import com.github.klee0kai.stone.weakref.Ref
+import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.annotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.ItemHolderCodeHelper
@@ -101,7 +102,7 @@ class GenModuleProcessor : TargetFileProcessor {
 
         val genModuleClassName = moduleCl.moduleStoneClName
 
-        val wrapperHelper = WrapHelper()
+        val wrapHelper = WrapHelper()
 
         val fileSpec = genFileSpec(genModuleClassName.packageName, genModuleClassName.simpleName) {
             genLibComment()
@@ -113,19 +114,19 @@ class GenModuleProcessor : TargetFileProcessor {
                     superclass(moduleCl.toClassName())
                 }
                 addSuperinterface(IModule::class)
-                addSuperinterface(moduleCl.cacheControlStoneClName)
+                addSuperinterface(moduleCl.toClassName().cacheControlStoneClName)
                 addModifiers(KModifier.OPEN)
                 val codeBlocks = DelayedCodeBlocks()
 
                 validSymbol.getAllMethods(false, false, "<init>")
-                    .forEachIndexed { funIdx, function ->
+                    .forEachFun { funIdx, function ->
                         val bindAnn = function.getAnnotationsByType(BindInstance::class).firstOrNull()
                         val provideAnn = function.getAnnotationsByType(Provide::class).firstOrNull()
                         val idArguments = function.parameters.identifierParameters(identifierTypes)
 
-                        val returnType = function.returnType?.resolve() ?: return@forEachIndexed
-                        val nonWrappedType = returnType.noWrappedType(wrapperTypes)
-                        val isListReturnType = nonWrappedType.isListType()
+                        val returnType = function.returnType?.resolve()?.toTypeName() ?: return@forEachFun
+                        val nonWrappedType = wrapHelper.nonWrappedType(returnType)
+                        val isListReturnType = wrapHelper.isList(returnType)
                         val gcScopes = (function.scopeAnnotations
                             .map { it.annotationType.resolve().toTypeName() }
                             .toSet() + GcAllScope::class.asClassName()).toMutableSet()
@@ -138,6 +139,7 @@ class GenModuleProcessor : TargetFileProcessor {
                                     returnType = returnType,
                                     idArguments = idArguments,
                                     cacheType = bindAnn.cache.toItemCacheType(),
+                                    wrapHelper = wrapHelper,
                                 )
                                 gcScopes += bindAnn.cache.toItemCacheType().gcScopeClassName
                                 codeBlocks.switchRefStatementBuilders.getOrPut(gcScopes) { CodeBlock.builder() }
@@ -151,8 +153,8 @@ class GenModuleProcessor : TargetFileProcessor {
                                     codeBlocks.bindMethodBody.apply {
                                         add(
                                             "if (or is %T && or::class == %T::class) {\n",
-                                            nonWrappedType.toTypeName().copy(nullable = false),
-                                            nonWrappedType.toTypeName().copy(nullable = false),
+                                            nonWrappedType,
+                                            nonWrappedType,
                                         )
                                         add(codeSetCachedValue(CodeBlock.of("or"), false))
                                         add("\n")
@@ -165,7 +167,7 @@ class GenModuleProcessor : TargetFileProcessor {
                                     function = function,
                                     idArguments = idArguments,
                                     itemHolderCodeHelper = itemHolderCodeHelper,
-                                    wrapHelper = wrapperHelper,
+                                    wrapHelper = wrapHelper,
                                 )
                                 genCacheControlFun(
                                     function = function,
@@ -197,7 +199,8 @@ class GenModuleProcessor : TargetFileProcessor {
                                     fieldName = "${function.simpleName.asString()}$funIdx",
                                     returnType = returnType,
                                     idArguments = idArguments,
-                                    cacheType = provideAnn.cache.toItemCacheType() ?: return@forEachIndexed,
+                                    cacheType = provideAnn.cache.toItemCacheType() ?: return@forEachFun,
+                                    wrapHelper = wrapHelper,
                                 )
                                 gcScopes += provideAnn.cache.toItemCacheType()!!.gcScopeClassName
                                 codeBlocks.switchRefStatementBuilders.getOrPut(gcScopes) { CodeBlock.builder() }
@@ -210,7 +213,7 @@ class GenModuleProcessor : TargetFileProcessor {
                                     function = function,
                                     idArguments = idArguments,
                                     itemHolderCodeHelper = itemHolderCodeHelper,
-                                    wrapHelper = wrapperHelper,
+                                    wrapHelper = wrapHelper,
                                 )
                                 genCacheControlFun(
                                     function = function,
@@ -411,7 +414,7 @@ class GenModuleProcessor : TargetFileProcessor {
         }
 
         val cacheControlHolder = SingleItemHolder::class.asClassName()
-            .parameterizedBy(moduleCl.cacheControlStoneClName)
+            .parameterizedBy(moduleCl.toClassName().cacheControlStoneClName)
         genProperty(
             name = overridedModuleFieldName,
             type = cacheControlHolder,
@@ -430,7 +433,7 @@ class GenModuleProcessor : TargetFileProcessor {
             // check module class
             beginControlFlow(
                 "if ( (or is %T) ) ",
-                moduleCl.cacheControlStoneClName,
+                moduleCl.toClassName().cacheControlStoneClName,
             )
             addStatement(
                 "%L.set(onlyIfNull = false) { or }",
@@ -466,7 +469,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 .filter { it.annotations(Module::class.asClassName()).any() }
                 .mapNotNull { it as? KSClassDeclaration }
                 .forEach { cl ->
-                    val cacheControlCl = cl.cacheControlStoneClName
+                    val cacheControlCl = cl.toClassName().cacheControlStoneClName
                     beginControlFlow("if ( m is %T )", cacheControlCl)
                     addStatement("val module = m as %T", cacheControlCl)
 

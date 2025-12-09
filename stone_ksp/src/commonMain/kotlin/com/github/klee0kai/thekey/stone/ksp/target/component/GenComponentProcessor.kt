@@ -11,6 +11,7 @@ import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.weakref.Inject
 import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
 import com.github.klee0kai.thekey.stone.ksp.exceptions.ObjectNotProvidedException
+import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.anyAnnotation
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.ModulesGraph
@@ -111,7 +112,7 @@ class GenComponentProcessor : TargetFileProcessor {
                 val componentsAllMethods = componentCl
                     .getAllMethods(includeObjectMethods = false, allowDoubles = false, "<init>")
 
-                componentsAllMethods.forEach { m ->
+                componentsAllMethods.forEachFun { _, m ->
                     when {
                         m.isModuleProvideMethod -> {
                             val moduleCl = m.returnType?.resolve()?.declaration as? KSClassDeclaration
@@ -408,7 +409,7 @@ class GenComponentProcessor : TargetFileProcessor {
         ) {
             addModifiers(KModifier.PRIVATE)
             mutable(true)
-            initializer("%T(%M())", CoroutineScope::class.asClassName(),SupervisorJob)
+            initializer("%T(%M())", CoroutineScope::class.asClassName(), SupervisorJob)
         }
 
         genProperty(

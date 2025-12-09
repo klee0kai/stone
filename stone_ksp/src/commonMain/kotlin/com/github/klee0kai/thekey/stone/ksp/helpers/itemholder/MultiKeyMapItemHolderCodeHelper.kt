@@ -5,20 +5,14 @@ import com.github.klee0kai.stone.__hidden__.types.holders.MapItemHolder
 import com.github.klee0kai.stone.__hidden__.types.holders.StoneRefType
 import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.github.klee0kai.thekey.stone.ksp.poet.genProperty
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
-import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.toClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
 
 class MultiKeyMapItemHolderCodeHelper(
     val fieldName: String,
-    val returnType: KSType,
-    val nonWrappedReturnType: KSType,
+    val returnType: TypeName,
+    val nonWrappedReturnType: TypeName,
     val itemCacheType: ItemCacheType,
     val isListCaching: Boolean,
     val defRefType: StoneRefType,
@@ -29,7 +23,7 @@ class MultiKeyMapItemHolderCodeHelper(
         val cacheType = MapItemHolder::class.asClassName()
             .parameterizedBy(
                 MultiKey::class.asClassName(),
-                nonWrappedReturnType.toTypeName(),
+                nonWrappedReturnType,
             )
 
         genProperty(fieldName, cacheType) {

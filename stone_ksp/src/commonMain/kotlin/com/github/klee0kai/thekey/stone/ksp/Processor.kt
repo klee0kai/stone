@@ -10,6 +10,7 @@ import com.github.klee0kai.thekey.stone.ksp.target.GenModuleCacheControlProcesso
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleFactoryProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.component.GenComponentProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule.GenHiddenModuleCacheControlProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule.GenHiddenModuleProcessor
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -60,8 +61,8 @@ class Processor(
         debugPkgFilter = options["debugPkgFilter"]
 
         // force changes
-//        debug = true
-//        debugPkgFilter = "com.github.klee0kai.test_kotlin.di.base_comp"
+        debug = true
+        debugPkgFilter = "com.github.klee0kai.test.di.bindinstance.singlemethod_inject"
     }
 
 
@@ -71,6 +72,7 @@ class Processor(
         GenModuleCacheControlProcessor(),
         GenModuleProcessor(),
         GenHiddenModuleProcessor(),
+        GenHiddenModuleCacheControlProcessor(),
         GenComponentProcessor(),
     )
 
@@ -102,6 +104,14 @@ class Processor(
                             takeSymbolsCount = max(takeSymbolsCount, 0)
                             totalCount + takeSymbolsCount
                         }
+
+                        if (debug && debugPkgFilter != null) {
+                            symbols = symbols
+                                .filter {
+                                    it.containingFile?.packageName?.asString()?.startsWith(debugPkgFilter!!) ?: true
+                                }
+                        }
+
                         // skip to next run
                         symbols = symbols.nowTakeOnly(takeSymbolsCount)
 
@@ -112,10 +122,7 @@ class Processor(
 
                     symbols = symbols.forceProcess { it in globalSymbolsForProcessing }
 
-                    if (debug && debugPkgFilter != null) {
-                        symbols = symbols
-                            .filter { it.containingFile?.packageName?.asString()?.startsWith(debugPkgFilter!!) ?: true }
-                    }
+
                     globalSymbolsForReprocessing.addAll(symbols.symbolsForReprocessing)
 
                     try {

@@ -12,6 +12,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.scopeAnnotations
 import com.github.klee0kai.thekey.stone.ksp.ksp.isClassReturn
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
 import com.github.klee0kai.thekey.stone.ksp.ksp.isUnit
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -118,11 +119,10 @@ val KSFunctionDeclaration.isModuleInitMethod: Boolean
             val clDeclaration = it.type
                 .resolve()
                 .declaration as? KSClassDeclaration
-                ?:
-                    throw IncorrectSignatureException(
-                        message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
-                        element = this,
-                    )
+                ?: throw IncorrectSignatureException(
+                    message = "${simpleName.asString()} must have only one parameter of Dependency or Module instance",
+                    element = this,
+                )
 
 
             if (!clDeclaration.anyAnnotation(Module::class.asClassName(), Dependencies::class.asClassName()).any()) {
@@ -189,12 +189,6 @@ val KSFunctionDeclaration.isBindInstanceMethod: BindInstanceType?
     get() {
         if (!annotations(BindInstance::class.asClassName()).any()) return null
 
-        if (!hasOnlyAnnotation(BindInstance::class.asClassName())) {
-            throw IncorrectSignatureException(
-                message = "${simpleName.asString()} must have only one annotation ${BindInstance::class.simpleName}",
-                element = this,
-            )
-        }
         if (parameters.size != 1) {
             throw IncorrectSignatureException(
                 message = "${simpleName.asString()} must have only one parameter of binding type",
@@ -202,18 +196,25 @@ val KSFunctionDeclaration.isBindInstanceMethod: BindInstanceType?
             )
         }
         checkMethodNameBusy()
+        val parameterIsNotPrimitive = parameters.first().type.resolveAlias().isNotPrimitive
 
         when {
-            returnType?.resolve()?.isNotPrimitive == true -> {
+            parameterIsNotPrimitive
+                    && returnType?.resolve()?.toTypeName() == parameters.first().type.resolve().toTypeName() -> {
+                return BindInstanceType.BindInstanceAndProvide
+            }
+
+            parameterIsNotPrimitive -> {
                 return BindInstanceType.BindInstance
             }
 
-            returnType?.resolve()?.toTypeName() == parameters.first().type.resolve().toTypeName() -> {
-                return BindInstanceType.BindInstanceAndProvide
-            }
+
         }
 
-        throw IncorrectSignatureException("${simpleName.asString()} has incorrect signature")
+        throw IncorrectSignatureException(
+            message = "${simpleName.asString()} has incorrect signature",
+            element = this,
+        )
     }
 
 val KSFunctionDeclaration.isGcMethod: Boolean
@@ -242,12 +243,6 @@ val KSFunctionDeclaration.isSwitchCacheMethod: Boolean
     get() {
         if (!annotations(SwitchCache::class.asClassName()).any()) return false
 
-        if (!hasOnlyAnnotation(SwitchCache::class.asClassName())) {
-            throw IncorrectSignatureException(
-                message = "${simpleName.asString()} must use only ${SwitchCache::class.simpleName} annotation",
-                element = this,
-            )
-        }
         if (parameters.isNotEmpty()) {
             throw IncorrectSignatureException(
                 message = "${simpleName.asString()} must no have arguments",

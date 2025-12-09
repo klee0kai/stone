@@ -38,10 +38,10 @@ val KSClassDeclaration.moduleStoneClName
     )
 
 
-val KSClassDeclaration.cacheControlStoneClName
+val ClassName.cacheControlStoneClName
     get() = ClassName(
-        packageName.asString(),
-        simpleName.getShortName().cacheControlClName,
+        packageName,
+        simpleName.cacheControlClName,
     )
 
 

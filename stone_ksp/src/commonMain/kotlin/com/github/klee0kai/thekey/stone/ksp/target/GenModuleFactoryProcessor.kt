@@ -5,6 +5,7 @@ package com.github.klee0kai.thekey.stone.ksp.target
 import com.github.klee0kai.stone.__hidden__.IModuleFactory
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
 import com.github.klee0kai.thekey.stone.ksp.helpers.factoryStoneClName
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
@@ -69,10 +70,10 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                 addModifiers(KModifier.OPEN)
 
                 validSymbol.getAllMethods(false, false, "<init>")
-                    .forEach { function ->
-                        if (!function.modifiers.contains(Modifier.ABSTRACT) && moduleCl.classKind != ClassKind.INTERFACE) return@forEach
+                    .forEachFun { _, function ->
+                        if (!function.modifiers.contains(Modifier.ABSTRACT) && moduleCl.classKind != ClassKind.INTERFACE) return@forEachFun
                         val returnCl = function.returnType?.resolve()
-                            ?.declaration as? KSClassDeclaration ?: return@forEach
+                            ?.declaration as? KSClassDeclaration ?: return@forEachFun
                         val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
                             .firstOrNull()
 

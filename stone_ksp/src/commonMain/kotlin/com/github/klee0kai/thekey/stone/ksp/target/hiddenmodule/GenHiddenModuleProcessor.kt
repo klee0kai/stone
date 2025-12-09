@@ -1,13 +1,26 @@
+@file:OptIn(KspExperimental::class)
+
 package com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule
 
+import com.github.klee0kai.stone.__hidden__.CacheAction
 import com.github.klee0kai.stone.__hidden__.IModule
 import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
+import com.github.klee0kai.stone.__hidden__.types.holders.SingleItemHolder
+import com.github.klee0kai.stone.__hidden__.types.holders.StoneRefType
 import com.github.klee0kai.stone.annotations.component.Component
-import com.github.klee0kai.thekey.stone.ksp.helpers.allIdentifierTypes
-import com.github.klee0kai.thekey.stone.ksp.helpers.hiddenModuleStoneClName
+import com.github.klee0kai.stone.annotations.component.GcAllScope
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
+import com.github.klee0kai.thekey.stone.ksp.helpers.*
+import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.ItemHolderCodeHelper
+import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.of
+import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.toItemCacheType
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils.rawTypeOf
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
+import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.appliedLocalFieldName
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.bindMethodName
@@ -15,18 +28,26 @@ import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.factoryFieldName
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.initCachesFromMethodName
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.initMethodName
+import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.overridedModuleFieldName
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.switchRefMethodName
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor.Companion.updateBindInstancesFrom
+import com.github.klee0kai.thekey.stone.ksp.target.component.BindInstanceType
 import com.github.klee0kai.thekey.stone.ksp.target.component.collectComponentGraph
 import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
+import com.github.klee0kai.thekey.stone.ksp.target.component.isBindInstanceMethod
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlin.reflect.KClass
 
 class GenHiddenModuleProcessor : TargetFileProcessor {
@@ -61,15 +82,77 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         val identifierTypes = componentCl.allIdentifierTypes.toList()
         val wrapHelper = componentCl.collectWrapHelper()
         val modulesGraph = componentCl.collectComponentGraph()
-        val delayedCodeBlocks = DelayedCodeBlocks()
+        val codeBlocks = DelayedCodeBlocks()
 
+        val genCacheControlClassName = genHiddenModuleCl.cacheControlStoneClName
         val fileSpec = genFileSpec(genHiddenModuleCl.packageName, genHiddenModuleCl.simpleName) {
             genLibComment()
 
             genClass(genHiddenModuleCl) {
                 addSuperinterface(IModule::class)
+                addSuperinterface(genCacheControlClassName)
+
+                val functions = validSymbol.getAllMethods(false, false, "<init>")
+                functions.forEachFun { funIdx, function ->
+
+                    val bindAnn = function.getAnnotationsByType(BindInstance::class).firstOrNull()
+                    val idArguments = function.parameters.identifierParameters(identifierTypes)
+
+                    val returnType = function.returnType?.resolve()?.toTypeName() ?: return@forEachFun
+                    val nonWrappedType = wrapHelper.nonWrappedType(returnType)
+                    val gcScopes = (function.scopeAnnotations
+                        .map { it.annotationType.resolve().toTypeName() }
+                        .toSet() + GcAllScope::class.asClassName()).toMutableSet()
+
+                    if (bindAnn == null || function.isBindInstanceMethod != BindInstanceType.BindInstanceAndProvide)
+                        return@forEachFun
+
+                    val itemHolderCodeHelper = ItemHolderCodeHelper.of(
+                        fieldName = "${function.simpleName.asString()}$funIdx",
+                        returnType = returnType,
+                        idArguments = idArguments,
+                        cacheType = bindAnn.cache.toItemCacheType(),
+                        wrapHelper = wrapHelper,
+                    )
+                    gcScopes += bindAnn.cache.toItemCacheType().gcScopeClassName
+                    codeBlocks.switchRefStatementBuilders.getOrPut(gcScopes) { CodeBlock.builder() }
+                        .add(itemHolderCodeHelper.statementSwitchRef(CodeBlock.of("__params")))
+
+                    codeBlocks.clearNullsMethodBody.add(itemHolderCodeHelper.clearNullsStatement())
+
+
+                    with(itemHolderCodeHelper) {
+                        genCacheField()
+
+                        codeBlocks.bindMethodBody.apply {
+                            add(
+                                "if (or is %T && or::class == %T::class) {\n",
+                                nonWrappedType,
+                                nonWrappedType,
+                            )
+                            add(codeSetCachedValue(CodeBlock.of("or"), false))
+                            add("\n")
+                            add("%L = true\n", appliedLocalFieldName)
+                            add("}\n")
+                        }
+                    }
+
+                    genBindInstance(
+                        function = function,
+                        idArguments = idArguments,
+                        itemHolderCodeHelper = itemHolderCodeHelper,
+                        wrapHelper = wrapHelper,
+                    )
+                    genCacheControlFun(
+                        function = function,
+                        idArguments = idArguments,
+                        itemHolderCodeHelper = itemHolderCodeHelper,
+                    )
+                }
+
                 genIModelMethods(
-                    codeBlocks = delayedCodeBlocks,
+                    genHiddenModuleCl = genHiddenModuleCl,
+                    codeBlocks = codeBlocks,
                 )
             }
 
@@ -82,7 +165,107 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         )
     }
 
+    private fun TypeSpec.Builder.genBindInstance(
+        function: KSFunctionDeclaration,
+        idArguments: List<KSValueParameter>,
+        itemHolderCodeHelper: ItemHolderCodeHelper,
+        wrapHelper: WrapHelper,
+    ) {
+        val returnType = function.returnType?.resolve()?.toTypeName() ?: return
+        val setValueArg = function.parameters.firstOrNull { it.type.resolve() == returnType }
+
+        genOverrideFun(function) {
+            addStatement(
+                "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
+                overridedModuleFieldName,
+                function.cacheControlMethodName,
+                CacheAction::class.asClassName(),
+                idArguments.joinToString(", ") { it.name!!.asString() },
+            )
+            addCode("if ( cached != null ) return ")
+            addCode(
+                wrapHelper.transform(
+                    providingType = wrapHelper.listWrapTypeIfNeed(returnType),
+                    wannaType = returnType,
+                    code = codeBlock { add("cached") },
+                )
+            )
+            addStatement("")
+
+            if (setValueArg != null) {
+                beginControlFlow("if (%L != null)", setValueArg.name!!.asString())
+                addCode(
+                    itemHolderCodeHelper.codeSetCachedValue(
+                        value = CodeBlock.of("%L", setValueArg.name!!.asString()),
+                        onlyIfNull = false
+                    )
+                )
+                endControlFlow();
+            }
+
+
+            addCode("return ")
+            addCode(
+                wrapHelper.transform(
+                    wrapHelper.listWrapTypeIfNeed(returnType),
+                    returnType,
+                    CodeBlock.of("cached"),
+                )
+            )
+            addStatement(" as %T", returnType)
+        }
+    }
+
+
+    private fun TypeSpec.Builder.genCacheControlFun(
+        function: KSFunctionDeclaration,
+        idArguments: List<KSValueParameter>,
+        itemHolderCodeHelper: ItemHolderCodeHelper,
+    ) {
+        val returnType = function.returnType?.resolve()?.toTypeName() ?: return
+        genFun(function.cacheControlMethodName) {
+            modifiers.add(KModifier.OVERRIDE)
+            returns(returnType.copy(nullable = true))
+            addParameter("__action", CacheAction::class)
+            idArguments.forEach {
+                addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
+            }
+
+            addStatement(
+                "%L.get()?.%L( __action, %L ) ",
+                overridedModuleFieldName,
+                function.cacheControlMethodName,
+                idArguments.joinToString(", ") { it.name!!.asString() },
+            )
+            beginControlFlow("when (__action.type) {")
+            addStatement("%T.GET_VALUE -> Unit", CacheAction.ActionType::class)
+            //set value
+            beginControlFlow("%T.SET_VALUE ->", CacheAction.ActionType::class)
+            addCode("(__action.value as? %T)?.let { ", rawTypeOf(returnType))
+            addCode(codeBlock = itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("it"), onlyIfNull = false))
+            addCode("}")
+            endControlFlow()
+            //set if null value
+            beginControlFlow("%T.SET_IF_NULL ->", CacheAction.ActionType::class)
+            addCode("(__action.value as? %T)?.let { ", rawTypeOf(returnType))
+            addCode(codeBlock = itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("it"), onlyIfNull = true))
+            addCode("}")
+            endControlFlow()
+            // switch cache type
+            beginControlFlow("%T.SWITCH_CACHE ->", CacheAction.ActionType::class)
+            addCode(codeBlock = itemHolderCodeHelper.statementSwitchRef(CodeBlock.of("__action.swCacheParams!!")))
+            endControlFlow()
+
+            addStatement("null -> Unit")
+            endControlFlow()
+
+            addCode("return ")
+            addCode(codeBlock = itemHolderCodeHelper.codeGetCachedValue())
+        }
+    }
+
     private fun TypeSpec.Builder.genIModelMethods(
+        genHiddenModuleCl: ClassName,
         codeBlocks: DelayedCodeBlocks,
     ) {
         genProperty(
@@ -91,6 +274,16 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         ) {
             addModifiers(KModifier.OVERRIDE)
             initializer("null")
+        }
+
+        val cacheControlHolder = SingleItemHolder::class.asClassName()
+            .parameterizedBy(genHiddenModuleCl.cacheControlStoneClName)
+        genProperty(
+            name = overridedModuleFieldName,
+            type = cacheControlHolder,
+        ) {
+            mutable(true)
+            initializer("%T(%T.WeakObject)", cacheControlHolder, StoneRefType::class)
         }
 
         genFun(initMethodName) {
