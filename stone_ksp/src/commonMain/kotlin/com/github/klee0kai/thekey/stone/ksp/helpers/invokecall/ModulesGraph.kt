@@ -213,7 +213,7 @@ class ModulesGraph(
 
             if (isSingleDepRequired) {
                 if (isCacheProvide) {
-                    codeBlock.add("val %L : %T = ", singleDepField.name, inv.resultType())
+                    codeBlock.add("val %L = ", singleDepField.name)
                         .add(
                             wrapHelper.transform(
                                 inv.best().rawReturnType(),
@@ -227,11 +227,9 @@ class ModulesGraph(
                     localVariables.add(singleDepField)
                 } else {
                     singleDepField = singleDepField
-                        .copy(
-                            type = Ref::class.asClassName().parameterizedBy(inv.resultType()),
-                        )
+                        .copy(type = Ref::class.asClassName().parameterizedBy(inv.resultType()))
 
-                    codeBlock.add("val %L: %T = { ", singleDepField.name, singleDepField.type)
+                    codeBlock.add("val %L = %T{ ", singleDepField.name, Ref::class)
                         .add(
                             wrapHelper.transform(
                                 inv.best().rawReturnType(),
@@ -246,7 +244,7 @@ class ModulesGraph(
             }
 
             if (isListDepRequired) {
-                codeBlock.add("val %L : %T = { ", listDepField.name, listDepField.type)
+                codeBlock.add("val %L = %T{ ", listDepField.name, listDepField.type)
                     .add(inv.invokeAllToList(localVariables))
                     .addStatement(" } ")
 
@@ -254,7 +252,7 @@ class ModulesGraph(
             }
 
 
-            if (inv.resultType() == providingType) {
+            if (inv.resultType().copy(nullable = false) == providingType.copy(nullable = false)) {
                 if (wrapHelper.isList(returnType)) {
                     codeBlock.add(
                         "%L.addAll( %L )\n",
@@ -267,7 +265,7 @@ class ModulesGraph(
                     )
                 } else {
                     codeBlock.add(
-                        "%L.add( %L );\n",
+                        "%L.add( %L )\n",
                         listFieldName,
                         wrapHelper.transform(
                             singleDepField.type,
@@ -280,7 +278,7 @@ class ModulesGraph(
             }
         }
 
-        codeBlock.add("\n  })")
+        codeBlock.add(" }")
         if (wrapHelper.isList(returnType)) {
             codeBlock.add(".all() ")
 

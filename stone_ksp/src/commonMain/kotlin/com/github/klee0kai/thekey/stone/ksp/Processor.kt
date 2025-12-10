@@ -2,6 +2,7 @@ package com.github.klee0kai.thekey.stone.ksp
 
 import com.github.klee0kai.thekey.stone.ksp.coroutines.LaunchConductor
 import com.github.klee0kai.thekey.stone.ksp.exceptions.StoneException
+import com.github.klee0kai.thekey.stone.ksp.exceptions.wrapKsNoteInfo
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.filter
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
@@ -61,8 +62,8 @@ class Processor(
         debugPkgFilter = options["debugPkgFilter"]
 
         // force changes
-        debug = true
-        debugPkgFilter = "com.github.klee0kai.test.di.bindinstance.singlemethod_inject"
+//        debug = true
+//        debugPkgFilter = "com.github.klee0kai.test.di.house.simple"
     }
 
 
@@ -150,13 +151,18 @@ class Processor(
         // with symbol resolution so that the processor can link the input and output of generation
         generateCodeJob.join()
 
-        genSpecs.forEach { genSpec ->
-            genSpec?.fileSpec?.writeTo(
-                codeGenerator = codeGenerator,
-                dependencies = genSpec.dependencies
-            )
+        try {
+            genSpecs.forEach { genSpec ->
+                wrapKsNoteInfo(genSpec.dependencies.originatingFiles.firstOrNull()) {
+                    genSpec?.fileSpec?.writeTo(
+                        codeGenerator = codeGenerator,
+                        dependencies = genSpec.dependencies
+                    )
+                }
+            }
+        } catch (e: StoneException) {
+            logger.error(e.toString(), e.findLastErrorElement())
         }
-
         globalSymbolsForReprocessing.toList()
     }
 

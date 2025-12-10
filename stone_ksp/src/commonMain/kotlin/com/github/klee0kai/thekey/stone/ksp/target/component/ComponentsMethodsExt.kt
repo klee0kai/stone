@@ -8,6 +8,7 @@ import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureExcepti
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.annotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.anyAnnotation
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.hasOnlyAnnotation
+import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.stoneControlAnnotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.scopeAnnotations
 import com.github.klee0kai.thekey.stone.ksp.ksp.isClassReturn
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
@@ -96,7 +97,11 @@ val KSFunctionDeclaration.isDepsProvideMethod: Boolean
     }
 
 val KSFunctionDeclaration.isObjectProvideMethod: Boolean
-    get() = isProvideMethodSimple && !isModuleProvideMethod && !isDepsProvideMethod && !isModuleFactoryProvideMethod
+    get() = isProvideMethodSimple
+            && !isModuleProvideMethod
+            && !isDepsProvideMethod
+            && !isModuleFactoryProvideMethod
+            && stoneControlAnnotations().none()
 
 val KSFunctionDeclaration.isModuleInitMethod: Boolean
     get() {

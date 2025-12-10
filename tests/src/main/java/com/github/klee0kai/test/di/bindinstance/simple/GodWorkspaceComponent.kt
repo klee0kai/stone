@@ -26,6 +26,5 @@ interface GodWorkspaceComponent {
     @BindInstance
     fun bindSaturn(saturn: Saturn?)
 
-
     fun providePlanet(): IPlanet?
 }

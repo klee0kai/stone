@@ -339,12 +339,13 @@ class GenComponentProcessor : TargetFileProcessor {
                         )
                     }
 
-                    addStatement(
-                        "%L?.%L = %L",
+                    addCode(
+                        "%L?.%L = ",
                         injectableField.name!!.asString(),
                         injectField.simpleName.asString(),
-                        provideCode,
                     )
+                    addCode(provideCode)
+                    addStatement("")
                 }
 
                 for (injectMethod in injectableCl.getAllMethods(false, false, "<init>")) {
@@ -371,8 +372,8 @@ class GenComponentProcessor : TargetFileProcessor {
                     }
 
                     addCode("%L.%L( ", injectableField.name, injectMethod.simpleName.asString())
-                        .addCode(providingArgsCode.build())
-                        .addStatement(")");
+                    addCode(providingArgsCode.build())
+                    addStatement(")");
                 }
 
             }

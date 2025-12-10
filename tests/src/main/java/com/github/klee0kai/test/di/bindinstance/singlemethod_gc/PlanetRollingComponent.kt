@@ -10,6 +10,7 @@ import com.github.klee0kai.test.mowgli.galaxy.IPlanet
 
 @Component
 interface PlanetRollingComponent {
+
     fun sunModule(): SunModule?
 
     @GcPlanetScope

@@ -4,7 +4,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 
 fun <T, R> T.wrapKsNoteInfo(
-    ksNode: KSNode,
+    ksNode: KSNode?,
     block: T.() -> R,
 ): R {
     return try {
