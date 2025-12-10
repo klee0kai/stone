@@ -1,14 +1,19 @@
+@file:OptIn(KspExperimental::class)
+
 package com.github.klee0kai.thekey.stone.ksp.target.component
 
 import com.github.klee0kai.stone.__hidden__.IModule
 import com.github.klee0kai.stone.__hidden__.IPrivateComponent
+import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
 import com.github.klee0kai.stone.__hidden__.collections.RefCollection
 import com.github.klee0kai.stone.__hidden__.types.WeakList
 import com.github.klee0kai.stone.__hidden__.types.holders.TimeHolder
 import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.component.ProtectInjected
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.weakref.Inject
+import com.github.klee0kai.stone.weakref.Memory
 import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
 import com.github.klee0kai.thekey.stone.ksp.exceptions.ObjectNotProvidedException
 import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
@@ -25,8 +30,10 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.poet.member.CoroutinesMemberFunctions.SupervisorJob
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
@@ -38,6 +45,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlinx.coroutines.CoroutineScope
+import kotlin.reflect.KClass
 import com.google.devtools.ksp.processing.Dependencies as KspDependencies
 
 class GenComponentProcessor : TargetFileProcessor {
@@ -205,7 +213,11 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isGcMethod -> {
-
+                            genGcMthod(
+                                componentCl = componentCl,
+                                method = m,
+                                wrapHelper = wrapHelper,
+                            )
                         }
 
                         m.isSwitchCacheMethod -> {
@@ -222,7 +234,11 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isProtectInjectedMethod -> {
-
+                            genProtectInjected(
+                                componentCl = componentCl,
+                                method = m,
+                                wrapHelper = wrapHelper,
+                            )
                         }
 
                         m.isAbstract -> {
@@ -388,7 +404,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
                         emptyCode = false
                         subscrCode.addStatement(
-                            "%L.add( %T( %L, %L.%L , timeMillis) )",
+                            "%L.add( %T( %L, %L?.%L , timeMillis) )",
                             refCollectionGlFieldName,
                             TimeHolder::class.asClassName(),
                             scopeFieldName,
@@ -403,6 +419,96 @@ class GenComponentProcessor : TargetFileProcessor {
                     if (!emptyCode) addCode(subscrCode.build())
                 }
             }
+        }
+    }
+
+    private fun TypeSpec.Builder.genProtectInjected(
+        componentCl: KSClassDeclaration,
+        method: KSFunctionDeclaration,
+        wrapHelper: WrapHelper,
+    ) {
+        val protectTimeMillis = method.getAnnotationsByType(ProtectInjected::class)
+            .firstOrNull()?.timeMillis
+            ?: throw IncorrectSignatureException(
+                message = "Use ProtectInjected annotation at method ${componentCl.simpleName.asString()}.${method.simpleName.asString()}",
+                element = method,
+            )
+        val identifierTypes = componentCl.allIdentifierTypes.toList()
+        val injectableArguments = method.parameters.notIdentifierParameters(identifierTypes)
+        if (injectableArguments.isEmpty()) {
+            throw IncorrectSignatureException(
+                message = "No injectable parameter at ${method.simpleName.asString()}",
+                element = method,
+            )
+        }
+
+
+        genOverrideFun(method) {
+            for (injectableField in injectableArguments) {
+                val injectableCl = injectableField.type.resolve().declaration as? KSClassDeclaration
+                    ?: throw IncorrectSignatureException(
+                        message = "parameter must be a class",
+                        element = injectableField,
+                    )
+
+
+                for (injectField in injectableCl.getAllProperties()) {
+                    if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
+                    if (wrapHelper.isNonCachingWrapper(injectField.type.resolve().toTypeName())) { //nothing to protect
+                        continue
+                    }
+
+                    addStatement(
+                        "%L.add( %T( %L, %L?.%L , %L ) )",
+                        refCollectionGlFieldName,
+                        TimeHolder::class.asClassName(),
+                        scopeFieldName,
+                        injectableField.name!!.asString(),
+                        injectField.simpleName.asString(),
+                        protectTimeMillis,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun TypeSpec.Builder.genGcMthod(
+        componentCl: KSClassDeclaration,
+        method: KSFunctionDeclaration,
+        wrapHelper: WrapHelper,
+    ) {
+
+        val scopesCode = codeBlock {
+            method.scopeAnnotations.forEachIndexed { index, annotation ->
+                if (index > 0) add(", ")
+                add("%T::class", annotation.annotationType.resolve().toTypeName())
+            }
+        }
+
+
+        genOverrideFun(method) {
+            addStatement(
+                "val scopes = setOf<%T>( %L )",
+                KClass::class.asClassName().parameterizedBy(STAR), scopesCode
+            )
+            addStatement("val toWeak = %T.toWeak()", SwitchCacheParam::class)
+            addStatement("val toDef = %T.toDef()", SwitchCacheParam::class)
+
+            addStatement(
+                "%L{ m -> m.%L(scopes, toWeak) } ",
+                eachModuleMethodName,
+                GenModuleProcessor.switchRefMethodName,
+            )
+
+            addStatement("%T.gc()", Memory::class)
+            addStatement("%L.clearNulls()", relatedComponentsListFieldName)
+            addStatement(
+
+                "%L{ m ->  m.__clearNulls(); m.%L(scopes, toDef); }",
+                eachModuleMethodName, GenModuleProcessor.switchRefMethodName,
+            )
+
+            addStatement("%L.clearNulls()", refCollectionGlFieldName);
         }
     }
 
