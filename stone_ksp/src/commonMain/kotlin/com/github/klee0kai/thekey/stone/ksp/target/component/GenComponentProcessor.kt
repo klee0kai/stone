@@ -193,7 +193,11 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isObjectProvideMethod -> {
-
+                            genProvideObjMethod(
+                                componentCl = componentCl,
+                                method = m,
+                                modulesGraph = modulesGraph,
+                            )
                         }
 
                         m.isBindInstanceMethod != null -> {
@@ -244,6 +248,34 @@ class GenComponentProcessor : TargetFileProcessor {
             // https://kotlinlang.org/docs/ksp-incremental.html
             dependencies = KspDependencies(aggregating = false, fileOwner),
         )
+    }
+
+    private fun TypeSpec.Builder.genProvideObjMethod(
+        componentCl: KSClassDeclaration,
+        method: KSFunctionDeclaration,
+        modulesGraph: ModulesGraph,
+    ) {
+        val returnType = method.returnType?.resolve()?.toTypeName() ?: return
+
+        val codeBlock = modulesGraph.codeProvideType(
+            methodName = null,
+            returnType = returnType,
+            qualifierAnns = method.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
+            declaredFields = method.parameters.map { it.toFieldDetail() },
+        )
+
+        if (codeBlock == null) {
+            throw ObjectNotProvidedException(
+                message = "Error provide type ${returnType}. " +
+                        "Required in ${componentCl.toClassName()}.${method.simpleName.asString()}",
+                element = method,
+            )
+        }
+
+        genOverrideFun(method) {
+            addStatement("return %L", codeBlock)
+        }
+
     }
 
 
