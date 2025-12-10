@@ -376,15 +376,21 @@ class GenModuleProcessor : TargetFileProcessor {
             addStatement("%T.GET_VALUE -> Unit", CacheAction.ActionType::class)
             //set value
             beginControlFlow("%T.SET_VALUE ->", CacheAction.ActionType::class)
-            addCode("(__action.value as? %T)?.let { ", rawTypeOf(returnType))
-            addCode(codeBlock = itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("it"), onlyIfNull = false))
-            addCode("}")
+            addCode(
+                codeBlock = itemHolderCodeHelper.codeSetCachedValue(
+                    CodeBlock.of("__action.value as? %T", rawTypeOf(returnType)),
+                    onlyIfNull = false
+                )
+            )
             endControlFlow()
             //set if null value
             beginControlFlow("%T.SET_IF_NULL ->", CacheAction.ActionType::class)
-            addCode("(__action.value as? %T)?.let { ", rawTypeOf(returnType))
-            addCode(codeBlock = itemHolderCodeHelper.codeSetCachedValue(CodeBlock.of("it"), onlyIfNull = true))
-            addCode("}")
+            addCode(
+                codeBlock = itemHolderCodeHelper.codeSetCachedValue(
+                    CodeBlock.of("__action.value as? %T", rawTypeOf(returnType)),
+                    onlyIfNull = true
+                )
+            )
             endControlFlow()
             // switch cache type
             beginControlFlow("%T.SWITCH_CACHE ->", CacheAction.ActionType::class)
