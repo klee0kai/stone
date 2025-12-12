@@ -7,7 +7,7 @@ tasks.test {
 }
 
 dependencies {
-    implementation(project(":stone_lib"))
+    implementation(project(":stone_multiplatform"))
     annotationProcessor(project(":stone_processor"))
 
     implementation(project(":tests"))
