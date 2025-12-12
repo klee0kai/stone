@@ -91,13 +91,12 @@ class ModulesGraph(
                     )
 
                     cacheControlTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
-                    cacheControlTypeCodes.get(provTypeName)
-                        ?.add(
-                            InvokeCall.fromSequence(
-                                wrapHelper = wrapHelper,
-                                callSequence = listOf(moduleProvideMethod.toMethodDetail(), cacheControlMethod)
-                            )
+                    cacheControlTypeCodes[provTypeName]?.add(
+                        InvokeCall.fromSequence(
+                            wrapHelper = wrapHelper,
+                            callSequence = listOf(moduleProvideMethod.toMethodDetail(), cacheControlMethod)
                         )
+                    )
                 }
             }
 
@@ -149,7 +148,7 @@ class ModulesGraph(
                     ?.add(
                         InvokeCall.fromSequence(
                             wrapHelper = wrapHelper,
-                            callSequence = listOf(componentMethod.toMethodDetail(), cacheControlMethod)
+                            callSequence = listOf(hiddenModuleProvideMethod, cacheControlMethod)
                         )
                     )
             }
@@ -379,14 +378,14 @@ class ModulesGraph(
      * @return cache control invoke call
      */
     fun invokeControlCacheForType(
-        provideMethodName: String,
+        provideMethodName: String?,
         typeName: TypeName,
         qualifierAnns: Set<QualifierAnn>
     ): InvokeCall? = provideTypeInvokeCall(
         cacheControlTypeCodes,
         typeName,
         qualifierAnns,
-        provideMethodName.cacheControlMethodName,
+        provideMethodName?.cacheControlMethodName,
         false
     )
 

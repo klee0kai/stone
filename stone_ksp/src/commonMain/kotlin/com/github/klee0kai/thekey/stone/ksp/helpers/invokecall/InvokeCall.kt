@@ -95,11 +95,11 @@ class InvokeCall(
      */
     fun invokeCode(
         envFields: List<FieldDetail>,
-        vararg argGen: (FieldDetail) -> CodeBlock?,
+        argGen: (FieldDetail) -> CodeBlock? = { null },
     ): CodeBlock {
         val argGens = LinkedList<(FieldDetail) -> CodeBlock?>()
         argGens.add(unwrapArgument(envFields))
-        argGens.addAll(argGen)
+        argGens.add(argGen)
 
         val invokeBuilder = CodeBlock.builder()
         var invokeCount = 0

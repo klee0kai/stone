@@ -2,6 +2,7 @@
 
 package com.github.klee0kai.thekey.stone.ksp.target.component
 
+import com.github.klee0kai.stone.__hidden__.CacheAction
 import com.github.klee0kai.stone.__hidden__.IModule
 import com.github.klee0kai.stone.__hidden__.IPrivateComponent
 import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
@@ -209,7 +210,12 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isBindInstanceMethod != null -> {
-
+                            genBindInstanceMethod(
+                                componentCl = componentCl,
+                                method = m,
+                                modulesGraph = modulesGraph,
+                                wrapHelper = wrapHelper,
+                            )
                         }
 
                         m.isGcMethod -> {
@@ -290,6 +296,85 @@ class GenComponentProcessor : TargetFileProcessor {
 
         genOverrideFun(method) {
             addStatement("return %L", codeBlock)
+        }
+
+    }
+
+
+    private fun TypeSpec.Builder.genBindInstanceMethod(
+        componentCl: KSClassDeclaration,
+        method: KSFunctionDeclaration,
+        modulesGraph: ModulesGraph,
+        wrapHelper: WrapHelper,
+    ) {
+        val returnType = method.returnType?.resolve()?.toTypeName() ?: return
+        val identifierTypes = componentCl.allIdentifierTypes.toList()
+
+        val setValueArg = method.parameters.firstOrNull { it.type.resolve() !in identifierTypes }
+            ?: throw IncorrectSignatureException(
+                message = "Bind instance method must have bind instance arcgument",
+                element = method,
+            )
+
+        val nonWrappedBindType = wrapHelper.nonWrappedType(setValueArg.type.resolve().toTypeName())
+        val isProvideMethod = wrapHelper
+            .nonWrappedType(method.returnType!!.resolve().toTypeName()) == nonWrappedBindType
+        val hidingProvideName = if (isProvideMethod) method.simpleName.asString() else null
+
+        // bind object declared in module
+        val cacheControlInvoke = modulesGraph.invokeControlCacheForType(
+            hidingProvideName,
+            nonWrappedBindType,
+            method.qualifierAnnotations.map { it.toQualifierAnn() }.toSet()
+        )
+
+        val isListCache = wrapHelper.isList(cacheControlInvoke!!.rawReturnType())
+        val cacheControlType = if (isListCache) List::class.asClassName().parameterizedBy(nonWrappedBindType)
+        else nonWrappedBindType
+
+        // bind object declared in module
+        genOverrideFun(method) {
+            addCode(
+                cacheControlInvoke.invokeCode(
+                    envFields = method.parameters.map { it.toFieldDetail() },
+                    argGen = { _ ->
+                        codeBlock {
+                            add("%T.setValueAction(", CacheAction::class)
+                            add(
+                                wrapHelper.transform(
+                                    setValueArg.type.resolve().toTypeName(),
+                                    cacheControlType,
+                                    CodeBlock.of(setValueArg.name!!.asString())
+                                )
+                            )
+                            add(")")
+                        }
+                    }
+                )
+            )
+            addStatement("")
+
+
+            addStatement(
+                "%L{ module -> module.%L( %L ); } ",
+                eachModuleMethodName,
+                GenModuleProcessor.updateBindInstancesFrom,
+                cacheControlInvoke.bestSequence().first().methodName,
+            )
+            addStatement("")
+
+            if (isProvideMethod) {
+                addCode("return ")
+                addCode(
+                    modulesGraph.codeProvideType(
+                        hidingProvideName,
+                        returnType,
+                        method.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
+                        method.parameters.map { it.toFieldDetail() },
+                    )!!
+                )
+                addCode("\n")
+            }
         }
 
     }

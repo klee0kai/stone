@@ -8,7 +8,7 @@ import com.github.klee0kai.test.house.kitchen.sinkarea.SinkArea
 import com.github.klee0kai.test.house.kitchen.storagearea.*
 
 @Module
-internal abstract class AreasModule {
+abstract class AreasModule {
     @Provide(cache = Provide.CacheType.Soft)
     abstract fun cookingArea(): CookingArea?
 
