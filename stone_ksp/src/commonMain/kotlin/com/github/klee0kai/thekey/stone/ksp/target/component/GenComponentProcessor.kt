@@ -2,15 +2,13 @@
 
 package com.github.klee0kai.thekey.stone.ksp.target.component
 
-import com.github.klee0kai.stone.__hidden__.CacheAction
-import com.github.klee0kai.stone.__hidden__.IModule
-import com.github.klee0kai.stone.__hidden__.IPrivateComponent
-import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
+import com.github.klee0kai.stone.__hidden__.*
 import com.github.klee0kai.stone.__hidden__.collections.RefCollection
 import com.github.klee0kai.stone.__hidden__.types.WeakList
 import com.github.klee0kai.stone.__hidden__.types.holders.TimeHolder
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.annotations.component.ProtectInjected
+import com.github.klee0kai.stone.annotations.component.SwitchCache
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.weakref.Inject
@@ -29,7 +27,6 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
-import com.github.klee0kai.thekey.stone.ksp.poet.member.CoroutinesMemberFunctions.SupervisorJob
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
@@ -237,7 +234,10 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isSwitchCacheMethod -> {
-
+                            genSwitchRefMethod(
+                                componentCl = componentCl,
+                                method = m,
+                            )
                         }
 
                         m.isInjectMethod -> {
@@ -608,6 +608,37 @@ class GenComponentProcessor : TargetFileProcessor {
         }
     }
 
+    private fun TypeSpec.Builder.genSwitchRefMethod(
+        componentCl: KSClassDeclaration,
+        method: KSFunctionDeclaration,
+    ) {
+        val switchCacheAnn = method.getAnnotationsByType(SwitchCache::class).first()
+        val scopesCode = codeBlock {
+            method.scopeAnnotations.forEachIndexed { index, annotation ->
+                if (index > 0) add(", ")
+                add("%T::class", annotation.annotationType.resolve().toTypeName())
+            }
+        }
+
+        genOverrideFun(method) {
+            addStatement(
+                "val scopes = setOf<%T>( %L )",
+                KClass::class.asClassName().parameterizedBy(STAR), scopesCode
+            )
+            addStatement(
+                "val switchCacheParams = %T( %T.%L , %L )",
+                SwitchCacheParam::class,
+                SwitchCache.CacheType::class, switchCacheAnn.cache.name,
+                switchCacheAnn.timeMillis,
+            )
+
+            addStatement(
+                "%L{ m ->   m.%L(scopes, switchCacheParams) } ",
+                eachModuleMethodName, GenModuleProcessor.switchRefMethodName,
+            )
+        }
+    }
+
     private fun TypeSpec.Builder.genIComponentMethods(
         componentCl: KSClassDeclaration,
         delayedCodeBlocks: DelayedCodeBlocks,
@@ -643,7 +674,7 @@ class GenComponentProcessor : TargetFileProcessor {
         ) {
             addModifiers(KModifier.PRIVATE)
             mutable(true)
-            initializer("%T(%M())", CoroutineScope::class.asClassName(), SupervisorJob)
+            initializer(" %T.stoneCoroutineScope ", StoneScope::class)
         }
 
         genProperty(

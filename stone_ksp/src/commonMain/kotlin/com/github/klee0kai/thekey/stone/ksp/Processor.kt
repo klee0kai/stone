@@ -63,7 +63,7 @@ class Processor(
 
         // force changes
 //        debug = true
-//        debugPkgFilter = "com.github.klee0kai.test.di.house.simple"
+//        debugPkgFilter = "com.github.klee0kai.test.di.swcache"
     }
 
 
@@ -95,6 +95,14 @@ class Processor(
                     var symbols = launchConductor.finishTogether {
                         var symbols = findSymbolsMutex.withLock { processor.findSymbolsToProcess(resolver) }
 
+                        if (debug && debugPkgFilter != null) {
+                            symbols = symbols
+                                .filter {
+                                    it.containingFile?.packageName
+                                        ?.asString()?.startsWith(debugPkgFilter!!) ?: true
+                                }
+                        }
+
                         var takeSymbolsCount = 0
                         processSymbolsCounter.updateAndGet { totalCount ->
                             takeSymbolsCount = min(
@@ -106,12 +114,6 @@ class Processor(
                             totalCount + takeSymbolsCount
                         }
 
-                        if (debug && debugPkgFilter != null) {
-                            symbols = symbols
-                                .filter {
-                                    it.containingFile?.packageName?.asString()?.startsWith(debugPkgFilter!!) ?: true
-                                }
-                        }
 
                         // skip to next run
                         symbols = symbols.nowTakeOnly(takeSymbolsCount)

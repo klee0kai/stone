@@ -1,14 +1,13 @@
 package com.github.klee0kai.stone.__hidden__
 
 import com.github.klee0kai.stone.annotations.component.SwitchCache
-import kotlin.time.Duration
 
 /**
  * Stone Private class
  */
 class SwitchCacheParam(
     val cache: SwitchCache.CacheType,
-    val time: Duration = Duration.INFINITE,
+    val time: Long = -1,
 ) {
     companion object {
         fun toWeak() = SwitchCacheParam(SwitchCache.CacheType.Weak)

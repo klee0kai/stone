@@ -7,7 +7,6 @@ import com.github.klee0kai.stone.weakref.Ref
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration
 
 /**
  * Stone Private class
@@ -175,7 +174,7 @@ class MapItemHolder<Key, T>(
             SwitchCache.CacheType.Strong -> setRefType(StoneRefType.StrongObject)
         }
 
-        if (args.time != Duration.INFINITE) {
+        if (args.time > 0) {
             shedTaskCount.incrementAndGet()
             StoneScope.stoneCoroutineScope.launch {
                 delay(args.time)
