@@ -1,228 +1,222 @@
-package com.github.klee0kai.stone.test.bindinstance.singlemethod_gc;
+package com.github.klee0kai.stone.test.bindinstance.singlemethod_gc
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.Sun
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import java.lang.ref.WeakReference
 
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class PlanetRollingTests {
+class PlanetRollingTests {
 
     @Test
-    public void gcAllTest() {
+    fun gcAllTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule().sunStrong(sunStrong.get())
+        DI.sunModule().sunSoft(sunSoft.get())
+        DI.sunModule().star(starWeak.get())
 
         //When
-        DI.gcAll();
+        DI.gcAll()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, earthSoft, planetWeak,
-                sunStrong, sunSoft, starWeak
+        for (ref in listOf(
+            earthStrong, earthSoft, planetWeak,
+            sunStrong, sunSoft, starWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
     }
 
 
     @Test
-    public void gcStrongTest() {
+    fun gcStrongTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule().sunStrong(sunStrong.get())
+        DI.sunModule().sunSoft(sunSoft.get())
+        DI.sunModule().star(starWeak.get())
 
         //When
-        DI.gcStrong();
+        DI.gcStrong()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, planetWeak,
-                sunStrong, starWeak
+        for (ref in listOf(
+            earthStrong, planetWeak,
+            sunStrong, starWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthSoft,
-                sunSoft
+        for (ref in listOf(
+            earthSoft,
+            sunSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    public void gcSoftTest() {
+    fun gcSoftTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule().sunStrong(sunStrong.get())
+        DI.sunModule().sunSoft(sunSoft.get())
+        DI.sunModule().star(starWeak.get())
 
         //When
-        DI.gcSoft();
+        DI.gcSoft()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthSoft, planetWeak,
-                sunSoft, starWeak
+        for (ref in listOf(
+            earthSoft, planetWeak,
+            sunSoft, starWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong,
-                sunStrong
+        for (ref in listOf(
+            earthStrong,
+            sunStrong
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    public void gcWeakTest() {
+    fun gcWeakTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule().sunStrong(sunStrong.get())
+        DI.sunModule().sunSoft(sunSoft.get())
+        DI.sunModule().star(starWeak.get())
 
         //When
-        DI.gcWeak();
+        DI.gcWeak()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                planetWeak,
-                starWeak
+        for (ref in listOf(
+            planetWeak,
+            starWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, earthSoft,
-                sunStrong, sunSoft
+        for (ref in listOf(
+            earthStrong, earthSoft,
+            sunStrong, sunSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    public void gcSoftSunTest() {
+    fun gcSoftSunTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule().sunStrong(sunStrong.get())
+        DI.sunModule().sunSoft(sunSoft.get())
+        DI.sunModule().star(starWeak.get())
 
         //When
-        DI.gcSoftSun();
+        DI.gcSoftSun()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                planetWeak,
-                sunSoft, starWeak
+        for (ref in listOf(
+            planetWeak,
+            sunSoft, starWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, earthSoft,
-                sunStrong
+        for (ref in listOf(
+            earthStrong, earthSoft,
+            sunStrong
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    public void gcSoftPlanetsTest() {
+    fun gcSoftPlanetsTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule().sunStrong(sunStrong.get())
+        DI.sunModule().sunSoft(sunSoft.get())
+        DI.sunModule().star(starWeak.get())
 
         //When
-        DI.gcSoftPlanets();
+        DI.gcSoftPlanets()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthSoft, planetWeak,
-                starWeak
+        for (ref in listOf(
+            earthSoft, planetWeak,
+            starWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong,
-                sunStrong, sunSoft
+        for (ref in listOf(
+            earthStrong,
+            sunStrong, sunSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
-
-
 }

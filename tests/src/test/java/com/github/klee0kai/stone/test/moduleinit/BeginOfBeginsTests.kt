@@ -1,67 +1,49 @@
-package com.github.klee0kai.stone.test.moduleinit;
+package com.github.klee0kai.stone.test.moduleinit
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.base_forest.ForestComponent;
-import com.github.klee0kai.test.di.base_forest.UnitedModule;
-import com.github.klee0kai.test.mowgli.community.History;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
+import com.github.klee0kai.test.di.base_forest.UnitedModule
+import com.github.klee0kai.test.mowgli.community.History
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class BeginOfBeginsTests {
-
-    private static final Earth earth = new Earth();
+class BeginOfBeginsTests {
 
     @Test
-    public void initByFactory() {
+    fun initByFactory() {
         //Given
-        UnitedModule module = new UnitedModule() {
-
-
-            @Override
-            public Earth earth() {
-                return earth;
-            }
-
-            @Override
-            public History history() {
-                return null;
-            }
-        };
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        val module: UnitedModule = object : UnitedModule() {
+            override fun earth(): Earth = earth
+            override fun history() = null
+        }
+        val DI = ForestComponentStoneComponent()
 
         //When
-        DI.initUnitedModule(module);
+        DI.initUnitedModule(module)
 
         //Then
-        assertEquals(earth, DI.united().earth());
+        assertEquals(earth, DI.united().earth())
     }
 
 
     @Test
-    public void initByFactoryClass() {
+    fun initByFactoryClass() {
         //Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        val DI = ForestComponentStoneComponent()
 
         //When
-        DI.initUnitedModule(UnitedModuleFactory.class);
+        DI.initUnitedModule(UnitedModuleFactory::class.java as UnitedModule?)
 
         //Then
-        assertEquals(earth, DI.united().earth());
+        assertEquals(earth, DI.united().earth())
     }
 
-    public static class UnitedModuleFactory extends UnitedModule {
-
-        @Override
-        public Earth earth() {
-            return earth;
-        }
-
-        @Override
-        public History history() {
-            return null;
-        }
+    class UnitedModuleFactory : UnitedModule() {
+        override fun earth(): Earth = earth
+        override fun history(): History? = null
     }
 
+    companion object {
+        private val earth: Earth = Earth()
+    }
 }

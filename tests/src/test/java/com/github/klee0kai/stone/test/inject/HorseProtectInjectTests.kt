@@ -1,62 +1,60 @@
-package com.github.klee0kai.stone.test.inject;
+package com.github.klee0kai.stone.test.inject
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.base_forest.ForestComponent;
-import com.github.klee0kai.test.mowgli.animal.Horse;
-import com.github.klee0kai.test.mowgli.community.History;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
+import com.github.klee0kai.test.mowgli.animal.Horse
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import java.lang.ref.WeakReference
 
-import java.lang.ref.WeakReference;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-
-public class HorseProtectInjectTests {
-
+class HorseProtectInjectTests {
 
     @Test
-    public void withoutProtectInjectTest() {
+    fun withoutProtectInjectTest() {
         // Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
-        Horse horse = new Horse();
+        val DI = ForestComponentStoneComponent()
+        var horse: Horse? = Horse()
 
 
         //When
-        DI.inject(horse, listener -> {
+        DI.inject(
+            horse,
+            stoneLifeCycleOwner = { }
+        )
 
-        });
-        WeakReference<History> historyWeakReference = new WeakReference<>(horse.history);
-        horse = null;
-        System.gc();
+        val historyWeakReference = WeakReference(horse?.history)
+        horse = null
+        System.gc()
 
         //Then: without protect all not uses should be garbage collected
-        assertNull(historyWeakReference.get());
-
+        assertNull(historyWeakReference.get())
     }
 
     @Test
-    public void withProtectInjectTest() throws InterruptedException {
+    @Throws(InterruptedException::class)
+    fun withProtectInjectTest() {
         // Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
-        Horse horse = new Horse();
+        val DI = ForestComponentStoneComponent()
+        var horse: Horse? = Horse()
 
         //When
-        DI.inject(horse, listener -> {
+        DI.inject(
+            horse,
+            stoneLifeCycleOwner = {}
+        )
 
-        });
-        WeakReference<History> historyWeakReference = new WeakReference<>(horse.history);
-        DI.protectInjected(horse);
-        horse = null;
-        DI.gcAll();
+        val historyWeakReference = WeakReference(horse!!.history)
+        DI.protectInjected(horse)
+        horse = null
+        DI.gcAll()
 
         //Then
-        assertNotNull(historyWeakReference.get());
+        assertNotNull(historyWeakReference.get())
 
         //after protect finished
-        Thread.sleep(50);
-        DI.gcAll();
-        assertNull(historyWeakReference.get());
+        Thread.sleep(50)
+        DI.gcAll()
+        assertNull(historyWeakReference.get())
     }
 
 }

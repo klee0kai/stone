@@ -1,87 +1,80 @@
-package com.github.klee0kai.stone.test.cache;
+package com.github.klee0kai.stone.test.cache
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.swcache.SwitchCacheComponent;
-import com.github.klee0kai.test.mowgli.earth.Mountain;
-import com.github.klee0kai.test.mowgli.earth.River;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.swcache.SwitchCacheComponentStoneComponent
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import java.lang.ref.WeakReference
 
-import java.lang.ref.WeakReference;
-
-import static java.lang.Thread.sleep;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class EarthSwitchCacheTests {
-
+class EarthSwitchCacheTests {
 
     @Test
-    public void allToWeakTest() {
+    fun allToWeakTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountain = new WeakReference<>(DI.earth().mountainStrong());
+        val DI = SwitchCacheComponentStoneComponent()
+        val mountain = WeakReference(DI.earth().mountainStrong())
 
         //When
-        DI.allWeak();
-        System.gc();
+        DI.allWeak()
+        System.gc()
 
         //Then
-        assertNull(mountain.get());
+        assertNull(mountain.get())
     }
 
     @Test
-    public void strongToWeakTest() {
+    fun strongToWeakTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(DI.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(DI.earth().mountainSoft());
+        val DI = SwitchCacheComponentStoneComponent()
+        val mountainStrong = WeakReference(DI.earth().mountainStrong())
+        val mountainSoft = WeakReference(DI.earth().mountainSoft())
 
         //When
-        DI.strongToWeak();
-        System.gc();
+        DI.strongToWeak()
+        System.gc()
 
         //Then
-        assertNull(mountainStrong.get());
-        assertNotNull(mountainSoft.get());
+        assertNull(mountainStrong.get())
+        assertNotNull(mountainSoft.get())
     }
 
     @Test
-    public void weakToStrongFewMillisTest() throws InterruptedException {
+    @Throws(InterruptedException::class)
+    fun weakToStrongFewMillisTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(DI.earth().mountainWeak());
+        val DI = SwitchCacheComponentStoneComponent()
+        val mountainWeak = WeakReference(DI.earth().mountainWeak())
 
         //When
-        DI.allStrongFewMillis();
-        System.gc();
+        DI.allStrongFewMillis()
+        System.gc()
 
         //Then: can't GC
-        assertNotNull(mountainWeak.get());
+        assertNotNull(mountainWeak.get())
 
         //When: after few millis
-        sleep(110);
-        System.gc();
+        Thread.sleep(110)
+        System.gc()
 
         //Then: can GC
-        assertNull(mountainWeak.get());
+        assertNull(mountainWeak.get())
     }
 
 
     @Test
-    public void mountainToWeakTest() {
+    fun mountainToWeakTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        WeakReference<Mountain> mountain = new WeakReference<>(DI.earth().mountainStrong());
-        WeakReference<River> river = new WeakReference<>(DI.earth().riverSoft());
+        val DI = SwitchCacheComponentStoneComponent()
+        val mountain = WeakReference(DI.earth().mountainStrong())
+        val river = WeakReference(DI.earth().riverSoft())
 
         //When
-        DI.mountainToWeak();
-        System.gc();
+        DI.mountainToWeak()
+        System.gc()
 
         //Then
-        assertNull(mountain.get());
-        assertNotNull(river.get());
+        assertNull(mountain.get())
+        assertNotNull(river.get())
     }
-
 
 }

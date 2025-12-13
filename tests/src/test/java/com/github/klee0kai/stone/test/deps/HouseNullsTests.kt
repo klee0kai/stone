@@ -1,27 +1,24 @@
-package com.github.klee0kai.stone.test.deps;
+package com.github.klee0kai.stone.test.deps
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.house.nulls.HouseNullsComponent;
-import com.github.klee0kai.test.house.House;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.house.nulls.HouseNullsComponentStoneComponent
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class HouseNullsTests {
+class HouseNullsTests {
 
     @Test
-    public void buildOnlyKitchenTest() {
+    fun buildOnlyKitchenTest() {
         //Given
-        HouseNullsComponent di = Stone.createComponent(HouseNullsComponent.class);
+        val di = HouseNullsComponentStoneComponent()
 
         //when
-        House house = di.house();
+        val house = di.house()
 
         //then
-        assertNull(house.bathRoom);
-        assertNull(house.kichen.cookingArea);
-        assertNull(house.kichen.storeArea);
-        assertNull(house.kichen.sinkArea);
+        assertNull(house?.bathRoom)
+        assertNull(house?.kichen?.cookingArea)
+        assertNull(house?.kichen?.storeArea)
+        assertNull(house?.kichen?.sinkArea)
     }
 
 }

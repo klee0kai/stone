@@ -1,91 +1,98 @@
-package com.github.klee0kai.stone.test.deps;
+package com.github.klee0kai.stone.test.deps
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.house.simple.HouseComponent;
-import com.github.klee0kai.test.house.InHouse;
-import com.github.klee0kai.test.house.identifiers.StoreAreaType;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.house.simple.HouseComponentStoneComponent
+import com.github.klee0kai.test.house.InHouse
+import com.github.klee0kai.test.house.identifiers.StoreAreaType
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.*;
-
-public class InHouseTests {
-
-    @Test
-    public void buildHouseTest() {
+class InHouseTests {
+    @org.junit.jupiter.api.Test
+    fun buildHouseTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
-        InHouse inHouse = new InHouse();
+        val di = HouseComponentStoneComponent()
+        val inHouse = InHouse()
 
         //when
-        di.inject(inHouse);
+        di.inject(inHouse)
 
         //then
-        assertNotNull(inHouse.bathRoom);
-        assertNotNull(inHouse.kichen.cookingArea);
-        assertNotNull(inHouse.kichen.storeArea);
-        assertNotNull(inHouse.kichen.sinkArea);
-        assertNotNull(inHouse.bedStoreArea);
+        assertNotNull(inHouse.bathRoom)
+        assertNotNull(inHouse.kichen?.cookingArea)
+        assertNotNull(inHouse.kichen?.storeArea)
+        assertNotNull(inHouse.kichen?.sinkArea)
+        assertNotNull(inHouse.bedStoreArea)
     }
 
-    @Test
-    public void identifiersTest() {
+    @org.junit.jupiter.api.Test
+    fun identifiersTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
-        InHouse inHouse = new InHouse();
+        val di = HouseComponentStoneComponent()
+        val inHouse = InHouse()
 
         //when
-        di.inject(StoreAreaType.CLOSED,inHouse);
-
-
-        //then
-        assertEquals(StoreAreaType.CLOSED, inHouse.kichen.storeArea.type);
-    }
-
-    @Test
-    public void identifiersNullTest() {
-        //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
-        InHouse inHouse = new InHouse();
-
-        //when
-        di.inject(inHouse);
+        di.inject(StoreAreaType.CLOSED, inHouse)
 
 
         //then
-        assertNull(inHouse.kichen.storeArea.type);
+        assertEquals(StoreAreaType.CLOSED, inHouse.kichen?.storeArea?.type)
     }
 
-
-    @Test
-    public void cacheTest() {
+    @org.junit.jupiter.api.Test
+    fun identifiersNullTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
-        InHouse inHouse1 = new InHouse();
-        InHouse inHouse2 = new InHouse();
+        val di = HouseComponentStoneComponent()
+        val inHouse = InHouse()
 
         //when
-        di.inject(inHouse1);
-        di.inject(inHouse2);
+        di.inject(inHouse)
+
 
         //then
-        assertEquals(inHouse1.kichen.uuid, inHouse2.kichen.uuid);
+        assertNull(inHouse.kichen?.storeArea?.type)
     }
 
 
-    @Test
-    public void factoryTest() {
+    @org.junit.jupiter.api.Test
+    fun cacheTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
-        InHouse inHouse1 = new InHouse();
-        InHouse inHouse2 = new InHouse();
+        val di = HouseComponentStoneComponent()
+        val inHouse1 = InHouse()
+        val inHouse2 = InHouse()
 
         //when
-        di.inject(inHouse1);
-        di.inject(inHouse2);
+        di.inject(inHouse1)
+        di.inject(inHouse2)
 
         //then
-        assertNotEquals(inHouse1.kichen.storeArea.sanitizers,inHouse2.bathRoom.storeArea.sanitizers);
-        assertNotEquals(inHouse1.kichen.storeArea.sanitizers,inHouse2.bedRoom.storeArea.sanitizers);
+        assertEquals(
+            inHouse1.kichen?.uuid,
+            inHouse2.kichen?.uuid
+        )
     }
 
+
+    @org.junit.jupiter.api.Test
+    fun factoryTest() {
+        //Given
+        val di = HouseComponentStoneComponent()
+        val inHouse1 = InHouse()
+        val inHouse2 = InHouse()
+
+        //when
+        di.inject(inHouse1)
+        di.inject(inHouse2)
+
+        //then
+        assertNotEquals(
+            inHouse1.kichen?.storeArea?.sanitizers,
+            inHouse2.bathRoom?.storeArea?.sanitizers,
+        )
+        assertNotEquals(
+            inHouse1.kichen?.storeArea?.sanitizers,
+            inHouse2.bedRoom?.storeArea?.sanitizers,
+        )
+    }
 }

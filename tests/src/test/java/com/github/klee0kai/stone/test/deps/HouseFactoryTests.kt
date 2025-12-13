@@ -1,40 +1,38 @@
-package com.github.klee0kai.stone.test.deps;
+package com.github.klee0kai.stone.test.deps
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.house.simple.HouseComponent;
-import com.github.klee0kai.test.house.House;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.house.simple.HouseComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+class HouseFactoryTests {
 
-public class HouseFactoryTests {
 
     @Test
-    public void cacheTest() {
+    fun cacheTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
+        val di = HouseComponentStoneComponent()
 
         //when
-        House house1 = di.module().house(null, null, null, null);
-        House house2 = di.module().house(null, null, null, null);
+        val house1 = di.module().house(null, null, null, null)
+        val house2 = di.module().house(null, null, null, null)
 
         //then
-        assertEquals(house1.uuid, house2.uuid);
+        assertEquals(house1?.uuid, house2?.uuid)
     }
 
 
     @Test
-    public void factoryTest() {
+    fun factoryTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
+        val di = HouseComponentStoneComponent()
 
         //when
-        House house1 = di.moduleFactory().house(null, null, null, null);
-        House house2 = di.moduleFactory().house(null, null, null, null);
+        val house1 = di.moduleFactory()?.house(null, null, null, null)
+        val house2 = di.moduleFactory()?.house(null, null, null, null)
 
         //then
-        assertNotEquals(house1.uuid, house2.uuid);
+        assertNotEquals(house1?.uuid, house2?.uuid)
     }
 
 }

@@ -1,101 +1,95 @@
-package com.github.klee0kai.stone.test.identifiers;
+package com.github.klee0kai.stone.test.identifiers
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.wrappers.Ref;
-import com.github.klee0kai.test.di.techfactory.TechFactoryComponent;
-import com.github.klee0kai.test.tech.components.Battery;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.techfactory.TechFactoryComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 
-import javax.inject.Provider;
-import java.lang.ref.Reference;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-public class TechFactoryWrappersTests {
+class TechFactoryWrappersTests {
 
     @Test
-    public void lazyProvideTest() {
+    fun lazyProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
+        val DI = TechFactoryComponentStoneComponent()
 
         //When
-        Ref<Battery> battery = DI.batteryLazy();
+        val battery = DI.batteryLazy()
 
         //Then
         assertEquals(
-                battery.get().uuid,
-                battery.get().uuid
-        );
+            battery?.get()?.uuid,
+            battery?.get()?.uuid,
+        )
     }
 
     @Test
-    public void softRefProvideTest() {
+    fun softRefProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
+        val DI = TechFactoryComponentStoneComponent()
 
         //When
-        Reference<Battery> battery = DI.batterySoft();
+        val battery = DI.batterySoft()
 
         //Then
-        assertNotNull(battery.get());
+        assertNotNull(battery!!.get())
     }
 
     @Test
-    public void weakRefProvideTest() {
+    fun weakRefProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
+        val DI = TechFactoryComponentStoneComponent()
 
         //When
-        Reference<Battery> battery = DI.batteryWeak();
+        val battery = DI.batteryWeak()
 
         //Then
-        assertNotNull(battery.get());
+        assertNotNull(battery!!.get())
     }
 
     @Test
-    public void phantom1ProvideTest() {
+    fun phantom1ProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
+        val DI = TechFactoryComponentStoneComponent()
 
         //When
-        Ref<Battery> battery = DI.batteryPhantomProvider();
-
-        //Then
-        assertNotEquals(
-                battery.get().uuid,
-                battery.get().uuid
-        );
-    }
-
-    @Test
-    public void phantom2ProvideTest() {
-        //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
-
-        //When
-        Provider<Battery> battery = DI.batteryProvider();
+        val battery = DI.batteryPhantomProvider()
 
         //Then
         assertNotEquals(
-                battery.get().uuid,
-                battery.get().uuid
-        );
+            battery!!.get()!!.uuid,
+            battery.get()!!.uuid,
+        )
     }
 
     @Test
-    public void phantom3ProvideTest() {
+    fun phantom2ProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
+        val DI = TechFactoryComponentStoneComponent()
 
         //When
-        Ref<Battery> battery = DI.batteryProviderIRef();
+        val battery = DI.batteryProvider()
 
         //Then
         assertNotEquals(
-                battery.get().uuid,
-                battery.get().uuid
-        );
+            battery!!.get()!!.uuid,
+            battery.get()!!.uuid,
+        )
     }
 
+    @Test
+    fun phantom3ProvideTest() {
+        //Given
+        val DI = TechFactoryComponentStoneComponent()
+
+        //When
+        val battery = DI.batteryProviderIRef()
+
+        //Then
+        assertNotEquals(
+            battery!!.get()!!.uuid,
+            battery.get()!!.uuid,
+        )
+    }
 
 }

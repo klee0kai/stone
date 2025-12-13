@@ -1,85 +1,92 @@
-package com.github.klee0kai.stone.test.deps;
+package com.github.klee0kai.stone.test.deps
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.house.simple.HouseComponent;
-import com.github.klee0kai.test.house.House;
-import com.github.klee0kai.test.house.kitchen.storagearea.Sanitizers;
-import com.github.klee0kai.test.house.identifiers.StoreAreaType;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.house.simple.HouseComponentStoneComponent
+import com.github.klee0kai.test.house.House
+import com.github.klee0kai.test.house.identifiers.StoreAreaType
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.*;
-
-public class HouseTests {
+class HouseTests {
 
     @Test
-    public void buildHouseTest() {
+    fun buildHouseTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
+        val di = HouseComponentStoneComponent()
 
         //when
-        House house = di.house();
+        val house = di.house()
 
         //then
-        assertNotNull(house.bathRoom);
-        assertNotNull(house.kichen.cookingArea);
-        assertNotNull(house.kichen.storeArea);
-        assertNotNull(house.kichen.sinkArea);
+        assertNotNull(house?.bathRoom)
+        assertNotNull(house?.kichen?.cookingArea)
+        assertNotNull(house?.kichen?.storeArea)
+        assertNotNull(house?.kichen?.sinkArea)
     }
 
     @Test
-    public void identifiersTest() {
+    fun identifiersTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
+        val di = HouseComponentStoneComponent()
 
         //when
-        House house = di.house(StoreAreaType.CLOSED);
+        val house = di.house(StoreAreaType.CLOSED)
 
         //then
-        assertEquals(StoreAreaType.CLOSED, house.kichen.storeArea.type);
+        assertEquals(StoreAreaType.CLOSED, house?.kichen?.storeArea?.type)
     }
 
     @Test
-    public void identifiersNullTest() {
+    fun identifiersNullTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
+        val di = HouseComponentStoneComponent()
 
         //when
-        House house = di.house();
+        val house = di.house()
 
         //then
-        assertNull(house.kichen.storeArea.type);
-    }
-
-
-    @Test
-    public void cacheTest() {
-        //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
-
-        //when
-        House house1 = di.house();
-        House house2 = di.house();
-
-        //then
-        assertEquals(house1.kichen.uuid, house2.kichen.uuid);
+        assertNull(house?.kichen?.storeArea?.type)
     }
 
 
     @Test
-    public void factoryTest() {
+    fun cacheTest() {
         //Given
-        HouseComponent di = Stone.createComponent(HouseComponent.class);
+        val di = HouseComponentStoneComponent()
 
         //when
-        House house = di.house();
-        Sanitizers sanitizers1 = di.sanitizers();
-        Sanitizers sanitizers2 = di.sanitizers();
+        val house1: House? = di.house()
+        val house2: House? = di.house()
 
         //then
-        assertNotEquals(sanitizers1.uuid, sanitizers2.uuid);
-        assertNotEquals(house.kichen.storeArea.sanitizers, house.bathRoom.storeArea.sanitizers);
-        assertNotEquals(house.kichen.storeArea.sanitizers, house.bedRoom.storeArea.sanitizers);
+        assertEquals(
+            house1?.kichen?.uuid,
+            house2?.kichen?.uuid
+        )
     }
 
 
+    @Test
+    fun factoryTest() {
+        //Given
+        val di = HouseComponentStoneComponent()
+
+        //when
+        val house: House? = di.house()
+        val sanitizers1 = di.sanitizers()
+        val sanitizers2 = di.sanitizers()
+
+        //then
+        assertNotEquals(sanitizers1?.uuid, sanitizers2?.uuid)
+        assertNotEquals(
+            house?.kichen?.storeArea?.sanitizers,
+            house?.bathRoom?.storeArea?.sanitizers
+        )
+        assertNotEquals(
+            house?.kichen?.storeArea?.sanitizers,
+            house?.bedRoom?.storeArea?.sanitizers
+        )
+    }
 }

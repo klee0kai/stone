@@ -1,20 +1,19 @@
-package com.github.klee0kai.stone.test.interfaceprovide;
+package com.github.klee0kai.stone.test.interfaceprovide
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.earthmirror.EarthComponent;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.earthmirror.EarthComponentStoneComponent
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-public class EarthWayTest {
+class EarthWayTest {
 
     @Test
-    public void ChristopherColumbusTest() {
+    fun christopherColumbusTest() {
         //When
-        EarthComponent di = Stone.createComponent(EarthComponent.class);
+        val di = EarthComponentStoneComponent()
 
         //Then
-        assertNotNull(di.west().mountainImp());
-        assertNotNull(di.west().riverImpl());
+        assertNotNull(di.west().mountainImp())
+        assertNotNull(di.west().riverImpl())
     }
+
 }

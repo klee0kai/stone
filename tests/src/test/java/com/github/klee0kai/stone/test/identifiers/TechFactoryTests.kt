@@ -1,45 +1,39 @@
-package com.github.klee0kai.stone.test.identifiers;
+package com.github.klee0kai.stone.test.identifiers
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType;
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.di.techfactory.TechFactoryComponent;
-import com.github.klee0kai.test.tech.components.OperationSystem;
-import com.github.klee0kai.test.tech.components.Ram;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.di.techfactory.TechFactoryComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-public class TechFactoryTests {
+class TechFactoryTests {
 
     @Test
-    public void differentCreateTest() {
+    fun differentCreateTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
+        val DI = TechFactoryComponentStoneComponent()
 
         //When
-        Ram ram8Gb = DI.factory().ram(new RamSize("8GB"));
-        Ram ram8Gb2 = DI.factory().ram(new RamSize("8GB"));
+        val ram8Gb = DI.factory().ram(RamSize("8GB"))
+        val ram8Gb2 = DI.factory().ram(RamSize("8GB"))
 
         //Then: created components are different
-        assertNotEquals(ram8Gb.uuid, ram8Gb2.uuid);
+        assertNotEquals(ram8Gb?.uuid, ram8Gb2?.uuid)
     }
 
 
     @Test
-    public void enumDifferentTest() {
+    fun enumDifferentTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
+        val DI = TechFactoryComponentStoneComponent()
 
         //When
-        OperationSystem android = DI.factory().phoneOs(PhoneOsType.Android);
-        OperationSystem android2 = DI.factory().phoneOs(PhoneOsType.Android);
-        OperationSystem osNull = DI.factory().phoneOs(null);
+        val android = DI.factory().phoneOs(PhoneOsType.Android)
+        val android2 = DI.factory().phoneOs(PhoneOsType.Android)
+        val osNull = DI.factory().phoneOs(null)
 
         //Then: created components are different
-        assertNotEquals(android.uuid, osNull.uuid);
-        assertNotEquals(android.uuid, android2.uuid);
+        assertNotEquals(android?.uuid, osNull?.uuid)
+        assertNotEquals(android?.uuid, android2?.uuid)
     }
-
-
 }

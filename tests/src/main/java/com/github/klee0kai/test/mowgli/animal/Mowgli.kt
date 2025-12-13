@@ -54,7 +54,6 @@ class Mowgli : IAnimal {
     @Inject
     var knowledgePhantomProvide: PhantomProvide<Knowledge?>? = null
 
-
     @JvmField
     var methodKnowledgeWeakRef: WeakReference<Knowledge?>? = null
 

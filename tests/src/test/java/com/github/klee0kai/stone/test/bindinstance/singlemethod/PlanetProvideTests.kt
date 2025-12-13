@@ -1,83 +1,80 @@
-package com.github.klee0kai.stone.test.bindinstance.singlemethod;
+package com.github.klee0kai.stone.test.bindinstance.singlemethod
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;
-import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponentStoneComponent
+import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class PlanetProvideTests {
+class PlanetProvideTests {
 
     @Test
-    public void bindPlanetTest() {
+    fun bindPlanetTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Earth earth = new Earth();
+        val DI = PlanetComponentStoneComponent()
+        val earth = Earth()
 
         //When
-        DI.planet(earth);
+        DI.planet(earth)
 
         //Then
-        assertEquals(earth, DI.planet(null));
-        assertEquals(earth, DI.planet(null));
-        assertEquals(earth, DI.providePlanet());
-        assertEquals(earth, DI.providePlanet());
-        assertNull(DI.earth(null));
+        assertEquals(earth, DI.planet(null))
+        assertEquals(earth, DI.planet(null))
+        assertEquals(earth, DI.providePlanet())
+        assertEquals(earth, DI.providePlanet())
+        assertNull(DI.earth(null))
     }
 
     @Test
-    public void bindEarthTest() {
+    fun bindEarthTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Earth earth = new Earth();
+        val DI = PlanetComponentStoneComponent()
+        val earth = Earth()
 
         //When
-        DI.earth(earth);
+        DI.earth(earth)
 
         //Then
-        assertEquals(earth, DI.earth(null));
-        assertEquals(earth, DI.earth(null));
-        assertNull(DI.planet(null));
-        assertNull(DI.providePlanet());
+        assertEquals(earth, DI.earth(null))
+        assertEquals(earth, DI.earth(null))
+        assertNull(DI.planet(null))
+        assertNull(DI.providePlanet())
     }
 
     @Test
-    public void bindEarthCommonTest() {
+    fun bindEarthCommonTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Earth earth = new Earth();
+        val DI = PlanetComponentStoneComponent()
+        val earth = Earth()
 
         //When
-        DI.earth(earth);
+        DI.earth(earth)
 
         //Then
-        assertEquals(earth, DI.earth(null));
-        assertEquals(earth, DI.earth(null));
-        assertNull(DI.planet(null));
-        assertNull(DI.providePlanet());
+        assertEquals(earth, DI.earth(null))
+        assertEquals(earth, DI.earth(null))
+        assertNull(DI.planet(null))
+        assertNull(DI.providePlanet())
     }
 
 
     @Test
-    public void separateBindEarthTest() {
+    fun separateBindEarthTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        Earth earth1 = new Earth();
-        Earth earth2 = new Earth();
-        Earth earth3 = new Earth();
+        val DI = PlanetRollingComponentStoneComponent()
+        val earth1 = Earth()
+        val earth2 = Earth()
+        val earth3 = Earth()
 
         //When
-        DI.earthStrong(earth1);
-        DI.earthSoft(earth2);
-        DI.earth(earth3);
+        DI.earthStrong(earth1)
+        DI.earthSoft(earth2)
+        DI.earth(earth3)
 
         //Then
-        assertEquals(earth1, DI.earthStrong(null));
-        assertEquals(earth2, DI.earthSoft(null));
-        assertEquals(earth3, DI.earth(null));
+        assertEquals(earth1, DI.earthStrong(null))
+        assertEquals(earth2, DI.earthSoft(null))
+        assertEquals(earth3, DI.earth(null))
     }
-
 }

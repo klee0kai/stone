@@ -1,287 +1,280 @@
-package com.github.klee0kai.stone.test.gc;
+package com.github.klee0kai.stone.test.gc
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.gcforest.GcGodComponent;
-import com.github.klee0kai.test.mowgli.earth.Mountain;
-import com.github.klee0kai.test.mowgli.earth.River;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.gcforest.GcGodComponentStoneComponent
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import java.lang.ref.WeakReference
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class EarthLastDayTests {
+class EarthLastDayTests {
 
     @Test
-    void gcAllTest() {
+    fun gcAllTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<Mountain> mountainDef2 = new WeakReference<>(di.earth().mountainDefault2Factory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val mountainDef2 = WeakReference(di.earth().mountainDefault2Factory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcAll();
+        di.gcAll()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainStrong, mountainSoft, mountainDef2, mountainWeak, mountainDef,
-                riverStrong, riverSoft, riverWeak, riverDef
+        for (ref in listOf(
+            mountainStrong, mountainSoft, mountainDef2, mountainWeak, mountainDef,
+            riverStrong, riverSoft, riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
     }
 
     @Test
-    void gcStrongTest() {
+    fun gcStrongTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<Mountain> mountainDef2 = new WeakReference<>(di.earth().mountainDefault2Factory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val mountainDef2 = WeakReference(di.earth().mountainDefault2Factory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcStrong();
+        di.gcStrong()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainStrong, mountainWeak, mountainDef, mountainDef2,
-                riverStrong, riverWeak, riverDef
+        for (ref in listOf(
+            mountainStrong, mountainWeak, mountainDef, mountainDef2,
+            riverStrong, riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (Reference ref : Arrays.asList(
-                mountainSoft,
-                riverSoft
+        for (ref in listOf(
+            mountainSoft,
+            riverSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    void gcSoftTest() {
+    fun gcSoftTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<Mountain> mountainDef2 = new WeakReference<>(di.earth().mountainDefault2Factory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val mountainDef2 = WeakReference(di.earth().mountainDefault2Factory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcSoft();
+        di.gcSoft()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainSoft, mountainWeak, mountainDef, mountainDef2,
-                riverSoft, riverWeak, riverDef
+        for (ref in listOf(
+            mountainSoft, mountainWeak, mountainDef, mountainDef2,
+            riverSoft, riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
-        for (Reference ref : Arrays.asList(
-                mountainStrong,
-                riverStrong
+        for (ref in listOf(
+            mountainStrong,
+            riverStrong
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    void gcWeakTest() {
+    fun gcWeakTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcWeak();
+        di.gcWeak()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainWeak, mountainDef,
-                riverWeak, riverDef
+        for (ref in listOf(
+            mountainWeak, mountainDef,
+            riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
-        for (Reference ref : Arrays.asList(
-                mountainStrong, mountainSoft,
-                riverStrong, riverSoft
+        for (ref in listOf(
+            mountainStrong, mountainSoft,
+            riverStrong, riverSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    void gcMountainTest() {
+    fun gcMountainTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcMountains();
+        di.gcMountains()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainStrong, mountainSoft, mountainWeak, mountainDef,
-                riverWeak, riverDef
+        for (ref in listOf(
+            mountainStrong, mountainSoft, mountainWeak, mountainDef,
+            riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
-        for (Reference ref : Arrays.asList(
-                riverStrong, riverSoft
+        for (ref in listOf(
+            riverStrong, riverSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    void gcRiverTest() {
+    fun gcRiverTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcRivers();
+        di.gcRivers()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainWeak, mountainDef,
-                riverStrong, riverSoft, riverWeak, riverDef
+        for (ref in listOf(
+            mountainWeak, mountainDef,
+            riverStrong, riverSoft, riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
-        for (Reference ref : Arrays.asList(
-                mountainStrong, mountainSoft
+        for (ref in listOf(
+            mountainStrong, mountainSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    void gcMountainAndRiverTest() {
+    fun gcMountainAndRiverTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcMountainsAndRivers();
+        di.gcMountainsAndRivers()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainStrong, mountainSoft, mountainWeak, mountainDef,
-                riverStrong, riverSoft, riverWeak, riverDef
+        for (ref in listOf(
+            mountainStrong, mountainSoft, mountainWeak, mountainDef,
+            riverStrong, riverSoft, riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
     }
 
 
     @Test
-    void gcSoftMountainTest() {
+    fun gcSoftMountainTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcSoftMountains();
+        di.gcSoftMountains()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainSoft, mountainWeak, mountainDef,
-                riverWeak, riverDef
+        for (ref in listOf(
+            mountainSoft, mountainWeak, mountainDef,
+            riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
-        for (Reference ref : Arrays.asList(
-                mountainStrong,
-                riverStrong, riverSoft
+        for (ref in listOf(
+            mountainStrong,
+            riverStrong, riverSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
     @Test
-    void gcStrongMountainTest() {
+    fun gcStrongMountainTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(di.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(di.earth().mountainSoft());
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(di.earth().mountainWeak());
-        WeakReference<Mountain> mountainDef = new WeakReference<>(di.earth().mountainDefaultFactory());
-        WeakReference<River> riverStrong = new WeakReference<>(di.earth().riverStrong());
-        WeakReference<River> riverSoft = new WeakReference<>(di.earth().riverSoft());
-        WeakReference<River> riverWeak = new WeakReference<>(di.earth().riverWeak());
-        WeakReference<River> riverDef = new WeakReference<>(di.earth().riverDefaultSoft());
+        val di = GcGodComponentStoneComponent()
+        val mountainStrong = WeakReference(di.earth().mountainStrong())
+        val mountainSoft = WeakReference(di.earth().mountainSoft())
+        val mountainWeak = WeakReference(di.earth().mountainWeak())
+        val mountainDef = WeakReference(di.earth().mountainDefaultFactory())
+        val riverStrong = WeakReference(di.earth().riverStrong())
+        val riverSoft = WeakReference(di.earth().riverSoft())
+        val riverWeak = WeakReference(di.earth().riverWeak())
+        val riverDef = WeakReference(di.earth().riverDefaultSoft())
 
         //When
-        di.gcStrongMountains();
+        di.gcStrongMountains()
 
         //Then
-        for (Reference ref : Arrays.asList(
-                mountainStrong, mountainWeak, mountainDef,
-                riverWeak, riverDef
+        for (ref in listOf(
+            mountainStrong, mountainWeak, mountainDef,
+            riverWeak, riverDef
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
-        for (Reference ref : Arrays.asList(
-                mountainSoft,
-                riverStrong, riverSoft
+        for (ref in listOf(
+            mountainSoft,
+            riverStrong, riverSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 

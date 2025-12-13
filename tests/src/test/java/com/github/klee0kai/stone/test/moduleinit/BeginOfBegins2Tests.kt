@@ -1,112 +1,84 @@
-package com.github.klee0kai.stone.test.moduleinit;
+package com.github.klee0kai.stone.test.moduleinit
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.base_forest.ForestComponent;
-import com.github.klee0kai.test.di.base_forest.IdentityModule;
-import com.github.klee0kai.test.di.base_forest.UnitedModule;
-import com.github.klee0kai.test.mowgli.community.History;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.identity.Conscience;
-import com.github.klee0kai.test.mowgli.identity.Ideology;
-import com.github.klee0kai.test.mowgli.identity.Knowledge;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
+import com.github.klee0kai.test.di.base_forest.IdentityModule
+import com.github.klee0kai.test.di.base_forest.UnitedModule
+import com.github.klee0kai.test.mowgli.community.History
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.identity.Conscience
+import com.github.klee0kai.test.mowgli.identity.Ideology
+import com.github.klee0kai.test.mowgli.identity.Knowledge
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class BeginOfBegins2Tests {
-
-    private static final Earth earth = new Earth();
-    private static final Ideology ideology = new Ideology();
+class BeginOfBegins2Tests {
 
     @Test
-    public void initByFactory() {
+    fun initByFactory() {
         //Given
-        UnitedModule module = new UnitedModule() {
-            @Override
-            public Earth earth() {
-                return earth;
-            }
+        val module = object : UnitedModule() {
+            override fun earth(): Earth = earth
+            override fun history(): History? = null
 
-            @Override
-            public History history() {
-                return null;
-            }
-        };
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        }
+        val DI = ForestComponentStoneComponent()
 
         //When
-        DI.initUnitedModule(module);
+        DI.initUnitedModule(module)
 
         //Then
-        assertEquals(earth, DI.united().earth());
+        assertEquals(earth, DI.united().earth())
     }
 
 
     @Test
-    public void initByFactoryClass() {
+    fun initByFactoryClass() {
         //Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
+        TODO("implement this")
+        val DI = ForestComponentStoneComponent()
 
         //When
-        DI.initUnitedModule(UnitedModuleFactory.class);
+        DI.initUnitedModule(UnitedModuleFactory::class.java as UnitedModule?)
 
         //Then
-        assertEquals(earth, DI.united().earth());
+        assertEquals(earth, DI.united().earth())
     }
 
 
     @Test
-    public void initAllModules() {
+    fun initAllModules() {
         //Given
-        UnitedModule module = new UnitedModule() {
-            @Override
-            public Earth earth() {
-                return earth;
-            }
+        val module: UnitedModule = object : UnitedModule() {
+            override fun earth(): Earth = earth
+            override fun history(): History? = null
 
-            @Override
-            public History history() {
-                return null;
-            }
-        };
-        IdentityModule identityModule = new IdentityModule() {
-            @Override
-            public Knowledge knowledge() {
-                return null;
-            }
-
-            @Override
-            public Conscience conscience() {
-                return null;
-            }
-
-            @Override
-            public Ideology ideology() {
-                return ideology;
-            }
-        };
-
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
-
-        //When
-        DI.iniAllModules(module, identityModule);
-
-        //Then
-        assertEquals(earth, DI.united().earth());
-        assertEquals(ideology, DI.identity().ideology());
-    }
-
-    public static class UnitedModuleFactory extends UnitedModule {
-
-        @Override
-        public Earth earth() {
-            return earth;
+        }
+        val identityModule: IdentityModule = object : IdentityModule {
+            override fun knowledge(): Knowledge? = null
+            override fun conscience(): Conscience? = null
+            override fun ideology(): Ideology = ideology
         }
 
-        @Override
-        public History history() {
-            return null;
-        }
+        val DI = ForestComponentStoneComponent()
+
+        //When
+        DI.iniAllModules(module, identityModule)
+
+        //Then
+        assertEquals(earth, DI.united().earth())
+        assertEquals(ideology, DI.identity().ideology())
+
+    }
+
+    class UnitedModuleFactory : UnitedModule() {
+        override fun earth(): Earth = earth
+
+        override fun history(): History? = null
+    }
+
+    companion object {
+        private val earth: Earth = Earth()
+        private val ideology: Ideology = Ideology()
     }
 
 }

@@ -1,148 +1,144 @@
-package com.github.klee0kai.stone.test.cache;
+package com.github.klee0kai.stone.test.cache
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.gcforest.GcGodComponent;
-import com.github.klee0kai.test.mowgli.earth.Mountain;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.gcforest.GcGodComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-public class EarthCacheTests {
-
+class EarthCacheTests {
 
     @Test
-    public void strongCacheTest() {
+    fun strongCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+        val DI = GcGodComponentStoneComponent()
 
         //When
-        Mountain mountain1 = DI.earth().mountainStrong();
-        Mountain mountain2 = DI.earth().mountainStrong();
+        val mountain1 = DI.earth().mountainStrong()
+        val mountain2 = DI.earth().mountainStrong()
 
         //Then
         assertEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1?.uuid,
+            mountain2?.uuid
+        )
     }
 
 
     @Test
-    public void softCacheTest() {
+    fun softCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+        val DI = GcGodComponentStoneComponent()
 
         //When
-        Mountain mountain1 = DI.earth().mountainSoft();
-        Mountain mountain2 = DI.earth().mountainSoft();
+        val mountain1 = DI.earth().mountainSoft()
+        val mountain2 = DI.earth().mountainSoft()
 
         //Then
         assertEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1?.uuid,
+            mountain2?.uuid
+        )
     }
 
     @Test
-    public void weakCacheTest() {
+    fun weakCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+        val DI = GcGodComponentStoneComponent()
 
         //When
-        Mountain mountain1 = DI.earth().mountainWeak();
-        Mountain mountain2 = DI.earth().mountainWeak();
+        val mountain1 = DI.earth().mountainWeak()
+        val mountain2 = DI.earth().mountainWeak()
 
         //Then
         assertEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1?.uuid,
+            mountain2?.uuid
+        )
     }
 
     @Test
-    public void defCacheTest() {
+    fun defCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+        val DI = GcGodComponentStoneComponent()
 
         //When
-        Mountain mountain1 = DI.earth().mountainDefaultFactory();
-        Mountain mountain2 = DI.earth().mountainDefaultFactory();
+        val mountain1 = DI.earth().mountainDefaultFactory()
+        val mountain2 = DI.earth().mountainDefaultFactory()
 
         //Then
         assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid,
-                "Default is factory providing"
-        );
+            mountain1?.uuid,
+            mountain2?.uuid,
+            "Default is factory providing"
+        )
     }
 
     @Test
-    public void defCache2Test() {
+    fun defCache2Test() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+        val DI = GcGodComponentStoneComponent()
 
         //When
-        Mountain mountain1 = DI.earth().mountainDefault2Factory();
-        Mountain mountain2 = DI.earth().mountainDefault2Factory();
+        val mountain1 = DI.earth().mountainDefault2Factory()
+        val mountain2 = DI.earth().mountainDefault2Factory()
 
         //Then
         assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid,
-                "Default is factory providing"
-        );
+            mountain1?.uuid,
+            mountain2?.uuid,
+            "Default is factory providing"
+        )
     }
 
     @Test
-    public void differentMethodDifferentCacheTest() {
+    fun differentMethodDifferentCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
+        val DI = GcGodComponentStoneComponent()
 
         //When
-        Mountain mountainStrong = DI.earth().mountainStrong();
-        Mountain mountainSoft = DI.earth().mountainSoft();
+        val mountainStrong = DI.earth().mountainStrong()
+        val mountainSoft = DI.earth().mountainSoft()
 
         //Then
         assertNotEquals(
-                mountainStrong.uuid,
-                mountainSoft.uuid
-        );
-    }
-
-
-    @Test
-    public void factoryNotCacheTest() {
-        //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-
-        //When
-        Mountain mountain1 = DI.earth().mountainFactory();
-        Mountain mountain2 = DI.earth().mountainFactory();
-
-        //Then
-        assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountainStrong?.uuid,
+            mountainSoft?.uuid
+        )
     }
 
 
     @Test
-    public void differentDIDifferentCacheTest() {
+    fun factoryNotCacheTest() {
         //Given
-        GcGodComponent DI1 = Stone.createComponent(GcGodComponent.class);
-        GcGodComponent DI2 = Stone.createComponent(GcGodComponent.class);
+        val DI = GcGodComponentStoneComponent()
 
         //When
-        Mountain mountain1 = DI1.earth().mountainStrong();
-        Mountain mountain2 = DI2.earth().mountainStrong();
+        val mountain1 = DI.earth().mountainFactory()
+        val mountain2 = DI.earth().mountainFactory()
 
         //Then
         assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1?.uuid,
+            mountain2?.uuid
+        )
+    }
+
+
+    @Test
+    fun differentDIDifferentCacheTest() {
+        //Given
+        val DI1 = GcGodComponentStoneComponent()
+        val DI2 = GcGodComponentStoneComponent()
+
+        //When
+        val mountain1 = DI1.earth().mountainStrong()
+        val mountain2 = DI2.earth().mountainStrong()
+
+        //Then
+        assertNotEquals(
+            mountain1?.uuid,
+            mountain2?.uuid,
+        )
     }
 
 }

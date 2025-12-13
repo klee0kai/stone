@@ -1,85 +1,83 @@
-package com.github.klee0kai.stone.test.bindinstance.simple;
+package com.github.klee0kai.stone.test.bindinstance.simple
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.Saturn;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.Saturn
+import com.github.klee0kai.test.mowgli.galaxy.Sun
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class GodTouchTest {
+class GodTouchTest {
 
     @Test
-    public void firstCreateSunTest() {
+    fun firstCreateSunTest() {
         //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
+        val DI = GodWorkspaceComponentStoneComponent()
+        val sun = Sun()
 
         //When
-        DI.bindSun(sun);
+        DI.bindSun(sun)
 
         //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertNull(DI.sunSystem().earth());
+        assertEquals(sun.uuid, DI.sunSystem().sun()!!.uuid)
+        assertNull(DI.sunSystem().earth())
+    }
+
+
+    @org.junit.jupiter.api.Test
+    fun createSunAndEarthTest() {
+        //Given
+        val DI = GodWorkspaceComponentStoneComponent()
+        val sun = Sun()
+        val earth = Earth()
+
+        //When
+        DI.bindSun(sun)
+        DI.bindEarth(earth)
+
+        //Then
+        assertEquals(sun.uuid, DI.sunSystem().sun()!!.uuid)
+        assertEquals(earth.uuid, DI.sunSystem().earth()!!.uuid)
+        assertNull(DI.sunSystem().planet())
     }
 
 
     @Test
-    public void createSunAndEarthTest() {
+    fun createSaturnEarthSunTest() {
         //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
-        Earth earth = new Earth();
+        val DI = GodWorkspaceComponentStoneComponent()
+
+        val sun = Sun()
+        val earth = Earth()
+        val saturn = Saturn()
 
         //When
-        DI.bindSun(sun);
-        DI.bindEarth(earth);
+        DI.bindEarth(earth)
+        DI.bindSun(sun)
+        DI.bindPlanet(saturn)
 
         //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertNull(DI.sunSystem().planet());
+        assertEquals(sun.uuid, DI.sunSystem().sun()!!.uuid)
+        assertEquals(earth.uuid, DI.sunSystem().earth()!!.uuid)
+        assertEquals(saturn, DI.sunSystem().planet())
+        assertNull(DI.sunSystem().saturn())
     }
 
 
     @Test
-    public void createSaturnEarthSunTest() {
+    fun planetIsPlanetTest() {
         //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
-        Earth earth = new Earth();
-        Saturn saturn = new Saturn();
+        val DI = GodWorkspaceComponentStoneComponent()
+        val earth = Earth()
 
         //When
-        DI.bindEarth(earth);
-        DI.bindSun(sun);
-        DI.bindPlanet(saturn);
+        DI.planet(earth)
+        DI.planet(null)
 
         //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertEquals(saturn, DI.sunSystem().planet());
-        assertNull(DI.sunSystem().saturn());
+        assertEquals(earth, DI.planet(null))
+        assertEquals(earth, DI.providePlanet())
     }
-
-
-    @Test
-    public void planetIsPlanetTest() {
-        //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Earth earth = new Earth();
-
-        //When
-        DI.planet(earth);
-        DI.planet(null);
-
-        //Then
-        assertEquals(earth, DI.planet(null));
-        assertEquals(earth, DI.providePlanet());
-    }
-
-
 }

@@ -1,90 +1,86 @@
-package com.github.klee0kai.stone.test.bindinstance.simple;
+package com.github.klee0kai.stone.test.bindinstance.simple
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.Saturn;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.Saturn
+import com.github.klee0kai.test.mowgli.galaxy.Sun
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class GodFirstWorkDayTest {
+class GodFirstWorkDayTest {
 
     @Test
-    public void firstCreateSunTest() {
+    fun firstCreateSunTest() {
         //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
+        val DI = GodWorkspaceComponentStoneComponent()
+        val sun = com.github.klee0kai.test.mowgli.galaxy.Sun()
 
         //When
-        DI.bindSun(sun);
+        DI.bindSun(sun)
 
         //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertNull(DI.sunSystem().earth());
+        assertEquals(sun.uuid, DI.sunSystem().sun()!!.uuid)
+        assertNull(DI.sunSystem().earth())
     }
 
 
     @Test
-    public void createSunAndEarthTest() {
+    fun createSunAndEarthTest() {
         //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
-        Earth earth = new Earth();
+        val DI = GodWorkspaceComponentStoneComponent()
+        val sun = Sun()
+        val earth = Earth()
 
         //When
-        DI.bindSun(sun);
-        DI.bindEarth(earth);
+        DI.bindSun(sun)
+        DI.bindEarth(earth)
 
         //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertNull(DI.sunSystem().planet());
+        assertEquals(sun.uuid, DI.sunSystem().sun()!!.uuid)
+        assertEquals(earth.uuid, DI.sunSystem().earth()!!.uuid)
+        assertNull(DI.sunSystem().planet())
     }
 
 
     @Test
-    public void createSunEarthSaturnTest() {
+    fun createSunEarthSaturnTest() {
         //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
-        Earth earth = new Earth();
-        Saturn saturn = new Saturn();
+        val DI = GodWorkspaceComponentStoneComponent()
+        val sun = Sun()
+        val earth = Earth()
+        val saturn = Saturn()
 
         //When
-        DI.bindSun(sun);
-        DI.bindEarth(earth);
-        DI.bindSaturn(saturn);
+        DI.bindSun(sun)
+        DI.bindEarth(earth)
+        DI.bindSaturn(saturn)
 
         //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertEquals(saturn.uuid, DI.sunSystem().saturn().uuid);
-        assertNull(DI.sunSystem().planet());
+        assertEquals(sun.uuid, DI.sunSystem().sun()!!.uuid)
+        assertEquals(earth.uuid, DI.sunSystem().earth()!!.uuid)
+        assertEquals(saturn.uuid, DI.sunSystem().saturn()!!.uuid)
+        assertNull(DI.sunSystem().planet())
     }
 
 
     @Test
-    public void createSaturnEarthSunTest() {
+    fun createSaturnEarthSunTest() {
         //Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Sun sun = new Sun();
-        Earth earth = new Earth();
-        Saturn saturn = new Saturn();
+        val DI = GodWorkspaceComponentStoneComponent()
+        val sun = Sun()
+        val earth = Earth()
+        val saturn = Saturn()
 
         //When
-        DI.bindSaturn(saturn);
-        DI.bindEarth(earth);
-        DI.bindSun(sun);
+        DI.bindSaturn(saturn)
+        DI.bindEarth(earth)
+        DI.bindSun(sun)
 
         //Then
-        assertEquals(sun.uuid, DI.sunSystem().sun().uuid);
-        assertEquals(earth.uuid, DI.sunSystem().earth().uuid);
-        assertEquals(saturn.uuid, DI.sunSystem().saturn().uuid);
-        assertNull(DI.sunSystem().planet());
+        assertEquals(sun.uuid, DI.sunSystem().sun()!!.uuid)
+        assertEquals(earth.uuid, DI.sunSystem().earth()!!.uuid)
+        assertEquals(saturn.uuid, DI.sunSystem().saturn()!!.uuid)
+        assertNull(DI.sunSystem().planet())
     }
-
-
 }

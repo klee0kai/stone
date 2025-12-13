@@ -1,162 +1,158 @@
-package com.github.klee0kai.stone.test.gc;
+package com.github.klee0kai.stone.test.gc
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.gcforest.GcGodComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.Saturn;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.gcforest.GcGodComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.Saturn
+import com.github.klee0kai.test.mowgli.galaxy.Sun
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import java.lang.ref.WeakReference
 
-import java.lang.ref.WeakReference;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-
-public class GodLastWorkDayTests {
-
+class GodLastWorkDayTests {
 
     @Test
-    void gcAllTest() {
+    fun gcAllTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
-        WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
-        WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.bind(sunRef.get());
-        di.bind(earthRef.get());
-        di.bind(saturnRef.get());
+        val di = GcGodComponentStoneComponent()
+        val sunRef = WeakReference(Sun())
+        val earthRef = WeakReference(Earth())
+        val saturnRef = WeakReference(Saturn())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
-        di.gcAll();
+        di.gcAll()
 
         //Then
-        assertNull(sunRef.get());
-        assertNull(earthRef.get());
-        assertNull(saturnRef.get());
+        assertNull(sunRef.get())
+        assertNull(earthRef.get())
+        assertNull(saturnRef.get())
     }
 
 
     @Test
-    void gcWeakTest() {
+    fun gcWeakTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
-        WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
-        WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.bind(sunRef.get());
-        di.bind(earthRef.get());
-        di.bind(saturnRef.get());
+        val di = GcGodComponentStoneComponent()
+        val sunRef = WeakReference(Sun())
+        val earthRef = WeakReference(Earth())
+        val saturnRef = WeakReference(Saturn())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
-        di.gcWeak();
+        di.gcWeak()
 
         //Then
-        assertNotNull(sunRef.get());
-        assertNotNull(earthRef.get());
-        assertNull(saturnRef.get());
+        assertNotNull(sunRef.get())
+        assertNotNull(earthRef.get())
+        assertNull(saturnRef.get())
     }
 
 
     @Test
-    void gcSoftTest() {
+    fun gcSoftTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
-        WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
-        WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.bind(sunRef.get());
-        di.bind(earthRef.get());
-        di.bind(saturnRef.get());
+        val di = GcGodComponentStoneComponent()
+        val sunRef = WeakReference(Sun())
+        val earthRef = WeakReference(Earth())
+        val saturnRef = WeakReference(Saturn())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
-        di.gcSoft();
+        di.gcSoft()
 
         //Then
-        assertNotNull(sunRef.get());
-        assertNull(earthRef.get());
-        assertNull(saturnRef.get());
+        assertNotNull(sunRef.get())
+        assertNull(earthRef.get())
+        assertNull(saturnRef.get())
     }
 
     @Test
-    void gcStrongTest() {
+    fun gcStrongTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
-        WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
-        WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.bind(sunRef.get());
-        di.bind(earthRef.get());
-        di.bind(saturnRef.get());
+        val di = GcGodComponentStoneComponent()
+        val sunRef = WeakReference(Sun())
+        val earthRef = WeakReference(Earth())
+        val saturnRef = WeakReference(Saturn())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
-        di.gcStrong();
+        di.gcStrong()
 
         //Then
-        assertNull(sunRef.get());
-        assertNotNull(earthRef.get());
-        assertNull(saturnRef.get());
-    }
-
-
-    @Test
-    void gcSunTest() {
-        //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
-        WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
-        WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.bind(sunRef.get());
-        di.bind(earthRef.get());
-        di.bind(saturnRef.get());
-
-        //When
-        di.gcSun();
-
-        //Then
-        assertNull(sunRef.get());
-        assertNotNull(earthRef.get());
-        assertNull(saturnRef.get());
+        assertNull(sunRef.get())
+        assertNotNull(earthRef.get())
+        assertNull(saturnRef.get())
     }
 
 
     @Test
-    void gcPlanetsTest() {
+    fun gcSunTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
-        WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
-        WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.bind(sunRef.get());
-        di.bind(earthRef.get());
-        di.bind(saturnRef.get());
+        val di = GcGodComponentStoneComponent()
+        val sunRef = WeakReference(Sun())
+        val earthRef = WeakReference(Earth())
+        val saturnRef = WeakReference(Saturn())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
-        di.gcPlanets();
+        di.gcSun()
 
         //Then
-        assertNotNull(sunRef.get());
-        assertNull(earthRef.get());
-        assertNull(saturnRef.get());
+        assertNull(sunRef.get())
+        assertNotNull(earthRef.get())
+        assertNull(saturnRef.get())
+    }
+
+
+    @Test
+    fun gcPlanetsTest() {
+        //Given
+        val di = GcGodComponentStoneComponent()
+        val sunRef = WeakReference(Sun())
+        val earthRef = WeakReference(Earth())
+        val saturnRef = WeakReference(Saturn())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
+
+        //When
+        di.gcPlanets()
+
+        //Then
+        assertNotNull(sunRef.get())
+        assertNull(earthRef.get())
+        assertNull(saturnRef.get())
     }
 
     @Test
-    void gcSunAndPlanetsTest() {
+    fun gcSunAndPlanetsTest() {
         //Given
-        GcGodComponent di = Stone.createComponent(GcGodComponent.class);
-        WeakReference<Sun> sunRef = new WeakReference<>(new Sun());
-        WeakReference<Earth> earthRef = new WeakReference<>(new Earth());
-        WeakReference<Saturn> saturnRef = new WeakReference<>(new Saturn());
-        di.bind(sunRef.get());
-        di.bind(earthRef.get());
-        di.bind(saturnRef.get());
+        val di = GcGodComponentStoneComponent()
+        val sunRef = WeakReference(Sun())
+        val earthRef = WeakReference(Earth())
+        val saturnRef = WeakReference(Saturn())
+        di.bind(sunRef.get())
+        di.bind(earthRef.get())
+        di.bind(saturnRef.get())
 
         //When
-        di.gcSunAndPlanets();
+        di.gcSunAndPlanets()
 
         //Then
-        assertNull(sunRef.get());
-        assertNull(earthRef.get());
-        assertNull(saturnRef.get());
+        assertNull(sunRef.get())
+        assertNull(earthRef.get())
+        assertNull(saturnRef.get())
     }
+
 }

@@ -1,64 +1,61 @@
-package com.github.klee0kai.stone.test.bindinstance.singlemethod;
+package com.github.klee0kai.stone.test.bindinstance.singlemethod
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Sun
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class StarProvideTests {
+class StarProvideTests {
 
     @Test
-    public void bindSunTest() {
+    fun bindSunTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Sun sun = new Sun();
+        val DI = PlanetComponentStoneComponent()
+        val sun = Sun()
 
         //When
-        DI.sunModule().sun(sun);
+        DI.sunModule().sun(sun)
 
         //Then
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertNull(DI.sunModule().star(null));
+        assertEquals(sun, DI.sunModule().sun(null))
+        assertEquals(sun, DI.sunModule().sun(null))
+        assertNull(DI.sunModule().star(null))
     }
 
     @Test
-    public void bindStarTest() {
+    fun bindStarTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Sun sun = new Sun();
+        val DI = PlanetComponentStoneComponent()
+        val sun = Sun()
 
         //When
-        DI.sunModule().star(sun);
+        DI.sunModule().star(sun)
 
         //Then
-        assertEquals(sun, DI.sunModule().star(null));
-        assertEquals(sun, DI.sunModule().star(null));
-        assertNull(DI.sunModule().sun(null));
+        assertEquals(sun, DI.sunModule().star(null))
+        assertEquals(sun, DI.sunModule().star(null))
+        assertNull(DI.sunModule().sun(null))
     }
 
 
     @Test
-    public void separateSunBindingTest() {
+    fun separateSunBindingTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Sun sun1 = new Sun();
-        Sun sun2 = new Sun();
-        Sun sun3 = new Sun();
+        val DI = PlanetComponentStoneComponent()
+        val sun1 = Sun()
+        val sun2 = Sun()
+        val sun3 = Sun()
 
         //When
-        DI.sunModule().sunStrong(sun1);
-        DI.sunModule().sunSoft(sun2);
-        DI.sunModule().sun(sun3);
+        DI.sunModule().sunStrong(sun1)
+        DI.sunModule().sunSoft(sun2)
+        DI.sunModule().sun(sun3)
 
         //Then
-        assertEquals(sun1, DI.sunModule().sunStrong(null));
-        assertEquals(sun2, DI.sunModule().sunSoft(null));
-        assertEquals(sun3, DI.sunModule().sun(null));
+        assertEquals(sun1, DI.sunModule().sunStrong(null))
+        assertEquals(sun2, DI.sunModule().sunSoft(null))
+        assertEquals(sun3, DI.sunModule().sun(null))
     }
-
 
 }

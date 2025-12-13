@@ -1,85 +1,89 @@
-package com.github.klee0kai.stone.test.inject;
+package com.github.klee0kai.stone.test.inject
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.base_forest.ForestComponent;
-import com.github.klee0kai.test.mowgli.animal.Horse;
-import com.github.klee0kai.test.mowgli.animal.Mowgli;
-import com.github.klee0kai.test.mowgli.animal.Snake;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
+import com.github.klee0kai.test.mowgli.animal.Horse
+import com.github.klee0kai.test.mowgli.animal.Mowgli
+import com.github.klee0kai.test.mowgli.animal.Snake
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 
-import static org.junit.jupiter.api.Assertions.*;
-
-
-public class HorseInjectTests {
+class HorseInjectTests {
 
     @Test
-    public void horseBornTest() {
+    fun horseBornTest() {
         //Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
-        Horse horse = new Horse();
+        val DI = ForestComponentStoneComponent()
+        val horse = Horse()
 
 
         //When
-        DI.inject(horse, listener -> {
-
-        });
-
-        //Then
-        assertNotNull(horse.blood);
-        assertNotNull(horse.knowledge);
-        assertNotNull(horse.conscience);
-        assertNotNull(horse.methodInjectedConscience);
-        assertNotNull(horse.methodInjectedKnowledge);
-    }
-
-
-    @Test
-    public void mowgliBornTest() {
-        //Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
-        Mowgli mowgli = new Mowgli();
-
-
-        //When
-        DI.inject(mowgli);
+        DI.inject(
+            horse,
+            stoneLifeCycleOwner = StoneLifeCycleOwner { listener -> }
+        )
 
         //Then
-        assertNotNull(mowgli.blood);
-        assertNotNull(mowgli.knowledge);
-        assertNotNull(mowgli.conscience);
+        assertNotNull(horse.blood)
+        assertNotNull(horse.knowledge)
+        assertNotNull(horse.conscience)
+        assertNotNull(horse.methodInjectedConscience)
+        assertNotNull(horse.methodInjectedKnowledge)
     }
 
     @Test
-    public void oneBloodTest() {
+    fun mowgliBornTest() {
         //Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
-        Mowgli mowgli = new Mowgli();
-        Snake snake = new Snake();
+        val DI = ForestComponentStoneComponent()
+        val mowgli = Mowgli()
 
 
         //When
-        DI.inject(mowgli);
-        DI.inject(snake);
+        DI.inject(mowgli)
 
         //Then
-        assertEquals(mowgli.blood.uuid, snake.blood.uuid);
+        assertNotNull(mowgli.blood)
+        assertNotNull(mowgli.knowledge)
+        assertNotNull(mowgli.conscience)
     }
 
     @Test
-    public void personalityTest() {
+    fun oneBloodTest() {
         //Given
-        ForestComponent DI = Stone.createComponent(ForestComponent.class);
-        Mowgli mowgli = new Mowgli();
-        Snake snake = new Snake();
+        val DI = ForestComponentStoneComponent()
+        val mowgli = Mowgli()
+        val snake = Snake()
 
 
         //When
-        DI.inject(mowgli);
-        DI.inject(snake);
+        DI.inject(mowgli)
+        DI.inject(snake)
 
         //Then
-        assertNotEquals(mowgli.conscience.uuid, snake.conscience.uuid);
+        assertEquals(
+            mowgli.blood!!.uuid,
+            snake.blood!!.uuid
+        )
     }
 
+    @Test
+    fun personalityTest() {
+        //Given
+        val DI = ForestComponentStoneComponent()
+        val mowgli = Mowgli()
+        val snake = Snake()
 
+
+        //When
+        DI.inject(mowgli)
+        DI.inject(snake)
+
+        //Then
+        assertNotEquals(
+            mowgli.conscience!!.uuid,
+            snake.conscience!!.uuid,
+        )
+    }
 }
