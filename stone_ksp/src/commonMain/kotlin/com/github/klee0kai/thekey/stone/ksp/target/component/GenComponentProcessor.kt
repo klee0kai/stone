@@ -176,13 +176,23 @@ class GenComponentProcessor : TargetFileProcessor {
                                             Module::class.asClassName(),
                                             Component::class.asClassName()
                                         ).any() -> {
-                                            addStatement("%L( %L )", initMethodName, param.name!!.asString());
+                                            addStatement(
+                                                "%L?.let{ %L( %L ) }",
+                                                param.name!!.asString(),
+                                                initMethodName,
+                                                param.name!!.asString()
+                                            )
                                         }
 
                                         paramType.anyAnnotation(
                                             Dependencies::class.asClassName(),
                                         ).any() -> {
-                                            addStatement("%L( %L )", initDepsMethodName, param.name!!.asString());
+                                            addStatement(
+                                                "%L?.let{ %L( %L ) }",
+                                                param.name!!.asString(),
+                                                initDepsMethodName,
+                                                param.name!!.asString()
+                                            )
                                         }
 
                                         else -> {
@@ -456,7 +466,7 @@ class GenComponentProcessor : TargetFileProcessor {
                         providingArgsCode.add(provideCode)
                     }
 
-                    addCode("%L.%L( ", injectableField.name, injectMethod.simpleName.asString())
+                    addCode("%L?.%L( ", injectableField.name!!.asString(), injectMethod.simpleName.asString())
                     addCode(providingArgsCode.build())
                     addStatement(")");
                 }

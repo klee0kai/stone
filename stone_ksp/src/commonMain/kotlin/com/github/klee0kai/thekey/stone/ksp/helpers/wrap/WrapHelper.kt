@@ -203,8 +203,9 @@ class WrapHelper {
             LazyProvide::class,
             AsyncCoroutineProvide::class
         )) {
-            val wrapper = cl.asClassName()
             val isNoCachingWrapper = cl != LazyProvide::class.java && cl != AsyncCoroutineProvide::class
+
+            val wrapper = cl.asClassName()
             val wrapType = WrapType(
                 typeName = wrapper,
                 isNoCachingWrapper = isNoCachingWrapper,
@@ -212,7 +213,7 @@ class WrapHelper {
                 wrap = { or ->
                     CodeBlock.of(
                         "%T{ %L } ",
-                        if (isNoCachingWrapper) PhantomProvide::class.asClassName() else wrapper,
+                        wrapper,
                         or,
                     )
                 },
