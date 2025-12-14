@@ -1,7 +1,6 @@
 package com.github.klee0kai.tests.kotlin_models.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponent
+import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponentStoneComponent
 import com.github.klee0kai.test_kotlin.mowgli.animal.Cougar
 import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
 import org.junit.jupiter.api.Assertions.*
@@ -12,7 +11,7 @@ class GorillaInjectTests {
     @Test
     fun gorillaBornTest() {
         //Given
-        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val DI = RainForestComponentStoneComponent()
         val gorilla = Gorilla()
 
 
@@ -28,7 +27,7 @@ class GorillaInjectTests {
     @Test
     fun oneBloodTest() {
         //Given
-        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val DI = RainForestComponentStoneComponent()
         val gorilla = Gorilla()
         val cougar = Cougar()
 
@@ -48,7 +47,7 @@ class GorillaInjectTests {
     @Test
     fun personalityTest() {
         //Given
-        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val DI = RainForestComponentStoneComponent()
         val gorilla = Gorilla()
         val cougar = Cougar()
 
@@ -63,4 +62,5 @@ class GorillaInjectTests {
             cougar.conscience!!.uuid
         )
     }
+
 }

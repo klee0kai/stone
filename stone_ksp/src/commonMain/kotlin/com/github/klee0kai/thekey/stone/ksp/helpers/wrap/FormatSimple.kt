@@ -11,5 +11,6 @@ fun interface FormatSimple {
      */
     fun formatCode(
         or: CodeBlock,
+        nullable: Boolean,
     ): CodeBlock
 }

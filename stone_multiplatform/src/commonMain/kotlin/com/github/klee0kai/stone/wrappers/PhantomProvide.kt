@@ -18,10 +18,8 @@ import com.github.klee0kai.stone.weakref.Ref
  * }
 `</pre> *
  */
-class PhantomProvide<T>(private val call: Ref<T?>) : Ref<T?> {
+class PhantomProvide<T>(private val call: Ref<T>) : Ref<T> {
 
-    override fun get(): T? {
-        return call.get()
-    }
+    override fun get(): T = call.get()
 
 }

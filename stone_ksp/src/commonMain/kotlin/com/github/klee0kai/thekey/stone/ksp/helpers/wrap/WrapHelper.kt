@@ -7,6 +7,7 @@ import com.github.klee0kai.stone.wrappers.PhantomProvide
 import com.github.klee0kai.thekey.stone.ksp.exceptions.StoneException
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils.noWildCardType
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils.rawTypeOf
+import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.lang.ref.Reference
@@ -138,7 +139,7 @@ class WrapHelper {
                     codeBuilder = wrapListType.inListFormat!!.formatCode(
                         originalListType = unwrapType.typeName,
                         or = codeBuilder.build(),
-                        itemTransformFun = { listItemCode ->
+                        itemTransformFun = { listItemCode, nullable ->
                             transform(unWrapItemType, wrapItemType, listItemCode)
                         }
                     ).toBuilder()
@@ -152,7 +153,7 @@ class WrapHelper {
                     break
                 }
             }
-            codeBuilder = unwrapType.unwrap.formatCode(codeBuilder.build())
+            codeBuilder = unwrapType.unwrap.formatCode(codeBuilder.build(), unwrapType.typeName.isNullable)
                 .toBuilder()
 
             unwrapPath.pollFirst()
@@ -160,11 +161,14 @@ class WrapHelper {
         }
 
         while (!wrapPath.isEmpty()) {
-            codeBuilder = wrapPath[0].wrap.formatCode(codeBuilder.build())
+            codeBuilder = wrapPath[0].wrap.formatCode(codeBuilder.build(), wrapPath[0].typeName.isNullable)
                 .toBuilder()
 
             wrapPath.pollFirst()
             wrapPathNames.pollFirst()
+        }
+        if (!wannaType.isNullable) {
+            codeBuilder.add("!!")
         }
 
         return codeBuilder.build()
@@ -182,16 +186,57 @@ class WrapHelper {
             val wrapType = WrapType(
                 typeName = wrapper,
                 isNoCachingWrapper = false,
-                wrap = { or ->
-                    CodeBlock.builder()
-                        .add("%L?.let{ %T(it) }", or, creator)
-                        .build()
+                wrap = { or, nullable ->
+                    codeBlock {
+                        if (nullable) {
+                            add("%T( %L )", creator, or)
+                        } else {
+                            add("%T( %L!! )", creator, or)
+                        }
+                    }
                 },
-                unwrap = { or ->
-                    CodeBlock.builder()
-                        .add("%L?.get()", or)
-                        .build()
+                unwrap = { or, nullable ->
+                    codeBlock {
+                        if (nullable) {
+                            add("%L?.get()", or)
+                        } else {
+                            add("%L!!.get()", or)
+                        }
+                    }
                 }
+            )
+            support(wrapType)
+        }
+
+        for (cl in listOf(
+            Lazy::class,
+        )) {
+            val wrapper = cl.asClassName()
+            val wrapType = WrapType(
+                typeName = wrapper,
+                isNoCachingWrapper = false,
+                isAsyncProvider = true,
+                wrap = { or, nullable ->
+                    if (nullable) {
+                        CodeBlock.of(
+                            "lazy{ %L } ",
+                            or,
+                        )
+                    } else {
+                        CodeBlock.of(
+                            "lazy{ %L!! } ",
+                            or,
+                        )
+                    }
+
+                },
+                unwrap = { or, nullable ->
+                    if (nullable) {
+                        CodeBlock.of("%L?.value", or)
+                    } else {
+                        CodeBlock.of("%L!!.value", or)
+                    }
+                },
             )
             support(wrapType)
         }
@@ -210,14 +255,29 @@ class WrapHelper {
                 typeName = wrapper,
                 isNoCachingWrapper = isNoCachingWrapper,
                 isAsyncProvider = true,
-                wrap = { or ->
-                    CodeBlock.of(
-                        "%T{ %L } ",
-                        wrapper,
-                        or,
-                    )
+                wrap = { or, nullable ->
+                    if (nullable) {
+                        CodeBlock.of(
+                            "%T{ %L } ",
+                            wrapper,
+                            or,
+                        )
+                    } else {
+                        CodeBlock.of(
+                            "%T{ %L!! } ",
+                            wrapper,
+                            or,
+                        )
+                    }
+
                 },
-                unwrap = { or -> CodeBlock.of("%L?.get()", or) },
+                unwrap = { or, nullable ->
+                    if (nullable) {
+                        CodeBlock.of("%L?.get()", or)
+                    } else {
+                        CodeBlock.of("%L!!.get()", or)
+                    }
+                },
             )
             support(wrapType)
         }
@@ -230,13 +290,13 @@ class WrapHelper {
 
             val wrapType = WrapType(
                 typeName = wrapper,
-                wrap = { or ->
+                wrap = { or, nullable ->
                     val builder = CodeBlock.builder()
                     builder.add("listOfNotNull( %L ) ", or)
                     if (needConstructor) builder.add(".let { %T(it) }", createType)
                     builder.build()
                 },
-                unwrap = { or ->
+                unwrap = { or, nullable ->
                     CodeBlock.builder()
                         .add("%L.first( %L )", or)
                         .build()
@@ -246,7 +306,7 @@ class WrapHelper {
                     val isListNeedConstructor =
                         needConstructor && rawTypeOf(wrapper) != rawTypeOf(originalListType)
 
-                    val itemTransform = itemTransformFun.formatCode(CodeBlock.of("it"))
+                    val itemTransform = itemTransformFun.formatCode(CodeBlock.of("it"), nullable = false)
                     if (itemTransform.toString() == "it") {
                         //no transforms
                         builder.add(originalListCode)

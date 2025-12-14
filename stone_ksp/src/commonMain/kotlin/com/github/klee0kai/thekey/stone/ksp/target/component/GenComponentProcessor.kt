@@ -340,8 +340,11 @@ class GenComponentProcessor : TargetFileProcessor {
         )
 
         val isListCache = wrapHelper.isList(cacheControlInvoke!!.rawReturnType())
-        val cacheControlType = if (isListCache) List::class.asClassName().parameterizedBy(nonWrappedBindType)
-        else nonWrappedBindType
+        val cacheControlType = if (isListCache) {
+            List::class.asClassName().parameterizedBy(nonWrappedBindType).copy(nullable = true)
+        } else {
+            nonWrappedBindType.copy(nullable = true)
+        }
 
         // bind object declared in module
         genOverrideFun(method) {

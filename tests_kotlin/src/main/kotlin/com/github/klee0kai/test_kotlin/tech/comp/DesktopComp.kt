@@ -32,13 +32,13 @@ class DesktopComp(
         ComputerStore.DI.inject(this, monitorSize, monCompany, kConnectType)
     }
 
-    override fun subscribe(listener: StoneLifeCycleListener?) {
+    override fun subscribe(listener: StoneLifeCycleListener) {
         super.subscribe(object : ATechLifecycle {
             override fun onBuy() = Unit
             override fun onBroken() = Unit
 
             override fun onDrown() {
-                listener?.protectForInjected(100)
+                listener.protectForInjected(100)
             }
         })
     }

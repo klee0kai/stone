@@ -1,7 +1,6 @@
 package com.github.klee0kai.tests.kotlin_models.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponent
+import com.github.klee0kai.test_kotlin.di.base_forest.RainForestComponentStoneComponent
 import com.github.klee0kai.test_kotlin.mowgli.animal.Gorilla
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -11,7 +10,7 @@ class GorillaInjectWrappersTests {
     @Test
     fun supportWrappersTest() {
         //Given
-        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val DI = RainForestComponentStoneComponent()
         val gorilla = Gorilla()
 
         //When
@@ -31,7 +30,7 @@ class GorillaInjectWrappersTests {
     @Test
     fun refWrapperTest() {
         //Given
-        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val DI = RainForestComponentStoneComponent()
         val gorilla = Gorilla()
 
         //When
@@ -56,7 +55,7 @@ class GorillaInjectWrappersTests {
     @Test
     fun genWrapperTest() {
         //Given
-        val DI = Stone.createComponent(RainForestComponent::class.java)
+        val DI = RainForestComponentStoneComponent()
         var gorilla = Gorilla()
 
         //When
@@ -64,8 +63,8 @@ class GorillaInjectWrappersTests {
 
         //Then
         assertNotEquals(
-            gorilla.knowledgePhantomProvide!!.get().uuid,
-            gorilla.knowledgePhantomProvide!!.get().uuid
+            gorilla.knowledgePhantomProvide!!.get()!!.uuid,
+            gorilla.knowledgePhantomProvide!!.get()!!.uuid
         )
         assertNotEquals(
             gorilla.knowledgePhantomProvide2!!.get().uuid,

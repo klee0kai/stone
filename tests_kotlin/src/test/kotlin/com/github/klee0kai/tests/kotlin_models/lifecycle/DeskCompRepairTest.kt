@@ -1,5 +1,6 @@
 package com.github.klee0kai.tests.kotlin_models.lifecycle
 
+import com.github.klee0kai.test_kotlin.tech.ComputerStore
 import com.github.klee0kai.test_kotlin.tech.comp.DesktopComp
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
