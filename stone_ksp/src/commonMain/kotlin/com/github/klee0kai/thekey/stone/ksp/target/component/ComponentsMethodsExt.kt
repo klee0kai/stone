@@ -14,7 +14,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.isClassReturn
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
 import com.github.klee0kai.thekey.stone.ksp.ksp.isUnit
 import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
-import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration

@@ -13,7 +13,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
-import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.component.BindInstanceType
 import com.github.klee0kai.thekey.stone.ksp.target.component.isBindInstanceMethod
 import com.google.devtools.ksp.KspExperimental

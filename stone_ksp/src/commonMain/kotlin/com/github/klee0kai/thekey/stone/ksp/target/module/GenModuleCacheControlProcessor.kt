@@ -1,6 +1,6 @@
 @file:OptIn(KspExperimental::class)
 
-package com.github.klee0kai.thekey.stone.ksp.target
+package com.github.klee0kai.thekey.stone.ksp.target.module
 
 import com.github.klee0kai.stone.__hidden__.CacheAction
 import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
