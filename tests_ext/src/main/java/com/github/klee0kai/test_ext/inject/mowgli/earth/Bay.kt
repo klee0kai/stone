@@ -1,9 +1,7 @@
-package com.github.klee0kai.test_ext.inject.mowgli.earth;
+package com.github.klee0kai.test_ext.inject.mowgli.earth
 
-import java.util.UUID;
+import java.util.*
 
-public class Bay {
-
-    public UUID uuid = UUID.randomUUID();
-    
+class Bay {
+    var uuid: UUID = UUID.randomUUID()
 }

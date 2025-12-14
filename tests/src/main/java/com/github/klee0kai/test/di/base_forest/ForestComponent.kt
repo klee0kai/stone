@@ -7,8 +7,10 @@ import com.github.klee0kai.test.mowgli.animal.Horse
 import com.github.klee0kai.test.mowgli.animal.Mowgli
 import com.github.klee0kai.test.mowgli.animal.Snake
 
+
 @Component
 interface ForestComponent {
+
     fun united(): UnitedModule?
 
     fun identity(): IdentityModule?

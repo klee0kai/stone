@@ -1,25 +1,30 @@
-package com.github.klee0kai.test_ext.inject.di.base_phone;
+package com.github.klee0kai.test_ext.inject.di.base_phone
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.component.ExtendOf;
-import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
-import com.github.klee0kai.test.di.base_phone.PhoneComponent;
-import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize;
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.tech.phone.GoodPhone;
-import com.github.klee0kai.test.tech.phone.OnePhone;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.component.ExtendOf
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.test.di.base_phone.PhoneComponent
+import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.tech.phone.GoodPhone
+import com.github.klee0kai.test.tech.phone.OnePhone
 
 @Component
-public interface PhoneExtComponent extends PhoneComponent {
+interface PhoneExtComponent : PhoneComponent {
 
-    TechExtModule components();
+    override fun components(): TechExtModule?
 
     @ExtendOf
-    void extOf(PhoneComponent parent);
+    fun extOf(parent: PhoneComponent?)
 
-    void injectExt(OnePhone onePhone);
+    fun injectExt(onePhone: OnePhone?)
 
-    void injectExt(GoodPhone goodPhone, DataStorageSize dataStorageSize, RamSize ramSize);
+    fun injectExt(goodPhone: GoodPhone?, dataStorageSize: DataStorageSize?, ramSize: RamSize?)
 
-    void injectExt(GoodPhone goodPhone, StoneLifeCycleOwner lifeCycleOwner, DataStorageSize dataStorageSize, RamSize ramSize);
+    fun injectExt(
+        goodPhone: GoodPhone?,
+        lifeCycleOwner: StoneLifeCycleOwner?,
+        dataStorageSize: DataStorageSize?,
+        ramSize: RamSize?
+    )
 }

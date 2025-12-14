@@ -1,16 +1,12 @@
-package com.github.klee0kai.test_ext.inject.mowgli.identity;
+package com.github.klee0kai.test_ext.inject.mowgli.identity
 
-import com.github.klee0kai.test.mowgli.identity.Ideology;
+import com.github.klee0kai.test.mowgli.identity.Ideology
+import java.util.*
 
-import java.util.UUID;
-
-public class FamilyIdeology extends Ideology {
-
-    public UUID uuid = UUID.randomUUID();
+class FamilyIdeology : Ideology() {
+    override var uuid: UUID = UUID.randomUUID()
 
 
-    public boolean isFamilyIdeology() {
-        return true;
-    }
-
+    override val isFamilyIdeology: Boolean
+        get() = true
 }

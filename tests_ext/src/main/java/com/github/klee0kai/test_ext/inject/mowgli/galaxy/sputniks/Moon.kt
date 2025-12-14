@@ -1,10 +1,7 @@
-package com.github.klee0kai.test_ext.inject.mowgli.galaxy.sputniks;
+package com.github.klee0kai.test_ext.inject.mowgli.galaxy.sputniks
 
-import java.util.UUID;
+import java.util.*
 
-public class Moon {
-
-    public UUID uuid = UUID.randomUUID();
-
-
+class Moon {
+    var uuid: UUID = UUID.randomUUID()
 }

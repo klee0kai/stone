@@ -1,29 +1,26 @@
-package com.github.klee0kai.test_ext.inject.di.techfactory;
+package com.github.klee0kai.test_ext.inject.di.techfactory
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.di.techfactory.TechFactoryModule;
-import com.github.klee0kai.test_ext.inject.di.techfactory.identifiers.Frequency;
-import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram;
-
-import javax.inject.Named;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.di.techfactory.TechFactoryModule
+import com.github.klee0kai.test_ext.inject.di.techfactory.identifiers.Frequency
+import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram
+import javax.inject.Named
 
 @Module
-public interface TechFactoryExtModule extends TechFactoryModule {
+interface TechFactoryExtModule : TechFactoryModule {
 
-    @Override
-    @Named()
+    @Named
     @Provide(cache = Provide.CacheType.Factory)
-    DDR3Ram ram();
+    override fun ram(): DDR3Ram?
 
-    @Override
     @Named("size")
     @Provide(cache = Provide.CacheType.Factory)
-    DDR3Ram ram(RamSize ramSize);
+    override fun ram(ramSize: RamSize?): DDR3Ram?
 
     @Named("size-frequency")
     @Provide(cache = Provide.CacheType.Factory)
-    DDR3Ram ram(RamSize ramSize, Frequency frequency);
+    fun ram(ramSize: RamSize?, frequency: Frequency?): DDR3Ram
 
 }

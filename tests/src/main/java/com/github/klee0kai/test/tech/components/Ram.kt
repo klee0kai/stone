@@ -4,10 +4,8 @@ import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
 import java.util.*
 
 open class Ram {
-    @JvmField
-    val uuid: UUID = UUID.randomUUID()
+    open val uuid: UUID = UUID.randomUUID()
 
-    @JvmField
     val size: String?
 
     constructor() {

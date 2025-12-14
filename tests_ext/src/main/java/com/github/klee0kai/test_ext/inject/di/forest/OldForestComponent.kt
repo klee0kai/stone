@@ -1,24 +1,23 @@
-package com.github.klee0kai.test_ext.inject.di.forest;
+package com.github.klee0kai.test_ext.inject.di.forest
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.component.ExtendOf;
-import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner;
-import com.github.klee0kai.test.di.base_forest.ForestComponent;
-import com.github.klee0kai.test_ext.inject.mowgli.animal.OldHorse;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.component.ExtendOf
+import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
+import com.github.klee0kai.test.di.base_forest.ForestComponent
+import com.github.klee0kai.test_ext.inject.mowgli.animal.OldHorse
 
 @Component
-public interface OldForestComponent extends ForestComponent {
+interface OldForestComponent : ForestComponent {
 
-    @Override
-    OldIdentityModule identity();
+    override fun identity(): OldIdentityModule
 
     @ExtendOf
-    void extOf(ForestComponent parent);
+    fun extOf(parent: ForestComponent)
 
-    DiseasesModule diseases();
+    fun diseases(): DiseasesModule?
 
-    void inject(OldHorse horse, StoneLifeCycleOwner stoneLifeCycleOwner);
+    fun inject(horse: OldHorse?, stoneLifeCycleOwner: StoneLifeCycleOwner?)
 
-    void inject(OldHorse horse);
+    fun inject(horse: OldHorse?)
 
 }

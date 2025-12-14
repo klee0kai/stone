@@ -165,7 +165,7 @@ fun KSFunctionDeclaration.isExtOfMethod(
         )
     }
     val argumentType = parameters.firstOrNull()?.type
-        ?.resolve() as? KSClassDeclaration
+        ?.resolveAlias()?.declaration as? KSClassDeclaration
         ?: throw IncorrectSignatureException(
             message = "${simpleName.asString()} must have only one parameter of Component instance",
             element = this,

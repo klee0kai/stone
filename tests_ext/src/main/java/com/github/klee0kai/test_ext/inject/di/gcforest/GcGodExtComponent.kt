@@ -1,46 +1,43 @@
-package com.github.klee0kai.test_ext.inject.di.gcforest;
+package com.github.klee0kai.test_ext.inject.di.gcforest
 
-import com.github.klee0kai.stone.annotations.component.*;
-import com.github.klee0kai.test.di.gcforest.GcGodComponent;
-import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope;
-import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope;
+import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.test.di.gcforest.GcGodComponent
+import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope
+import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope
 
 @Component
-public abstract class GcGodExtComponent extends GcGodComponent implements IGcEarthExtComponent {
-
+abstract class GcGodExtComponent : GcGodComponent(), IGcEarthExtComponent {
 
     @ExtendOf
-    public abstract void extOf(GcGodComponent parent);
+    abstract fun extOf(parent: GcGodComponent?)
 
-    @Override
-    public abstract GcSunSystemExtModule sunSystem();
+    public abstract override fun sunSystem(): GcSunSystemExtModule?
 
-    @Override
-    public abstract GcEarthExtModule earth();
+    public abstract override fun earth(): GcEarthExtModule?
 
     @RunGc
     @GcAllScope
-    public abstract void gcAllExt();
+    abstract fun gcAllExt()
 
     @RunGc
     @GcStrongScope
-    public abstract void gcStrongExt();
+    abstract fun gcStrongExt()
 
     @RunGc
     @GcSoftScope
-    public abstract void gcSoftExt();
+    abstract fun gcSoftExt()
 
     @RunGc
     @GcWeakScope
-    public abstract void gcWeakExt();
+    abstract fun gcWeakExt()
 
 
     @RunGc
     @GcSunScope
-    public abstract void gcSunExt();
+    abstract fun gcSunExt()
 
     @RunGc
     @GcPlanetScope
-    public abstract void gcPlanetsExt();
+    abstract fun gcPlanetsExt()
 
 }

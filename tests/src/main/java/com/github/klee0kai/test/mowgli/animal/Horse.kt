@@ -29,13 +29,13 @@ open class Horse : IAnimal {
     @Inject
     var knowledge: Knowledge? = null
 
-    @JvmField
     @Inject
-    var ideology: Ideology? = null
+    open var ideology: Ideology? = null
 
 
     @JvmField
     var methodInjectedConscience: Conscience? = null
+
     @JvmField
     var methodInjectedKnowledge: Knowledge? = null
 

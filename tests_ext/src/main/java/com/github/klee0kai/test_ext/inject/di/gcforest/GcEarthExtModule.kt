@@ -1,50 +1,49 @@
-package com.github.klee0kai.test_ext.inject.di.gcforest;
+package com.github.klee0kai.test_ext.inject.di.gcforest
 
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.di.gcforest.GcEarthModule;
-import com.github.klee0kai.test.di.gcforest.scopes.GcRiverScope;
-import com.github.klee0kai.test_ext.inject.mowgli.earth.Desert;
-import com.github.klee0kai.test_ext.inject.mowgli.earth.WaterFlow;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.di.gcforest.GcEarthModule
+import com.github.klee0kai.test.di.gcforest.scopes.GcRiverScope
+import com.github.klee0kai.test_ext.inject.mowgli.earth.Desert
+import com.github.klee0kai.test_ext.inject.mowgli.earth.WaterFlow
 
 @Module
-public abstract class GcEarthExtModule extends GcEarthModule {
+abstract class GcEarthExtModule : GcEarthModule() {
 
     @Provide(cache = Provide.CacheType.Strong)
-    abstract public Desert desertStrong();
+    abstract fun desertStrong(): Desert?
 
     @Provide(cache = Provide.CacheType.Soft)
-    abstract public Desert desertSoft();
+    abstract fun desertSoft(): Desert?
 
     @Provide(cache = Provide.CacheType.Weak)
-    abstract public Desert desertWeak();
+    abstract fun desertWeak(): Desert?
 
     @Provide(cache = Provide.CacheType.Factory)
-    public Desert desertFactory() {
-        return new Desert();
+    fun desertFactory(): Desert {
+        return Desert()
     }
 
-
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Strong)
-    abstract public WaterFlow riverStrong();
+    public abstract override fun riverStrong(): WaterFlow?
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Soft)
-    abstract public WaterFlow riverSoft();
+    public abstract override fun riverSoft(): WaterFlow?
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Weak)
-    abstract public WaterFlow riverWeak();
+    public abstract override fun riverWeak(): WaterFlow?
 
     @GcRiverScope
     @Provide(cache = Provide.CacheType.Factory)
-    abstract public WaterFlow riverFactory();
+    public abstract override fun riverFactory(): WaterFlow?
 
     @GcRiverScope
     @Provide
-    public WaterFlow riverDefaultSoft() {
-        return new WaterFlow();
+    public override fun riverDefaultSoft(): WaterFlow? {
+        return WaterFlow()
     }
 
 }

@@ -1,16 +1,14 @@
-package com.github.klee0kai.test_ext.inject.mowgli.identity;
+package com.github.klee0kai.test_ext.inject.mowgli.identity
 
-import com.github.klee0kai.test.mowgli.identity.Knowledge;
+import com.github.klee0kai.test.mowgli.identity.Knowledge
 
-public class OldKnowledge extends Knowledge {
+class OldKnowledge : Knowledge() {
 
-
-    public boolean doChildKnowledge() {
-        return true;
+    fun doChildKnowledge(): Boolean {
+        return true
     }
 
-    public boolean isOldKnowledge() {
-        return true;
-    }
+    override val isOldKnowledge: Boolean
+        get() = true
 
 }

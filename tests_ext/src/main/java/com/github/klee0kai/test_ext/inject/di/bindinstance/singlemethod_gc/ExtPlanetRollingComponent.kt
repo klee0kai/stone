@@ -1,75 +1,69 @@
-package com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod_gc;
+package com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod_gc
 
-import com.github.klee0kai.stone.annotations.component.*;
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent;
-import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope;
-import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope;
-import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.StarModule;
-import com.github.klee0kai.test_ext.inject.di.gcscopes.GcSiriusScope;
-import com.github.klee0kai.test_ext.inject.di.gcscopes.GcSputnikScope;
-import com.github.klee0kai.test_ext.inject.mowgli.galaxy.sputniks.Moon;
+import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent
+import com.github.klee0kai.test.di.gcforest.scopes.GcPlanetScope
+import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope
+import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.StarModule
+import com.github.klee0kai.test_ext.inject.di.gcscopes.GcSiriusScope
+import com.github.klee0kai.test_ext.inject.di.gcscopes.GcSputnikScope
+import com.github.klee0kai.test_ext.inject.mowgli.galaxy.sputniks.Moon
 
 @Component
-public interface ExtPlanetRollingComponent extends PlanetRollingComponent {
+interface ExtPlanetRollingComponent : PlanetRollingComponent {
 
-    @Override
-    StarModule sunModule();
+    override fun sunModule(): StarModule?
 
     @ExtendOf
-    void extOf(PlanetRollingComponent ext);
+    fun extOf(ext: PlanetRollingComponent?)
 
     @GcSputnikScope
     @BindInstance(cache = BindInstance.CacheType.Strong)
-    Moon moonStrong(Moon moon);
+    fun moonStrong(moon: Moon?): Moon?
 
     @GcSputnikScope
     @BindInstance(cache = BindInstance.CacheType.Soft)
-    Moon moonSoft(Moon moon);
+    fun moonSoft(moon: Moon?): Moon?
 
     @GcSputnikScope
     @BindInstance(cache = BindInstance.CacheType.Weak)
-    Moon moonWeak(Moon moon);
+    fun moonWeak(moon: Moon?): Moon?
 
 
     @RunGc
     @GcAllScope
-    void gcAllExt();
+    fun gcAllExt()
 
     @RunGc
     @GcStrongScope
-    void gcStrongExt();
+    fun gcStrongExt()
 
     @RunGc
     @GcSoftScope
-    void gcSoftExt();
+    fun gcSoftExt()
 
     @RunGc
     @GcWeakScope
-    void gcWeakExt();
-
+    fun gcWeakExt()
 
     @RunGc
     @GcSoftScope
     @GcSunScope
-    void gcSoftSunExt();
+    fun gcSoftSunExt()
 
     @RunGc
     @GcSoftScope
     @GcPlanetScope
-    void gcSoftPlanetsExt();
-
+    fun gcSoftPlanetsExt()
 
     @RunGc
     @GcSoftScope
     @GcSputnikScope
-    void gcSoftSputniksExt();
-
+    fun gcSoftSputniksExt()
 
     @RunGc
     @GcSoftScope
     @GcSiriusScope
-    void gcSoftSiriusExt();
-
-
+    fun gcSoftSiriusExt()
 }

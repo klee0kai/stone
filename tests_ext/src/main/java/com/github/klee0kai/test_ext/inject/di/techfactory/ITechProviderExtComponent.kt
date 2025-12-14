@@ -1,28 +1,27 @@
-package com.github.klee0kai.test_ext.inject.di.techfactory;
+package com.github.klee0kai.test_ext.inject.di.techfactory
 
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.tech.components.Ram;
-import com.github.klee0kai.test_ext.inject.di.techfactory.identifiers.Frequency;
-import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram;
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.tech.components.Ram
+import com.github.klee0kai.test_ext.inject.di.techfactory.identifiers.Frequency
+import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram
+import javax.inject.Named
 
-import javax.inject.Named;
+interface ITechProviderExtComponent {
 
-public interface ITechProviderExtComponent {
+    fun ramExt(): Ram?
 
-    Ram ramExt();
+    fun ramExt(ramSize: RamSize?): Ram?
 
-    Ram ramExt(RamSize ramSize);
-
-    Ram ramExt(RamSize ramSize, Frequency frequency);
+    fun ramExt(ramSize: RamSize?, frequency: Frequency?): Ram
 
 
-    @Named()
-    DDR3Ram ramDDr3Ext();
+    @Named
+    fun ramDDr3Ext(): DDR3Ram?
 
     @Named("size")
-    DDR3Ram ramDdr3Ext(RamSize ramSize);
+    fun ramDdr3Ext(ramSize: RamSize?): DDR3Ram
 
     @Named("size-frequency")
-    DDR3Ram ramDDr3Ext(RamSize ramSize, Frequency frequency);
+    fun ramDDr3Ext(ramSize: RamSize?, frequency: Frequency?): DDR3Ram
 
 }

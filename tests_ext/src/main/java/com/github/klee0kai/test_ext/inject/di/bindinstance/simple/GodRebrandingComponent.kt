@@ -1,16 +1,15 @@
-package com.github.klee0kai.test_ext.inject.di.bindinstance.simple;
+package com.github.klee0kai.test_ext.inject.di.bindinstance.simple
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.component.ExtendOf;
-import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.component.ExtendOf
+import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent
 
 @Component
-public interface GodRebrandingComponent extends GodWorkspaceComponent {
+interface GodRebrandingComponent : GodWorkspaceComponent {
 
-    @Override
-    SunSystemRebrandingModule sunSystem();
+    override fun sunSystem(): SunSystemRebrandingModule
 
     @ExtendOf
-    void extendComponent(GodWorkspaceComponent parent);
+    fun extendComponent(parent: GodWorkspaceComponent)
 
 }

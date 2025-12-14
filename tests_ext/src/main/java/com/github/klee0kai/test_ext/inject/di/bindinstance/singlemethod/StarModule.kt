@@ -1,31 +1,28 @@
-package com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod;
+package com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod
 
-import com.github.klee0kai.stone.annotations.module.BindInstance;
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.test.di.bindinstance.singlemethod.SunModule;
-import com.github.klee0kai.test_ext.inject.di.gcscopes.GcSiriusScope;
-import com.github.klee0kai.test_ext.inject.mowgli.galaxy.stars.Sirius;
+import com.github.klee0kai.stone.annotations.module.BindInstance
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.test.di.bindinstance.singlemethod.SunModule
+import com.github.klee0kai.test_ext.inject.di.gcscopes.GcSiriusScope
+import com.github.klee0kai.test_ext.inject.mowgli.galaxy.stars.Sirius
 
 @Module
-public interface StarModule extends SunModule {
+interface StarModule : SunModule {
 
     @GcSiriusScope
     @BindInstance(cache = BindInstance.CacheType.Strong)
-    Sirius siriusStrong(Sirius sirius);
+    fun siriusStrong(sirius: Sirius?): Sirius?
 
     @GcSiriusScope
     @BindInstance(cache = BindInstance.CacheType.Soft)
-    Sirius siriusSoft(Sirius sirius);
-
+    fun siriusSoft(sirius: Sirius?): Sirius?
 
     @GcSiriusScope
     @BindInstance
-    Sirius sirius(Sirius sirius);
-
+    fun sirius(sirius: Sirius?): Sirius?
 
     @GcSiriusScope
     @BindInstance(cache = BindInstance.CacheType.Weak)
-    Sirius siriusWeak(Sirius star);
-
+    fun siriusWeak(star: Sirius?): Sirius?
 
 }

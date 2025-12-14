@@ -1,21 +1,19 @@
-package com.github.klee0kai.test_ext.inject.di.forest;
+package com.github.klee0kai.test_ext.inject.di.forest
 
-
-import com.github.klee0kai.stone.annotations.module.Module;
-import com.github.klee0kai.stone.annotations.module.Provide;
-import com.github.klee0kai.test.di.base_forest.IdentityModule;
-import com.github.klee0kai.test_ext.inject.mowgli.identity.FamilyIdeology;
-import com.github.klee0kai.test_ext.inject.mowgli.identity.OldKnowledge;
+import com.github.klee0kai.stone.annotations.module.Module
+import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.test.di.base_forest.IdentityModule
+import com.github.klee0kai.test_ext.inject.mowgli.identity.FamilyIdeology
+import com.github.klee0kai.test_ext.inject.mowgli.identity.OldKnowledge
 
 
 @Module
-public interface OldIdentityModule extends IdentityModule {
+interface OldIdentityModule : IdentityModule {
 
-    @Override
     @Provide(cache = Provide.CacheType.Factory)
-    OldKnowledge knowledge();
+    override fun knowledge(): OldKnowledge
 
-    @Override
     @Provide(cache = Provide.CacheType.Soft)
-    FamilyIdeology ideology();
+    override fun ideology(): FamilyIdeology
+
 }
