@@ -14,7 +14,7 @@ open class Ram {
         size = "default"
     }
 
-    constructor(ramSize: RamSize) {
-        this.size = ramSize.size
+    constructor(ramSize: RamSize?) {
+        this.size = ramSize?.size
     }
 }

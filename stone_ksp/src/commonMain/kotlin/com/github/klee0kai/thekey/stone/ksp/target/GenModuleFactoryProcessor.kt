@@ -13,6 +13,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.findConstructor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.joinInvokeArguments
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.github.klee0kai.thekey.stone.ksp.poet.genClass
 import com.github.klee0kai.thekey.stone.ksp.poet.genFileSpec
 import com.github.klee0kai.thekey.stone.ksp.poet.genLibComment
@@ -72,14 +73,14 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                 validSymbol.getAllMethods(false, false, "<init>")
                     .forEachFun { _, function ->
                         if (!function.modifiers.contains(Modifier.ABSTRACT) && moduleCl.classKind != ClassKind.INTERFACE) return@forEachFun
-                        val returnCl = function.returnType?.resolve()
+                        val returnCl = function.returnType?.resolveAlias()
                             ?.declaration as? KSClassDeclaration ?: return@forEachFun
                         val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
                             .firstOrNull()
 
                         val constructorFun by lazy {
                             returnCl.findConstructor(
-                                parameters = function.parameters.map { it.type.resolve() })
+                                parameters = function.parameters.map { it.type.resolveAlias() })
                         }
 
                         genOverrideFun(function) {
@@ -110,6 +111,7 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                             }
                         }
                     }
+
             }
         }
 

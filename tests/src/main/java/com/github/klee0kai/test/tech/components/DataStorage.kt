@@ -14,7 +14,7 @@ class DataStorage {
         size = null
     }
 
-    constructor(size: DataStorageSize) {
-        this.size = size.size
+    constructor(size: DataStorageSize?) {
+        this.size = size?.size
     }
 }

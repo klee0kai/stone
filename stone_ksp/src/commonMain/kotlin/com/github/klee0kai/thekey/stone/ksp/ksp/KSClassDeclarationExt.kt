@@ -24,10 +24,11 @@ fun KSType.unwrapAlias(): KSType {
 
 fun KSClassDeclaration.findConstructor(
     parameters: List<KSType>,
-): KSFunctionDeclaration? = getDeclaredFunctions().firstOrNull { function ->
-    function.simpleName.asString() == "<init>"
-            && function.parameters.all { it.type.resolve() in parameters || it.hasDefault }
-}
+): KSFunctionDeclaration? = getDeclaredFunctions()
+    .filter { function ->
+        function.simpleName.asString() == "<init>"
+                && function.parameters.all { it.type.resolveAlias() in parameters || it.hasDefault }
+    }.maxByOrNull { it.parameters.size }
 
 fun KSDeclaration.isAnyType(
     vararg cl: KClass<*>,

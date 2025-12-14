@@ -243,6 +243,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             addStatement("%T.GET_VALUE -> Unit", CacheAction.ActionType::class)
             //set value
             beginControlFlow("%T.SET_VALUE ->", CacheAction.ActionType::class)
+            addCode("if ( __action.value != null ) ")
             addCode(
                 codeBlock = itemHolderCodeHelper.codeSetCachedValue(
                     CodeBlock.of("__action.value as? %T", cacheControlType),
@@ -252,6 +253,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             endControlFlow()
             //set if null value
             beginControlFlow("%T.SET_IF_NULL ->", CacheAction.ActionType::class)
+            addCode("if ( __action.value != null ) ")
             addCode(
                 codeBlock = itemHolderCodeHelper.codeSetCachedValue(
                     CodeBlock.of("__action.value as? %T", cacheControlType),
