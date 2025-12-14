@@ -10,7 +10,7 @@ import com.squareup.kotlinpoet.ksp.toClassNameOrNull
 import kotlin.reflect.KClass
 
 
-fun KSTypeReference.resolveAlias(): KSType = resolve().unwrapAlias()
+fun KSTypeReference.resolveAlias(): KSType = resolve().makeNotNullable().unwrapAlias()
 
 fun KSType.unwrapAlias(): KSType {
     var current: KSType = this

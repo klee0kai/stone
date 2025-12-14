@@ -10,7 +10,8 @@ import com.github.klee0kai.test.tech.phone.GoodPhone
 import com.github.klee0kai.test.tech.phone.OnePhone
 
 @Component(
-    identifiers = [DataStorageSize::class, RamSize::class, PhoneOsType::class, PhoneOsVersion::class
+    identifiers = [
+        DataStorageSize::class, RamSize::class, PhoneOsType::class, PhoneOsVersion::class
     ]
 )
 interface PhoneComponent {

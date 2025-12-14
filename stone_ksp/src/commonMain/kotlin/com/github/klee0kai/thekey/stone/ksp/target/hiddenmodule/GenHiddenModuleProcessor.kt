@@ -126,11 +126,10 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
 
                         codeBlocks.bindMethodBody.apply {
                             add(
-                                "if (or is %T && or::class == %T::class) {\n",
-                                nonWrappedType,
-                                nonWrappedType,
+                                "if (or::class == %T::class) {\n",
+                                rawTypeOf(nonWrappedType),
                             )
-                            add(codeSetCachedValue(CodeBlock.of("or"), false))
+                            add(codeSetCachedValue(CodeBlock.of("or as? %T", nonWrappedType), false))
                             add("\n")
                             add("%L = true\n", appliedLocalFieldName)
                             add("}\n")
@@ -147,6 +146,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                         function = function,
                         idArguments = idArguments,
                         itemHolderCodeHelper = itemHolderCodeHelper,
+                        wrapHelper = wrapHelper,
                     )
                 }
 
@@ -221,8 +221,10 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         function: KSFunctionDeclaration,
         idArguments: List<KSValueParameter>,
         itemHolderCodeHelper: ItemHolderCodeHelper,
+        wrapHelper: WrapHelper,
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
+        val cacheControlType = wrapHelper.listWrapTypeIfNeed(returnType)
         genFun(function.cacheControlMethodName) {
             modifiers.add(KModifier.OVERRIDE)
             returns(returnType.copy(nullable = true))
@@ -243,7 +245,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             beginControlFlow("%T.SET_VALUE ->", CacheAction.ActionType::class)
             addCode(
                 codeBlock = itemHolderCodeHelper.codeSetCachedValue(
-                    CodeBlock.of("__action.value as? %T", rawTypeOf(returnType)),
+                    CodeBlock.of("__action.value as? %T", cacheControlType),
                     onlyIfNull = false,
                 )
             )
@@ -252,7 +254,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             beginControlFlow("%T.SET_IF_NULL ->", CacheAction.ActionType::class)
             addCode(
                 codeBlock = itemHolderCodeHelper.codeSetCachedValue(
-                    CodeBlock.of("__action.value as? %T", rawTypeOf(returnType)),
+                    CodeBlock.of("__action.value as? %T", cacheControlType),
                     onlyIfNull = true,
                 )
             )

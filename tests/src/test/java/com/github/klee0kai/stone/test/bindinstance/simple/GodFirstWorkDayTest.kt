@@ -14,7 +14,7 @@ class GodFirstWorkDayTest {
     fun firstCreateSunTest() {
         //Given
         val DI = GodWorkspaceComponentStoneComponent()
-        val sun = com.github.klee0kai.test.mowgli.galaxy.Sun()
+        val sun = Sun()
 
         //When
         DI.bindSun(sun)

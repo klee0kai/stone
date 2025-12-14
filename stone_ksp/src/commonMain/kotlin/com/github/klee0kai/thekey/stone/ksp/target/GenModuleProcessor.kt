@@ -153,11 +153,10 @@ class GenModuleProcessor : TargetFileProcessor {
 
                                     codeBlocks.bindMethodBody.apply {
                                         add(
-                                            "if (or is %T && or::class == %T::class) {\n",
-                                            nonWrappedType,
-                                            nonWrappedType,
+                                            "if (or::class == %T::class) {\n",
+                                            rawTypeOf(nonWrappedType),
                                         )
-                                        add(codeSetCachedValue(CodeBlock.of("or"), false))
+                                        add(codeSetCachedValue(CodeBlock.of("or as? %T", nonWrappedType), false))
                                         add("\n")
                                         add("%L = true\n", appliedLocalFieldName)
                                         add("}\n")
@@ -174,6 +173,7 @@ class GenModuleProcessor : TargetFileProcessor {
                                     function = function,
                                     idArguments = idArguments,
                                     itemHolderCodeHelper = itemHolderCodeHelper,
+                                    wrapHelper = wrapHelper,
                                 )
 
 
@@ -191,6 +191,9 @@ class GenModuleProcessor : TargetFileProcessor {
                                     val returnType = function.returnType?.resolve()?.toTypeName()
                                     returnType?.let { returns(returnType.copy(nullable = true)) }
                                     addParameter("__action", CacheAction::class)
+                                    idArguments.forEach {
+                                        addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
+                                    }
                                     addStatement("return null")
                                 }
                             }
@@ -220,6 +223,7 @@ class GenModuleProcessor : TargetFileProcessor {
                                     function = function,
                                     idArguments = idArguments,
                                     itemHolderCodeHelper = itemHolderCodeHelper,
+                                    wrapHelper = wrapHelper,
                                 )
                             }
                         }
@@ -356,8 +360,10 @@ class GenModuleProcessor : TargetFileProcessor {
         function: KSFunctionDeclaration,
         idArguments: List<KSValueParameter>,
         itemHolderCodeHelper: ItemHolderCodeHelper,
+        wrapHelper: WrapHelper,
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
+        val cacheControlType = wrapHelper.listWrapTypeIfNeed(returnType)
         genFun(function.cacheControlMethodName) {
             modifiers.add(KModifier.OVERRIDE)
             returns(returnType.copy(nullable = true))
@@ -378,7 +384,7 @@ class GenModuleProcessor : TargetFileProcessor {
             beginControlFlow("%T.SET_VALUE ->", CacheAction.ActionType::class)
             addCode(
                 codeBlock = itemHolderCodeHelper.codeSetCachedValue(
-                    CodeBlock.of("__action.value as? %T", rawTypeOf(returnType)),
+                    CodeBlock.of("__action.value as? %T", cacheControlType),
                     onlyIfNull = false
                 )
             )
@@ -387,7 +393,7 @@ class GenModuleProcessor : TargetFileProcessor {
             beginControlFlow("%T.SET_IF_NULL ->", CacheAction.ActionType::class)
             addCode(
                 codeBlock = itemHolderCodeHelper.codeSetCachedValue(
-                    CodeBlock.of("__action.value as? %T", rawTypeOf(returnType)),
+                    CodeBlock.of("__action.value as? %T", cacheControlType),
                     onlyIfNull = true
                 )
             )
@@ -524,9 +530,8 @@ class GenModuleProcessor : TargetFileProcessor {
                         exceptNames = arrayOf("<init>"),
                     ).forEach { protoProvideMethod ->
                         val cacheControlMethod = protoProvideMethod.cacheControlMethodName
-                        val idArguments = protoProvideMethod.parameters
-                            .filter { it.type.resolve() in identifierTypes }
-                        if (!idArguments.isEmpty()) {
+                        val idArguments = protoProvideMethod.parameters.identifierParameters(identifierTypes)
+                        if (idArguments.isNotEmpty()) {
                             // TODO https://github.com/klee0kai/stone/issues/42
                             return@forEach
                         }
@@ -565,9 +570,8 @@ class GenModuleProcessor : TargetFileProcessor {
                         }
 
                         val cacheControlMethod = protoProvideMethod.cacheControlMethodName
-                        val idArguments = protoProvideMethod.parameters
-                            .filter { it.type.resolve() in identifierTypes }
-                        if (!idArguments.isEmpty()) {
+                        val idArguments = protoProvideMethod.parameters.identifierParameters(identifierTypes)
+                        if (idArguments.isNotEmpty()) {
                             // TODO https://github.com/klee0kai/stone/issues/42
                             return@forEach
                         }

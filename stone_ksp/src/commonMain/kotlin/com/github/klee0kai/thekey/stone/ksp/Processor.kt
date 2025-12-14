@@ -63,7 +63,7 @@ class Processor(
 
         // force changes
 //        debug = true
-//        debugPkgFilter = "com.github.klee0kai.test.di.swcache"
+//        debugPkgFilter = "com.github.klee0kai.test.di.wire"
     }
 
 

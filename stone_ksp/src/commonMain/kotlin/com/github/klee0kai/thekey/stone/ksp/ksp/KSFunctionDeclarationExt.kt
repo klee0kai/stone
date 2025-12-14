@@ -24,7 +24,7 @@ fun KSFunctionDeclaration.joinInvokeArguments(
     availableVariables: List<KSValueParameter>,
 ): String {
     return parameters.mapNotNull { parameter ->
-        val availableVariable = availableVariables.firstOrNull { it.type.resolve() == parameter.type.resolve() }
+        val availableVariable = availableVariables.firstOrNull { it.type.resolveAlias() == parameter.type.resolveAlias() }
         if (availableVariable != null) {
             "${parameter.name!!.asString()} = ${availableVariable.name!!.asString()}"
         } else {

@@ -43,14 +43,14 @@ val KSClassDeclaration.allIdentifierTypes: Sequence<KSType>
 
 fun List<KSValueParameter>.identifierParameters(
     allIdentifierTypes: List<KSType>,
-) = filter { it.type.resolve() in allIdentifierTypes }
+) = filter { it.type.resolveAlias() in allIdentifierTypes }
 
 fun List<KSValueParameter>.notIdentifierParameters(
     allIdentifierTypes: List<KSType>,
-) = filter { it.type.resolve() !in allIdentifierTypes }
+) = filter { it.type.resolveAlias() !in allIdentifierTypes }
 
 fun List<KSValueParameter>.lifeCycleParameter() = firstOrNull {
-    (it.type.resolve().declaration as? KSClassDeclaration)
+    (it.type.resolveAlias().declaration as? KSClassDeclaration)
         ?.isChildOf(StoneLifeCycleOwner::class.asClassName()) == true
 }
 

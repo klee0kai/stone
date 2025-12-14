@@ -26,6 +26,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.GenModuleProcessor
 import com.google.devtools.ksp.KspExperimental
@@ -320,7 +321,7 @@ class GenComponentProcessor : TargetFileProcessor {
         val returnType = method.returnType?.resolve()?.toTypeName() ?: return
         val identifierTypes = componentCl.allIdentifierTypes.toList()
 
-        val setValueArg = method.parameters.firstOrNull { it.type.resolve() !in identifierTypes }
+        val setValueArg = method.parameters.firstOrNull { it.type.resolveAlias() !in identifierTypes }
             ?: throw IncorrectSignatureException(
                 message = "Bind instance method must have bind instance arcgument",
                 element = method,
