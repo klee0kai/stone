@@ -25,24 +25,6 @@ class BeginOfBeginsTests {
         assertEquals(earth, DI.united().earth())
     }
 
-
-    @Test
-    fun initByFactoryClass() {
-        //Given
-        val DI = ForestComponentStoneComponent()
-
-        //When
-        DI.initUnitedModule(UnitedModuleFactory::class.java as UnitedModule?)
-
-        //Then
-        assertEquals(earth, DI.united().earth())
-    }
-
-    class UnitedModuleFactory : UnitedModule() {
-        override fun earth(): Earth = earth
-        override fun history(): History? = null
-    }
-
     companion object {
         private val earth: Earth = Earth()
     }

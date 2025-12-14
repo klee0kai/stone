@@ -30,21 +30,6 @@ class BeginOfBegins2Tests {
         assertEquals(earth, DI.united().earth())
     }
 
-
-    @Test
-    fun initByFactoryClass() {
-        //Given
-        TODO("implement this")
-        val DI = ForestComponentStoneComponent()
-
-        //When
-        DI.initUnitedModule(UnitedModuleFactory::class.java as UnitedModule?)
-
-        //Then
-        assertEquals(earth, DI.united().earth())
-    }
-
-
     @Test
     fun initAllModules() {
         //Given
@@ -68,12 +53,6 @@ class BeginOfBegins2Tests {
         assertEquals(earth, DI.united().earth())
         assertEquals(ideology, DI.identity().ideology())
 
-    }
-
-    class UnitedModuleFactory : UnitedModule() {
-        override fun earth(): Earth = earth
-
-        override fun history(): History? = null
     }
 
     companion object {
