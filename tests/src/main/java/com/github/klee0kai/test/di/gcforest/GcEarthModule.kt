@@ -9,6 +9,7 @@ import com.github.klee0kai.test.mowgli.earth.River
 
 @Module
 abstract class GcEarthModule {
+
     @GcMountainScope
     @Provide(cache = Provide.CacheType.Strong)
     abstract fun mountainStrong(): Mountain?

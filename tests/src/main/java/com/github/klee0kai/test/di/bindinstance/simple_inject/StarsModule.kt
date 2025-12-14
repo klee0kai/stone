@@ -7,9 +7,11 @@ import com.github.klee0kai.test.mowgli.galaxy.Sun
 
 @Module
 interface StarsModule {
+
     @BindInstance
     fun star(): IStar?
 
     @BindInstance
     fun sun(): Sun?
+
 }

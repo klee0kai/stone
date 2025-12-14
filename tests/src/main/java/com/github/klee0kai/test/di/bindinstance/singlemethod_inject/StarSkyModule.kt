@@ -9,6 +9,7 @@ import com.github.klee0kai.test.mowgli.galaxy.Sun
 
 @Module
 interface StarSkyModule {
+
     @GcSunScope
     @BindInstance
     fun sun(sun: Sun?): Sun?

@@ -27,7 +27,6 @@ interface TechModule {
     @Provide(cache = Provide.CacheType.Weak)
     fun ram(ramSize: RamSize?): Ram?
 
-
     @Named("null_args")
     @Provide(cache = Provide.CacheType.Weak)
     fun ram(): Ram?

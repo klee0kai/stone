@@ -9,6 +9,7 @@ import java.awt.Color
 
 @Module
 abstract class UnitedModule {
+
     @Provide(cache = Provide.CacheType.Strong)
     open fun blood(): Blood? {
         return Blood(Color.RED)

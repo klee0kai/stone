@@ -9,6 +9,7 @@ import com.github.klee0kai.test.mowgli.galaxy.Sun
 
 @Component
 interface GodWorkspaceComponent {
+
     fun sunSystem(): SunSystemModule?
 
     @BindInstance
@@ -27,4 +28,5 @@ interface GodWorkspaceComponent {
     fun bindSaturn(saturn: Saturn?)
 
     fun providePlanet(): IPlanet?
+
 }
