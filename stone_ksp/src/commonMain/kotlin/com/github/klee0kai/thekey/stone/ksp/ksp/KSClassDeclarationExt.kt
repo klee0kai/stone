@@ -1,6 +1,7 @@
 package com.github.klee0kai.thekey.stone.ksp.ksp
 
 import com.github.klee0kai.thekey.stone.ksp.utils.removeDoubles
+import com.github.klee0kai.thekey.stone.ksp.utils.then
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.symbol.*
@@ -53,6 +54,8 @@ fun KSClassDeclaration.getAllMethods(
     }
 
     val allMethods = mutableListOf<KSFunctionDeclaration>()
+    allMethods.addAll(getDeclaredFunctions())
+
     getAllSuperTypes().forEach { superType ->
         allMethods.addAll(
             (superType.declaration as KSClassDeclaration)
@@ -63,15 +66,14 @@ fun KSClassDeclaration.getAllMethods(
                 )
         )
     }
-    allMethods.addAll(getDeclaredFunctions())
 
     yieldAll(
         allMethods
-            .filter {
-                it.simpleName.asString() !in exceptNames
-            }
-            .removeDoubles { it1, it2 ->
-                it1.isSameMethods(it2)
+            .filter { it.simpleName.asString() !in exceptNames }
+            .then(!allowDoubles) {
+                removeDoubles { it1, it2 ->
+                    it1.isSameMethods(it2)
+                }
             }
     )
 }

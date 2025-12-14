@@ -9,6 +9,7 @@ import com.github.klee0kai.test.mowgli.identity.Knowledge
 
 @Module
 interface IdentityModule {
+
     @Provide(cache = Provide.CacheType.Factory)
     fun knowledge(): Knowledge?
 

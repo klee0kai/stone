@@ -32,14 +32,14 @@ fun Resolver.findComponentForModuleOrDep(
         }
 }
 
+val KSClassDeclaration.allParentDeclarations: Sequence<KSClassDeclaration>
+    get() = (sequenceOf(this)
+            + superTypes.mapNotNull { it.resolveAlias().declaration as? KSClassDeclaration })
+
 val KSClassDeclaration.allIdentifierTypes: Sequence<KSType>
-    get() {
-        val componentCl = this@allIdentifierTypes
-        val allParentsSequence = (sequenceOf(componentCl) + superTypes)
-        return allParentsSequence
-            .flatMap { it.findComponentAnnotation() }
-            .flatMap { it.identifiers }
-    }
+    get() = allParentDeclarations
+        .flatMap { it.findComponentAnnotation() }
+        .flatMap { it.identifiers }
 
 fun List<KSValueParameter>.identifierParameters(
     allIdentifierTypes: List<KSType>,

@@ -16,6 +16,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.qualifierAnnotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.github.klee0kai.thekey.stone.ksp.target.component.*
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName.genLocalFieldName
 import com.github.klee0kai.thekey.stone.ksp.utils.RecursiveDetector
@@ -56,13 +57,13 @@ class ModulesGraph(
             .filter { it.isModuleProvideMethod || it.isDepsProvideMethod }
             .forEachFun { _, moduleProvideMethod ->
 
-                val module = moduleProvideMethod.returnType?.resolve()
+                val module = moduleProvideMethod.returnType?.resolveAlias()
                     ?.declaration as? KSClassDeclaration ?: return@forEachFun
 
-                for (m in module.getAllMethods(false, true, "<init>")) {
-                    if (m.returnType?.resolve()?.isNotPrimitive == false) continue
+                for (m in module.getAllMethods(includeObjectMethods = false, allowDoubles = true, "<init>")) {
+                    if (m.returnType?.resolveAlias()?.isNotPrimitive == false) continue
 
-                    val returnType = m.returnType?.resolve()?.toTypeName() ?: continue
+                    val returnType = m.returnType?.resolveAlias()?.toTypeName() ?: continue
                     val provTypeName = wrapHelper.nonWrappedType(returnType)
                     val isCached = m.getAnnotationsByType(Provide::class)
                         .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)

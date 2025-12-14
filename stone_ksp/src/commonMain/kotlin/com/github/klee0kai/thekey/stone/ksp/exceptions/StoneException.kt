@@ -1,6 +1,7 @@
 package com.github.klee0kai.thekey.stone.ksp.exceptions
 
 import com.google.devtools.ksp.symbol.KSNode
+import com.google.devtools.ksp.symbol.NonExistLocation
 
 
 open class StoneException(
@@ -14,7 +15,9 @@ open class StoneException(
         if (cause is StoneException) {
             sourceElement = (cause as StoneException).findLastErrorElement()
         }
-        if (sourceElement == null) sourceElement = element
+        if (sourceElement == null || sourceElement.location is NonExistLocation) {
+            sourceElement = element
+        }
         return sourceElement
     }
 

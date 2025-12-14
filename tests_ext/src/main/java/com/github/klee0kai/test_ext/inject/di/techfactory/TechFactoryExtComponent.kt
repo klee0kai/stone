@@ -6,7 +6,11 @@ import com.github.klee0kai.test.di.techfactory.TechFactoryComponent
 import com.github.klee0kai.test_ext.inject.di.techfactory.identifiers.Frequency
 
 
-@Component(identifiers = [Frequency::class])
+@Component(
+    identifiers = [
+        Frequency::class
+    ],
+)
 interface TechFactoryExtComponent : TechFactoryComponent, ITechProviderExtComponent {
 
     override fun factory(): TechFactoryExtModule?

@@ -3,7 +3,7 @@ package com.github.klee0kai.thekey.stone.ksp.exceptions
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 
-fun <T, R> T.wrapKsNoteInfo(
+inline fun <T, R> T.wrapKsNoteInfo(
     ksNode: KSNode?,
     block: T.() -> R,
 ): R {
@@ -11,8 +11,9 @@ fun <T, R> T.wrapKsNoteInfo(
         block()
     } catch (e: Throwable) {
         throw StoneException(
-            message = e.message,
+            message = "${e.message}. At ${ksNode?.location}  ",
             element = ksNode,
+            cause = e,
         )
     }
 }

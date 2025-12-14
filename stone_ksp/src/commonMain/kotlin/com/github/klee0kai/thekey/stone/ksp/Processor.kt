@@ -7,12 +7,12 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.filter
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.forceProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.nowTakeOnly
-import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleCacheControlProcessor
-import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleFactoryProcessor
-import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.component.GenComponentProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule.GenHiddenModuleCacheControlProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule.GenHiddenModuleProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleCacheControlProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleFactoryProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -63,7 +63,7 @@ class Processor(
 
         // force changes
 //        debug = true
-//        debugPkgFilter = "com.github.klee0kai.test.di.base_phone"
+//        debugPkgFilter = "com.github.klee0kai.test_ext.inject.di.techfactory"
     }
 
 
@@ -132,16 +132,21 @@ class Processor(
                         genSpecs.addAll(
                             symbols.symbolsForProcessing
                                 .mapNotNull { targetSymbol ->
-                                    processor.process(
-                                        validSymbol = targetSymbol,
-                                        resolver = resolver,
-                                        options = options,
-                                        logger = logger,
-                                    )
+                                    wrapKsNoteInfo(targetSymbol) {
+                                        processor.process(
+                                            validSymbol = targetSymbol,
+                                            resolver = resolver,
+                                            options = options,
+                                            logger = logger,
+                                        )
+                                    }
                                 }
                         )
                     } catch (e: StoneException) {
-                        logger.error(e.toString(), e.findLastErrorElement())
+                        logger.error(
+                            message = e.message ?: "",
+                            symbol = e.findLastErrorElement(),
+                        )
                     }
 
                 }
