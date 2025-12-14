@@ -82,23 +82,23 @@ class GenModuleCacheControlProcessor : TargetFileProcessor {
                     addParameter("__params", SwitchCacheParam::class)
                 }
 
-                validSymbol.getAllMethods(false, false, "<init>")
-                    .forEachFun { _, function ->
-                        val idArguments = function.parameters.identifierParameters(identifierTypes)
+                val methods = validSymbol.getAllMethods(includeObjectMethods = false, allowDoubles = false, "<init>")
+                methods.forEachFun { _, function ->
+                    val idArguments = function.parameters.identifierParameters(identifierTypes)
 
-                        genOverrideFun(function) {
-                            modifiers.remove(KModifier.OVERRIDE)
-                            modifiers.add(KModifier.ABSTRACT)
-                        }
-                        genFun(function.cacheControlMethodName) {
-                            modifiers.add(KModifier.ABSTRACT)
-                            returns(returnType = function.returnType!!.resolve().toTypeName().copy(nullable = true))
-                            addParameter("__action", CacheAction::class)
-                            idArguments.forEach {
-                                addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
-                            }
+                    genOverrideFun(function) {
+                        modifiers.remove(KModifier.OVERRIDE)
+                        modifiers.add(KModifier.ABSTRACT)
+                    }
+                    genFun(function.cacheControlMethodName) {
+                        modifiers.add(KModifier.ABSTRACT)
+                        returns(returnType = function.returnType!!.resolve().toTypeName().copy(nullable = true))
+                        addParameter("__action", CacheAction::class)
+                        idArguments.forEach {
+                            addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
                         }
                     }
+                }
             }
         }
 

@@ -12,7 +12,7 @@ fun KSFunctionDeclaration.isSameMethods(
         return false
     }
     for (idx in parameters.indices) {
-        if (parameters[idx].type != other.parameters[idx].type) {
+        if (parameters[idx].type.resolve() != other.parameters[idx].type.resolve()) {
             return false
         }
     }
@@ -24,7 +24,8 @@ fun KSFunctionDeclaration.joinInvokeArguments(
     availableVariables: List<KSValueParameter>,
 ): String {
     return parameters.mapNotNull { parameter ->
-        val availableVariable = availableVariables.firstOrNull { it.type.resolveAlias() == parameter.type.resolveAlias() }
+        val availableVariable = availableVariables
+            .firstOrNull { it.type.resolveAlias() == parameter.type.resolveAlias() }
         if (availableVariable != null) {
             "${parameter.name!!.asString()} = ${availableVariable.name!!.asString()}"
         } else {
