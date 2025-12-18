@@ -31,7 +31,6 @@ import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
-import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -206,7 +205,14 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isExtOfMethod(componentCl) -> {
-
+                            genOverrideFun(m) {
+                                addCode(
+                                    "(%L as? %T)?.let{ %L(it) }",
+                                    parameters.first().name,
+                                    IPrivateComponent::class.asClassName(),
+                                    extOfMethodName
+                                )
+                            }
                         }
 
                         m.isObjectProvideMethod -> {
@@ -732,7 +738,7 @@ class GenComponentProcessor : TargetFileProcessor {
             addModifiers(KModifier.OVERRIDE)
             addParameter("c", IPrivateComponent::class)
 
-            for (proto in componentCl.getAllSuperTypes().mapNotNull { it.declaration as? KSClassDeclaration }) {
+            for (proto in componentCl.allParentDeclarations) {
                 if (proto.toClassName() == IPrivateComponent::class.asClassName()) continue
                 val provideModuleMethods = proto
                     .getAllMethods(includeObjectMethods = false, allowDoubles = false)

@@ -20,7 +20,7 @@ abstract class GcEarthExtModule : GcEarthModule() {
     abstract fun desertWeak(): Desert?
 
     @Provide(cache = Provide.CacheType.Factory)
-    fun desertFactory(): Desert {
+    open fun desertFactory(): Desert {
         return Desert()
     }
 
