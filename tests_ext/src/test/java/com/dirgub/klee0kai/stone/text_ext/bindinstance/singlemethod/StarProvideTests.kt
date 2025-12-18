@@ -1,75 +1,72 @@
-package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
-import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.PlanetSputnikComponent;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent
+import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Sun
+import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.PlanetSputnikComponent
+import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.PlanetSputnikComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class StarProvideTests {
+class StarProvideTests {
 
     @Test
-    public void sunReusableTest() {
+    fun sunReusableTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Sun sun = new Sun();
-        DI.sunModule().sun(sun);
+        val DI: PlanetComponent = PlanetComponentStoneComponent()
+        val sun = Sun()
+        DI.sunModule()?.sun(sun)
 
         //When
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
+        val DIPro: PlanetSputnikComponent = PlanetSputnikComponentStoneComponent()
+        DIPro.extendOf(DI)
 
 
         //Then
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertNull(DI.sunModule().star(null));
-        assertNull(DIPro.sunModule().star(null));
+        assertEquals(sun, DI.sunModule()!!.sun(null))
+        assertEquals(sun, DI.sunModule()!!.sun(null))
+        assertNull(DI.sunModule()!!.star(null))
+        assertNull(DIPro.sunModule().star(null))
+    }
+
+    @Test
+    fun createAfterExtendTest() {
+        //Given
+        val DI: PlanetComponent = PlanetComponentStoneComponent()
+        val DIPro: PlanetSputnikComponent = PlanetSputnikComponentStoneComponent()
+        DIPro.extendOf(DI)
+        val sun = Sun()
+
+        //When
+        DI.sunModule()!!.sun(sun)
+
+
+        //Then
+        assertEquals(sun, DI.sunModule()!!.sun(null))
+        assertEquals(sun, DI.sunModule()!!.sun(null))
+        assertNull(DI.sunModule()!!.star(null))
+        assertNull(DIPro.sunModule()!!.star(null))
     }
 
 
     @Test
-    public void createAfterExtendTest() {
+    fun extendedSunTest() {
         //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
-        Sun sun = new Sun();
+        val DI: PlanetComponent = PlanetComponentStoneComponent()
+        val sun1 = Sun()
+        val sun2 = Sun()
+        DI.sunModule()!!.sun(sun1)
 
         //When
-        DI.sunModule().sun(sun);
-
-
-        //Then
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertEquals(sun, DI.sunModule().sun(null));
-        assertNull(DI.sunModule().star(null));
-        assertNull(DIPro.sunModule().star(null));
-    }
-
-
-    @Test
-    public void extendedSunTest() {
-        //Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Sun sun1 = new Sun();
-        Sun sun2 = new Sun();
-        DI.sunModule().sun(sun1);
-
-        //When
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
-        DIPro.sunModule().sun(sun2);
+        val DIPro: PlanetSputnikComponent = PlanetSputnikComponentStoneComponent()
+        DIPro.extendOf(DI)
+        DIPro.sunModule().sun(sun2)
 
         //Then
-        assertEquals(sun2, DI.sunModule().sun(null));
-        assertEquals(sun2, DI.sunModule().sun(null));
-        assertNull(DI.sunModule().star(null));
-        assertNull(DIPro.sunModule().star(null));
+        assertEquals(sun2, DI.sunModule()!!.sun(null))
+        assertEquals(sun2, DI.sunModule()!!.sun(null))
+        assertNull(DI.sunModule()!!.star(null))
+        assertNull(DIPro.sunModule().star(null))
     }
-
-
 }

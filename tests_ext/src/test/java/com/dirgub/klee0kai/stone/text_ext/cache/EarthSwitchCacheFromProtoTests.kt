@@ -1,96 +1,93 @@
-package com.dirgub.klee0kai.stone.text_ext.cache;
+package com.dirgub.klee0kai.stone.text_ext.cache
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.swcache.SwitchCacheComponent;
-import com.github.klee0kai.test.mowgli.earth.Mountain;
-import com.github.klee0kai.test.mowgli.earth.River;
-import com.github.klee0kai.test_ext.inject.di.swcache.SwitchCacheExtComponent;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.swcache.SwitchCacheComponent
+import com.github.klee0kai.test.di.swcache.SwitchCacheComponentStoneComponent
+import com.github.klee0kai.test.mowgli.earth.Mountain
+import com.github.klee0kai.test.mowgli.earth.River
+import com.github.klee0kai.test_ext.inject.di.swcache.SwitchCacheExtComponent
+import com.github.klee0kai.test_ext.inject.di.swcache.SwitchCacheExtComponentStoneComponent
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import java.lang.ref.WeakReference
 
-import java.lang.ref.WeakReference;
-
-import static java.lang.Thread.sleep;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class EarthSwitchCacheFromProtoTests {
-
+class EarthSwitchCacheFromProtoTests {
 
     @Test
-    public void allToWeakTest() {
+    fun allToWeakTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Mountain> mountain = new WeakReference<>(DI.earth().mountainStrong());
+        val DI: SwitchCacheComponent = SwitchCacheComponentStoneComponent()
+        val DIPro: SwitchCacheExtComponent = SwitchCacheExtComponentStoneComponent()
+        DIPro.extOf(DI)
+        val mountain = WeakReference<Mountain?>(DI.earth()!!.mountainStrong())
 
         //When
-        DIPro.allWeak();
-        System.gc();
+        DIPro.allWeak()
+        System.gc()
 
         //Then
-        assertNull(mountain.get());
+        assertNull(mountain.get())
     }
 
     @Test
-    public void strongToWeakTest() {
+    fun strongToWeakTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Mountain> mountainStrong = new WeakReference<>(DI.earth().mountainStrong());
-        WeakReference<Mountain> mountainSoft = new WeakReference<>(DI.earth().mountainSoft());
+        val DI: SwitchCacheComponent = SwitchCacheComponentStoneComponent()
+        val DIPro: SwitchCacheExtComponent = SwitchCacheExtComponentStoneComponent()
+        DIPro.extOf(DI)
+        val mountainStrong = WeakReference<Mountain?>(DI.earth()!!.mountainStrong())
+        val mountainSoft = WeakReference<Mountain?>(DI.earth()!!.mountainSoft())
 
         //When
-        DIPro.strongToWeak();
-        System.gc();
+        DIPro.strongToWeak()
+        System.gc()
 
         //Then
-        assertNull(mountainStrong.get());
-        assertNotNull(mountainSoft.get());
+        assertNull(mountainStrong.get())
+        assertNotNull(mountainSoft.get())
     }
 
     @Test
-    public void weakToStrongFewMillisTest() throws InterruptedException {
+    @Throws(InterruptedException::class)
+    fun weakToStrongFewMillisTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Mountain> mountainWeak = new WeakReference<>(DI.earth().mountainWeak());
+        val DI: SwitchCacheComponent = SwitchCacheComponentStoneComponent()
+        val DIPro: SwitchCacheExtComponent = SwitchCacheExtComponentStoneComponent()
+        DIPro.extOf(DI)
+        val mountainWeak = WeakReference<Mountain?>(DI.earth()!!.mountainWeak())
 
         //When
-        DIPro.allStrongFewMillis();
-        System.gc();
+        DIPro.allStrongFewMillis()
+        System.gc()
 
         //Then: can't GC
-        assertNotNull(mountainWeak.get());
+        assertNotNull(mountainWeak.get())
 
         //When: after few millis
-        sleep(110);
-        System.gc();
+        Thread.sleep(110)
+        System.gc()
 
         //Then: can GC
-        assertNull(mountainWeak.get());
+        assertNull(mountainWeak.get())
     }
 
 
     @Test
-    public void mountainToWeakTest() {
+    fun mountainToWeakTest() {
         //Given
-        SwitchCacheComponent DI = Stone.createComponent(SwitchCacheComponent.class);
-        SwitchCacheExtComponent DIPro = Stone.createComponent(SwitchCacheExtComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Mountain> mountain = new WeakReference<>(DI.earth().mountainStrong());
-        WeakReference<River> river = new WeakReference<>(DI.earth().riverSoft());
+        val DI: SwitchCacheComponent = SwitchCacheComponentStoneComponent()
+        val DIPro: SwitchCacheExtComponent = SwitchCacheExtComponentStoneComponent()
+        DIPro.extOf(DI)
+        val mountain = WeakReference<Mountain?>(DI.earth()!!.mountainStrong())
+        val river = WeakReference<River?>(DI.earth()!!.riverSoft())
 
         //When
-        DIPro.mountainToWeak();
-        System.gc();
+        DIPro.mountainToWeak()
+        System.gc()
 
         //Then
-        assertNull(mountain.get());
-        assertNotNull(river.get());
+        assertNull(mountain.get())
+        assertNotNull(river.get())
     }
-
 
 }

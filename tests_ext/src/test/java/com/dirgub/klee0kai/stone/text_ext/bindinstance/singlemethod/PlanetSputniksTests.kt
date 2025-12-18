@@ -1,103 +1,101 @@
-package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.PlanetSputnikComponent;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponent
+import com.github.klee0kai.test.di.bindinstance.singlemethod.PlanetComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.PlanetSputnikComponent
+import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod.PlanetSputnikComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class PlanetSputniksTests {
+class PlanetSputniksTests {
 
     @Test
-    public void createdIsReusableTest() {
+    fun createdIsReusableTest() {
         // Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Earth earth = new Earth();
-        DI.earth(earth);
+        val DI: PlanetComponent = PlanetComponentStoneComponent()
+        val earth = Earth()
+        DI.earth(earth)
 
 
         //When
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
+        val DIPro: PlanetSputnikComponent = PlanetSputnikComponentStoneComponent()
+        DIPro.extendOf(DI)
 
 
         //Then
-        assertEquals(earth, DI.earth(null));
-        assertEquals(earth, DIPro.earth(null));
-        assertNull(DI.planet(null));
-        assertNull(DIPro.planet(null));
+        assertEquals(earth, DI.earth(null))
+        assertEquals(earth, DIPro.earth(null))
+        assertNull(DI.planet(null))
+        assertNull(DIPro.planet(null))
     }
 
     @Test
-    public void createdAfterExtendTest() {
+    fun createdAfterExtendTest() {
         // Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
-        Earth earth = new Earth();
+        val DI: PlanetComponent = PlanetComponentStoneComponent()
+        val DIPro: PlanetSputnikComponent = PlanetSputnikComponentStoneComponent()
+        DIPro.extendOf(DI)
+        val earth = Earth()
 
 
         //When
-        DI.earth(earth);
+        DI.earth(earth)
 
 
         //Then
-        assertEquals(earth, DI.earth(null));
-        assertEquals(earth, DIPro.earth(null));
-        assertNull(DI.planet(null));
-        assertNull(DIPro.planet(null));
-    }
-
-
-    @Test
-    public void extendedEarthTest() {
-        // Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Earth earth1 = new Earth();
-        Earth earth2 = new Earth();
-        DI.earth(earth1);
-
-
-        //When
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
-        DIPro.earth(earth2);
-
-
-        //Then
-        assertEquals(earth2, DI.earth(null));
-        assertEquals(earth2, DIPro.earth(null));
-        assertNull(DI.planet(null));
-        assertNull(DIPro.planet(null));
+        assertEquals(earth, DI.earth(null))
+        assertEquals(earth, DIPro.earth(null))
+        assertNull(DI.planet(null))
+        assertNull(DIPro.planet(null))
     }
 
 
     @Test
-    public void updatedAfterExtendEarthTest() {
+    fun extendedEarthTest() {
         // Given
-        PlanetComponent DI = Stone.createComponent(PlanetComponent.class);
-        Earth earth1 = new Earth();
-        Earth earth2 = new Earth();
-        Earth earth3 = new Earth();
-        DI.earth(earth1);
-        PlanetSputnikComponent DIPro = Stone.createComponent(PlanetSputnikComponent.class);
-        DIPro.extendOf(DI);
-        DIPro.earth(earth2);
+        val DI: PlanetComponent = PlanetComponentStoneComponent()
+        val earth1 = Earth()
+        val earth2 = Earth()
+        DI.earth(earth1)
 
 
         //When
-        DI.earth(earth3);
+        val DIPro: PlanetSputnikComponent = PlanetSputnikComponentStoneComponent()
+        DIPro.extendOf(DI)
+        DIPro.earth(earth2)
 
 
         //Then
-        assertEquals(earth3, DI.earth(null));
-        assertEquals(earth3, DIPro.earth(null));
-        assertNull(DI.planet(null));
-        assertNull(DIPro.planet(null));
+        assertEquals(earth2, DI.earth(null))
+        assertEquals(earth2, DIPro.earth(null))
+        assertNull(DI.planet(null))
+        assertNull(DIPro.planet(null))
     }
 
 
+    @org.junit.jupiter.api.Test
+    fun updatedAfterExtendEarthTest() {
+        // Given
+        val DI: PlanetComponent = PlanetComponentStoneComponent()
+        val earth1 = Earth()
+        val earth2 = Earth()
+        val earth3 = Earth()
+        DI.earth(earth1)
+        val DIPro: PlanetSputnikComponent = PlanetSputnikComponentStoneComponent()
+        DIPro.extendOf(DI)
+        DIPro.earth(earth2)
+
+
+        //When
+        DI.earth(earth3)
+
+
+        //Then
+        assertEquals(earth3, DI.earth(null))
+        assertEquals(earth3, DIPro.earth(null))
+        assertNull(DI.planet(null))
+        assertNull(DIPro.planet(null))
+    }
 }

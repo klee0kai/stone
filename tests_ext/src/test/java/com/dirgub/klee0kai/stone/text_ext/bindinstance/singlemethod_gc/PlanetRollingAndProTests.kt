@@ -1,347 +1,343 @@
-package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod_gc;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.singlemethod_gc
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test.mowgli.galaxy.Sun;
-import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod_gc.ExtPlanetRollingComponent;
-import com.github.klee0kai.test_ext.inject.mowgli.galaxy.sputniks.Moon;
-import com.github.klee0kai.test_ext.inject.mowgli.galaxy.stars.Sirius;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponent
+import com.github.klee0kai.test.di.bindinstance.singlemethod_gc.PlanetRollingComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test.mowgli.galaxy.Sun
+import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod_gc.ExtPlanetRollingComponent
+import com.github.klee0kai.test_ext.inject.di.bindinstance.singlemethod_gc.ExtPlanetRollingComponentStoneComponent
+import com.github.klee0kai.test_ext.inject.mowgli.galaxy.sputniks.Moon
+import com.github.klee0kai.test_ext.inject.mowgli.galaxy.stars.Sirius
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertNull
+import java.lang.ref.WeakReference
 
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class PlanetRollingAndProTests {
+class PlanetRollingAndProTests {
 
     @Test
-    public void gcAllTest() {
+    fun gcAllTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule().sunStrong(sunStrong.get())
+        DI.sunModule().sunSoft(sunSoft.get())
+        DI.sunModule().star(starWeak.get())
         //external component init
-        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
-        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
-        DIPro.sunModule().siriusStrong(siriusStrong.get());
-        DIPro.sunModule().siriusSoft(siriusSoft.get());
-        DIPro.sunModule().siriusWeak(siriusWeak.get());
-        DIPro.moonStrong(moonStrong.get());
-        DIPro.moonSoft(moonSoft.get());
-        DIPro.moonWeak(moonWeak.get());
+        val DIPro: ExtPlanetRollingComponent = ExtPlanetRollingComponentStoneComponent()
+        DIPro.extOf(DI)
+        val siriusStrong = WeakReference(Sirius())
+        val siriusSoft = WeakReference(Sirius())
+        val siriusWeak = WeakReference(Sirius())
+        val moonStrong = WeakReference(Moon())
+        val moonSoft = WeakReference(Moon())
+        val moonWeak = WeakReference(Moon())
+        DIPro.sunModule()!!.siriusStrong(siriusStrong.get())
+        DIPro.sunModule()!!.siriusSoft(siriusSoft.get())
+        DIPro.sunModule()!!.siriusWeak(siriusWeak.get())
+        DIPro.moonStrong(moonStrong.get())
+        DIPro.moonSoft(moonSoft.get())
+        DIPro.moonWeak(moonWeak.get())
 
         //When
-        DI.gcAll();
+        DI.gcAll()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, earthSoft, planetWeak,
-                sunStrong, sunSoft, starWeak,
-                siriusStrong, siriusSoft, siriusWeak,
-                moonStrong, moonSoft, moonWeak
+        for (ref in listOf(
+            earthStrong, earthSoft, planetWeak,
+            sunStrong, sunSoft, starWeak,
+            siriusStrong, siriusSoft, siriusWeak,
+            moonStrong, moonSoft, moonWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
     }
 
 
     @Test
-    public void gcStrongTest() {
+    fun gcStrongTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI: PlanetRollingComponent = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule()!!.sunStrong(sunStrong.get())
+        DI.sunModule()!!.sunSoft(sunSoft.get())
+        DI.sunModule()!!.star(starWeak.get())
         //external component init
-        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
-        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
-        DIPro.sunModule().siriusStrong(siriusStrong.get());
-        DIPro.sunModule().siriusSoft(siriusSoft.get());
-        DIPro.sunModule().siriusWeak(siriusWeak.get());
-        DIPro.moonStrong(moonStrong.get());
-        DIPro.moonSoft(moonSoft.get());
-        DIPro.moonWeak(moonWeak.get());
+        val DIPro: ExtPlanetRollingComponent = ExtPlanetRollingComponentStoneComponent()
+        DIPro.extOf(DI)
+        val siriusStrong = WeakReference(Sirius())
+        val siriusSoft = WeakReference(Sirius())
+        val siriusWeak = WeakReference(Sirius())
+        val moonStrong = WeakReference(Moon())
+        val moonSoft = WeakReference(Moon())
+        val moonWeak = WeakReference(Moon())
+        DIPro.sunModule()!!.siriusStrong(siriusStrong.get())
+        DIPro.sunModule()!!.siriusSoft(siriusSoft.get())
+        DIPro.sunModule()!!.siriusWeak(siriusWeak.get())
+        DIPro.moonStrong(moonStrong.get())
+        DIPro.moonSoft(moonSoft.get())
+        DIPro.moonWeak(moonWeak.get())
 
         //When
-        DI.gcStrong();
+        DI.gcStrong()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, planetWeak,
-                sunStrong, starWeak,
-                siriusStrong, siriusWeak,
-                moonStrong, moonWeak
+        for (ref in listOf(
+            earthStrong, planetWeak,
+            sunStrong, starWeak,
+            siriusStrong, siriusWeak,
+            moonStrong, moonWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthSoft,
-                sunSoft,
-                siriusSoft,
-                moonSoft
+        for (ref in listOf(
+            earthSoft,
+            sunSoft,
+            siriusSoft,
+            moonSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
 
     @Test
-    public void gcSoftTest() {
+    fun gcSoftTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI: PlanetRollingComponent = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule()!!.sunStrong(sunStrong.get())
+        DI.sunModule()!!.sunSoft(sunSoft.get())
+        DI.sunModule()!!.star(starWeak.get())
         //external component init
-        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
-        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
-        DIPro.sunModule().siriusStrong(siriusStrong.get());
-        DIPro.sunModule().siriusSoft(siriusSoft.get());
-        DIPro.sunModule().siriusWeak(siriusWeak.get());
-        DIPro.moonStrong(moonStrong.get());
-        DIPro.moonSoft(moonSoft.get());
-        DIPro.moonWeak(moonWeak.get());
+        val DIPro: ExtPlanetRollingComponent = ExtPlanetRollingComponentStoneComponent()
+        DIPro.extOf(DI)
+        val siriusStrong = WeakReference(Sirius())
+        val siriusSoft = WeakReference(Sirius())
+        val siriusWeak = WeakReference(Sirius())
+        val moonStrong = WeakReference(Moon())
+        val moonSoft = WeakReference(Moon())
+        val moonWeak = WeakReference(Moon())
+        DIPro.sunModule()!!.siriusStrong(siriusStrong.get())
+        DIPro.sunModule()!!.siriusSoft(siriusSoft.get())
+        DIPro.sunModule()!!.siriusWeak(siriusWeak.get())
+        DIPro.moonStrong(moonStrong.get())
+        DIPro.moonSoft(moonSoft.get())
+        DIPro.moonWeak(moonWeak.get())
 
         //When
-        DI.gcSoft();
+        DI.gcSoft()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthSoft, planetWeak,
-                sunSoft, starWeak,
-                siriusSoft, siriusWeak,
-                moonSoft, moonWeak
+        for (ref in listOf(
+            earthSoft, planetWeak,
+            sunSoft, starWeak,
+            siriusSoft, siriusWeak,
+            moonSoft, moonWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong,
-                sunStrong,
-                siriusStrong,
-                moonStrong
+        for (ref in listOf(
+            earthStrong,
+            sunStrong,
+            siriusStrong,
+            moonStrong
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
 
     @Test
-    public void gcWeakTest() {
+    fun gcWeakTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI: PlanetRollingComponent = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule()!!.sunStrong(sunStrong.get())
+        DI.sunModule()!!.sunSoft(sunSoft.get())
+        DI.sunModule()!!.star(starWeak.get())
         //external component init
-        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
-        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
-        DIPro.sunModule().siriusStrong(siriusStrong.get());
-        DIPro.sunModule().siriusSoft(siriusSoft.get());
-        DIPro.sunModule().siriusWeak(siriusWeak.get());
-        DIPro.moonStrong(moonStrong.get());
-        DIPro.moonSoft(moonSoft.get());
-        DIPro.moonWeak(moonWeak.get());
+        val DIPro: ExtPlanetRollingComponent = ExtPlanetRollingComponentStoneComponent()
+        DIPro.extOf(DI)
+        val siriusStrong = WeakReference(Sirius())
+        val siriusSoft = WeakReference(Sirius())
+        val siriusWeak = WeakReference(Sirius())
+        val moonStrong = WeakReference(Moon())
+        val moonSoft = WeakReference(Moon())
+        val moonWeak = WeakReference(Moon())
+        DIPro.sunModule()!!.siriusStrong(siriusStrong.get())
+        DIPro.sunModule()!!.siriusSoft(siriusSoft.get())
+        DIPro.sunModule()!!.siriusWeak(siriusWeak.get())
+        DIPro.moonStrong(moonStrong.get())
+        DIPro.moonSoft(moonSoft.get())
+        DIPro.moonWeak(moonWeak.get())
 
         //When
-        DI.gcWeak();
+        DI.gcWeak()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                planetWeak,
-                starWeak,
-                siriusWeak,
-                moonWeak
+        for (ref in listOf(
+            planetWeak,
+            starWeak,
+            siriusWeak,
+            moonWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, earthSoft,
-                sunStrong, sunSoft,
-                siriusStrong, siriusSoft,
-                moonStrong, moonSoft
+        for (ref in listOf(
+            earthStrong, earthSoft,
+            sunStrong, sunSoft,
+            siriusStrong, siriusSoft,
+            moonStrong, moonSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
 
     @Test
-    public void gcSoftSunTest() {
+    fun gcSoftSunTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI: PlanetRollingComponent = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule()!!.sunStrong(sunStrong.get())
+        DI.sunModule()!!.sunSoft(sunSoft.get())
+        DI.sunModule()!!.star(starWeak.get())
         //external component init
-        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
-        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
-        DIPro.sunModule().siriusStrong(siriusStrong.get());
-        DIPro.sunModule().siriusSoft(siriusSoft.get());
-        DIPro.sunModule().siriusWeak(siriusWeak.get());
-        DIPro.moonStrong(moonStrong.get());
-        DIPro.moonSoft(moonSoft.get());
-        DIPro.moonWeak(moonWeak.get());
+        val DIPro: ExtPlanetRollingComponent = ExtPlanetRollingComponentStoneComponent()
+        DIPro.extOf(DI)
+        val siriusStrong = WeakReference(Sirius())
+        val siriusSoft = WeakReference(Sirius())
+        val siriusWeak = WeakReference(Sirius())
+        val moonStrong = WeakReference(Moon())
+        val moonSoft = WeakReference(Moon())
+        val moonWeak = WeakReference(Moon())
+        DIPro.sunModule()!!.siriusStrong(siriusStrong.get())
+        DIPro.sunModule()!!.siriusSoft(siriusSoft.get())
+        DIPro.sunModule()!!.siriusWeak(siriusWeak.get())
+        DIPro.moonStrong(moonStrong.get())
+        DIPro.moonSoft(moonSoft.get())
+        DIPro.moonWeak(moonWeak.get())
 
         //When
-        DI.gcSoftSun();
+        DI.gcSoftSun()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                planetWeak,
-                sunSoft, starWeak,
-                siriusWeak,
-                moonWeak
+        for (ref in listOf(
+            planetWeak,
+            sunSoft, starWeak,
+            siriusWeak,
+            moonWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong, earthSoft,
-                sunStrong,
-                siriusStrong, siriusSoft,
-                moonStrong, moonSoft
+        for (ref in listOf(
+            earthStrong, earthSoft,
+            sunStrong,
+            siriusStrong, siriusSoft,
+            moonStrong, moonSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
 
 
     @Test
-    public void gcSoftPlanetsTest() {
+    fun gcSoftPlanetsTest() {
         //Given
-        PlanetRollingComponent DI = Stone.createComponent(PlanetRollingComponent.class);
-        WeakReference<Earth> earthStrong = new WeakReference<>(new Earth());
-        WeakReference<Earth> earthSoft = new WeakReference<>(new Earth());
-        WeakReference<Earth> planetWeak = new WeakReference<>(new Earth());
-        WeakReference<Sun> sunStrong = new WeakReference<>(new Sun());
-        WeakReference<Sun> sunSoft = new WeakReference<>(new Sun());
-        WeakReference<Sun> starWeak = new WeakReference<>(new Sun());
-        DI.earthStrong(earthStrong.get());
-        DI.earthSoft(earthSoft.get());
-        DI.planet(planetWeak.get());
-        DI.sunModule().sunStrong(sunStrong.get());
-        DI.sunModule().sunSoft(sunSoft.get());
-        DI.sunModule().star(starWeak.get());
+        val DI: PlanetRollingComponent = PlanetRollingComponentStoneComponent()
+        val earthStrong = WeakReference(Earth())
+        val earthSoft = WeakReference(Earth())
+        val planetWeak = WeakReference(Earth())
+        val sunStrong = WeakReference(Sun())
+        val sunSoft = WeakReference(Sun())
+        val starWeak = WeakReference(Sun())
+        DI.earthStrong(earthStrong.get())
+        DI.earthSoft(earthSoft.get())
+        DI.planet(planetWeak.get())
+        DI.sunModule()!!.sunStrong(sunStrong.get())
+        DI.sunModule()!!.sunSoft(sunSoft.get())
+        DI.sunModule()!!.star(starWeak.get())
         //external component init
-        ExtPlanetRollingComponent DIPro = Stone.createComponent(ExtPlanetRollingComponent.class);
-        DIPro.extOf(DI);
-        WeakReference<Sirius> siriusStrong = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusSoft = new WeakReference<>(new Sirius());
-        WeakReference<Sirius> siriusWeak = new WeakReference<>(new Sirius());
-        WeakReference<Moon> moonStrong = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonSoft = new WeakReference<>(new Moon());
-        WeakReference<Moon> moonWeak = new WeakReference<>(new Moon());
-        DIPro.sunModule().siriusStrong(siriusStrong.get());
-        DIPro.sunModule().siriusSoft(siriusSoft.get());
-        DIPro.sunModule().siriusWeak(siriusWeak.get());
-        DIPro.moonStrong(moonStrong.get());
-        DIPro.moonSoft(moonSoft.get());
-        DIPro.moonWeak(moonWeak.get());
+        val DIPro: ExtPlanetRollingComponent = ExtPlanetRollingComponentStoneComponent()
+        DIPro.extOf(DI)
+        val siriusStrong = WeakReference(Sirius())
+        val siriusSoft = WeakReference(Sirius())
+        val siriusWeak = WeakReference(Sirius())
+        val moonStrong = WeakReference(Moon())
+        val moonSoft = WeakReference(Moon())
+        val moonWeak = WeakReference(Moon())
+        DIPro.sunModule()!!.siriusStrong(siriusStrong.get())
+        DIPro.sunModule()!!.siriusSoft(siriusSoft.get())
+        DIPro.sunModule()!!.siriusWeak(siriusWeak.get())
+        DIPro.moonStrong(moonStrong.get())
+        DIPro.moonSoft(moonSoft.get())
+        DIPro.moonWeak(moonWeak.get())
 
         //When
-        DI.gcSoftPlanets();
+        DI.gcSoftPlanets()
 
         //Then
-        for (WeakReference ref : Arrays.asList(
-                earthSoft, planetWeak,
-                starWeak,
-                siriusWeak,
-                moonWeak
+        for (ref in listOf(
+            earthSoft, planetWeak,
+            starWeak,
+            siriusWeak,
+            moonWeak
         )) {
-            assertNull(ref.get());
+            assertNull(ref.get())
         }
 
-        for (WeakReference ref : Arrays.asList(
-                earthStrong,
-                sunStrong, sunSoft,
-                siriusStrong, siriusSoft,
-                moonStrong, moonSoft
+        for (ref in listOf(
+            earthStrong,
+            sunStrong, sunSoft,
+            siriusStrong, siriusSoft,
+            moonStrong, moonSoft
         )) {
-            assertNotNull(ref.get());
+            assertNotNull(ref.get())
         }
     }
-
-
 }

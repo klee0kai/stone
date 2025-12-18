@@ -1,167 +1,165 @@
-package com.dirgub.klee0kai.stone.text_ext.cache;
+package com.dirgub.klee0kai.stone.text_ext.cache
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.gcforest.GcGodComponent;
-import com.github.klee0kai.test.mowgli.earth.Mountain;
-import com.github.klee0kai.test_ext.inject.di.gcforest.GcGodExtComponent;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.gcforest.GcGodComponent
+import com.github.klee0kai.test.di.gcforest.GcGodComponentStoneComponent
+import com.github.klee0kai.test.mowgli.earth.Mountain
+import com.github.klee0kai.test_ext.inject.di.gcforest.GcGodExtComponent
+import com.github.klee0kai.test_ext.inject.di.gcforest.GcGodExtComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-public class EarthCacheMixedTests {
-
+class EarthCacheMixedTests {
 
     @Test
-    public void strongCacheTest() {
+    fun strongCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Mountain mountain1 = DI.earth().mountainStrong();
-        Mountain mountain2 = DIPro.earth().mountainStrong();
+        val mountain1: Mountain? = DI.earth()!!.mountainStrong()
+        val mountain2: Mountain? = DIPro.earth()!!.mountainStrong()
 
         //Then
         assertEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1!!.uuid,
+            mountain2!!.uuid
+        )
     }
 
 
     @Test
-    public void softCacheTest() {
+    fun softCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Mountain mountain1 = DI.earth().mountainSoft();
-        Mountain mountain2 = DIPro.earth().mountainSoft();
+        val mountain1: Mountain? = DI.earth()!!.mountainSoft()
+        val mountain2: Mountain? = DIPro.earth()!!.mountainSoft()
 
         //Then
         assertEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1!!.uuid,
+            mountain2!!.uuid
+        )
     }
 
     @Test
-    public void weakCacheTest() {
+    fun weakCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Mountain mountain1 = DI.earth().mountainWeak();
-        Mountain mountain2 = DIPro.earth().mountainWeak();
+        val mountain1: Mountain? = DI.earth()!!.mountainWeak()
+        val mountain2: Mountain? = DIPro.earth()!!.mountainWeak()
 
         //Then
         assertEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1!!.uuid,
+            mountain2!!.uuid
+        )
     }
 
     @Test
-    public void defCacheTest() {
+    fun defCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Mountain mountain1 = DI.earth().mountainDefaultFactory();
-        Mountain mountain2 = DIPro.earth().mountainDefaultFactory();
+        val mountain1: Mountain? = DI.earth()!!.mountainDefaultFactory()
+        val mountain2: Mountain? = DIPro.earth()!!.mountainDefaultFactory()
 
         //Then
         assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid,
-                "Factory providing"
-        );
+            mountain1!!.uuid,
+            mountain2!!.uuid,
+            "Factory providing"
+        )
     }
 
     @Test
-    public void defCache2Test() {
+    fun defCache2Test() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Mountain mountain1 = DI.earth().mountainDefault2Factory();
-        Mountain mountain2 = DIPro.earth().mountainDefault2Factory();
+        val mountain1: Mountain? = DI.earth()!!.mountainDefault2Factory()
+        val mountain2: Mountain? = DIPro.earth()!!.mountainDefault2Factory()
 
         //Then
         assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid,
-                "Factory providing"
-        );
+            mountain1!!.uuid,
+            mountain2!!.uuid,
+            "Factory providing"
+        )
     }
 
     @Test
-    public void differentMethodDifferentCacheTest() {
+    fun differentMethodDifferentCacheTest() {
         //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Mountain mountainStrong = DI.earth().mountainStrong();
-        Mountain mountainSoft = DIPro.earth().mountainSoft();
+        val mountainStrong: Mountain? = DI.earth()!!.mountainStrong()
+        val mountainSoft: Mountain? = DIPro.earth()!!.mountainSoft()
 
         //Then
         assertNotEquals(
-                mountainStrong.uuid,
-                mountainSoft.uuid
-        );
-    }
-
-
-    @Test
-    public void factoryNotCacheTest() {
-        //Given
-        GcGodComponent DI = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro = Stone.createComponent(GcGodExtComponent.class);
-        DIPro.extOf(DI);
-
-        //When
-        Mountain mountain1 = DI.earth().mountainFactory();
-        Mountain mountain2 = DIPro.earth().mountainFactory();
-
-        //Then
-        assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountainStrong!!.uuid,
+            mountainSoft!!.uuid
+        )
     }
 
 
     @Test
-    public void differentDIDifferentCacheTest() {
+    fun factoryNotCacheTest() {
         //Given
-        GcGodComponent DI1 = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro1 = Stone.createComponent(GcGodExtComponent.class);
-        DIPro1.extOf(DI1);
-        GcGodComponent DI2 = Stone.createComponent(GcGodComponent.class);
-        GcGodExtComponent DIPro2 = Stone.createComponent(GcGodExtComponent.class);
-        DIPro2.extOf(DI2);
+        val DI: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Mountain mountain1 = DI1.earth().mountainStrong();
-        Mountain mountain2 = DIPro2.earth().mountainStrong();
+        val mountain1: Mountain? = DI.earth()!!.mountainFactory()
+        val mountain2: Mountain? = DIPro.earth()!!.mountainFactory()
 
         //Then
         assertNotEquals(
-                mountain1.uuid,
-                mountain2.uuid
-        );
+            mountain1!!.uuid,
+            mountain2!!.uuid
+        )
     }
 
+
+    @Test
+    fun differentDIDifferentCacheTest() {
+        //Given
+        val DI1: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro1: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro1.extOf(DI1)
+        val DI2: GcGodComponent = GcGodComponentStoneComponent()
+        val DIPro2: GcGodExtComponent = GcGodExtComponentStoneComponent()
+        DIPro2.extOf(DI2)
+
+        //When
+        val mountain1: Mountain? = DI1.earth()!!.mountainStrong()
+        val mountain2: Mountain? = DIPro2.earth()!!.mountainStrong()
+
+        //Then
+        assertNotEquals(
+            mountain1!!.uuid,
+            mountain2!!.uuid
+        )
+    }
 }

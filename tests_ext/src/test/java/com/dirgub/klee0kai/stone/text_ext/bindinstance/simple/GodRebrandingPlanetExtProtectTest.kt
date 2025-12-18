@@ -1,102 +1,100 @@
-package com.dirgub.klee0kai.stone.text_ext.bindinstance.simple;
+package com.dirgub.klee0kai.stone.text_ext.bindinstance.simple
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponent;
-import com.github.klee0kai.test.mowgli.galaxy.Earth;
-import com.github.klee0kai.test_ext.inject.di.bindinstance.simple.GodRebrandingComponent;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponentStoneComponent
+import com.github.klee0kai.test.mowgli.galaxy.Earth
+import com.github.klee0kai.test_ext.inject.di.bindinstance.simple.GodRebrandingComponentStoneComponent
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-public class GodRebrandingPlanetExtProtectTest {
+class GodRebrandingPlanetExtProtectTest {
 
     @Test
-    public void createdIsReusableTest() {
+    fun createdIsReusableTest() {
         // Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Earth earth = new Earth();
-        DI.bindPlanet(earth);
+        val DI = GodWorkspaceComponentStoneComponent()
+        val earth = Earth()
+        DI.bindPlanet(earth)
 
 
         //When
-        GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.extendComponent(DI);
+        val DIPro = GodRebrandingComponentStoneComponent()
+        DIPro.extendComponent(DI)
 
 
         //Then
-        assertEquals(earth, DI.sunSystem().planet());
-        assertEquals(earth, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
+        assertEquals(earth, DI.sunSystem().planet())
+        assertEquals(earth, DIPro.sunSystem().planet())
+        assertNull(DI.sunSystem().earth())
+        assertNull(DIPro.sunSystem().earth())
     }
 
     @Test
-    public void createdAfterRebrandingTest() {
+    fun createdAfterRebrandingTest() {
         // Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.extendComponent(DI);
-        Earth earth = new Earth();
+        val DI = GodWorkspaceComponentStoneComponent()
+        val DIPro = GodRebrandingComponentStoneComponent()
+        DIPro.extendComponent(DI)
+        val earth = Earth()
 
 
         //When
-        DI.bindPlanet(earth);
+        DI.bindPlanet(earth)
 
 
         //Then
-        assertEquals(earth, DI.sunSystem().planet());
-        assertEquals(earth, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
-    }
-
-
-    @Test
-    public void rebrandedSunTest() {
-        // Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Earth earth1 = new Earth();
-        Earth earth2 = new Earth();
-        DI.bindPlanet(earth1);
-
-
-        //When
-        GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.extendComponent(DI);
-        DIPro.bindPlanet(earth2);
-
-
-        //Then
-        assertEquals(earth2, DI.sunSystem().planet());
-        assertEquals(earth2, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
+        assertEquals(earth, DI.sunSystem().planet())
+        assertEquals(earth, DIPro.sunSystem().planet())
+        assertNull(DI.sunSystem().earth())
+        assertNull(DIPro.sunSystem().earth())
     }
 
 
     @Test
-    public void updatedAfterRebrandingSunTest() {
+    fun rebrandedSunTest() {
         // Given
-        GodWorkspaceComponent DI = Stone.createComponent(GodWorkspaceComponent.class);
-        Earth earth1 = new Earth();
-        Earth earth2 = new Earth();
-        Earth earth3 = new Earth();
-        DI.bindPlanet(earth1);
-        GodRebrandingComponent DIPro = Stone.createComponent(GodRebrandingComponent.class);
-        DIPro.extendComponent(DI);
-        DIPro.bindPlanet(earth2);
+        val DI = GodWorkspaceComponentStoneComponent()
+        val earth1 = Earth()
+        val earth2 = Earth()
+        DI.bindPlanet(earth1)
 
 
         //When
-        DI.bindPlanet(earth3);
+        val DIPro = GodRebrandingComponentStoneComponent()
+        DIPro.extendComponent(DI)
+        DIPro.bindPlanet(earth2)
 
 
         //Then
-        assertEquals(earth3, DI.sunSystem().planet());
-        assertEquals(earth3, DIPro.sunSystem().planet());
-        assertNull(DI.sunSystem().earth());
-        assertNull(DIPro.sunSystem().earth());
+        assertEquals(earth2, DI.sunSystem().planet())
+        assertEquals(earth2, DIPro.sunSystem().planet())
+        assertNull(DI.sunSystem().earth())
+        assertNull(DIPro.sunSystem().earth())
+    }
+
+
+    @Test
+    fun updatedAfterRebrandingSunTest() {
+        // Given
+        val DI = GodWorkspaceComponentStoneComponent()
+        val earth1 = Earth()
+        val earth2 = Earth()
+        val earth3 = Earth()
+        DI.bindPlanet(earth1)
+        val DIPro = GodRebrandingComponentStoneComponent()
+        DIPro.extendComponent(DI)
+        DIPro.bindPlanet(earth2)
+
+
+        //When
+        DI.bindPlanet(earth3)
+
+
+        //Then
+        assertEquals(earth3, DI.sunSystem().planet())
+        assertEquals(earth3, DIPro.sunSystem().planet())
+        assertNull(DI.sunSystem().earth())
+        assertNull(DIPro.sunSystem().earth())
     }
 
 }
