@@ -12,6 +12,7 @@ import com.github.klee0kai.stone.annotations.component.GcAllScope
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
 import com.github.klee0kai.thekey.stone.ksp.helpers.*
+import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnnotation
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.ItemHolderCodeHelper
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.of
 import com.github.klee0kai.thekey.stone.ksp.helpers.itemholder.toItemCacheType
@@ -22,6 +23,9 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
+import com.github.klee0kai.thekey.stone.ksp.target.component.BindInstanceType
+import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
+import com.github.klee0kai.thekey.stone.ksp.target.component.isBindInstanceMethod
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor.Companion.appliedLocalFieldName
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor.Companion.bindMethodName
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor.Companion.clearNullsMethodName
@@ -31,10 +35,6 @@ import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor.Com
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor.Companion.overridedModuleFieldName
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor.Companion.switchRefMethodName
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor.Companion.updateBindInstancesFrom
-import com.github.klee0kai.thekey.stone.ksp.target.component.BindInstanceType
-import com.github.klee0kai.thekey.stone.ksp.target.component.collectComponentGraph
-import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
-import com.github.klee0kai.thekey.stone.ksp.target.component.isBindInstanceMethod
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAnnotationsByType
@@ -81,20 +81,21 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         val genHiddenModuleCl = componentCl.hiddenModuleStoneClName
         val identifierTypes = componentCl.allIdentifierTypes.toList()
         val wrapHelper = componentCl.collectWrapHelper()
-        val modulesGraph = componentCl.collectComponentGraph()
         val codeBlocks = DelayedCodeBlocks()
 
-        val genCacheControlClassName = genHiddenModuleCl.cacheControlStoneClName
         val fileSpec = genFileSpec(genHiddenModuleCl.packageName, genHiddenModuleCl.simpleName) {
             genLibComment()
 
             genClass(genHiddenModuleCl) {
                 addSuperinterface(IModule::class)
-                addSuperinterface(genCacheControlClassName)
+                componentCl.allParentDeclarations
+                    .filter { it.findComponentAnnotation().any() }
+                    .forEach { parentComponentCl -> addSuperinterface(parentComponentCl.hiddenModuleStoneClName.cacheControlStoneClName) }
+
 
                 val functions = validSymbol.getAllMethods(false, false, "<init>")
                 functions.forEachFun { funIdx, function ->
-
+                    val itemHolderIdx = funIdx + 1
                     val bindAnn = function.getAnnotationsByType(BindInstance::class).firstOrNull()
                     val idArguments = function.parameters.identifierParameters(identifierTypes)
 
@@ -108,7 +109,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                         return@forEachFun
 
                     val itemHolderCodeHelper = ItemHolderCodeHelper.of(
-                        fieldName = "${function.simpleName.asString()}$funIdx",
+                        fieldName = "${function.simpleName.asString()}$itemHolderIdx",
                         returnType = returnType,
                         idArguments = idArguments,
                         cacheType = bindAnn.cache.toItemCacheType(),
@@ -347,27 +348,35 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             addParameter("m", IModule::class)
             addStatement("if (m == this) return")
 
-            val cacheControlCl = componentCl.hiddenModuleStoneClName.cacheControlStoneClName
-            beginControlFlow("if ( m is %T )", cacheControlCl)
-            addStatement("val module = m as %T", cacheControlCl)
-            componentCl.getAllMethods(
-                includeObjectMethods = false,
-                allowDoubles = false,
-                exceptNames = arrayOf("<init>"),
-            ).forEach { protoProvideMethod ->
-                if (protoProvideMethod.isBindInstanceMethod != BindInstanceType.BindInstanceAndProvide) {
-                    return@forEach
+            componentCl.allParentDeclarations
+                .filter { it.findComponentAnnotation().any() }
+                .forEach { parentComponentCl ->
+                    val cacheControlCl = parentComponentCl.hiddenModuleStoneClName.cacheControlStoneClName
+                    beginControlFlow("if ( m is %T )", cacheControlCl)
+                    addStatement("val module = m as %T", cacheControlCl)
+
+                    parentComponentCl.getAllMethods(
+                        includeObjectMethods = false,
+                        allowDoubles = false,
+                        exceptNames = arrayOf("<init>"),
+                    ).forEach { protoProvideMethod ->
+                        if (protoProvideMethod.isBindInstanceMethod != BindInstanceType.BindInstanceAndProvide) {
+                            return@forEach
+                        }
+
+                        val cacheControlMethod = protoProvideMethod.cacheControlMethodName
+
+                        addStatement(
+                            "%L( %T.setIfNullValueAction( module.%L( %T.getValueAction ) ) )",
+                            cacheControlMethod, CacheAction::class,
+                            cacheControlMethod, CacheAction::class,
+                        )
+                    }
+
+                    addStatement("return")
+                    endControlFlow()
                 }
 
-                val cacheControlMethod = protoProvideMethod.cacheControlMethodName
-
-                addStatement(
-                    "%L( %T.setIfNullValueAction( module.%L( %T.getValueAction ) ) )",
-                    cacheControlMethod, CacheAction::class,
-                    cacheControlMethod, CacheAction::class,
-                )
-            }
-            endControlFlow()
         }
 
         genFun(updateBindInstancesFrom) {
@@ -375,27 +384,33 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             addParameter("m", IModule::class)
             addStatement("if (m == this) return")
 
-            val cacheControlCl = componentCl.hiddenModuleStoneClName.cacheControlStoneClName
-            beginControlFlow("if ( m is %T )", cacheControlCl)
-            addStatement("val module = m as %T", cacheControlCl)
-            componentCl.getAllMethods(
-                includeObjectMethods = false,
-                allowDoubles = false,
-                exceptNames = arrayOf("<init>"),
-            ).forEach { protoProvideMethod ->
-                if (protoProvideMethod.isBindInstanceMethod != BindInstanceType.BindInstanceAndProvide) {
-                    return@forEach
+            componentCl.allParentDeclarations
+                .filter { it.findComponentAnnotation().any() }
+                .forEach { parentComponentCl ->
+                    val cacheControlCl = parentComponentCl.hiddenModuleStoneClName.cacheControlStoneClName
+                    beginControlFlow("if ( m is %T )", cacheControlCl)
+                    addStatement("val module = m as %T", cacheControlCl)
+                    parentComponentCl.getAllMethods(
+                        includeObjectMethods = false,
+                        allowDoubles = false,
+                        exceptNames = arrayOf("<init>"),
+                    ).forEach { protoProvideMethod ->
+                        if (protoProvideMethod.isBindInstanceMethod != BindInstanceType.BindInstanceAndProvide) {
+                            return@forEach
+                        }
+
+                        val cacheControlMethod = protoProvideMethod.cacheControlMethodName
+
+                        addStatement(
+                            "%L( %T.setValueAction( module.%L( %T.getValueAction ) ) )",
+                            cacheControlMethod, CacheAction::class,
+                            cacheControlMethod, CacheAction::class,
+                        )
+                    }
+                    addStatement("return")
+                    endControlFlow()
                 }
 
-                val cacheControlMethod = protoProvideMethod.cacheControlMethodName
-
-                addStatement(
-                    "%L( %T.setValueAction( module.%L( %T.getValueAction ) ) )",
-                    cacheControlMethod, CacheAction::class,
-                    cacheControlMethod, CacheAction::class,
-                );
-            }
-            endControlFlow()
         }
 
         genFun(clearNullsMethodName) {

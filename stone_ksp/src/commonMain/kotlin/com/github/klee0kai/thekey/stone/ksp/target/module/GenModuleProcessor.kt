@@ -115,12 +115,17 @@ class GenModuleProcessor : TargetFileProcessor {
                     superclass(moduleCl.toClassName())
                 }
                 addSuperinterface(IModule::class)
-                addSuperinterface(moduleCl.toClassName().cacheControlStoneClName)
+
+                moduleCl.allParentDeclarations
+                    .filter { it.getAnnotationsByType(Module::class).any() }
+                    .forEach { parentModuleCl -> addSuperinterface(parentModuleCl.toClassName().cacheControlStoneClName) }
+
                 addModifiers(KModifier.OPEN)
                 val codeBlocks = DelayedCodeBlocks()
 
                 validSymbol.getAllMethods(false, false, "<init>")
                     .forEachFun { funIdx, function ->
+                        val holderIdx = funIdx + 1
                         val bindAnn = function.getAnnotationsByType(BindInstance::class).firstOrNull()
                         val provideAnn = function.getAnnotationsByType(Provide::class).firstOrNull()
                         val idArguments = function.parameters.identifierParameters(identifierTypes)
@@ -136,7 +141,7 @@ class GenModuleProcessor : TargetFileProcessor {
                         when {
                             bindAnn != null -> {
                                 val itemHolderCodeHelper = ItemHolderCodeHelper.of(
-                                    fieldName = "${function.simpleName.asString()}$funIdx",
+                                    fieldName = "${function.simpleName.asString()}$holderIdx",
                                     returnType = returnType,
                                     idArguments = idArguments,
                                     cacheType = bindAnn.cache.toItemCacheType(),
@@ -200,7 +205,7 @@ class GenModuleProcessor : TargetFileProcessor {
 
                             else -> {
                                 val itemHolderCodeHelper = ItemHolderCodeHelper.of(
-                                    fieldName = "${function.simpleName.asString()}$funIdx",
+                                    fieldName = "${function.simpleName.asString()}$holderIdx",
                                     returnType = returnType,
                                     idArguments = idArguments,
                                     cacheType = provideAnn.cache.toItemCacheType() ?: return@forEachFun,
