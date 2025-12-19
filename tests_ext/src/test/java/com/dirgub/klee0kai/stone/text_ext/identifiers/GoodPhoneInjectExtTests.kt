@@ -1,114 +1,114 @@
-package com.dirgub.klee0kai.stone.text_ext.identifiers;
+package com.dirgub.klee0kai.stone.text_ext.identifiers
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.base_phone.PhoneComponent;
-import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize;
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.tech.phone.GoodPhone;
-import com.github.klee0kai.test_ext.inject.di.base_phone.PhoneExtComponent;
-import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.base_phone.PhoneComponent
+import com.github.klee0kai.test.di.base_phone.PhoneComponentStoneComponent
+import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.tech.phone.GoodPhone
+import com.github.klee0kai.test_ext.inject.di.base_phone.PhoneExtComponent
+import com.github.klee0kai.test_ext.inject.di.base_phone.PhoneExtComponentStoneComponent
+import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-public class GoodPhoneInjectExtTests {
+class GoodPhoneInjectExtTests {
 
 
     @Test
     @Disabled("https://github.com/klee0kai/stone/issues/42")
-    public void createdIsReusableTest() {
+    fun createdIsReusableTest() {
         //Given
-        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
-        GoodPhone goodPhone1 = new GoodPhone();
-        DI.inject(goodPhone1, goodPhone1.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
+        val DI: PhoneComponent = PhoneComponentStoneComponent()
+        val goodPhone1 = GoodPhone()
+        DI.inject(goodPhone1, goodPhone1.lifeCycleOwner, DataStorageSize("120GB"), RamSize("8GB"))
 
         //When
-        PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.extOf(DI);
-        GoodPhone goodPhone2 = new GoodPhone();
-        DIPro.inject(goodPhone2, goodPhone2.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
+        val DIPro: PhoneExtComponent = PhoneExtComponentStoneComponent()
+        DIPro.extOf(DI)
+        val goodPhone2 = GoodPhone()
+        DIPro.inject(goodPhone2, goodPhone2.lifeCycleOwner, DataStorageSize("120GB"), RamSize("8GB"))
 
         //Then
-        assertEquals(goodPhone1.ram.uuid, goodPhone2.ram.uuid);
-        assertTrue(goodPhone1.ram instanceof DDR3Ram);
+        assertEquals(goodPhone1.ram!!.uuid, goodPhone2.ram!!.uuid)
+        assertTrue(goodPhone1.ram is DDR3Ram)
     }
 
 
     @Test
-    public void createGoodPhoneFromProtoTest() {
+    fun createGoodPhoneFromProtoTest() {
         //Given
-        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
-        PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: PhoneComponent = PhoneComponentStoneComponent()
+        val DIPro: PhoneExtComponent = PhoneExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
-        GoodPhone goodPhone = new GoodPhone();
+        val goodPhone = GoodPhone()
 
         //When
-        DI.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("120GB"), RamSize("8GB"))
 
         //Then
-        assertEquals("120GB", goodPhone.dataStorage.size);
-        assertEquals("8GB", goodPhone.ram.size);
-        assertTrue(goodPhone.ram instanceof DDR3Ram);
+        assertEquals("120GB", goodPhone.dataStorage!!.size)
+        assertEquals("8GB", goodPhone.ram!!.size)
+        assertTrue(goodPhone.ram is DDR3Ram)
     }
 
 
     @Test
-    public void createGoodPhoneFromProTest() {
+    fun createGoodPhoneFromProTest() {
         //Given
-        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
-        PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: PhoneComponent = PhoneComponentStoneComponent()
+        val DIPro: PhoneExtComponent = PhoneExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
-        GoodPhone goodPhone = new GoodPhone();
+        val goodPhone = GoodPhone()
 
         //When
-        DIPro.inject(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
+        DIPro.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("120GB"), RamSize("8GB"))
 
         //Then
-        assertEquals("120GB", goodPhone.dataStorage.size);
-        assertEquals("8GB", goodPhone.ram.size);
-        assertTrue(goodPhone.ram instanceof DDR3Ram);
+        assertEquals("120GB", goodPhone.dataStorage!!.size)
+        assertEquals("8GB", goodPhone.ram!!.size)
+        assertTrue(goodPhone.ram is DDR3Ram)
     }
 
 
     @Test
-    public void createGoodPhoneFromProExtTest() {
+    fun createGoodPhoneFromProExtTest() {
         //Given
-        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
-        PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.extOf(DI);
-        GoodPhone goodPhone = new GoodPhone();
+        val DI: PhoneComponent = PhoneComponentStoneComponent()
+        val DIPro: PhoneExtComponent = PhoneExtComponentStoneComponent()
+        DIPro.extOf(DI)
+        val goodPhone = GoodPhone()
 
         //When
-        DIPro.injectExt(goodPhone, goodPhone.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
+        DIPro.injectExt(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("120GB"), RamSize("8GB"))
 
         //Then
-        assertEquals("120GB", goodPhone.dataStorage.size);
-        assertEquals("8GB", goodPhone.ram.size);
-        assertTrue(goodPhone.ram instanceof DDR3Ram);
+        assertEquals("120GB", goodPhone.dataStorage!!.size)
+        assertEquals("8GB", goodPhone.ram!!.size)
+        assertTrue(goodPhone.ram is DDR3Ram)
     }
 
 
     @Test
-    public void cacheInjectedPhoneTest() {
+    fun cacheInjectedPhoneTest() {
         //Given
-        PhoneComponent DI = Stone.createComponent(PhoneComponent.class);
-        PhoneExtComponent DIPro = Stone.createComponent(PhoneExtComponent.class);
-        DIPro.extOf(DI);
-        GoodPhone goodPhone1 = new GoodPhone();
-        GoodPhone goodPhone2 = new GoodPhone();
+        val DI: PhoneComponent = PhoneComponentStoneComponent()
+        val DIPro: PhoneExtComponent = PhoneExtComponentStoneComponent()
+        DIPro.extOf(DI)
+        val goodPhone1 = GoodPhone()
+        val goodPhone2 = GoodPhone()
 
 
         //When
-        DI.inject(goodPhone1, goodPhone1.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
-        DIPro.inject(goodPhone2, goodPhone2.lifeCycleOwner, new DataStorageSize("120GB"), new RamSize("8GB"));
+        DI.inject(goodPhone1, goodPhone1.lifeCycleOwner, DataStorageSize("120GB"), RamSize("8GB"))
+        DIPro.inject(goodPhone2, goodPhone2.lifeCycleOwner, DataStorageSize("120GB"), RamSize("8GB"))
 
         //Then
-        assertEquals(goodPhone1.ram.uuid, goodPhone2.ram.uuid);
-        assertTrue(goodPhone1.ram instanceof DDR3Ram);
+        assertEquals(goodPhone1.ram!!.uuid, goodPhone2.ram!!.uuid)
+        assertTrue(goodPhone1.ram is DDR3Ram)
     }
 
 }

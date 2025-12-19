@@ -1,118 +1,117 @@
-package com.dirgub.klee0kai.stone.text_ext.identifiers;
+package com.dirgub.klee0kai.stone.text_ext.identifiers
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType;
-import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion;
-import com.github.klee0kai.test.di.base_phone.identifiers.RamSize;
-import com.github.klee0kai.test.di.techfactory.TechFactoryComponent;
-import com.github.klee0kai.test.tech.components.OperationSystem;
-import com.github.klee0kai.test.tech.components.Ram;
-import com.github.klee0kai.test_ext.inject.di.techfactory.TechFactoryExtComponent;
-import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
+import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion
+import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
+import com.github.klee0kai.test.di.techfactory.TechFactoryComponent
+import com.github.klee0kai.test.di.techfactory.TechFactoryComponentStoneComponent
+import com.github.klee0kai.test.tech.components.OperationSystem
+import com.github.klee0kai.test.tech.components.Ram
+import com.github.klee0kai.test_ext.inject.di.techfactory.TechFactoryExtComponent
+import com.github.klee0kai.test_ext.inject.di.techfactory.TechFactoryExtComponentStoneComponent
+import com.github.klee0kai.test_ext.inject.tech.components.DDR3Ram
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNull
 
-import static org.junit.jupiter.api.Assertions.*;
-
-public class TechFactoryComponentFromProTests {
+class TechFactoryComponentFromProTests {
 
     @Test
-    public void nonArgProvideTest() {
+    fun nonArgProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
-        TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: TechFactoryComponent = TechFactoryComponentStoneComponent()
+        val DIPro: TechFactoryExtComponent = TechFactoryExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Ram ram = DIPro.ram();
+        val ram: Ram? = DIPro.ram()
 
         //Then
-        assertEquals("default", ram.size);
-        assertTrue(ram instanceof DDR3Ram);
+        assertEquals("default", ram!!.size)
+        assertTrue(ram is DDR3Ram)
     }
 
     @Test
-    public void singleArgProvideTest() {
+    fun singleArgProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
-        TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: TechFactoryComponent = TechFactoryComponentStoneComponent()
+        val DIPro: TechFactoryExtComponent = TechFactoryExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
 
         //When
-        Ram ram = DIPro.ram(new RamSize("4G"));
+        val ram: Ram? = DIPro.ram(RamSize("4G"))
 
         //Then
-        assertEquals("4G", ram.size);
-        assertTrue(ram instanceof DDR3Ram);
+        assertEquals("4G", ram!!.size)
+        assertTrue(ram is DDR3Ram)
     }
 
 
     @Test
-    public void nullGenerateArgProvideTest() {
+    fun nullGenerateArgProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
-        TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: TechFactoryComponent = TechFactoryComponentStoneComponent()
+        val DIPro: TechFactoryExtComponent = TechFactoryExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        OperationSystem os = DIPro.phoneOs();
+        val os: OperationSystem? = DIPro.phoneOs()
 
         //Then: should pass null missing args
-        assertNull(os.phoneOsType); // missing args
-        assertEquals("default", os.version.version); // default from constructor
+        assertNull(os!!.phoneOsType) // missing args
+        assertEquals("default", os.version!!.version) // default from constructor
     }
 
     @Test
-    public void coupleArgsProvideTest() {
+    fun coupleArgsProvideTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
-        TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: TechFactoryComponent = TechFactoryComponentStoneComponent()
+        val DIPro: TechFactoryExtComponent = TechFactoryExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        OperationSystem os = DIPro.phoneOs(PhoneOsType.Ios, new PhoneOsVersion("11"));
+        val os: OperationSystem? = DIPro.phoneOs(PhoneOsType.Ios, PhoneOsVersion("11"))
 
         //Then
-        assertEquals(PhoneOsType.Ios, os.phoneOsType);
-        assertEquals("11", os.version.version);
+        assertEquals(PhoneOsType.Ios, os!!.phoneOsType)
+        assertEquals("11", os.version!!.version)
     }
 
 
     @Test
-    public void differentCreateTest() {
+    fun differentCreateTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
-        TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        val DI: TechFactoryComponent = TechFactoryComponentStoneComponent()
+        val DIPro: TechFactoryExtComponent = TechFactoryExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        Ram ram8Gb = DIPro.ram(new RamSize("8GB"));
-        Ram ram8Gb2 = DIPro.ram(new RamSize("8GB"));
+        val ram8Gb: Ram? = DIPro.ram(RamSize("8GB"))
+        val ram8Gb2: Ram? = DIPro.ram(RamSize("8GB"))
 
         //Then: created components are different
-        assertEquals("8GB", ram8Gb.size);
-        assertNotEquals(ram8Gb.uuid, ram8Gb2.uuid);
-        assertTrue(ram8Gb instanceof DDR3Ram);
-        assertTrue(ram8Gb2 instanceof DDR3Ram);
+        assertEquals("8GB", ram8Gb!!.size)
+        assertNotEquals(ram8Gb!!.uuid, ram8Gb2!!.uuid)
+        assertTrue(ram8Gb is DDR3Ram)
+        assertTrue(ram8Gb2 is DDR3Ram)
     }
 
 
     @Test
-    public void enumDifferentTest() {
+    fun enumDifferentTest() {
         //Given
-        TechFactoryComponent DI = Stone.createComponent(TechFactoryComponent.class);
-        TechFactoryExtComponent DIPro = Stone.createComponent(TechFactoryExtComponent.class);
-        DIPro.extOf(DI);
+        val DI = TechFactoryComponentStoneComponent()
+        val DIPro: TechFactoryExtComponent = TechFactoryExtComponentStoneComponent()
+        DIPro.extOf(DI)
 
         //When
-        OperationSystem android = DIPro.phoneOs(PhoneOsType.Android);
-        OperationSystem android2 = DIPro.phoneOs(PhoneOsType.Android);
-        OperationSystem osNull = DIPro.phoneOs(null);
+        val android: OperationSystem? = DIPro.phoneOs(PhoneOsType.Android)
+        val android2: OperationSystem? = DIPro.phoneOs(PhoneOsType.Android)
+        val osNull: OperationSystem? = DIPro.phoneOs(null)
 
         //Then: created components are different
-        assertNotEquals(android.uuid, osNull.uuid);
-        assertNotEquals(android.uuid, android2.uuid);
+        assertNotEquals(android!!.uuid, osNull!!.uuid)
+        assertNotEquals(android!!.uuid, android2!!.uuid)
     }
-
-
 }

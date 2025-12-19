@@ -1,6 +1,5 @@
 package com.dirgub.klee0kai.stone.text_ext.cache
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.test.di.gcforest.GcGodComponent
 import com.github.klee0kai.test.di.gcforest.GcGodComponentStoneComponent
 import com.github.klee0kai.test.mowgli.earth.Mountain
