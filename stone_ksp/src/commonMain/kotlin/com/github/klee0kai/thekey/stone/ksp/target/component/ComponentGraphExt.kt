@@ -1,88 +1,57 @@
 package com.github.klee0kai.thekey.stone.ksp.target.component
 
-import com.github.klee0kai.stone.wrappers.creators.CircleWrapper
-import com.github.klee0kai.stone.wrappers.creators.ProviderWrapper
-import com.github.klee0kai.stone.wrappers.creators.Wrapper
-import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
+import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
 import com.github.klee0kai.thekey.stone.ksp.helpers.allIdentifierTypes
 import com.github.klee0kai.thekey.stone.ksp.helpers.allParentDeclarations
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnnotation
-import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findWrapperCreatorAnnotation
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.ModulesGraph
-import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapType
-import com.github.klee0kai.thekey.stone.ksp.helpers.wrapperStoneClName
-import com.github.klee0kai.thekey.stone.ksp.ksp.isType
+import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
-import com.github.klee0kai.thekey.stone.ksp.target.wrapper.GenWrappersSupportProcessor.Companion.provideWrappersGlFieldPrefixName
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.ksp.toTypeName
+import com.squareup.kotlinpoet.ksp.toClassName
 
 fun KSClassDeclaration.collectWrapHelper(
 ): WrapHelper {
     val wrapHelper = WrapHelper()
-    val wrapperProviders = allParentDeclarations
+    val wrapperHelpers = allParentDeclarations
         .filter { it.findComponentAnnotation().any() }
         .flatMap { parentComponentCl ->
-            parentComponentCl.findComponentAnnotation().firstOrNull()?.wrapperProviders ?: emptyList()
+            parentComponentCl.findComponentAnnotation().firstOrNull()?.wrapperHelpers ?: emptyList()
         }
 
-    val wrapperCreatorClName = wrapperStoneClName
-    wrapperProviders.forEachIndexed { index, provideWrappersCl ->
-        val name = provideWrappersGlFieldPrefixName + index
-        val provideWrappersClDecl = provideWrappersCl.declaration as? KSClassDeclaration ?: return@forEachIndexed
-        val isSimpleWrapper = provideWrappersClDecl.allParentDeclarations.any { it.isType(Wrapper::class) }
-        val isAsyncWrapper = provideWrappersClDecl.allParentDeclarations.any { it.isType(ProviderWrapper::class) }
-        val isCycleWrapper = provideWrappersClDecl.allParentDeclarations.any { it.isType(CircleWrapper::class) }
-        val wrappers = provideWrappersClDecl.findWrapperCreatorAnnotation()
-            .firstOrNull()?.wrappers ?: return@forEachIndexed
+    wrapperHelpers.forEachIndexed { _, wrapperHelperCl ->
+        val wrapperHelperClDec = wrapperHelperCl.declaration as? KSClassDeclaration ?: return@forEachIndexed
+        val methods = wrapperHelperClDec.getAllMethods(false, false, "<init>")
+        methods.forEachFun { funIdx, m ->
+            val inputType = (m.parameters.firstOrNull()
+                ?.type?.resolveAlias()
+                ?.declaration as? KSClassDeclaration)
+                ?.toClassName() ?: return@forEachFun
 
-        for (wrapper in wrappers) {
-            val rawTypeName = ClassNameUtils.rawTypeOf(wrapper.toTypeName())
+            val outputType = (m.returnType?.resolveAlias()
+                ?.declaration as? KSClassDeclaration)
+                ?.toClassName() ?: return@forEachFun
+
             wrapHelper.support(
                 WrapType(
-                    isNoCachingWrapper = !isAsyncWrapper,
-                    typeName = rawTypeName,
+                    isNoCachingWrapper = false,
+                    typeName = outputType,
                     wrap = { or, nullable ->
                         codeBlock {
-                            if (isSimpleWrapper) {
-                                add(
-                                    "%T.%L.wrap( %T::class , %L )",
-                                    wrapperCreatorClName,
-                                    name,
-                                    rawTypeName,
-                                    or,
-                                )
-                            } else if (isAsyncWrapper || isCycleWrapper) {
-                                add(
-                                    "%T.%L.wrap( %T::class , { %L } )",
-                                    wrapperCreatorClName,
-                                    name,
-                                    rawTypeName,
-                                    or,
-                                )
-                            } else {
-                                throw IncorrectSignatureException("Type Transform non support to ${wrapper.toTypeName()}")
-                            }
+                            add(
+                                "%T.%L( %L )",
+                                wrapperHelperClDec.toClassName(),
+                                m.simpleName.asString(),
+                                or,
+                            )
                         }
                     },
                     unwrap = { or, nullable ->
                         codeBlock {
-                            val paramType = wrapHelper.paramType(wrapper.toTypeName())
 
-                            if (isCycleWrapper) {
-                                add(
-                                    "%T.%L.unwrap( %T::class , %T::class, %L )",
-                                    wrapperCreatorClName,
-                                    name,
-                                    rawTypeName,
-                                    paramType,
-                                    or
-                                )
-                            } else {
-                                throw IncorrectSignatureException("Type Transform non support to ${wrapper.toTypeName()}")
-                            }
                         }
                     }
                 )

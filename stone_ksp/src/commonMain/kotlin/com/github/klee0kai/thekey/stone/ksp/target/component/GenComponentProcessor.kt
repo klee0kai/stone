@@ -436,6 +436,7 @@ class GenComponentProcessor : TargetFileProcessor {
                     )
 
                     if (provideCode == null) {
+                        wrapHelper.nonWrappedType(injectField.type.resolve().toTypeName())
                         throw ObjectNotProvidedException(
                             message = "Error provide type ${injectField.type.resolve().toTypeName()}. " +
                                     "Required in ${injectableCl.toClassName()}.${injectField.simpleName.asString()}",

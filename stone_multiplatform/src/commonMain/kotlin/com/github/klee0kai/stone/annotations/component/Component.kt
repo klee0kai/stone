@@ -230,31 +230,10 @@ annotation class Component(
      * If no identifier is specified when providing the object, it will be null instead.
      */
     val identifiers: Array<KClass<*>> = [],
+
+
     /**
-     * The library allows you to provide objects in wrappers.
-     * Various wrappers allow, for example, to perform lazy or asynchronous providingF of objects,
-     * or not to keep cached objects in DI.
-     * Wrapping also allows you to render several different objects into one list.
-     *
-     *
-     * The library contains a sufficient set of provider wrappers.
-     * However, if that's not enough, you can implement your own wrapping implementation
-     * class-based: `ProviderWrapper` and `Wrapper`.
-     * It is enough to override these classes, and use the `@WrappersCreator` annotation
-     * to list the wrappers implemented in this class.
-     * <pre>`ㅤ@WrappersCreator(wrappers = {CarRef.class})
-     * public class CarWrapper implements Wrapper {
-     *
-     * ㅤ@Override
-     * public <Wr, T> Wr wrap(Class<Wr> wrapperCl, T original) {
-     * if (wrapperCl.equals(CarRef.class)) {
-     * return (Wr) new CarRef<>(original);
-     *
-     * }
-     * return null;
-     * }
-     * }
-    `</pre> *
+     * TODO Kdoc
      */
-    val wrapperProviders: Array<KClass<*>> = []
+    val wrapperHelpers: Array<KClass<*>> = [],
 )

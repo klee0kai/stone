@@ -69,3 +69,6 @@ object ClassNameUtils {
 
 
 }
+
+
+fun TypeName.rawType(): TypeName = ClassNameUtils.rawTypeOf(this)

@@ -16,6 +16,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 class ComponentAnnMirror(
     val identifiers: List<KSType>,
     val wrapperProviders: List<KSType>,
+    val wrapperHelpers: List<KSType>,
 )
 
 class WrapperCreatorAnnMirror(
@@ -87,9 +88,15 @@ fun KSAnnotated.findComponentAnnotation(
             ?.value as? List<KSType>
             ?: emptyList()
 
+        val wrapperHelpers = compAnn.arguments
+            .firstOrNull { it.name?.asString() == "wrapperHelpers" }
+            ?.value as? List<KSType>
+            ?: emptyList()
+
         ComponentAnnMirror(
             identifiers = identifiers,
             wrapperProviders = wrapperProviders,
+            wrapperHelpers = wrapperHelpers,
         )
     }
 
