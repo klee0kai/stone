@@ -147,6 +147,7 @@ class Processor(
                             message = e.message ?: "",
                             symbol = e.findLastErrorElement(),
                         )
+                         throw e
                     }
 
                 }

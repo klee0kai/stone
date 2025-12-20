@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 tasks.test {
@@ -10,8 +10,8 @@ tasks.test {
 dependencies {
     implementation(project(":tests"))
 
-    implementation(project(":kotlin_lib"))
-    kapt(project(":stone_processor"))
+    implementation(project(":stone_multiplatform"))
+    ksp(project(":stone_ksp"))
 
     testImplementation(libs.bundles.junit)
 }
