@@ -12,13 +12,21 @@ import javax.inject.Provider
 
 @Component
 interface CarMultiComponent {
+
     fun module(): CarMultiModule?
+
     fun singleBumper(): Ref<Bumper?>?
+
     fun wheels(): List<Provider<WeakReference<Wheel?>?>?>?
+
     fun wheel(): Wheel?
+
     fun windows(): List<List<Window?>?>?
+
     fun windowsProviding(): List<Provider<List<Window?>?>?>?
-    fun cars(): List<Car?>?
+
+    // TODO The behavior is not obvious. We plan to redo it.
+    //    fun cars(): List<Car?>?
 
     @Named("blueCar")
     fun blueCar(): Provider<Car?>?

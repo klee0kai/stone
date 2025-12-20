@@ -13,6 +13,7 @@ import com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule.GenHiddenModuleP
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleCacheControlProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleFactoryProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.wrapper.GenWrappersSupportProcessor
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -63,7 +64,7 @@ class Processor(
 
         // force changes
 //        debug = true
-//        debugPkgFilter = "com.github.klee0kai.test_ext.inject.di.base_phone"
+//        debugPkgFilter = "com.github.klee0kai.test.car.di.qualifiers"
     }
 
 
@@ -74,6 +75,7 @@ class Processor(
         GenModuleProcessor(),
         GenHiddenModuleProcessor(),
         GenHiddenModuleCacheControlProcessor(),
+        GenWrappersSupportProcessor(),
         GenComponentProcessor(),
     )
 
@@ -147,7 +149,7 @@ class Processor(
                             message = e.message ?: "",
                             symbol = e.findLastErrorElement(),
                         )
-                         throw e
+                        throw e
                     }
 
                 }

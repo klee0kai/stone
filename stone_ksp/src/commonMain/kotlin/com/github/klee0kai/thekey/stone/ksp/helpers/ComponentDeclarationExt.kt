@@ -17,8 +17,6 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.toClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
 
 fun Resolver.findComponentForModuleOrDep(
     moduleCl: ClassName,
@@ -90,20 +88,12 @@ val KSAnnotated.qualifierAnnotations: Sequence<KSAnnotation>
         )
 
         return annotations.filter { funAnnotation ->
-            standardQualifierAnnotations.any { funAnnotation.annotationType.resolve().declaration.isType(it) }
-                    || funAnnotation.annotationType.resolve().annotations.any { annotationOfAnnotation ->
-                annotationOfAnnotation.annotationType.resolve().declaration.isType(Qualifier::class)
+            standardQualifierAnnotations.any { funAnnotation.annotationType.resolveAlias().declaration.isType(it) }
+                    || funAnnotation.annotationType.resolveAlias().declaration.annotations.any { annotationOfAnnotation ->
+                annotationOfAnnotation.annotationType.resolveAlias().declaration.isType(Qualifier::class)
             }
         }
     }
 
 
-fun KSAnnotation.isSameAsQualifier(
-    ann: KSAnnotation
-): Boolean {
-    if (annotationType.resolve().toClassName() != ann.annotationType.resolve().toTypeName()) return false
-    val annArguments1 = arguments.map { it.name?.asString() to it.value }.sortedBy { it.first }
-    val annArguments2 = ann.arguments.map { it.name?.asString() to it.value }.sortedBy { it.first }
-    return annArguments1 == annArguments2
-}
 

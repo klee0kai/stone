@@ -401,12 +401,8 @@ class ModulesGraph(
         val invokeCalls = provideTypeCodes.getOrDefault(typeName, null)
         if (invokeCalls == null || invokeCalls.isEmpty()) return null
 
-        var filtered = if (!listVariants || !qualifierAnns.isEmpty()) {
-            invokeCalls.filter {
-                it.qualifierAnnotations(false) == qualifierAnns
-            }
-        } else {
-            invokeCalls
+        var filtered = invokeCalls.filter {
+            it.qualifierAnnotations(false) == qualifierAnns
         }
 
         filtered = if (provideMethodName != null) {

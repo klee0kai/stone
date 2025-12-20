@@ -13,5 +13,5 @@ interface ProviderWrapper {
      * @param <T>              type of providing original object
      * @return wrapped object provider
     </T></Wr> */
-    fun <Wr : Any, T : Any> wrap(wrapperCl: KClass<Wr>?, originalProvider: Provider<T?>?): Wr?
+    fun <Wr : Any, T : Any> wrap(wrapperCl: KClass<Wr>, originalProvider: Provider<T?>?): Wr?
 }

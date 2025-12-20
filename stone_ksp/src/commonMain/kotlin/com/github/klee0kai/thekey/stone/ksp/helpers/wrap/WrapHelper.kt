@@ -108,8 +108,8 @@ class WrapHelper {
         if (providingType == wannaType) return code
 
         var codeBuilder = CodeBlock.builder().add(code)
-        val wrapPathNames = LinkedList<TypeName>(allParamTypes(wannaType))
-        val unwrapPathNames = LinkedList<TypeName>(allParamTypes(providingType))
+        val wrapPathNames = LinkedList(allParamTypes(wannaType))
+        val unwrapPathNames = LinkedList(allParamTypes(providingType))
         wrapPathNames.reverse()
 
         while (!wrapPathNames.isEmpty() && !unwrapPathNames.isEmpty()
@@ -298,7 +298,7 @@ class WrapHelper {
                 },
                 unwrap = { or, nullable ->
                     CodeBlock.builder()
-                        .add("%L.first( %L )", or)
+                        .add("%L.first( )", or)
                         .build()
                 },
                 inListFormat = { originalListType, originalListCode, itemTransformFun ->

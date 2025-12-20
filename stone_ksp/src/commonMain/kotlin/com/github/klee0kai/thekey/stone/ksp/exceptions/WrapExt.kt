@@ -2,6 +2,7 @@ package com.github.klee0kai.thekey.stone.ksp.exceptions
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
+import com.google.devtools.ksp.symbol.KSType
 
 inline fun <T, R> T.wrapKsNoteInfo(
     ksNode: KSNode?,
@@ -24,6 +25,16 @@ fun Sequence<KSFunctionDeclaration>.forEachFun(
     forEachIndexed { idx, func ->
         wrapKsNoteInfo(func) {
             action(idx, func)
+        }
+    }
+}
+
+fun Sequence<KSType>.forEachType(
+    action: (index: Int, KSType) -> Unit
+) {
+    forEachIndexed { idx, type ->
+        wrapKsNoteInfo(type.declaration) {
+            action(idx, type)
         }
     }
 }

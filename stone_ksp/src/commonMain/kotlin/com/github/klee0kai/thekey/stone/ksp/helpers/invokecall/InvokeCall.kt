@@ -5,6 +5,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.FieldDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.MethodDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.QualifierAnn
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
+import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -60,11 +61,11 @@ class InvokeCall(
         for (invokeSequence in invokeSequenceVariants) {
             for (m in invokeSequence) {
                 argsTypes.addAll(
-                    m.args.map {
+                    m.args.map { arg ->
                         ProvideDep(
                             methodName = null,
-                            typeName = wrapHelper.listWrapTypeIfNeed(it.type),
-                            qualifierAnns = m.qualifierAnns.toSet(),
+                            typeName = wrapHelper.listWrapTypeIfNeed(arg.type),
+                            qualifierAnns = arg.qualifierAnns.toSet(),
                         )
                     })
             }
@@ -125,51 +126,42 @@ class InvokeCall(
 
     fun invokeAllToList(
         declaredFields: List<FieldDetail>,
-    ): CodeBlock {
+    ): CodeBlock = codeBlock {
         val provType = List::class.asClassName().parameterizedBy(resultType())
         val listFieldName: String = LocalFieldName.genLocalFieldName()
-
-        val builder = CodeBlock.builder()
-
-        builder.add(
+        add(
             "%T{ %L -> \n",
             ProvideBuilder::class.asClassName().parameterizedBy(resultType()),
             listFieldName,
         )
-
-        builder.add(CodeBlock.of("buildList<%T>{  \n", resultType()))
         for (sequence in invokeSequenceVariants) {
             val invokeCall = InvokeCall.fromSequence(wrapHelper, sequence)
             val seqCodeBlock = invokeCall.invokeCode(declaredFields)
 
             if (wrapHelper.isList(invokeCall.rawReturnType())) {
-                builder
-                    .add(listFieldName)
-                    .add(".addAll(")
-                    .add(
-                        wrapHelper.transform(
-                            invokeCall.rawReturnType(),
-                            provType,
-                            seqCodeBlock
-                        )
+                add(
+                    "%L.addAll( %L );\n",
+                    listFieldName,
+                    wrapHelper.transform(
+                        invokeCall.rawReturnType(),
+                        provType,
+                        seqCodeBlock
                     )
-                    .add(");\n")
+                )
             } else {
-                builder
-                    .add(listFieldName)
-                    .add(".add(")
-                    .add(
-                        wrapHelper.transform(
-                            invokeCall.rawReturnType(),
-                            resultType(),
-                            seqCodeBlock
-                        )
+                add(
+                    "%L.add( %L );\n",
+                    listFieldName,
+                    wrapHelper.transform(
+                        invokeCall.rawReturnType(),
+                        resultType(),
+                        seqCodeBlock
                     )
-                    .add(");\n")
+                )
             }
         }
-        builder.add(" }.all() ")
-        return builder.build()
+
+        add(" }.all();\n")
     }
 
 

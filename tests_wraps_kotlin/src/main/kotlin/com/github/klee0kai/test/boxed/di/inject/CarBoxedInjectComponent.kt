@@ -5,8 +5,13 @@ import com.github.klee0kai.stone.annotations.component.ProtectInjected
 import com.github.klee0kai.test.boxed.model.CarBoxedInject
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectLists
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectProvider
+import com.github.klee0kai.test.car.di.wrapped.custom.wrappers.CarProviderWrapper
 
-@Component
+@Component(
+    wrapperProviders = [
+        CarProviderWrapper::class,
+    ]
+)
 abstract class CarBoxedInjectComponent {
     protected abstract fun module(): CarBoxedInjectModule
     abstract fun inject(carInject: CarBoxedInject)

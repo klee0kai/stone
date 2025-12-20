@@ -18,6 +18,10 @@ class ComponentAnnMirror(
     val wrapperProviders: List<KSType>,
 )
 
+class WrapperCreatorAnnMirror(
+    val wrappers: List<KSType>,
+)
+
 fun KSAnnotated.annotations(
     className: ClassName,
 ): Sequence<KSAnnotation> = annotations
@@ -86,5 +90,20 @@ fun KSAnnotated.findComponentAnnotation(
         ComponentAnnMirror(
             identifiers = identifiers,
             wrapperProviders = wrapperProviders,
+        )
+    }
+
+@Suppress("UNCHECKED_CAST")
+fun KSAnnotated.findWrapperCreatorAnnotation(
+): Sequence<WrapperCreatorAnnMirror> = annotations
+    .filter { it.annotationType.resolve().toTypeName() == WrappersCreator::class.asClassName() }
+    .map { compAnn ->
+        val wrappers = compAnn.arguments
+            .firstOrNull { it.name?.asString() == "wrappers" }
+            ?.value as? List<KSType>
+            ?: emptyList()
+
+        WrapperCreatorAnnMirror(
+            wrappers = wrappers,
         )
     }

@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 open class KotlinWrappersStone : ProviderWrapper {
 
     override fun <Wr : Any, T : Any> wrap(
-        wrapperCl: KClass<Wr>?,
+        wrapperCl: KClass<Wr>,
         originalProvider: Provider<T?>?
     ): Wr? {
         return when {

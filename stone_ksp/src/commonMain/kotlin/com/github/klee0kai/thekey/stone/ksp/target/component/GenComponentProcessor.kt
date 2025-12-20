@@ -407,7 +407,6 @@ class GenComponentProcessor : TargetFileProcessor {
         modulesGraph: ModulesGraph,
     ) {
         val identifierTypes = componentCl.allIdentifierTypes.toList()
-        val idArguments = method.parameters.identifierParameters(identifierTypes)
         val lifeCycleOwnerArg = method.parameters.lifeCycleParameter()
         val injectableArguments = method.parameters.notIdentifierParameters(identifierTypes)
         if (injectableArguments.isEmpty()) {

@@ -14,6 +14,7 @@ import javax.inject.Provider
 
 @Module
 open class CarQCModule {
+
     @Provide(cache = Provide.CacheType.Factory)
     open fun carSimple(wheel: Wheel?, @BumperQualifier bumper: Bumper?, window: Window?): Car {
         return Car(bumper, wheel, window)

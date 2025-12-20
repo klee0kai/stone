@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.car.di.wrapped.create
 
 import com.github.klee0kai.stone.annotations.component.Component
-import com.github.klee0kai.stone.wrappers.AsyncProvide
+import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
@@ -24,5 +24,5 @@ interface CarWrappedCreateComponent {
     fun carWeak(): WeakReference<Car?>?
     fun window(): Window?
     fun car(): Car?
-    fun carAsync(): AsyncProvide<Car?>?
+    fun carAsync(): AsyncCoroutineProvide<Car?>?
 }
