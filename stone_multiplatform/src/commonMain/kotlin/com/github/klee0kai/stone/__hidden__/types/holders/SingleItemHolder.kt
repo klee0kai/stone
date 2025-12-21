@@ -27,9 +27,9 @@ class SingleItemHolder<T>(
         else -> null
     }
 
-    fun getList(): List<T?>? = when (curRefType) {
+    fun getList(): List<T>? = when (curRefType) {
         StoneRefType.ListObject -> refHolder as MutableList<T>?
-        StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> (refHolder as MutableList<Ref<T?>?>?)?.map { it?.get() }
+        StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> (refHolder as MutableList<Ref<T?>?>?)?.mapNotNull { it?.get() }
         else -> null
     }
 

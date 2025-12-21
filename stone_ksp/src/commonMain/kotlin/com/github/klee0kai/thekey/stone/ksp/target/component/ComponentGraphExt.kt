@@ -42,7 +42,7 @@ fun KSClassDeclaration.collectWrapHelper(
                     wrap = { or, nullable ->
                         codeBlock {
                             add(
-                                "%T.%L( %L )",
+                                "%T.%L{ %L }",
                                 wrapperHelperClDec.toClassName(),
                                 m.simpleName.asString(),
                                 or,
