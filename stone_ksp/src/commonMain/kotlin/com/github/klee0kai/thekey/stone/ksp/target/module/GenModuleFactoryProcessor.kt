@@ -7,6 +7,9 @@ import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.thekey.stone.ksp.exceptions.forEachFun
 import com.github.klee0kai.thekey.stone.ksp.helpers.factoryStoneClName
+import com.github.klee0kai.thekey.stone.ksp.helpers.findComponentForModuleOrDep
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
+import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.rawType
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
@@ -18,9 +21,11 @@ import com.github.klee0kai.thekey.stone.ksp.poet.genClass
 import com.github.klee0kai.thekey.stone.ksp.poet.genFileSpec
 import com.github.klee0kai.thekey.stone.ksp.poet.genLibComment
 import com.github.klee0kai.thekey.stone.ksp.poet.genOverrideFun
+import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -28,9 +33,11 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 class GenModuleFactoryProcessor : TargetFileProcessor {
 
@@ -53,11 +60,12 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
         val fileOwner = validSymbol.containingFile ?: return null
         val moduleCl = validSymbol as? KSClassDeclaration ?: return null
 
-        val moduleAnn = moduleCl.getAnnotationsByType(Module::class)
-            .firstOrNull() ?: return null
+        val componentCl = resolver.findComponentForModuleOrDep(moduleCl.toClassName())
+            .firstOrNull()
+
+        val wrapHelper = componentCl?.collectWrapHelper() ?: WrapHelper()
 
         val genFactoryClassName = moduleCl.factoryStoneClName
-
         val fileSpec = genFileSpec(genFactoryClassName.packageName, fileName = genFactoryClassName.simpleName) {
             genLibComment()
 
@@ -73,13 +81,15 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                 validSymbol.getAllMethods(false, false, "<init>")
                     .forEachFun { _, function ->
                         if (!function.modifiers.contains(Modifier.ABSTRACT) && moduleCl.classKind != ClassKind.INTERFACE) return@forEachFun
-                        val returnCl = function.returnType?.resolveAlias()
-                            ?.declaration as? KSClassDeclaration ?: return@forEachFun
+                        val returnType = function.returnType?.toTypeName() ?: return@forEachFun
+                        val nonWrappedType = wrapHelper.nonWrappedType(returnType)
+                        val nonWrappedClDec = resolver.getClassDeclarationByName(nonWrappedType.rawType().toString())
+
                         val bindInstanceAnn = function.getAnnotationsByType(BindInstance::class)
                             .firstOrNull()
 
                         val constructorFun by lazy {
-                            returnCl.findConstructor(
+                            nonWrappedClDec?.findConstructor(
                                 parameters = function.parameters.map { it.type.resolveAlias() })
                         }
 
@@ -94,10 +104,17 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                                 }
 
                                 constructorFun != null -> {
-                                    addStatement(
-                                        "return %T( %L )",
-                                        returnCl.toClassName(),
-                                        constructorFun!!.joinInvokeArguments(function.parameters),
+                                    addCode(
+                                        "return %L",
+                                        wrapHelper.transform(
+                                            providingType = nonWrappedType,
+                                            wannaType = returnType,
+                                            CodeBlock.of(
+                                                "%T( %L )",
+                                                nonWrappedType,
+                                                constructorFun!!.joinInvokeArguments(function.parameters),
+                                            )
+                                        )
                                     )
                                 }
 

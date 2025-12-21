@@ -18,7 +18,7 @@ abstract class CarQPModule {
     @WheelCount(count = 4)
     @Provide(cache = Provide.CacheType.Factory)
     open fun fourWheel(): List<Wheel> {
-        return Arrays.asList(Wheel(), Wheel(), Wheel(), Wheel())
+        return listOf(Wheel(), Wheel(), Wheel(), Wheel())
     }
 
     @BumperQualifier(type = BumperQualifier.BumperType.Simple)

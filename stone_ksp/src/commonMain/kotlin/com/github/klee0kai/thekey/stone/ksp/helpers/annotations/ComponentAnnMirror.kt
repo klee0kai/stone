@@ -5,7 +5,7 @@ import com.github.klee0kai.stone.annotations.dependencies.Dependencies
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
-import com.github.klee0kai.stone.annotations.wrappers.WrappersCreator
+import com.github.klee0kai.stone.annotations.wrappers.WrappersHelper
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
@@ -17,10 +17,6 @@ class ComponentAnnMirror(
     val identifiers: List<KSType>,
     val wrapperProviders: List<KSType>,
     val wrapperHelpers: List<KSType>,
-)
-
-class WrapperCreatorAnnMirror(
-    val wrappers: List<KSType>,
 )
 
 fun KSAnnotated.annotations(
@@ -38,6 +34,9 @@ fun KSAnnotated.anyAnnotation(
 fun KSAnnotated.stoneControlAnnotations(
 ): Sequence<KSAnnotation> = anyAnnotation(
     Component::class.asClassName(),
+    WrappersHelper::class.asClassName(),
+    Module::class.asClassName(),
+    Dependencies::class.asClassName(),
     ExtendOf::class.asClassName(),
     ModuleOriginFactory::class.asClassName(),
     ProtectInjected::class.asClassName(),
@@ -46,10 +45,8 @@ fun KSAnnotated.stoneControlAnnotations(
     Init::class.asClassName(),
     BindInstance::class.asClassName(),
     Provide::class.asClassName(),
-    Module::class.asClassName(),
-    Dependencies::class.asClassName(),
-    WrappersCreator::class.asClassName(),
-)
+
+    )
 
 
 fun KSAnnotated.hasOnlyAnnotation(
@@ -100,17 +97,3 @@ fun KSAnnotated.findComponentAnnotation(
         )
     }
 
-@Suppress("UNCHECKED_CAST")
-fun KSAnnotated.findWrapperCreatorAnnotation(
-): Sequence<WrapperCreatorAnnMirror> = annotations
-    .filter { it.annotationType.resolve().toTypeName() == WrappersCreator::class.asClassName() }
-    .map { compAnn ->
-        val wrappers = compAnn.arguments
-            .firstOrNull { it.name?.asString() == "wrappers" }
-            ?.value as? List<KSType>
-            ?: emptyList()
-
-        WrapperCreatorAnnMirror(
-            wrappers = wrappers,
-        )
-    }

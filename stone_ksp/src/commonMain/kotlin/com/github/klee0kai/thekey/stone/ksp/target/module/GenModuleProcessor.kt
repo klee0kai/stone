@@ -26,6 +26,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.poet.*
+import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getAllSuperTypes
@@ -93,6 +94,8 @@ class GenModuleProcessor : TargetFileProcessor {
         val componentCl = resolver.findComponentForModuleOrDep(moduleCl.toClassName())
             .firstOrNull()
 
+        val wrapHelper = componentCl?.collectWrapHelper() ?: WrapHelper()
+
         val identifierTypes = componentCl
             ?.allIdentifierTypes?.toList()
             ?: emptyList()
@@ -103,7 +106,6 @@ class GenModuleProcessor : TargetFileProcessor {
 
         val genModuleClassName = moduleCl.moduleStoneClName
 
-        val wrapHelper = WrapHelper()
 
         val fileSpec = genFileSpec(genModuleClassName.packageName, genModuleClassName.simpleName) {
             genLibComment()
