@@ -9,6 +9,7 @@ package com.github.klee0kai.stone.annotations.qualifier
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.PROPERTY,
     AnnotationTarget.VALUE_PARAMETER,
 )
 @MustBeDocumented
