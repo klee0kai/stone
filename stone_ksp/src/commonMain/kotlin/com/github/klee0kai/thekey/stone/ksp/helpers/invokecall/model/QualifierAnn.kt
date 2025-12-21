@@ -5,12 +5,12 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 
 data class QualifierAnn(
-    var qualifierClStr: TypeName,
+    var typeName: TypeName,
     var values: Map<String, Any?> = mapOf(),
 )
 
 fun KSAnnotation.toQualifierAnn(
 ) = QualifierAnn(
-    qualifierClStr = annotationType.resolve().toClassName(),
+    typeName = annotationType.resolve().toClassName(),
     values = arguments.map { it.name?.asString()!! to it.value }.groupBy { it.first },
 )

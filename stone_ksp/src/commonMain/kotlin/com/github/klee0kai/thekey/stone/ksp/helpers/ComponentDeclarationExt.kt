@@ -3,6 +3,7 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers
 
 import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.stone.weakref.Named
 import com.github.klee0kai.stone.weakref.Qualifier
@@ -84,7 +85,8 @@ val KSAnnotated.scopeAnnotations: Sequence<KSAnnotation>
 val KSAnnotated.qualifierAnnotations: Sequence<KSAnnotation>
     get() {
         val standardQualifierAnnotations = listOf(
-            Named::class
+            Named::class,
+            IgnoreQualifier::class,
         )
 
         return annotations.filter { funAnnotation ->

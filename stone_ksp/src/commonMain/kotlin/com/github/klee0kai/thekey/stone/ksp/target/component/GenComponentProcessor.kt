@@ -97,7 +97,6 @@ class GenComponentProcessor : TargetFileProcessor {
         val fileOwner = validSymbol.containingFile ?: return null
         val componentCl = validSymbol as? KSClassDeclaration ?: return null
 
-        val identifierTypes = componentCl.allIdentifierTypes.toList()
         val wrapHelper = componentCl.collectWrapHelper()
         val modulesGraph = componentCl.collectComponentGraph()
         val delayedCodeBlocks = DelayedCodeBlocks()

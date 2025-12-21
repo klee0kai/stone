@@ -4,6 +4,7 @@ import com.github.klee0kai.stone.__hidden__.provide.ProvideBuilder
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.FieldDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.MethodDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.QualifierAnn
+import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.anyIgnoreQualifier
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName
@@ -174,12 +175,15 @@ class InvokeCall(
                 wrapHelper.nonWrappedType(f.type) == wrapHelper.nonWrappedType(arg.type)
             }
             var field = if (isWannaList) typeFields.firstOrNull { f ->
-                wrapHelper.isList(f.type) && f.qualifierAnns == arg.qualifierAnns
+                wrapHelper.isList(f.type)
+                        && (arg.qualifierAnns.anyIgnoreQualifier() || arg.qualifierAnns == f.qualifierAnns)
             } else null
 
             if (field == null) {
                 //non list
-                field = typeFields.firstOrNull { f -> f.qualifierAnns == arg.qualifierAnns }
+                field = typeFields.firstOrNull { f ->
+                    (arg.qualifierAnns.anyIgnoreQualifier() || arg.qualifierAnns == f.qualifierAnns)
+                }
             }
 
             if (field != null) {

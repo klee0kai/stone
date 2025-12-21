@@ -1,6 +1,7 @@
 package com.github.klee0kai.test.car.di.lists.factory
 
 import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
@@ -25,8 +26,8 @@ interface CarMultiComponent {
 
     fun windowsProviding(): List<Provider<List<Window?>?>?>?
 
-    // TODO The behavior is not obvious. We plan to redo it.
-    //    fun cars(): List<Car?>?
+    @IgnoreQualifier
+    fun cars(): List<Car?>?
 
     @Named("blueCar")
     fun blueCar(): Provider<Car?>?

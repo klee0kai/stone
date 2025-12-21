@@ -6,6 +6,7 @@ import com.github.klee0kai.stone.__hidden__.CacheAction
 import com.github.klee0kai.stone.__hidden__.provide.ProvideBuilder
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.thekey.stone.ksp.exceptions.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.cacheControlMethodName
@@ -173,9 +174,8 @@ class ModulesGraph(
             )
         )
         val provideTypeInvokes = provideInvokesWithDeps(provideDeps.iterator().next())
-        if (provideTypeInvokes == null || provideTypeInvokes.isEmpty()) {
-            return null
-        }
+        if (provideTypeInvokes.isNullOrEmpty()) return null
+
         for (provideTypeInvoke in provideTypeInvokes) provideDeps.addAll(provideTypeInvoke.argDeps())
         if (provideTypeInvokes.size == 1 && !wrapHelper.isList(returnType)) {
             val invokeCall = provideTypeInvokes.first().best()
@@ -193,7 +193,7 @@ class ModulesGraph(
         val localVariables = LinkedList<FieldDetail>(declaredFields)
 
         val codeBlock = CodeBlock.builder()
-        codeBlock.add("%T{  %L -> \n", provideBuilder, listFieldName)
+        codeBlock.add("%T{ %L -> \n", provideBuilder, listFieldName)
 
         for (inv in provideTypeInvokes) {
             val isCacheProvide = inv.flags.provideObjectCached
@@ -208,7 +208,7 @@ class ModulesGraph(
             var singleDepField = FieldDetail(
                 name = genLocalFieldName(),
                 type = inv.resultType(),
-                qualifierAnns = inv.qualifierAnnotations(true)
+                qualifierAnns = inv.qualifierAnnotations(false)
             )
             val listDepField = FieldDetail(
                 name = genLocalFieldName(),
@@ -217,7 +217,7 @@ class ModulesGraph(
                         inv.resultType()
                     )
                 ),
-                qualifierAnns = inv.qualifierAnnotations(true)
+                qualifierAnns = inv.qualifierAnnotations(false)
             )
 
             if (isSingleDepRequired) {
@@ -360,13 +360,14 @@ class ModulesGraph(
             }
 
             provideTypeInvokes.add(invokeCall)
-            provideTypeInvokes = LinkedList(
-                provideTypeInvokes.removeDoubles { it1, it2 ->
-                    it1.resultType() == it2.resultType()
-                            && it1.qualifierAnnotations(true) == it2.qualifierAnnotations(true)
-                }
-            )
         }
+
+        provideTypeInvokes = LinkedList(
+            provideTypeInvokes.removeDoubles { it1, it2 ->
+                it1.resultType() == it2.resultType()
+                        && it1.qualifierAnnotations(crossing = false) == it2.qualifierAnnotations(crossing = false)
+            }
+        )
         provideTypeInvokes.reverse()
         return provideTypeInvokes
     }
@@ -401,9 +402,12 @@ class ModulesGraph(
         val invokeCalls = provideTypeCodes.getOrDefault(typeName, null)
         if (invokeCalls == null || invokeCalls.isEmpty()) return null
 
-        var filtered = invokeCalls.filter {
-            it.qualifierAnnotations(false) == qualifierAnns
+        var filtered = invokeCalls.toList()
+        if (qualifierAnns.none { it.typeName == IgnoreQualifier::class.asClassName() }) {
+            filtered = invokeCalls.filter { it.qualifierAnnotations(false) == qualifierAnns }
         }
+
+
 
         filtered = if (provideMethodName != null) {
             filtered.filter { provideMethodName == it.bestSequence().last().methodName }
@@ -420,7 +424,6 @@ class ModulesGraph(
     }
 
     companion object {
-        const val SIMPLE_PROVIDE_OPTIMIZING: Boolean = true
         const val MAX_PROVIDE_RESOLVE_COUNT: Int = 10000
     }
 

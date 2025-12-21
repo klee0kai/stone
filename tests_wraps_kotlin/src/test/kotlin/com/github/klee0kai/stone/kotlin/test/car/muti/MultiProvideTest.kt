@@ -158,46 +158,46 @@ class MultiProvideTest {
         assertEquals(4, windowUuid.size)
     }
 
-// TODO The behavior is not obvious. We plan to redo it.
-//    @Test
-//    fun createCarsWithDeps() {
-//        //Given
-//        val DI = CarMultiComponentStoneComponent()
-//
-//        //When
-//        assertEquals(0, Car.createCount)
-//        val car = DI.cars()
-//
-//        //Then
-//        assertEquals(2, Car.createCount)
-//        assertNotEquals(car!![0]!!.uuid, car[1]!!.uuid)
-//        assertNotNull(car[0]!!.bumpers)
-//        assertNotNull(car[0]!!.wheels)
-//        assertNotNull(car[0]!!.windows)
-//        assertNotNull(car[1]!!.bumpers)
-//        assertNotNull(car[1]!!.wheels)
-//        assertNotNull(car[1]!!.windows)
-//        assertNotEquals(
-//            car[0]!!.windows!!.size,
-//            car[1]!!.windows!!.size,
-//            "Red use single deps and Blue car use listed deps"
-//        )
-//    }
-//
-//    @Test
-//    fun factoryCreatedCar() {
-//        //Given
-//        val DI = CarMultiComponentStoneComponent()
-//
-//        //When
-//        assertEquals(0, Car.createCount)
-//        val car1 = DI.cars()
-//        val car2 = DI.cars()
-//
-//        //Then
-//        assertEquals(4, Car.createCount)
-//        assertEquals(car1!!.size, car2!!.size)
-//        assertNotEquals(car1[0]!!.uuid, car2[0]!!.uuid)
-//        assertNotEquals(car1[1]!!.uuid, car2[1]!!.uuid)
-//    }
+    @Test
+    fun createCarsWithDeps() {
+        //Given
+        val DI = CarMultiComponentStoneComponent()
+
+        //When
+        assertEquals(0, Car.createCount)
+        val car = DI.cars()
+
+        //Then
+        assertEquals(2, Car.createCount)
+        assertNotEquals(car!![0]!!.uuid, car[1]!!.uuid)
+        assertNotNull(car[0]!!.bumpers)
+        assertNotNull(car[0]!!.wheels)
+        assertNotNull(car[0]!!.windows)
+        assertNotNull(car[1]!!.bumpers)
+        assertNotNull(car[1]!!.wheels)
+        assertNotNull(car[1]!!.windows)
+
+        assertNotEquals(
+            car[0]!!.windows!!.size,
+            car[1]!!.windows!!.size,
+            "Red use single deps and Blue car use listed deps"
+        )
+    }
+
+    @Test
+    fun factoryCreatedCar() {
+        //Given
+        val DI = CarMultiComponentStoneComponent()
+
+        //When
+        assertEquals(0, Car.createCount)
+        val car1 = DI.cars()
+        val car2 = DI.cars()
+
+        //Then
+        assertEquals(4, Car.createCount)
+        assertEquals(car1!!.size, car2!!.size)
+        assertNotEquals(car1[0]!!.uuid, car2[0]!!.uuid)
+        assertNotEquals(car1[1]!!.uuid, car2[1]!!.uuid)
+    }
 }
