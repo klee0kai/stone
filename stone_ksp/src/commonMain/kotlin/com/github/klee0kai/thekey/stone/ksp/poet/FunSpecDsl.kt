@@ -12,6 +12,7 @@ fun CodeBlock.Builder.controlFlow(
     beginControlFlow(controlFlow, *args)
         .add(CodeBlock.builder().apply(block).build())
         .endControlFlow()
+        .add("\n")
 }
 
 @PoetDsl

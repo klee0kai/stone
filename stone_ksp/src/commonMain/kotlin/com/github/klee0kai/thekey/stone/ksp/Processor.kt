@@ -63,8 +63,8 @@ class Processor(
         debugPkgFilter = options["debugPkgFilter"]
 
         // force changes
-//        debug = true
-//        debugPkgFilter = "com.github.klee0kai.test.di.wire"
+        debug = true
+        debugPkgFilter = "com.github.klee0kai.test.car.di.bindinstance.simple"
     }
 
 

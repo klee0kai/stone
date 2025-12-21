@@ -158,15 +158,15 @@ class GenModuleProcessor : TargetFileProcessor {
                                 with(itemHolderCodeHelper) {
                                     genCacheField()
 
-                                    codeBlocks.bindMethodBody.apply {
-                                        add(
-                                            "if (or::class == %T::class) {\n",
-                                            rawTypeOf(nonWrappedType),
-                                        )
-                                        add(codeSetCachedValue(CodeBlock.of("or as? %T", nonWrappedType), false))
-                                        add("\n")
-                                        add("%L = true\n", appliedLocalFieldName)
-                                        add("}\n")
+                                    if (!isListReturnType) {
+                                        codeBlocks.bindMethodBody.controlFlow(
+                                            "if (or::class == %T::class) {",
+                                            rawTypeOf(nonWrappedType)
+                                        ) {
+                                            add(codeSetCachedValue(CodeBlock.of("or as? %T", nonWrappedType), false))
+                                            addStatement("")
+                                            addStatement("%L = true\n", appliedLocalFieldName)
+                                        }
                                     }
                                 }
 
@@ -292,7 +292,6 @@ class GenModuleProcessor : TargetFileProcessor {
                 endControlFlow();
             }
 
-
             addCode("return ")
             addCode(
                 wrapHelper.transform(
@@ -370,10 +369,10 @@ class GenModuleProcessor : TargetFileProcessor {
         wrapHelper: WrapHelper,
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
-        val cacheControlType = wrapHelper.listWrapTypeIfNeed(returnType)
+        val cacheControlType = wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true)
         genFun(function.cacheControlMethodName) {
             modifiers.add(KModifier.OVERRIDE)
-            returns(returnType.copy(nullable = true))
+            returns(cacheControlType.copy(nullable = true))
             addParameter("__action", CacheAction::class)
             idArguments.forEach {
                 addParameter(it.name!!.asString(), it.type.resolve().toTypeName())

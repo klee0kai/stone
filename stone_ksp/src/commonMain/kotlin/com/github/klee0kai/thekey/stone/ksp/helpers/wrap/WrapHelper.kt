@@ -181,7 +181,7 @@ class WrapHelper {
             Reference::class,
         )) {
             val wrapper = cl.asClassName()
-            val creator = if (cl != Reference::class.java) wrapper else WeakReference::class.asClassName()
+            val creator = if (cl != Reference::class) wrapper else WeakReference::class.asClassName()
 
             val wrapType = WrapType(
                 typeName = wrapper,
@@ -282,40 +282,46 @@ class WrapHelper {
             support(wrapType)
         }
 
-        var index = 0
-        for (cl in listOf(LinkedList::class, ArrayList::class, MutableList::class, MutableCollection::class)) {
+        for (cl in listOf(
+            LinkedList::class,
+            ArrayList::class,
+            List::class,
+            Collection::class,
+        )) {
             val wrapper = cl.asClassName()
-            val needConstructor = listOf(LinkedList::class, ArrayList::class).contains(cl)
-            val createType = if (index++ <= 0) wrapper else ArrayList::class.asClassName()
+            val constructor = when (cl) {
+                LinkedList::class, ArrayList::class -> wrapper
+                else -> null
+            }
 
             val wrapType = WrapType(
                 typeName = wrapper,
                 wrap = { or, nullable ->
                     val builder = CodeBlock.builder()
                     builder.add("listOfNotNull( %L ) ", or)
-                    if (needConstructor) builder.add(".let { %T(it) }", createType)
+                    if (constructor != null) builder.add("?.let { %T(it) }", constructor)
                     builder.build()
                 },
                 unwrap = { or, nullable ->
                     CodeBlock.builder()
-                        .add("%L.first( )", or)
+                        .add("%L?.first( )", or)
                         .build()
                 },
                 inListFormat = { originalListType, originalListCode, itemTransformFun ->
-                    val builder = CodeBlock.builder()
-                    val isListNeedConstructor =
-                        needConstructor && rawTypeOf(wrapper) != rawTypeOf(originalListType)
+                    codeBlock {
+                        val itemTransform = itemTransformFun.formatCode(CodeBlock.of("it"), nullable = false)
+                        if (itemTransform.toString() == "it") {
+                            //no transforms
+                            add(originalListCode)
+                        } else {
+                            add("%L?.map{ it -> %L }", originalListCode, itemTransform)
+                        }
 
-                    val itemTransform = itemTransformFun.formatCode(CodeBlock.of("it"), nullable = false)
-                    if (itemTransform.toString() == "it") {
-                        //no transforms
-                        builder.add(originalListCode)
-                    } else {
-                        builder.add("%L.map{ it -> %L }", originalListCode, itemTransform)
+                        if (rawTypeOf(wrapper) != rawTypeOf(originalListType)) {
+                            if (constructor != null) add("?.let { %T(it) }", constructor)
+                            else add("?.toList()")
+                        }
                     }
-
-                    if (isListNeedConstructor) builder.add(".let { %T(it) }", createType)
-                    builder.build()
                 },
             )
 

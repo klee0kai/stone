@@ -21,7 +21,7 @@ class Car {
         windows = listOf(window)
     }
 
-    constructor(bumpers: List<Bumper?>?, wheels: List<Wheel?>?, windows: List<Window?>?) {
+    constructor(bumpers: List<Bumper>, wheels: List<Wheel>, windows: List<Window>) {
         createCount++
         this.bumpers = bumpers
         this.wheels = wheels

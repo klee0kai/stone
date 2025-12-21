@@ -13,6 +13,7 @@ import javax.inject.Provider
 
 @Module
 open class CarBoxedInjectModule {
+
     @Named("fourWheels")
     @Provide(cache = Provide.CacheType.Weak)
     open fun fourWheels(): List<CarBox<Wheel>> {

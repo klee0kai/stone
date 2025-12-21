@@ -3,7 +3,6 @@ package com.github.klee0kai.test.car.di.lists.cached
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
 import com.github.klee0kai.stone.weakref.Ref
-import com.github.klee0kai.stone.wrappers.Ref
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
