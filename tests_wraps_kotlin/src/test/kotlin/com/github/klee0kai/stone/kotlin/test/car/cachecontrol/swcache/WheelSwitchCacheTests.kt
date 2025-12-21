@@ -1,16 +1,16 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.swcache
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent
+import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponentStoneComponent
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class WheelSwitchCacheTests {
+
     @Test
     fun allWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -30,7 +30,7 @@ class WheelSwitchCacheTests {
     @Test
     fun weakToStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -51,7 +51,7 @@ class WheelSwitchCacheTests {
     @Throws(InterruptedException::class)
     fun weakToStrongAfterFewMillisTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -73,7 +73,7 @@ class WheelSwitchCacheTests {
     @Test
     fun weakToSoftTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -94,7 +94,7 @@ class WheelSwitchCacheTests {
     @Throws(InterruptedException::class)
     fun weakToSoftAfterFewMillisTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -116,7 +116,7 @@ class WheelSwitchCacheTests {
     @Test
     fun softToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -136,7 +136,7 @@ class WheelSwitchCacheTests {
     @Test
     fun strongToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -156,7 +156,7 @@ class WheelSwitchCacheTests {
     @Test
     fun wheelsToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -176,7 +176,7 @@ class WheelSwitchCacheTests {
     @Test
     fun nothinToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -196,7 +196,7 @@ class WheelSwitchCacheTests {
     @Test
     fun windowsToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()
@@ -216,7 +216,7 @@ class WheelSwitchCacheTests {
     @Test
     fun windowAndWheelsToWeak() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val wheelFactory = DI.wheelsModule()!!.wheelFactory()
         val wheelWeak = DI.wheelsModule()!!.wheelWeak()
         val wheelSoft = DI.wheelsModule()!!.wheelSoft()

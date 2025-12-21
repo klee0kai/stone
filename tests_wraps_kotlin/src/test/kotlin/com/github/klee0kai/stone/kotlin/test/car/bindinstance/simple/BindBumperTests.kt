@@ -1,17 +1,17 @@
 package com.github.klee0kai.stone.kotlin.test.car.bindinstance.simple
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.bindinstance.simple.CarBindComponent
+import com.github.klee0kai.test.car.di.bindinstance.simple.CarBindComponentStoneComponent
 import com.github.klee0kai.test.car.model.Bumper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class BindBumperTests {
+
     @Test
     fun noBindTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //Then
         assertNull(DI.module().bumper())
@@ -22,9 +22,7 @@ class BindBumperTests {
     @Test
     fun nullBindTest() {
         //Given
-        val DI = Stone.createComponent(
-            CarBindComponent::class.java
-        )
+        val DI = CarBindComponentStoneComponent()
 
         //When
         DI.bindBumper(null)
@@ -38,7 +36,7 @@ class BindBumperTests {
     @Test
     fun bindWheelSimpleTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //When
         val bumper = Bumper()
@@ -54,7 +52,7 @@ class BindBumperTests {
     @Test
     fun rebindWheelSimpleTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
         DI.bindBumper { Bumper() }
 
         //When

@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.boxed.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponent
+import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponentStoneComponent
 import com.github.klee0kai.test.boxed.model.CarBoxedInject
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectLists
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectProvider
@@ -12,8 +11,9 @@ import org.junit.jupiter.api.Test
 class CarBoxedProtectInjectedTests {
     @Test
     fun carProtectInjectedTest() {
+
         //Given
-        val DI = Stone.createComponent(CarBoxedInjectComponent::class.java)
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         var carInject: CarBoxedInject?
@@ -37,9 +37,7 @@ class CarBoxedProtectInjectedTests {
 
     @Test
     fun carProtectListInjectedTest() {
-        val DI = Stone.createComponent(
-            CarBoxedInjectComponent::class.java
-        )
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         var carInject: CarBoxedInjectLists? = CarBoxedInjectLists()
@@ -63,9 +61,7 @@ class CarBoxedProtectInjectedTests {
     @Test
     fun carProtectProviderTest() {
         //Given
-        val DI = Stone.createComponent(
-            CarBoxedInjectComponent::class.java
-        )
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         var carInject: CarBoxedInjectProvider? = CarBoxedInjectProvider()

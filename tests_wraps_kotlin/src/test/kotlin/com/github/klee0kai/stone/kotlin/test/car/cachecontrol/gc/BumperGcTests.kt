@@ -1,18 +1,18 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import com.github.klee0kai.test.car.model.Bumper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class BumperGcTests {
+
     @Test
     fun createWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
 
         //When
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
@@ -30,7 +30,7 @@ class BumperGcTests {
     @Test
     fun gcAllTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -50,7 +50,7 @@ class BumperGcTests {
     @Test
     fun gcWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -70,7 +70,7 @@ class BumperGcTests {
     @Test
     fun gcSoftTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -90,7 +90,7 @@ class BumperGcTests {
     @Test
     fun gcStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -110,7 +110,7 @@ class BumperGcTests {
     @Test
     fun gcBumpers() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -130,7 +130,7 @@ class BumperGcTests {
     @Test
     fun gcRedBumpers() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -150,7 +150,7 @@ class BumperGcTests {
     @Test
     fun gcRedBumpers2() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -170,7 +170,7 @@ class BumperGcTests {
     @Test
     fun gcWheelsTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -191,7 +191,7 @@ class BumperGcTests {
     @Test
     fun gcNothing() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }

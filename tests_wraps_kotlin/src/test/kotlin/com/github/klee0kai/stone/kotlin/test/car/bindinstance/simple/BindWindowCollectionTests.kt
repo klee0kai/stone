@@ -1,16 +1,16 @@
 package com.github.klee0kai.stone.kotlin.test.car.bindinstance.simple
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.bindinstance.simple.CarBindComponent
+import com.github.klee0kai.test.car.di.bindinstance.simple.CarBindComponentStoneComponent
 import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class BindWindowCollectionTests {
+
     @Test
     fun bindWindowSimpleTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //When
         val window = Window()
@@ -26,7 +26,7 @@ class BindWindowCollectionTests {
     @Test
     fun bindWindowListTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //When
         val window1 = Window()
@@ -45,7 +45,7 @@ class BindWindowCollectionTests {
     @Test
     fun rebindWindowSimpleTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
         DI.bindWindow(Window())
 
         //When
@@ -62,7 +62,7 @@ class BindWindowCollectionTests {
     @Test
     fun rebindWindowListTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
         DI.bindWindow(Window())
 
         //When
@@ -82,7 +82,7 @@ class BindWindowCollectionTests {
     @Test
     fun rebindWindowSimple2Test() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
         DI.bindWindows(listOf(Window()))
 
         //When

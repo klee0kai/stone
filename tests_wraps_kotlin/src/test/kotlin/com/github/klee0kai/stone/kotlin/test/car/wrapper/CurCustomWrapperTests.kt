@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.car.wrapper
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.wrapped.custom.CarCustomWrappersComponent
+import com.github.klee0kai.test.car.di.wrapped.custom.CarCustomWrappersComponentStoneComponent
 import com.github.klee0kai.test.car.model.Car
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -16,7 +15,7 @@ class CurCustomWrapperTests {
     @Test
     fun carTest() {
         //Given
-        val DI = Stone.createComponent(CarCustomWrappersComponent::class.java)
+        val DI = CarCustomWrappersComponentStoneComponent()
 
         //When
         val car1 = DI.car()
@@ -31,7 +30,7 @@ class CurCustomWrapperTests {
     @Test
     fun carLayTest() {
         //Given
-        val DI = Stone.createComponent(CarCustomWrappersComponent::class.java)
+        val DI = CarCustomWrappersComponentStoneComponent()
 
         //When
         val car1 = DI.carLazy()
@@ -48,7 +47,7 @@ class CurCustomWrapperTests {
     @Test
     fun carProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarCustomWrappersComponent::class.java)
+        val DI = CarCustomWrappersComponentStoneComponent()
 
         //When
         val car1 = DI.carProvide()
@@ -65,7 +64,7 @@ class CurCustomWrapperTests {
     @Test
     fun carRefTest() {
         //Given
-        val DI = Stone.createComponent(CarCustomWrappersComponent::class.java)
+        val DI = CarCustomWrappersComponentStoneComponent()
 
         //When
         val car1 = DI.carRef()
