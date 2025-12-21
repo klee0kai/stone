@@ -46,5 +46,5 @@ abstract class CarMultiCachedModule {
     abstract fun redCar(bumper: Bumper?, wheel: Wheel?, window: Window?): List<Car?>?
 
     @Provide(cache = Provide.CacheType.Weak)
-    abstract fun blueCar(bumpers: List<Bumper?>?, wheels: List<Wheel?>?, windows: List<Window?>?): Car?
+    abstract fun blueCar(bumpers: List<Bumper>, wheels: List<Wheel>, windows: List<Window>): Car?
 }

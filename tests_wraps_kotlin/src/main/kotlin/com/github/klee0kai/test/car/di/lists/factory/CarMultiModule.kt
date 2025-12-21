@@ -48,5 +48,5 @@ abstract class CarMultiModule {
 
     @Named("blueCar")
     @Provide(cache = Provide.CacheType.Factory)
-    abstract fun blueCar(bumpers: List<Bumper?>?, wheels: List<Wheel?>?, windows: List<Window?>?): Car?
+    abstract fun blueCar(bumpers: List<Bumper>, wheels: List<Wheel>, windows: List<Window>): Car?
 }

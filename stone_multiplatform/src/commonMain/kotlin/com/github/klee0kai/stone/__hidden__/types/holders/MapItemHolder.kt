@@ -36,11 +36,14 @@ class MapItemHolder<Key, T>(
 
     fun getList(
         key: Key?,
-    ): List<T?>? {
+    ): List<T>? {
         val holder = refMap[key] ?: return null
         return when (curRefType) {
             StoneRefType.ListObject -> holder as MutableList<T>?
-            StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> (holder as MutableList<Ref<T?>?>?)?.map { it?.get() }
+            StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> {
+                (holder as MutableList<Ref<T?>?>?)?.mapNotNull { it?.get() }
+            }
+
             else -> null
         }
     }

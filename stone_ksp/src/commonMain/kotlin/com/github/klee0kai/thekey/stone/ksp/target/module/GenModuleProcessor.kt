@@ -25,6 +25,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
 import com.google.devtools.ksp.KspExperimental
@@ -195,8 +196,10 @@ class GenModuleProcessor : TargetFileProcessor {
                                 }
                                 genFun(function.cacheControlMethodName) {
                                     modifiers.add(KModifier.OVERRIDE)
-                                    val returnType = function.returnType?.resolve()?.toTypeName()
-                                    returnType?.let { returns(returnType.copy(nullable = true)) }
+                                    val cacheControlType = function.returnType?.resolveAlias()
+                                        ?.toTypeName()
+                                        ?.let { wrapHelper.listWrapTypeIfNeed(it).copy(nullable = true) }
+                                    cacheControlType?.let { returns(cacheControlType) }
                                     addParameter("__action", CacheAction::class)
                                     idArguments.forEach {
                                         addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
@@ -368,7 +371,7 @@ class GenModuleProcessor : TargetFileProcessor {
         itemHolderCodeHelper: ItemHolderCodeHelper,
         wrapHelper: WrapHelper,
     ) {
-        val returnType = function.returnType?.resolve()?.toTypeName() ?: return
+        val returnType = function.returnType?.resolveAlias()?.toTypeName() ?: return
         val cacheControlType = wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true)
         genFun(function.cacheControlMethodName) {
             modifiers.add(KModifier.OVERRIDE)

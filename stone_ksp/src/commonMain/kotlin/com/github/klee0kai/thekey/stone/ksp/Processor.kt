@@ -63,8 +63,8 @@ class Processor(
         debugPkgFilter = options["debugPkgFilter"]
 
         // force changes
-        debug = true
-        debugPkgFilter = "com.github.klee0kai.test.car.di.bindinstance.simple"
+//        debug = true
+//        debugPkgFilter = "com.github.klee0kai.test.boxed.di.inject"
     }
 
 

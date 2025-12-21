@@ -9,7 +9,8 @@ import com.github.klee0kai.test.car.model.CarInjectProvider
 
 @Component(wrapperHelpers = [CarBoxedWrapper::class])
 abstract class CarInjectComponent {
-    protected abstract fun module(): CarInjectModule?
+
+    abstract fun module(): CarInjectModule?
     abstract fun inject(carInject: CarInject?)
     abstract fun inject(carInject: CarInjectLists?)
     abstract fun inject(carInject: CarInjectProvider?)
