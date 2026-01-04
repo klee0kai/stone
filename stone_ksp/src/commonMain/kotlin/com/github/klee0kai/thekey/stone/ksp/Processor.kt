@@ -64,7 +64,7 @@ class Processor(
 
         // force changes
 //        debug = true
-//        debugPkgFilter = "com.github.klee0kai.test.car.di.lists.factory"
+//        debugPkgFilter = "com.github.klee0kai.test.boxed.di.inject"
     }
 
 

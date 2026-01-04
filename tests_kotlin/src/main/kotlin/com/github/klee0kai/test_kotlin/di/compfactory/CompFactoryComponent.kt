@@ -10,7 +10,6 @@ import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
         RamSize::class,
         PhoneOsType::class, PhoneOsVersion::class
     ],
-    wrapperProviders = []
 )
 interface CompFactoryComponent : ICompFactoryWrappersComponent {
 

@@ -417,7 +417,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
         genOverrideFun(method) {
             for (injectableField in injectableArguments) {
-                val injectableCl = injectableField.type.resolve().declaration as? KSClassDeclaration
+                val injectableCl = injectableField.type.resolveAlias().declaration as? KSClassDeclaration
                     ?: throw IncorrectSignatureException(
                         message = "parameter must be a class",
                         element = injectableField,
@@ -429,15 +429,15 @@ class GenComponentProcessor : TargetFileProcessor {
 
                     val provideCode = modulesGraph.codeProvideType(
                         methodName = null,
-                        returnType = injectField.type.resolve().toTypeName(),
+                        returnType = injectField.type.resolveAlias().toTypeName(),
                         qualifierAnns = injectField.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
                         declaredFields = method.parameters.map { it.toFieldDetail() },
                     )
 
                     if (provideCode == null) {
-                        wrapHelper.nonWrappedType(injectField.type.resolve().toTypeName())
+                        wrapHelper.nonWrappedType(injectField.type.resolveAlias().toTypeName())
                         throw ObjectNotProvidedException(
-                            message = "Error provide type ${injectField.type.resolve().toTypeName()}. " +
+                            message = "Error provide type ${injectField.type.resolveAlias().toTypeName()}. " +
                                     "Required in ${injectableCl.toClassName()}.${injectField.simpleName.asString()}",
                             element = method,
                         )
@@ -458,14 +458,14 @@ class GenComponentProcessor : TargetFileProcessor {
                     for (injectField in injectMethod.parameters) {
                         val provideCode = modulesGraph.codeProvideType(
                             null,
-                            injectField.type.resolve().toTypeName(),
+                            injectField.type.resolveAlias().toTypeName(),
                             injectField.qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
                             method.parameters.map { it.toFieldDetail() },
                         )
 
                         if (provideCode == null) {
                             throw ObjectNotProvidedException(
-                                message = "Error provide type ${injectField.type.resolve().toTypeName()}. " +
+                                message = "Error provide type ${injectField.type.resolveAlias().toTypeName()}. " +
                                         "Required in ${injectableCl.toClassName()}.${injectMethod.simpleName.asString()}",
                                 element = method,
                             )
@@ -485,7 +485,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
             //protect by lifecycle owner
             for (injectableField in injectableArguments) {
-                val injectableCl = injectableField.type.resolve().declaration as? KSClassDeclaration
+                val injectableCl = injectableField.type.resolveAlias().declaration as? KSClassDeclaration
                     ?: throw IncorrectSignatureException(
                         message = "parameter must be a class",
                         element = injectableField,
@@ -501,11 +501,10 @@ class GenComponentProcessor : TargetFileProcessor {
                     )
                     for (injectField in injectableCl.getAllProperties()) {
                         if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
-                        if (wrapHelper.isNonCachingWrapper(
-                                injectField.type.resolve().toClassName()
-                            )
-                        )  //nothing to protect
+                        if (wrapHelper.isNonCachingWrapper(injectField.type.resolveAlias().toClassName())) {
+                            //nothing to protect
                             continue
+                        }
 
                         emptyCode = false
                         subscrCode.addStatement(
@@ -550,7 +549,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
         genOverrideFun(method) {
             for (injectableField in injectableArguments) {
-                val injectableCl = injectableField.type.resolve().declaration as? KSClassDeclaration
+                val injectableCl = injectableField.type.resolveAlias().declaration as? KSClassDeclaration
                     ?: throw IncorrectSignatureException(
                         message = "parameter must be a class",
                         element = injectableField,
@@ -559,7 +558,8 @@ class GenComponentProcessor : TargetFileProcessor {
 
                 for (injectField in injectableCl.getAllProperties()) {
                     if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
-                    if (wrapHelper.isNonCachingWrapper(injectField.type.resolve().toTypeName())) { //nothing to protect
+                    if (wrapHelper.isNonCachingWrapper(injectField.type.resolveAlias().toTypeName())) {
+                        //nothing to protect
                         continue
                     }
 

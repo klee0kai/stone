@@ -6,6 +6,7 @@ import com.github.klee0kai.test.car.model.Window
 import javax.inject.Inject
 
 class CarBoxedInject {
+
     @Inject
     lateinit var bumper: CarBox<Bumper>
 

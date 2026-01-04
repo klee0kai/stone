@@ -248,7 +248,7 @@ class WrapHelper {
             LazyProvide::class,
             AsyncCoroutineProvide::class
         )) {
-            val isNoCachingWrapper = cl != LazyProvide::class.java && cl != AsyncCoroutineProvide::class
+            val isNoCachingWrapper = cl != LazyProvide::class && cl != AsyncCoroutineProvide::class
 
             val wrapper = cl.asClassName()
             val wrapType = WrapType(
@@ -296,6 +296,7 @@ class WrapHelper {
 
             val wrapType = WrapType(
                 typeName = wrapper,
+                isNoCachingWrapper = false,
                 wrap = { or, nullable ->
                     val builder = CodeBlock.builder()
                     builder.add("listOfNotNull( %L ) ", or)
