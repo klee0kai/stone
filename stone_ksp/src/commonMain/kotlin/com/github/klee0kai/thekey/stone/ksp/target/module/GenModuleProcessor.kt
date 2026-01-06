@@ -25,7 +25,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
 import com.google.devtools.ksp.KspExperimental
@@ -196,7 +196,7 @@ class GenModuleProcessor : TargetFileProcessor {
                                 }
                                 genFun(function.cacheControlMethodName) {
                                     modifiers.add(KModifier.OVERRIDE)
-                                    val cacheControlType = function.returnType?.resolveAlias()
+                                    val cacheControlType = function.returnType?.resolveNotNullable()
                                         ?.toTypeName()
                                         ?.let { wrapHelper.listWrapTypeIfNeed(it).copy(nullable = true) }
                                     cacheControlType?.let { returns(cacheControlType) }
@@ -298,12 +298,11 @@ class GenModuleProcessor : TargetFileProcessor {
             addCode("return ")
             addCode(
                 wrapHelper.transform(
-                    wrapHelper.listWrapTypeIfNeed(returnType),
+                    wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true),
                     returnType,
                     itemHolderCodeHelper.codeGetCachedValue(),
                 )
             )
-            addStatement(" as %T", returnType)
         }
     }
 
@@ -356,12 +355,11 @@ class GenModuleProcessor : TargetFileProcessor {
             addCode("return ")
             addCode(
                 wrapHelper.transform(
-                    wrapHelper.listWrapTypeIfNeed(returnType),
+                    wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true),
                     returnType,
                     itemHolderCodeHelper.codeGetCachedValue(),
                 )
             )
-            addCode(" as %T", returnType)
         }
     }
 
@@ -371,7 +369,7 @@ class GenModuleProcessor : TargetFileProcessor {
         itemHolderCodeHelper: ItemHolderCodeHelper,
         wrapHelper: WrapHelper,
     ) {
-        val returnType = function.returnType?.resolveAlias()?.toTypeName() ?: return
+        val returnType = function.returnType?.resolveNotNullable()?.toTypeName() ?: return
         val cacheControlType = wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true)
         genFun(function.cacheControlMethodName) {
             modifiers.add(KModifier.OVERRIDE)

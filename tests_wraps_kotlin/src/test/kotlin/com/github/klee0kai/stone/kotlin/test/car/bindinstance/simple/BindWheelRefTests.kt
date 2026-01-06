@@ -45,7 +45,7 @@ class BindWheelRefTests {
         DI.bindWheelRef(WeakReference(null))
 
         //Then
-        assertNull(DI.module()!!.wheel())
+        assertNull(DI.module().wheel())
         assertNull(DI.provideWheel())
         assertNull(DI.provideWheelRef())
         assertEquals(0, DI.provideWheels()!!.size)

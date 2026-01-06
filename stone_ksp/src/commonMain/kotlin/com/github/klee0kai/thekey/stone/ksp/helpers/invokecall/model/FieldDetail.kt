@@ -2,7 +2,7 @@ package com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model
 
 import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.thekey.stone.ksp.helpers.qualifierAnnotations
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
@@ -22,7 +22,7 @@ fun FieldDetail.Companion.simple(name: String, type: TypeName) = FieldDetail(nam
 
 fun KSValueParameter.toFieldDetail() = FieldDetail(
     name = name?.asString() ?: "it",
-    type = type.resolveAlias().toTypeName().copy(nullable = false),
+    type = type.resolveNotNullable().toTypeName().copy(nullable = false),
     qualifierAnns = qualifierAnnotations.map { it.toQualifierAnn() }.toSet(),
 )
 

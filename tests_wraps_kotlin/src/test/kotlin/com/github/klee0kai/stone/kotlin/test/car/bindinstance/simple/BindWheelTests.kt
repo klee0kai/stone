@@ -47,7 +47,7 @@ class BindWheelTests {
 
         //Then
         assertEquals(wheel.uuid, DI.module().wheel()!!.uuid)
-        assertEquals(wheel.uuid, DI.provideWheel().uuid)
+        assertEquals(wheel.uuid, DI.provideWheel()?.uuid)
         assertEquals(wheel.uuid, DI.provideWheelRef()!!.get()!!.uuid)
         assertEquals(1, DI.provideWheels()!!.size)
         assertEquals(wheel.uuid, DI.provideWheels()!![0]!!.get()!!.uuid)
@@ -65,7 +65,7 @@ class BindWheelTests {
 
         //Then
         assertEquals(wheel.uuid, DI.module().wheel()!!.uuid)
-        assertEquals(wheel.uuid, DI.provideWheel().uuid)
+        assertEquals(wheel.uuid, DI.provideWheel()?.uuid)
         assertEquals(wheel.uuid, DI.provideWheelRef()!!.get()!!.uuid)
         assertEquals(1, DI.provideWheels()!!.size)
         assertEquals(wheel.uuid, DI.provideWheels()!![0]!!.get()!!.uuid)

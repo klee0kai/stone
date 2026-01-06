@@ -31,11 +31,18 @@ interface CarBindComponent {
     @BindInstance
     fun bindWindowRefs(window: Collection<WeakReference<Window>>)
 
-    fun provideWheel(): Wheel
+    fun provideWheel(): Wheel?
+
     fun provideWheelRef(): Reference<Wheel?>?
+
     fun provideWheels(): List<Reference<Wheel?>?>?
+
     fun provideBumper(): Ref<Bumper?>?
+
     fun provideBumpers(): List<Bumper?>?
-    fun provideWindow(): Window
+
+    fun provideWindow(): Window?
+
     fun provideWindows(): Collection<Window?>?
+
 }

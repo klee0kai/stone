@@ -27,6 +27,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.google.devtools.ksp.KspExperimental
@@ -293,7 +294,7 @@ class GenComponentProcessor : TargetFileProcessor {
         method: KSFunctionDeclaration,
         modulesGraph: ModulesGraph,
     ) {
-        val returnType = method.returnType?.resolve()?.toTypeName() ?: return
+        val returnType = method.returnType?.resolveAlias()?.toTypeName() ?: return
 
         val codeBlock = modulesGraph.codeProvideType(
             methodName = null,
@@ -323,10 +324,10 @@ class GenComponentProcessor : TargetFileProcessor {
         modulesGraph: ModulesGraph,
         wrapHelper: WrapHelper,
     ) {
-        val returnType = method.returnType?.resolve()?.toTypeName() ?: return
+        val returnType = method.returnType?.resolveAlias()?.toTypeName() ?: return
         val identifierTypes = componentCl.allIdentifierTypes.toList()
 
-        val setValueArg = method.parameters.firstOrNull { it.type.resolveAlias() !in identifierTypes }
+        val setValueArg = method.parameters.firstOrNull { it.type.resolveNotNullable() !in identifierTypes }
             ?: throw IncorrectSignatureException(
                 message = "Bind instance method must have bind instance arcgument",
                 element = method,
@@ -417,7 +418,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
         genOverrideFun(method) {
             for (injectableField in injectableArguments) {
-                val injectableCl = injectableField.type.resolveAlias().declaration as? KSClassDeclaration
+                val injectableCl = injectableField.type.resolveNotNullable().declaration as? KSClassDeclaration
                     ?: throw IncorrectSignatureException(
                         message = "parameter must be a class",
                         element = injectableField,
@@ -435,9 +436,9 @@ class GenComponentProcessor : TargetFileProcessor {
                     )
 
                     if (provideCode == null) {
-                        wrapHelper.nonWrappedType(injectField.type.resolveAlias().toTypeName())
+                        wrapHelper.nonWrappedType(injectField.type.resolveNotNullable().toTypeName())
                         throw ObjectNotProvidedException(
-                            message = "Error provide type ${injectField.type.resolveAlias().toTypeName()}. " +
+                            message = "Error provide type ${injectField.type.resolveNotNullable().toTypeName()}. " +
                                     "Required in ${injectableCl.toClassName()}.${injectField.simpleName.asString()}",
                             element = method,
                         )
@@ -485,7 +486,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
             //protect by lifecycle owner
             for (injectableField in injectableArguments) {
-                val injectableCl = injectableField.type.resolveAlias().declaration as? KSClassDeclaration
+                val injectableCl = injectableField.type.resolveNotNullable().declaration as? KSClassDeclaration
                     ?: throw IncorrectSignatureException(
                         message = "parameter must be a class",
                         element = injectableField,
@@ -501,7 +502,7 @@ class GenComponentProcessor : TargetFileProcessor {
                     )
                     for (injectField in injectableCl.getAllProperties()) {
                         if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
-                        if (wrapHelper.isNonCachingWrapper(injectField.type.resolveAlias().toClassName())) {
+                        if (wrapHelper.isNonCachingWrapper(injectField.type.resolveNotNullable().toClassName())) {
                             //nothing to protect
                             continue
                         }
@@ -549,7 +550,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
         genOverrideFun(method) {
             for (injectableField in injectableArguments) {
-                val injectableCl = injectableField.type.resolveAlias().declaration as? KSClassDeclaration
+                val injectableCl = injectableField.type.resolveNotNullable().declaration as? KSClassDeclaration
                     ?: throw IncorrectSignatureException(
                         message = "parameter must be a class",
                         element = injectableField,
@@ -558,7 +559,7 @@ class GenComponentProcessor : TargetFileProcessor {
 
                 for (injectField in injectableCl.getAllProperties()) {
                     if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
-                    if (wrapHelper.isNonCachingWrapper(injectField.type.resolveAlias().toTypeName())) {
+                    if (wrapHelper.isNonCachingWrapper(injectField.type.resolveNotNullable().toTypeName())) {
                         //nothing to protect
                         continue
                     }

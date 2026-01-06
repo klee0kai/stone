@@ -11,7 +11,9 @@ import com.squareup.kotlinpoet.ksp.toClassNameOrNull
 import kotlin.reflect.KClass
 
 
-fun KSTypeReference.resolveAlias(): KSType = resolve().makeNotNullable().unwrapAlias()
+fun KSTypeReference.resolveAlias(): KSType = resolve().unwrapAlias()
+
+fun KSTypeReference.resolveNotNullable(): KSType = resolve().makeNotNullable().unwrapAlias()
 
 fun KSType.unwrapAlias(): KSType {
     var current: KSType = this
@@ -28,7 +30,7 @@ fun KSClassDeclaration.findConstructor(
 ): KSFunctionDeclaration? = getDeclaredFunctions()
     .filter { function ->
         function.simpleName.asString() == "<init>"
-                && function.parameters.all { it.type.resolveAlias() in parameters || it.hasDefault }
+                && function.parameters.all { it.type.resolveNotNullable() in parameters || it.hasDefault }
     }.maxByOrNull { it.parameters.size }
 
 fun KSDeclaration.isAnyType(

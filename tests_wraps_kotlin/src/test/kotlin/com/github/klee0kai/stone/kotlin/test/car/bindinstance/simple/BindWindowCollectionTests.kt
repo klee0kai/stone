@@ -18,7 +18,7 @@ class BindWindowCollectionTests {
 
         //Then
         assertEquals(window.uuid, DI.module().windows()!!.get()!![0]!!.uuid)
-        assertEquals(window.uuid, DI.provideWindow().uuid)
+        assertEquals(window.uuid, DI.provideWindow()?.uuid)
         assertEquals(1, DI.provideWindows()!!.size)
         assertEquals(window.uuid, ArrayList(DI.provideWindows())[0]!!.uuid)
     }

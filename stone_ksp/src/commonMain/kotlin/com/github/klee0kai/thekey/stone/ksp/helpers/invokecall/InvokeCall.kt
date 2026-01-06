@@ -155,7 +155,7 @@ class InvokeCall(
                     listFieldName,
                     wrapHelper.transform(
                         invokeCall.rawReturnType(),
-                        resultType(),
+                        resultType().copy(nullable = true),
                         seqCodeBlock
                     )
                 )

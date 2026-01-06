@@ -4,6 +4,7 @@ import com.github.klee0kai.test.mowgli.galaxy.*
 import javax.inject.Inject
 
 class MoonSky {
+
     @JvmField
     @Inject
     var star: IStar? = null

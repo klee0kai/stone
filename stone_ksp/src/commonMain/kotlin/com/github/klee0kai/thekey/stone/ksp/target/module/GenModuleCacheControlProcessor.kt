@@ -12,7 +12,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
 import com.google.devtools.ksp.KspExperimental
@@ -89,7 +89,7 @@ class GenModuleCacheControlProcessor : TargetFileProcessor {
                 val methods = validSymbol.getAllMethods(includeObjectMethods = false, allowDoubles = false, "<init>")
                 methods.forEachFun { _, function ->
                     val idArguments = function.parameters.identifierParameters(identifierTypes)
-                    val returnType = function.returnType?.resolveAlias()?.toTypeName() ?: return@forEachFun
+                    val returnType = function.returnType?.resolveNotNullable()?.toTypeName() ?: return@forEachFun
                     val cacheControlType = wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true)
 
                     genOverrideFun(function) {

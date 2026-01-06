@@ -8,7 +8,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.ModulesGraph
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapType
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -27,11 +27,11 @@ fun KSClassDeclaration.collectWrapHelper(
         val methods = wrapperHelperClDec.getAllMethods(false, false, "<init>")
         methods.forEachFun { funIdx, m ->
             val inputType = (m.parameters.firstOrNull()
-                ?.type?.resolveAlias()
+                ?.type?.resolveNotNullable()
                 ?.declaration as? KSClassDeclaration)
                 ?.toClassName() ?: return@forEachFun
 
-            val outputType = (m.returnType?.resolveAlias()
+            val outputType = (m.returnType?.resolveNotNullable()
                 ?.declaration as? KSClassDeclaration)
                 ?.toClassName() ?: return@forEachFun
 
@@ -39,7 +39,7 @@ fun KSClassDeclaration.collectWrapHelper(
                 WrapType(
                     isNoCachingWrapper = false,
                     typeName = outputType,
-                    wrap = { or, nullable ->
+                    wrap = { or, srcNullable, targetNullable, argTypeNullable ->
                         codeBlock {
                             add(
                                 "%T.%L{ %L!! }",
@@ -49,7 +49,7 @@ fun KSClassDeclaration.collectWrapHelper(
                             )
                         }
                     },
-                    unwrap = { or, nullable ->
+                    unwrap = { or, srcNullable, targetNullable ->
                         codeBlock {
 
                         }

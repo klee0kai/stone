@@ -13,7 +13,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.scopeAnnotations
 import com.github.klee0kai.thekey.stone.ksp.ksp.isClassReturn
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
 import com.github.klee0kai.thekey.stone.ksp.ksp.isUnit
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -165,7 +165,7 @@ fun KSFunctionDeclaration.isExtOfMethod(
         )
     }
     val argumentType = parameters.firstOrNull()?.type
-        ?.resolveAlias()?.declaration as? KSClassDeclaration
+        ?.resolveNotNullable()?.declaration as? KSClassDeclaration
         ?: throw IncorrectSignatureException(
             message = "${simpleName.asString()} must have only one parameter of Component instance",
             element = this,
@@ -201,7 +201,7 @@ val KSFunctionDeclaration.isBindInstanceMethod: BindInstanceType?
             )
         }
         checkMethodNameBusy()
-        val parameterIsNotPrimitive = parameters.first().type.resolveAlias().isNotPrimitive
+        val parameterIsNotPrimitive = parameters.first().type.resolveNotNullable().isNotPrimitive
 
         when {
             parameterIsNotPrimitive

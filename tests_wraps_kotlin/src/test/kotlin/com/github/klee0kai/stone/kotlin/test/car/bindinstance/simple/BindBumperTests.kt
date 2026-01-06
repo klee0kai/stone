@@ -15,7 +15,7 @@ class BindBumperTests {
 
         //Then
         assertNull(DI.module().bumper())
-        assertNull(DI.provideBumper()!!.get())
+        assertNull(DI.provideBumper()?.get())
         assertEquals(0, DI.provideBumpers()!!.size)
     }
 
@@ -28,8 +28,8 @@ class BindBumperTests {
         DI.bindBumper(null)
 
         //Then
-        assertNull(DI.module()!!.bumper())
-        assertNull(DI.provideBumper()!!.get())
+        assertNull(DI.module().bumper())
+        assertNull(DI.provideBumper()?.get())
         assertEquals(0, DI.provideBumpers()!!.size)
     }
 

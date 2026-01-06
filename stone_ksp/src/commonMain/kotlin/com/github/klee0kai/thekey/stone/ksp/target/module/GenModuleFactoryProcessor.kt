@@ -16,7 +16,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.findConstructor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.joinInvokeArguments
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.genClass
 import com.github.klee0kai.thekey.stone.ksp.poet.genFileSpec
 import com.github.klee0kai.thekey.stone.ksp.poet.genLibComment
@@ -90,7 +90,7 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
 
                         val constructorFun by lazy {
                             nonWrappedClDec?.findConstructor(
-                                parameters = function.parameters.map { it.type.resolveAlias() })
+                                parameters = function.parameters.map { it.type.resolveNotNullable() })
                         }
 
                         genOverrideFun(function) {

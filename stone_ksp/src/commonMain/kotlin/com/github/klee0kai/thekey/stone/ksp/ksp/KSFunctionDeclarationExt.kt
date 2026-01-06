@@ -25,7 +25,7 @@ fun KSFunctionDeclaration.joinInvokeArguments(
 ): String {
     return parameters.mapNotNull { parameter ->
         val availableVariable = availableVariables
-            .firstOrNull { it.type.resolveAlias() == parameter.type.resolveAlias() }
+            .firstOrNull { it.type.resolveNotNullable() == parameter.type.resolveNotNullable() }
         if (availableVariable != null) {
             val notNullablePostFix = if (availableVariable.type.resolve().isMarkedNullable
                 && !parameter.type.resolve().isMarkedNullable

@@ -17,7 +17,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.qualifierAnnotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.target.component.*
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName.genLocalFieldName
 import com.github.klee0kai.thekey.stone.ksp.utils.RecursiveDetector
@@ -58,13 +58,13 @@ class ModulesGraph(
             .filter { it.isModuleProvideMethod || it.isDepsProvideMethod }
             .forEachFun { _, moduleProvideMethod ->
 
-                val module = moduleProvideMethod.returnType?.resolveAlias()
+                val module = moduleProvideMethod.returnType?.resolveNotNullable()
                     ?.declaration as? KSClassDeclaration ?: return@forEachFun
 
                 for (m in module.getAllMethods(includeObjectMethods = false, allowDoubles = true, "<init>")) {
-                    if (m.returnType?.resolveAlias()?.isNotPrimitive == false) continue
+                    if (m.returnType?.resolveNotNullable()?.isNotPrimitive == false) continue
 
-                    val returnType = m.returnType?.resolveAlias()?.toTypeName() ?: continue
+                    val returnType = m.returnType?.resolveNotNullable()?.toTypeName() ?: continue
                     val provTypeName = wrapHelper.nonWrappedType(returnType)
                     val isCached = m.getAnnotationsByType(Provide::class)
                         .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)
@@ -278,7 +278,7 @@ class ModulesGraph(
                         listFieldName,
                         wrapHelper.transform(
                             singleDepField.type,
-                            providingType,
+                            providingType.copy(nullable = true),
                             CodeBlock.of(singleDepField.name)
                         )
                     )

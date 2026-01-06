@@ -12,7 +12,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnn
 import com.github.klee0kai.thekey.stone.ksp.ksp.isAnyType
 import com.github.klee0kai.thekey.stone.ksp.ksp.isChildOf
 import com.github.klee0kai.thekey.stone.ksp.ksp.isType
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
@@ -33,7 +33,7 @@ fun Resolver.findComponentForModuleOrDep(
 
 val KSClassDeclaration.allParentDeclarations: Sequence<KSClassDeclaration>
     get() = (sequenceOf(this)
-            + superTypes.mapNotNull { it.resolveAlias().declaration as? KSClassDeclaration })
+            + superTypes.mapNotNull { it.resolveNotNullable().declaration as? KSClassDeclaration })
 
 val KSClassDeclaration.allIdentifierTypes: Sequence<KSType>
     get() = allParentDeclarations
@@ -42,14 +42,14 @@ val KSClassDeclaration.allIdentifierTypes: Sequence<KSType>
 
 fun List<KSValueParameter>.identifierParameters(
     allIdentifierTypes: List<KSType>,
-) = filter { it.type.resolveAlias() in allIdentifierTypes }
+) = filter { it.type.resolveNotNullable() in allIdentifierTypes }
 
 fun List<KSValueParameter>.notIdentifierParameters(
     allIdentifierTypes: List<KSType>,
-) = filter { it.type.resolveAlias() !in allIdentifierTypes }
+) = filter { it.type.resolveNotNullable() !in allIdentifierTypes }
 
 fun List<KSValueParameter>.lifeCycleParameter() = firstOrNull {
-    (it.type.resolveAlias().declaration as? KSClassDeclaration)
+    (it.type.resolveNotNullable().declaration as? KSClassDeclaration)
         ?.isChildOf(StoneLifeCycleOwner::class.asClassName()) == true
 }
 
@@ -71,9 +71,9 @@ val KSAnnotated.scopeAnnotations: Sequence<KSAnnotation>
         )
 
         return annotations.filter { funAnnotation ->
-            standardScopeAnnotations.any { funAnnotation.annotationType.resolveAlias().declaration.isType(it) }
-                    || funAnnotation.annotationType.resolveAlias().declaration.annotations.any { annotationOfAnnotation ->
-                annotationOfAnnotation.annotationType.resolveAlias().declaration.isAnyType(
+            standardScopeAnnotations.any { funAnnotation.annotationType.resolveNotNullable().declaration.isType(it) }
+                    || funAnnotation.annotationType.resolveNotNullable().declaration.annotations.any { annotationOfAnnotation ->
+                annotationOfAnnotation.annotationType.resolveNotNullable().declaration.isAnyType(
                     GcScopeAnnotation::class,
                     Scope::class,
                     javax.inject.Scope::class
@@ -90,9 +90,9 @@ val KSAnnotated.qualifierAnnotations: Sequence<KSAnnotation>
         )
 
         return annotations.filter { funAnnotation ->
-            standardQualifierAnnotations.any { funAnnotation.annotationType.resolveAlias().declaration.isType(it) }
-                    || funAnnotation.annotationType.resolveAlias().declaration.annotations.any { annotationOfAnnotation ->
-                annotationOfAnnotation.annotationType.resolveAlias().declaration.isType(Qualifier::class)
+            standardQualifierAnnotations.any { funAnnotation.annotationType.resolveNotNullable().declaration.isType(it) }
+                    || funAnnotation.annotationType.resolveNotNullable().declaration.annotations.any { annotationOfAnnotation ->
+                annotationOfAnnotation.annotationType.resolveNotNullable().declaration.isType(Qualifier::class)
             }
         }
     }
