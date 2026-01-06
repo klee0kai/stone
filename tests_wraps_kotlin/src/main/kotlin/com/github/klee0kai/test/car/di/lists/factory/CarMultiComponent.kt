@@ -18,12 +18,15 @@ interface CarMultiComponent {
 
     fun singleBumper(): Ref<Bumper?>?
 
+    @IgnoreQualifier
     fun wheels(): List<Provider<WeakReference<Wheel?>?>?>?
 
     fun wheel(): Wheel?
 
+    @IgnoreQualifier
     fun windows(): List<List<Window?>?>?
 
+    @IgnoreQualifier
     fun windowsProviding(): List<Provider<List<Window?>?>?>?
 
     @IgnoreQualifier

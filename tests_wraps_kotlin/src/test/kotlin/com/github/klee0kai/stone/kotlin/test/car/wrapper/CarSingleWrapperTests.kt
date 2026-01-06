@@ -5,11 +5,13 @@ import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
 import com.github.klee0kai.test.car.model.Window
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class CarSingleWrapperTests {
 

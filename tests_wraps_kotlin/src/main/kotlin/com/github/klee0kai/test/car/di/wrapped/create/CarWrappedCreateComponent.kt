@@ -12,17 +12,30 @@ import javax.inject.Provider
 @Component
 interface CarWrappedCreateComponent {
     fun factory(): CarWrappedCreateModule?
+
     fun wheel(): Wheel?
+
     fun wheelProvide(): Provider<Wheel?>?
+
     fun wheelLazy(): LazyProvide<Wheel?>?
+
     fun wheelWeak(): WeakReference<Wheel?>?
+
     fun whellProviderWeak(): Provider<WeakReference<Wheel?>?>?
+
     fun whellLazyProviderWeak(): LazyProvide<Provider<WeakReference<Wheel?>?>?>?
+
     fun whellProvider(): Provider<Wheel?>?
+
     fun carLazy(): LazyProvide<Car?>?
+
     fun carProvider(): Provider<Car?>?
+
     fun carWeak(): WeakReference<Car?>?
+
     fun window(): Window?
+
     fun car(): Car?
+
     fun carAsync(): AsyncCoroutineProvide<Car?>?
 }

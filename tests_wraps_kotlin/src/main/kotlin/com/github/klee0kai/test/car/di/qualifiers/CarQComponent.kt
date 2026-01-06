@@ -1,6 +1,7 @@
 package com.github.klee0kai.test.car.di.qualifiers
 
-import com.github.klee0kai.stone.annotations.component.*
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifier
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierMulti
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierWithString
@@ -42,6 +43,8 @@ interface CarQComponent {
 
     @MyQualifierMulti(type = MyQualifierMulti.Type.HARD, indx = 2, id = "a")
     fun carMyQualifierMultiA2Hard(): Car?
+
+    @IgnoreQualifier
     fun allCars(): List<Car?>?
 
     @Named

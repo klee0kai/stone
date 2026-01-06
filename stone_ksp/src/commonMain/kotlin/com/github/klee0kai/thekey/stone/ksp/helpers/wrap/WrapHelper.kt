@@ -95,7 +95,6 @@ class WrapHelper {
         providingType: TypeName,
         wannaType: TypeName,
         code: CodeBlock
-
     ): CodeBlock {
         if (providingType == wannaType) return code
 
@@ -150,9 +149,10 @@ class WrapHelper {
             unwrapPath.pollFirst()
             unwrapPathNames.pollFirst()
 
-            currentNullable = (unwrapPath.firstOrNull()?.typeName
-                ?: wrapPath.firstOrNull()?.typeName
-                ?: wannaType).isNullable
+            currentNullable = (
+                    wrapPath.firstOrNull()?.typeName?.let { paramType(it) }
+                        ?: wannaType)
+                .isNullable
 
             codeBuilder = unwrapType.unwrap.formatCode(
                 or = codeBuilder.build(),
@@ -199,7 +199,7 @@ class WrapHelper {
                 wrap = { or, srcNullable, targetNullable, argTypeNullable ->
                     codeBlock {
                         when {
-                            !srcNullable || argTypeNullable -> add("%T( %L )", creator, or)
+                            !srcNullable -> add("%T( %L )", creator, or)
                             targetNullable -> add("%L?.let{ %T( it ) }", or, creator)
                             else -> add("%T( %L!! )", creator, or)
                         }
@@ -208,7 +208,6 @@ class WrapHelper {
                 unwrap = { or, srcNullable, targetNullable ->
                     codeBlock {
                         when {
-                            !srcNullable && targetNullable -> add("%L.get()", or)
                             targetNullable -> add("%L?.get()", or)
                             else -> add("%L!!.get()!!", or)
                         }
@@ -236,8 +235,8 @@ class WrapHelper {
                 unwrap = { or, srcNullable, targetNullable ->
                     codeBlock {
                         when {
-                            !srcNullable -> add("%L.value", or)
                             targetNullable -> add("%L?.value", or)
+                            !srcNullable -> add("%L.value", or)
                             else -> add("%L!!.value", or)
                         }
                     }
@@ -270,8 +269,8 @@ class WrapHelper {
                 unwrap = { or, srcNullable, targetNullable ->
                     codeBlock {
                         when {
-                            !srcNullable && !targetNullable -> add("%L.get()", or)
                             targetNullable -> add("%L?.get()", or)
+                            !srcNullable -> add("%L.get()", or)
                             else -> add("%L!!.get()!!", or)
                         }
                     }
@@ -308,8 +307,8 @@ class WrapHelper {
                 unwrap = { or, srcNullable, targetNullable ->
                     codeBlock {
                         when {
+                            targetNullable -> add("%L?.firstOrNull()", or)
                             !srcNullable -> add("%L.first()", or)
-                            targetNullable -> add("%L?.first()", or)
                             else -> add("%L!!.first()", or)
                         }
                     }
@@ -321,7 +320,7 @@ class WrapHelper {
                             //no transforms
                             add(originalListCode)
                         } else {
-                            add("%L!!.map{ it -> %L }", originalListCode, itemTransform)
+                            add("( %L?.map{ it -> %L } ?: emptyList() )", originalListCode, itemTransform)
                         }
 
                         if (wrapper.rawType() != originalListType.rawType()) {
