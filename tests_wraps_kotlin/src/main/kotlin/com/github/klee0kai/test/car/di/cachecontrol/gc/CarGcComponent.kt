@@ -6,7 +6,13 @@ import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcBumperScope
 import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcWheelScope
 import com.github.klee0kai.test.car.di.cachecontrol.gc.scopes.GcWindowScope
 
-@Component(identifiers = [String::class, Integer::class])
+@Component(
+    identifiers = [
+        String::class,
+        Integer::class,
+        Int::class,
+    ]
+)
 abstract class CarGcComponent {
     abstract fun bumpersModule(): BumperGcModule?
     abstract fun wheelsModule(): WheelGcModule

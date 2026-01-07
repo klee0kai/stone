@@ -29,7 +29,6 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.*
-import com.github.klee0kai.thekey.stone.ksp.target.component.GenComponentProcessor.DelayedCodeBlocks
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
@@ -348,7 +347,9 @@ class GenComponentProcessor : TargetFileProcessor {
 
         val isListCache = wrapHelper.isList(cacheControlInvoke!!.rawReturnType())
         val cacheControlType = if (isListCache) {
-            List::class.asClassName().parameterizedBy(nonWrappedBindType.copy(nullable = true))
+            List::class.asClassName()
+                .parameterizedBy(nonWrappedBindType.copy(nullable = true))
+                .copy(nullable = true)
         } else {
             nonWrappedBindType.copy(nullable = true)
         }

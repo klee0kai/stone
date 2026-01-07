@@ -125,11 +125,11 @@ class InvokeCall(
 
             if (wrapHelper.isList(invokeCall.rawReturnType())) {
                 add(
-                    "%L.addAll( %L );\n",
+                    "%L.addAll( %L ?: emptyList() );\n",
                     listFieldName,
                     wrapHelper.transform(
                         invokeCall.rawReturnType(),
-                        provType,
+                        provType.copy(nullable = true),
                         seqCodeBlock
                     )
                 )

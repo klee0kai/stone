@@ -267,11 +267,11 @@ class ModulesGraph(
             if (inv.resultType().copy(nullable = false) == providingType.copy(nullable = false)) {
                 if (wrapHelper.isList(returnType)) {
                     codeBlock.add(
-                        "%L.addAll( %L )\n",
+                        "%L.addAll( %L ?: emptyList() )\n",
                         listFieldName,
                         wrapHelper.transform(
                             listDepField.type,
-                            provideBuilderList,
+                            provideBuilderList.copy(nullable = true),
                             CodeBlock.of(listDepField.name)
                         )
                     )
