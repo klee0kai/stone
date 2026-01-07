@@ -22,6 +22,7 @@ import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.component.BindInstanceType
 import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
@@ -172,8 +173,8 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         itemHolderCodeHelper: ItemHolderCodeHelper,
         wrapHelper: WrapHelper,
     ) {
-        val returnType = function.returnType?.resolve()?.toTypeName() ?: return
-        val setValueArg = function.parameters.firstOrNull { it.type.resolve().toTypeName() == returnType }
+        val returnType = function.returnType?.resolveNotNullable()?.toTypeName() ?: return
+        val setValueArg = function.parameters.firstOrNull { it.type.resolveNotNullable().toTypeName() == returnType }
 
         genOverrideFun(function) {
             addStatement(

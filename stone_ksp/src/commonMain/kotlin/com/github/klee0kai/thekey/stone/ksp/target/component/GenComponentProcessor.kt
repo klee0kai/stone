@@ -156,7 +156,20 @@ class GenComponentProcessor : TargetFileProcessor {
                         }
 
                         m.isDepsProvideMethod -> {
-                            //TODO
+                            val depType = m.returnType!!.resolveNotNullable().toClassName()
+                            genProperty(m.simpleName.asString(), depType.copy(nullable = true)) {
+                                addModifiers(KModifier.PRIVATE)
+                                mutable(true)
+                                initializer("null")
+                            }
+                            genOverrideFun(m) {
+                                returns(depType)
+                                addStatement("return %L!!", m.simpleName.asString())
+                            }
+
+                            delayedCodeBlocks.initDepsMethodBody.addStatement(
+                                "if (m is %T) this.%L = m", depType, m.simpleName.asString(),
+                            )
                         }
 
                         m.isModuleInitMethod -> {
@@ -766,9 +779,10 @@ class GenComponentProcessor : TargetFileProcessor {
                     )
                 }
 
+                addStatement("// bind instance methods ignore nullability checks  ")
                 for (bindInstMethod in bindInstanceAndProvideMethods) {
                     addStatement(
-                        "%L(protoComponent.%L(null))",
+                        "runCatching{ %L(protoComponent.%L(null)) }",
                         bindInstMethod.simpleName.asString(), bindInstMethod.simpleName.asString(),
                     )
                 }
