@@ -2,6 +2,7 @@ package com.github.klee0kai.test.car.di.lists.cached
 
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
@@ -39,12 +40,20 @@ abstract class CarMultiCachedModule {
 
     @Provide(cache = Provide.CacheType.Weak)
     open fun bumpers(): Collection<Bumper> {
-        return Arrays.asList(Bumper(), Bumper())
+        return listOf(Bumper(), Bumper())
     }
 
     @Provide(cache = Provide.CacheType.Weak)
-    abstract fun redCar(bumper: Bumper?, wheel: Wheel?, window: Window?): List<Car?>?
+    abstract fun redCar(
+        bumper: Bumper?,
+        wheel: Wheel?,
+        window: Window?,
+    ): List<Car?>?
 
     @Provide(cache = Provide.CacheType.Weak)
-    abstract fun blueCar(bumpers: List<Bumper>, wheels: List<Wheel>, windows: List<Window>): Car?
+    abstract fun blueCar(
+        @IgnoreQualifier bumpers: List<Bumper>,
+        @IgnoreQualifier wheels: List<Wheel>,
+        @IgnoreQualifier windows: List<Window>
+    ): Car?
 }

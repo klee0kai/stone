@@ -7,6 +7,7 @@ import com.github.klee0kai.test.car.model.Wheel
 import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -181,7 +182,7 @@ class MultiCachedProvideTest {
         assertNotNull(car[1]!!.bumpers)
         assertNotNull(car[1]!!.wheels)
         assertNotNull(car[1]!!.windows)
-        Assertions.assertNotEquals(
+        assertNotEquals(
             car[0]!!.windows!!.size,
             car[1]!!.windows!!.size,
             "Red use single deps and Blue car use listed deps"

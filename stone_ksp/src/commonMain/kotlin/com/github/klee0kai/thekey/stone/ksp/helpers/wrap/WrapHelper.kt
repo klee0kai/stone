@@ -294,12 +294,14 @@ class WrapHelper {
             val wrapType = WrapType(
                 typeName = wrapper,
                 isNoCachingWrapper = false,
-                wrap = { or, srcNullable, targetNullable, _ ->
+                wrap = { or, srcNullable, targetNullable, argTypeNullable ->
                     codeBlock {
-                        add("listOfNotNull( %L ) ", or)
                         when {
-                            constructor != null && targetNullable -> add("?.let { %T(it) }", constructor)
-                            constructor != null && !targetNullable -> add("!!.let { %T(it) }", constructor)
+                            constructor != null && targetNullable -> add("%L?.let { %T(it) }", or, constructor)
+                            targetNullable -> add("%L?.let { listOfNotNull( it ) }", or)
+                            constructor != null && argTypeNullable -> add("%L!!.let { %T(it) }", or, constructor)
+                            constructor != null -> add("%L!!.let { %T(it!!) }", or, constructor)
+                            else -> add("listOfNotNull( %L )", or)
                         }
 
                     }

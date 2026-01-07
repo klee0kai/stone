@@ -1,6 +1,5 @@
 package com.github.klee0kai.test.car.model
 
-import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import java.util.*
 
 class Car {

@@ -111,6 +111,8 @@ class GenModuleProcessor : TargetFileProcessor {
         val fileSpec = genFileSpec(genModuleClassName.packageName, genModuleClassName.simpleName) {
             genLibComment()
 
+            addImport("com.github.klee0kai.stone.__hidden__.coroutines", "syncIfAvailable")
+
             genClass(genModuleClassName) {
                 if (moduleCl.classKind == ClassKind.INTERFACE) {
                     addSuperinterface(moduleCl.toClassName())
@@ -267,6 +269,7 @@ class GenModuleProcessor : TargetFileProcessor {
         val setValueArg = function.parameters.firstOrNull { it.type.resolve().toTypeName() == returnType }
 
         genOverrideFun(function) {
+            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
             addStatement(
                 "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
                 overridedModuleFieldName,
@@ -274,7 +277,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 CacheAction::class.asClassName(),
                 idArguments.joinToString(", ") { it.name!!.asString() },
             )
-            addCode("if ( cached != null ) return ")
+            addCode("if ( cached != null ) return@syncIfAvailable ")
             addCode(
                 wrapHelper.transform(
                     providingType = wrapHelper.listWrapTypeIfNeed(returnType),
@@ -295,7 +298,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 endControlFlow();
             }
 
-            addCode("return ")
+            addCode("return@syncIfAvailable ")
             addCode(
                 wrapHelper.transform(
                     wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true),
@@ -303,6 +306,7 @@ class GenModuleProcessor : TargetFileProcessor {
                     itemHolderCodeHelper.codeGetCachedValue(),
                 )
             )
+            endControlFlow()
         }
     }
 
@@ -314,6 +318,7 @@ class GenModuleProcessor : TargetFileProcessor {
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
         genOverrideFun(function) {
+            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
             addStatement(
                 "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
                 overridedModuleFieldName,
@@ -321,7 +326,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 CacheAction::class.asClassName(),
                 idArguments.joinToString(", ") { it.name!!.asString() },
             )
-            addCode("if (cached != null ) return ")
+            addCode("if (cached != null ) return@syncIfAvailable ")
             addCode(
                 wrapHelper.transform(
                     wrapHelper.listWrapTypeIfNeed(returnType),
@@ -352,7 +357,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 )
             )
             addCode("\n")
-            addCode("return ")
+            addCode("return@syncIfAvailable ")
             addCode(
                 wrapHelper.transform(
                     wrapHelper.listWrapTypeIfNeed(returnType).copy(nullable = true),
@@ -360,6 +365,7 @@ class GenModuleProcessor : TargetFileProcessor {
                     itemHolderCodeHelper.codeGetCachedValue(),
                 )
             )
+            endControlFlow()
         }
     }
 
@@ -379,6 +385,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
             }
 
+            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
             addStatement(
                 "%L.get()?.%L( __action, %L ) ",
                 overridedModuleFieldName,
@@ -415,8 +422,9 @@ class GenModuleProcessor : TargetFileProcessor {
             addStatement("null -> Unit")
             endControlFlow()
 
-            addCode("return ")
+            addCode("return@syncIfAvailable ")
             addCode(codeBlock = itemHolderCodeHelper.codeGetCachedValue())
+            endControlFlow()
         }
     }
 

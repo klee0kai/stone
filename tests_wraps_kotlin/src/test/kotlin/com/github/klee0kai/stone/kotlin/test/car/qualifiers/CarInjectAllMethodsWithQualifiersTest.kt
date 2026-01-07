@@ -91,7 +91,7 @@ class CarInjectAllMethodsWithQualifiersTest {
         //Then
         assertEquals(1, filtered.size)
         assertEquals("reinforced", car.bumpers!![0]!!.qualifier)
-        assertEquals(4, car.wheels!!.size, "four wheel +1")
+        assertEquals(4, car.wheels!!.size, "four wheel")
     }
 
     @Test

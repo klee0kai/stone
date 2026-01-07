@@ -14,6 +14,7 @@ import javax.inject.Named
 
 @Module
 interface TechFactoryModule {
+
     @Provide(cache = Provide.CacheType.Factory)
     fun battery(): Battery?
 

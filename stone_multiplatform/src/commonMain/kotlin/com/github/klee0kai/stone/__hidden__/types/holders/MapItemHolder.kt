@@ -48,6 +48,20 @@ class MapItemHolder<Key, T>(
         }
     }
 
+    fun getListNullable(
+        key: Key?,
+    ): List<T?>? {
+        val holder = refMap[key] ?: return null
+        return when (curRefType) {
+            StoneRefType.ListObject -> holder as MutableList<T>?
+            StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> {
+                (holder as MutableList<Ref<T?>?>?)?.map { it?.get() }
+            }
+
+            else -> null
+        }
+    }
+
     fun set(
         key: Key?,
         onlyIfNull: Boolean,
@@ -118,7 +132,7 @@ class MapItemHolder<Key, T>(
         if (curRefType == refType) return
         if (defType.isList) {
             val listMap: HashMap<Key?, List<T?>?> = HashMap()
-            for (key in refMap.keys) listMap[key] = getList(key)
+            for (key in refMap.keys) listMap[key] = getListNullable(key)
             curRefType = refType.forList()
             for (key in listMap.keys) setList(key, onlyIfNull = false) { listMap[key] }
         } else {
@@ -151,7 +165,7 @@ class MapItemHolder<Key, T>(
             }
         } else {
             for (key in keys) {
-                val list = getList(key)
+                val list = getListNullable(key)
                 if (list?.none { it != null } == true) {
                     refMap.remove(key)
                 }

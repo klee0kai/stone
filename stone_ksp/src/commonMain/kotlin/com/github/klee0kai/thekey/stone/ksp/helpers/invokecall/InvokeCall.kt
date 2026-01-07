@@ -4,7 +4,6 @@ import com.github.klee0kai.stone.__hidden__.provide.ProvideBuilder
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.FieldDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.MethodDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.QualifierAnn
-import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.anyIgnoreQualifier
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.poet.codeBlock
 import com.github.klee0kai.thekey.stone.ksp.utils.LocalFieldName
@@ -25,32 +24,13 @@ import java.util.*
 class InvokeCall(
     var wrapHelper: WrapHelper,
     val invokeSequenceVariants: List<List<MethodDetail>>,
+    val qualifierAnnotations: Set<QualifierAnn>,
     val flags: InvokeProvideFlags = InvokeProvideFlags(),
 ) {
 
     companion object;
 
     fun bestSequence(): List<MethodDetail> = invokeSequenceVariants[0]
-
-    fun qualifierAnnotations(
-        crossing: Boolean,
-    ): Set<QualifierAnn> {
-        val allQualifiersLists = LinkedList<MutableSet<QualifierAnn>>()
-        for (variant in invokeSequenceVariants) {
-            val qualifiers = HashSet<QualifierAnn>()
-            for (m in variant) qualifiers.addAll(m.qualifierAnns)
-            allQualifiersLists.add(qualifiers)
-        }
-        if (allQualifiersLists.isEmpty()) return mutableSetOf()
-
-        val allQualifiers = allQualifiersLists[0]
-        if (crossing) {
-            for (q in allQualifiersLists) allQualifiers.retainAll(q)
-        } else {
-            for (q in allQualifiersLists) allQualifiers.addAll(q)
-        }
-        return allQualifiers
-    }
 
     /**
      * Using arguments in invoke sequence
@@ -86,7 +66,11 @@ class InvokeCall(
         return invokeSequence[invokeSequence.size - 1].returnType
     }
 
-    fun best() = InvokeCall.fromSequence(wrapHelper, bestSequence())
+    fun best() = InvokeCall.fromSequence(
+        wrapHelper,
+        callSequence = bestSequence(),
+        qualifierAnnotations = qualifierAnnotations,
+    )
 
     /**
      * Generate invoke code bloke
@@ -136,7 +120,7 @@ class InvokeCall(
             listFieldName,
         )
         for (sequence in invokeSequenceVariants) {
-            val invokeCall = InvokeCall.fromSequence(wrapHelper, sequence)
+            val invokeCall = InvokeCall.fromSequence(wrapHelper, sequence, qualifierAnnotations = qualifierAnnotations)
             val seqCodeBlock = invokeCall.invokeCode(declaredFields)
 
             if (wrapHelper.isList(invokeCall.rawReturnType())) {
@@ -174,15 +158,14 @@ class InvokeCall(
             val typeFields = envFields.filter { f ->
                 wrapHelper.nonWrappedType(f.type) == wrapHelper.nonWrappedType(arg.type)
             }
-            var field = if (isWannaList) typeFields.firstOrNull { f ->
-                wrapHelper.isList(f.type)
-                        && (arg.qualifierAnns.anyIgnoreQualifier() || arg.qualifierAnns == f.qualifierAnns)
+            var field = if (isWannaList) typeFields.lastOrNull { f ->
+                wrapHelper.isList(f.type) && (arg.qualifierAnns == f.qualifierAnns)
             } else null
 
             if (field == null) {
                 //non list
                 field = typeFields.firstOrNull { f ->
-                    (arg.qualifierAnns.anyIgnoreQualifier() || arg.qualifierAnns == f.qualifierAnns)
+                    (arg.qualifierAnns == f.qualifierAnns)
                 }
             }
 
@@ -197,7 +180,7 @@ class InvokeCall(
     override fun toString(): String {
         val builder = StringBuilder()
         if (invokeSequenceVariants.size <= 1) {
-            for (qualifierAnn in qualifierAnnotations(false)) {
+            for (qualifierAnn in qualifierAnnotations) {
                 builder.append(qualifierAnn.toString())
                     .append("    ")
             }
@@ -234,19 +217,24 @@ class InvokeCall(
 fun InvokeCall.Companion.fromSequence(
     wrapHelper: WrapHelper,
     callSequence: List<MethodDetail>,
+    qualifierAnnotations: Set<QualifierAnn>? = null,
     flags: InvokeProvideFlags = InvokeProvideFlags(),
 ) = InvokeCall(
     wrapHelper = wrapHelper,
     invokeSequenceVariants = listOf(callSequence),
     flags = flags,
+    qualifierAnnotations = qualifierAnnotations ?: callSequence.lastOrNull()?.qualifierAnns ?: emptySet()
+
 )
 
 
 fun InvokeCall.Companion.fromVariants(
     wrapHelper: WrapHelper,
     variants: List<InvokeCall>,
+    qualifierAnnotations: Set<QualifierAnn>,
 ) = InvokeCall(
     wrapHelper = wrapHelper,
     invokeSequenceVariants = variants.flatMap { it.invokeSequenceVariants },
-    flags = variants.fold(InvokeProvideFlags()) { acc, value -> acc.merge(value.flags) }
+    flags = variants.fold(InvokeProvideFlags()) { acc, value -> acc.merge(value.flags) },
+    qualifierAnnotations = qualifierAnnotations,
 )

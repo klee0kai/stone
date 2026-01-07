@@ -64,14 +64,14 @@ class WindowPartialGcTests {
     fun partialRecreateList2Test() {
         // Given
         val DI = CarGcComponentStoneComponent()
-        val uids1 = DI.windowsModule()!!.windowStrong().get()!!.map { it.uuid }
-        val holder = DI.windowsModule()!!.windowStrong().get()!![1]
+        val uids1 = DI.windowsModule().windowStrong().get()!!.map { it.uuid }
+        val holder = DI.windowsModule().windowStrong().get()!![1]
 
 
         //When
         resetKotlinRegisters()
         DI.gcAll()
-        val uids2 = DI.windowsModule()!!.windowStrong().get()!!.map { it.uuid }
+        val uids2 = DI.windowsModule().windowStrong().get()!!.map { it.uuid }
 
 
         // Then

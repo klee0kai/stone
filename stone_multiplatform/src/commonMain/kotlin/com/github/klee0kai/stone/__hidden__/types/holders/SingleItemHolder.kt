@@ -7,13 +7,15 @@ import com.github.klee0kai.stone.weakref.Ref
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 /**
  * Stone Private class
  */
 @Suppress("UNCHECKED_CAST")
 class SingleItemHolder<T>(
-    private val defType: StoneRefType
+    private val defType: StoneRefType,
+    val mutex: Mutex = Mutex(),
 ) {
     private var curRefType: StoneRefType = defType
 
@@ -30,6 +32,12 @@ class SingleItemHolder<T>(
     fun getList(): List<T>? = when (curRefType) {
         StoneRefType.ListObject -> refHolder as MutableList<T>?
         StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> (refHolder as MutableList<Ref<T?>?>?)?.mapNotNull { it?.get() }
+        else -> null
+    }
+
+    fun getListNullable(): List<T?>? = when (curRefType) {
+        StoneRefType.ListObject -> refHolder as MutableList<T>?
+        StoneRefType.ListWeakObject, StoneRefType.ListSoftObject -> (refHolder as MutableList<Ref<T?>?>?)?.map { it?.get() }
         else -> null
     }
 
@@ -100,7 +108,7 @@ class SingleItemHolder<T>(
     ) {
         if (curRefType == refType) return
         if (defType.isList) {
-            val ob = this.getList()
+            val ob = this.getListNullable()
             curRefType = refType.forList()
             setList(onlyIfNull = false) { ob }
         } else {

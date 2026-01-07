@@ -26,7 +26,7 @@ interface CarMultiCachedComponent {
     fun windows(): List<List<Window?>?>?
 
     @IgnoreQualifier
-    fun windowsProviding(): List<Provider<List<Window?>?>?>?
+    fun windowsProviding(): List<Provider<List<Window>?>?>?
 
     fun cars(): List<Car?>?
 }

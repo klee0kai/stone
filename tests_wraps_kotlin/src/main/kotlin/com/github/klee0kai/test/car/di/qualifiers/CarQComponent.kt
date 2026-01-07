@@ -14,6 +14,8 @@ interface CarQComponent {
     fun module1(): CarQPModule?
     fun module2(): CarQCModule?
 
+    fun inject(carInject: CarsInjectQualifiers?)
+
     @Named
     fun carNamedEmpty(): Car?
 
@@ -52,5 +54,6 @@ interface CarQComponent {
 
     @MyQualifierMulti(type = MyQualifierMulti.Type.HARD, indx = 2, id = "a")
     fun carsMyQualifierMultiA2Hard(): List<Car?>?
-    fun inject(carInject: CarsInjectQualifiers?)
+
+
 }

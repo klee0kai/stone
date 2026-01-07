@@ -52,7 +52,7 @@ open class CarQCModule {
     @Provide(cache = Provide.CacheType.Factory)
     open fun carNamedEmpty(
         @BumperQualifier bumper: List<Bumper>,
-        wheel: List<Wheel>,
+        @IgnoreQualifier wheel: List<Wheel>,
         window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
@@ -88,7 +88,7 @@ open class CarQCModule {
     @Provide(cache = Provide.CacheType.Factory)
     open fun carIdQualifier(
         @BumperQualifier bumper: List<Bumper>,
-        wheel: List<Wheel>,
+        @IgnoreQualifier wheel: List<Wheel>,
         @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)

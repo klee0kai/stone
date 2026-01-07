@@ -208,7 +208,7 @@ class ModulesGraph(
             var singleDepField = FieldDetail(
                 name = genLocalFieldName(),
                 type = inv.resultType(),
-                qualifierAnns = inv.qualifierAnnotations(false)
+                qualifierAnns = inv.qualifierAnnotations
             )
             val listDepField = FieldDetail(
                 name = genLocalFieldName(),
@@ -217,11 +217,12 @@ class ModulesGraph(
                         inv.resultType()
                     )
                 ),
-                qualifierAnns = inv.qualifierAnnotations(false)
+                qualifierAnns = inv.qualifierAnnotations
             )
 
             if (isSingleDepRequired) {
                 if (isCacheProvide) {
+                    codeBlock.add("// 1 ${inv.qualifierAnnotations.joinToString(",") { it.logString() }} \n")
                     codeBlock.add("val %L = ", singleDepField.name)
                         .add(
                             wrapHelper.transform(
@@ -238,6 +239,7 @@ class ModulesGraph(
                     singleDepField = singleDepField
                         .copy(type = Ref::class.asClassName().parameterizedBy(inv.resultType()))
 
+                    codeBlock.add("// 2 ${inv.qualifierAnnotations.joinToString(",") { it.logString() }} \n")
                     codeBlock.add("val %L = %T{ ", singleDepField.name, Ref::class)
                         .add(
                             wrapHelper.transform(
@@ -253,6 +255,7 @@ class ModulesGraph(
             }
 
             if (isListDepRequired) {
+                codeBlock.add("// 3 ${inv.qualifierAnnotations.joinToString(",") { it.logString() }} \n")
                 codeBlock.add("val %L = %T{ ", listDepField.name, listDepField.type)
                     .add(inv.invokeAllToList(localVariables))
                     .addStatement(" } ")
@@ -362,10 +365,14 @@ class ModulesGraph(
             provideTypeInvokes.add(invokeCall)
         }
 
+        if (provideTypeInvokes.filter { it.resultType() == provideDep.typeName }
+                .groupBy { it.qualifierAnnotations }.size > 1) {
+            throw StoneException("internal arch error")
+        }
         provideTypeInvokes = LinkedList(
             provideTypeInvokes.removeDoubles { it1, it2 ->
                 it1.resultType() == it2.resultType()
-                        && it1.qualifierAnnotations(crossing = false) == it2.qualifierAnnotations(crossing = false)
+                        && it1.qualifierAnnotations == it2.qualifierAnnotations
             }
         )
         provideTypeInvokes.reverse()
@@ -404,10 +411,8 @@ class ModulesGraph(
 
         var filtered = invokeCalls.toList()
         if (qualifierAnns.none { it.typeName == IgnoreQualifier::class.asClassName() }) {
-            filtered = invokeCalls.filter { it.qualifierAnnotations(false) == qualifierAnns }
+            filtered = invokeCalls.filter { it.qualifierAnnotations == qualifierAnns }
         }
-
-
 
         filtered = if (provideMethodName != null) {
             filtered.filter { provideMethodName == it.bestSequence().last().methodName }
@@ -420,7 +425,15 @@ class ModulesGraph(
                         filtered.joinToString(" and ")
             )
         }
-        return if (!filtered.isEmpty()) InvokeCall.fromVariants(wrapHelper, variants = filtered.toList()) else null
+        return if (!filtered.isEmpty()) {
+            InvokeCall.fromVariants(
+                wrapHelper,
+                variants = filtered.toList(),
+                qualifierAnnotations = qualifierAnns,
+            )
+        } else {
+            null
+        }
     }
 
     companion object {

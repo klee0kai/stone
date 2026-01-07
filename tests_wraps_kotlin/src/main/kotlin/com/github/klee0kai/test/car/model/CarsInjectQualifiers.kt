@@ -1,5 +1,6 @@
 package com.github.klee0kai.test.car.model
 
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifier
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierMulti
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.MyQualifierWithString
@@ -7,6 +8,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class CarsInjectQualifiers {
+
     @Inject
     @Named
     var carNamedEmpty: Car? = null
@@ -48,6 +50,7 @@ class CarsInjectQualifiers {
     var carMyQualifierMultiA2Hard: Car? = null
 
     @Inject
+    @IgnoreQualifier
     var allCars: List<Car>? = null
 
     @Inject
@@ -85,7 +88,7 @@ class CarsInjectQualifiers {
         @MyQualifierMulti(indx = 1, id = "a") carMyQualifierMultiA1: Car?,
         @MyQualifierMulti(indx = 2, id = "a") carMyQualifierMultiA2: Car?,
         @MyQualifierMulti(type = MyQualifierMulti.Type.HARD, id = "a", indx = 2) carMyQualifierMultiA2Hard: Car?,
-        allCars: List<Car>?,
+        @IgnoreQualifier allCars: List<Car>?,
         @Named carsNamedEmpty: List<Car>?,
         @MyQualifierMulti(type = MyQualifierMulti.Type.HARD, id = "a", indx = 2) carsMyQualifierMultiA2Hard: List<Car>?
     ) {
