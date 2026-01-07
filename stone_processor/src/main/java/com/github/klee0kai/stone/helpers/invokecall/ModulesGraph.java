@@ -137,6 +137,7 @@ public class ModulesGraph {
 
             if (isSingleDepRequired) {
                 if (isCacheProvide) {
+                    codeBlock.add("// " + Arrays.toString(qualifierAnns.toArray()) + " \n ");
                     codeBlock.add("$T $L = ", inv.resultType(), singleDepField.name)
                             .addStatement(
                                     wrapHelper.transform(
@@ -157,6 +158,7 @@ public class ModulesGraph {
             }
 
             if (isListDepRequired) {
+                codeBlock.add("// " + Arrays.toString(qualifierAnns.toArray()) + " \n ");
                 codeBlock.add("$T $L = () -> ", listDepField.type, listDepField.name)
                         .addStatement(inv.invokeAllToList(localVariables));
                 localVariables.add(listDepField);
