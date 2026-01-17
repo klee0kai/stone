@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    `maven-publish`
 }
 
 group = "com.github.klee0kai.thekey.stone.ksp"
@@ -10,14 +11,14 @@ kotlin {
     jvm()
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(project(":stone_multiplatform"))
-            implementation(libs.bundles.kotlin)
-            implementation(libs.bundles.kotlinpoet)
-            implementation(libs.ksp)
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":stone_multiplatform"))
+                implementation(libs.bundles.kotlin)
+                implementation(libs.bundles.kotlinpoet)
+                implementation(libs.ksp)
+            }
         }
     }
 }
-
-
 

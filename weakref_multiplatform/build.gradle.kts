@@ -1,21 +1,11 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
 }
 
 group = "com.github.klee0kai.stone.weakref"
 version = libs.versions.stone.get()
 
-android {
-    namespace = project.group.toString()
-    compileSdk = 36
-    defaultConfig {
-        minSdk = 21
-    }
-}
-
 kotlin {
-    androidTarget()
     jvm()
     js(IR) {
         browser()
@@ -33,8 +23,16 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        all {
+            languageSettings {
+                // Enables expect/actual classes support without warnings
+                optIn("kotlin.ExperimentalStdlibApi")
+                compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
     }
 }
+
 
 val isMac = System.getProperty("os.name").contains("Mac")
 if (isMac) kotlin {
