@@ -266,7 +266,9 @@ class GenModuleProcessor : TargetFileProcessor {
         wrapHelper: WrapHelper,
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
-        val setValueArg = function.parameters.firstOrNull { it.type.resolve().toTypeName() == returnType }
+        val setValueArg = function.parameters.firstOrNull {
+            it.type.resolveNotNullable().toTypeName() == function.returnType?.resolveNotNullable()?.toTypeName()
+        }
 
         genOverrideFun(function) {
             beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)

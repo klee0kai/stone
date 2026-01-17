@@ -87,6 +87,8 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         val fileSpec = genFileSpec(genHiddenModuleCl.packageName, genHiddenModuleCl.simpleName) {
             genLibComment()
 
+            addImport("com.github.klee0kai.stone.__hidden__.coroutines", "syncIfAvailable")
+
             genClass(genHiddenModuleCl) {
                 addSuperinterface(IModule::class)
                 componentCl.allParentDeclarations
@@ -173,10 +175,13 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         itemHolderCodeHelper: ItemHolderCodeHelper,
         wrapHelper: WrapHelper,
     ) {
-        val returnType = function.returnType?.resolveNotNullable()?.toTypeName() ?: return
-        val setValueArg = function.parameters.firstOrNull { it.type.resolveNotNullable().toTypeName() == returnType }
+        val returnType = function.returnType?.resolve()?.toTypeName() ?: return
+        val setValueArg = function.parameters.firstOrNull {
+            it.type.resolveNotNullable().toTypeName() == function.returnType?.resolveNotNullable()?.toTypeName()
+        }
 
         genOverrideFun(function) {
+            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
             addStatement(
                 "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
                 overridedModuleFieldName,
@@ -184,7 +189,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                 CacheAction::class.asClassName(),
                 idArguments.joinToString(", ") { it.name!!.asString() },
             )
-            addCode("if ( cached != null ) return ")
+            addCode("if ( cached != null ) return@syncIfAvailable ")
             addCode(
                 wrapHelper.transform(
                     providingType = wrapHelper.listWrapTypeIfNeed(returnType),
@@ -206,7 +211,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             }
 
 
-            addCode("return ")
+            addCode("return@syncIfAvailable ")
             addCode(
                 wrapHelper.transform(
                     wrapHelper.listWrapTypeIfNeed(returnType),
@@ -215,6 +220,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                 )
             )
             addStatement(" as %T", returnType)
+            endControlFlow()
         }
     }
 
@@ -235,6 +241,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                 addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
             }
 
+            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
             addStatement(
                 "%L.get()?.%L( __action, %L ) ",
                 overridedModuleFieldName,
@@ -271,8 +278,10 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             addStatement("null -> Unit")
             endControlFlow()
 
-            addCode("return ")
+            addCode("return@syncIfAvailable ")
             addCode(codeBlock = itemHolderCodeHelper.codeGetCachedValue())
+            addStatement("")
+            endControlFlow()
         }
     }
 
