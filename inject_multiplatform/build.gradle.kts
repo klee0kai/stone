@@ -1,21 +1,14 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-//    alias(libs.plugins.android.library)
+    alias(libs.plugins.publish.stone)
+    alias(libs.plugins.publish.maven)
 }
 
 group = "com.github.klee0kai.stone.inject"
 version = libs.versions.stone.get()
 
-//android {
-//    namespace = project.group.toString()
-//    compileSdk = 36
-//    defaultConfig {
-//        minSdk = 21
-//    }
-//}
 
 kotlin {
-//    androidTarget()
     jvm()
     js(IR) {
         browser()

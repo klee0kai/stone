@@ -1,9 +1,10 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    `maven-publish`
+    alias(libs.plugins.publish.stone)
+    alias(libs.plugins.publish.maven)
 }
 
-group = "com.github.klee0kai.thekey.stone.ksp"
+group = "com.github.klee0kai.stone.ksp"
 version = libs.versions.stone.get()
 
 

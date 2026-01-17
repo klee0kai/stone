@@ -14,17 +14,6 @@ fun PublishingExtension.stoneToMaven(project: Project) {
             artifactId = project.name
             version = project.version.toString()
 
-            when {
-                "java" in project.components.names -> {
-                    //publish simple java lib
-                    from(project.components["java"])
-                }
-                "release" in project.components.names -> {
-                    //publish android lib
-                    from(project.components["release"])
-                }
-            }
-
             pom {
                 name.set("Stone")
                 description.set("Library DI designed on weak references.")
