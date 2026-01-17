@@ -1,15 +1,14 @@
-package com.github.klee0kai.stone.test_feature.finance.accounting;
+package com.github.klee0kai.stone.test_feature.finance.accounting
 
-import com.github.klee0kai.stone.test_feature.finance.model.BalanceInfo;
+import com.github.klee0kai.stone.test_feature.finance.model.BalanceInfo
 
-public class AccountingImpl implements Accounting {
-    @Override
-    public BalanceInfo currentBalance() {
-        return null;
+class AccountingImpl : Accounting {
+
+    override fun currentBalance(): BalanceInfo? {
+        return null
     }
 
-    @Override
-    public BalanceInfo plannedBalance(long days) {
-        return null;
+    override fun plannedBalance(days: Long): BalanceInfo? {
+        return null
     }
 }

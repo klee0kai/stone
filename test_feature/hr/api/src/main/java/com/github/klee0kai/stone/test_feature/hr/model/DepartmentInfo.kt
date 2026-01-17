@@ -1,12 +1,9 @@
-package com.github.klee0kai.stone.test_feature.hr.model;
+package com.github.klee0kai.stone.test_feature.hr.model
 
-public class DepartmentInfo {
+class DepartmentInfo {
+    var id: Long? = null
 
-    public Long id;
+    var name: String? = null
 
-    public String name;
-
-    public String description;
-
-
+    var description: String? = null
 }

@@ -1,44 +1,45 @@
-package com.github.klee0kai.stone.test_feature.consulting.dependencies;
+package com.github.klee0kai.stone.test_feature.consulting.dependencies
 
-import com.github.klee0kai.stone.Stone;
-import com.github.klee0kai.stone.test_feature.consulting.di.ConsultingComponent;
-import com.github.klee0kai.stone.test_feature.finance.di.AccountingComponent;
-import com.github.klee0kai.stone.test_feature.hr.di.HrComponent;
-import com.github.klee0kai.stone.test_feature.hr.di.HrDependencies;
-import com.github.klee0kai.stone.test_feature.planning.project.LogisticProject;
-import org.junit.jupiter.api.Test;
+import com.github.klee0kai.stone.test_feature.consulting.di.ConsultingComponent
+import com.github.klee0kai.stone.test_feature.consulting.di.ConsultingComponentStoneComponent
+import com.github.klee0kai.stone.test_feature.finance.di.AccountingComponent
+import com.github.klee0kai.stone.test_feature.finance.di.AccountingComponentStoneComponent
+import com.github.klee0kai.stone.test_feature.hr.di.HrComponent
+import com.github.klee0kai.stone.test_feature.hr.di.HrComponentStoneComponent
+import com.github.klee0kai.stone.test_feature.planning.project.LogisticProject
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertNotNull
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ProvideDependenciesTests {
+class ProvideDependenciesTests {
 
     @Test
-    void hrNoDepsTest() {
+    fun hrNoDepsTest() {
         //Given
-        ConsultingComponent appDI = Stone.createComponent(ConsultingComponent.class);
-        HrComponent featureDi = Stone.createComponent(HrComponent.class);
+        val appDI: ConsultingComponent = ConsultingComponentStoneComponent()
+        val featureDi: HrComponent = HrComponentStoneComponent()
 
         //When
-        featureDi.initDeps(appDI);
+        featureDi.initDeps(appDI)
 
         //Then
-        HrDependencies hrDeps = featureDi.hrDependencies();
-        assertEquals(appDI, hrDeps);
+        val hrDeps = featureDi.hrDependencies()
+        assertEquals(appDI, hrDeps)
     }
 
     @Test
-    void provideLogisticProjectDepsTest() {
+    fun provideLogisticProjectDepsTest() {
         //Given
-        ConsultingComponent appDI = Stone.createComponent(ConsultingComponent.class);
-        AccountingComponent featureDi = Stone.createComponent(AccountingComponent.class);
+        val appDI: ConsultingComponent? = ConsultingComponentStoneComponent()
+        val featureDi: AccountingComponent = AccountingComponentStoneComponent()
 
         //When
-        featureDi.initDeps(appDI);
+        featureDi.initDeps(appDI)
 
         //Then
-        LogisticProject logisticProject = featureDi.dependencies().logisticProject();
-        assertNotNull(logisticProject);
+        val logisticProject: LogisticProject? = featureDi.dependencies()?.logisticProject()
+        assertNotNull(logisticProject)
     }
 
 }

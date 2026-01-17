@@ -1,4 +1,3 @@
-package com.github.klee0kai.stone.test_feature.planning.model;
+package com.github.klee0kai.stone.test_feature.planning.model
 
-public class TaskInfo {
-}
+class TaskInfo 

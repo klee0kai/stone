@@ -1,31 +1,23 @@
-package com.github.klee0kai.stone.test_feature.planning.project;
+package com.github.klee0kai.stone.test_feature.planning.project
 
-import com.github.klee0kai.stone.test_feature.planning.model.ProjectInfo;
-import com.github.klee0kai.stone.test_feature.planning.model.TaskInfo;
+import com.github.klee0kai.stone.test_feature.planning.model.ProjectInfo
+import com.github.klee0kai.stone.test_feature.planning.model.TaskInfo
+import java.util.*
 
-import java.util.UUID;
+open class ProjectImpl : Project {
+    var uuid: UUID = UUID.randomUUID()
 
-public class ProjectImpl implements Project {
+    override val id: String?
+        get() = uuid.toString()
 
-    public UUID uuid = UUID.randomUUID();
-
-    @Override
-    public String getId() {
-        return uuid.toString();
+    override fun projectInfo(): ProjectInfo? {
+        return null
     }
 
-    @Override
-    public ProjectInfo projectInfo() {
-        return null;
+    override fun addTask(taskInfo: TaskInfo?) {
     }
 
-    @Override
-    public void addTask(TaskInfo taskInfo) {
-
-    }
-
-    @Override
-    public TaskInfo findTask(String taskId) {
-        return null;
+    override fun findTask(taskId: String?): TaskInfo? {
+        return null
     }
 }

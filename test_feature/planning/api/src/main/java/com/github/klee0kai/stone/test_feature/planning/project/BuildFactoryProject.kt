@@ -1,4 +1,3 @@
-package com.github.klee0kai.stone.test_feature.planning.project;
+package com.github.klee0kai.stone.test_feature.planning.project
 
-public interface BuildFactoryProject extends Project {
-}
+interface BuildFactoryProject : Project

@@ -1,11 +1,11 @@
-package com.github.klee0kai.stone.test_feature.finance.accounting;
+package com.github.klee0kai.stone.test_feature.finance.accounting
 
-import com.github.klee0kai.stone.test_feature.finance.model.BalanceInfo;
+import com.github.klee0kai.stone.test_feature.finance.model.BalanceInfo
 
-public interface Accounting {
+interface Accounting {
 
-    BalanceInfo currentBalance();
+    fun currentBalance(): BalanceInfo?
 
-    BalanceInfo plannedBalance(long days);
+    fun plannedBalance(days: Long): BalanceInfo?
 
 }

@@ -1,5 +1,6 @@
 plugins {
-    java
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 group = "com.github.klee0kai.stone.test_feature.finance"
@@ -13,7 +14,7 @@ dependencies {
     implementation(project(":test_feature:hr:api"))
     implementation(project(":test_feature:planning:api"))
 
-    implementation(project(":stone_lib"))
-    annotationProcessor(project(":stone_processor"))
+    implementation(project(":stone_multiplatform"))
+    ksp(project(":stone_ksp"))
 }
 

@@ -1,20 +1,16 @@
-package com.github.klee0kai.stone.test_feature.hr.department;
+package com.github.klee0kai.stone.test_feature.hr.department
 
-import com.github.klee0kai.stone.test_feature.hr.model.DepartmentInfo;
-import com.github.klee0kai.stone.test_feature.hr.model.EmployeeInfo;
+import com.github.klee0kai.stone.test_feature.hr.model.DepartmentInfo
+import com.github.klee0kai.stone.test_feature.hr.model.EmployeeInfo
 
-import java.util.List;
+interface Department {
+    val id: String?
 
-public interface Department {
+    val info: DepartmentInfo?
 
-    String getId();
+    fun employers(): MutableList<EmployeeInfo?>?
 
-    DepartmentInfo getInfo();
+    fun hireEmployee(employeeInfo: EmployeeInfo?)
 
-    List<EmployeeInfo> employers();
-
-    void hireEmployee(EmployeeInfo employeeInfo);
-
-    void fireEmployee(EmployeeInfo employeeInfo);
-
+    fun fireEmployee(employeeInfo: EmployeeInfo?)
 }

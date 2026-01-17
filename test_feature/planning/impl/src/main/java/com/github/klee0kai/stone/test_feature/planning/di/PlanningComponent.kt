@@ -1,19 +1,17 @@
-package com.github.klee0kai.stone.test_feature.planning.di;
+package com.github.klee0kai.stone.test_feature.planning.di
 
-import com.github.klee0kai.stone.annotations.component.Component;
-import com.github.klee0kai.stone.annotations.component.Init;
-import com.github.klee0kai.stone.test_feature.planning.PlanningRun;
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.component.Init
+import com.github.klee0kai.stone.test_feature.planning.PlanningRun
 
 @Component
-public interface PlanningComponent {
+interface PlanningComponent {
+    fun dependencies(): PlanningDependencies?
 
-    PlanningDependencies dependencies();
+    fun projectsModule(): ProjectsModule?
 
-    ProjectsModule projectsModule();
-
-    void inject(PlanningRun planningRun);
+    fun inject(planningRun: PlanningRun?)
 
     @Init
-    void initDep(PlanningDependencies planningRun);
-
+    fun initDep(planningRun: PlanningDependencies?)
 }

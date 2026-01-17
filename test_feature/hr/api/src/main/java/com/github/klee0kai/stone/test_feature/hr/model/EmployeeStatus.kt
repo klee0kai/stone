@@ -1,6 +1,6 @@
-package com.github.klee0kai.stone.test_feature.hr.model;
+package com.github.klee0kai.stone.test_feature.hr.model
 
-public enum EmployeeStatus {
+enum class EmployeeStatus {
     TERM_CONTRACT,
     UNTERM_CONTRACT,
     FIRED,

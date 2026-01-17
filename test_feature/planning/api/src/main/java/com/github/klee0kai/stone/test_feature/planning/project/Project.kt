@@ -1,16 +1,15 @@
-package com.github.klee0kai.stone.test_feature.planning.project;
+package com.github.klee0kai.stone.test_feature.planning.project
 
-import com.github.klee0kai.stone.test_feature.planning.model.ProjectInfo;
-import com.github.klee0kai.stone.test_feature.planning.model.TaskInfo;
+import com.github.klee0kai.stone.test_feature.planning.model.ProjectInfo
+import com.github.klee0kai.stone.test_feature.planning.model.TaskInfo
 
-public interface Project {
+interface Project {
 
-    String getId();
+    val id: String?
 
-    ProjectInfo projectInfo();
+    fun projectInfo(): ProjectInfo?
 
-    void addTask(TaskInfo taskInfo);
+    fun addTask(taskInfo: TaskInfo?)
 
-    TaskInfo findTask(String taskId);
-
+    fun findTask(taskId: String?): TaskInfo?
 }

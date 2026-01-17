@@ -1,37 +1,23 @@
-package com.github.klee0kai.stone.test_feature.hr.department;
+package com.github.klee0kai.stone.test_feature.hr.department
 
-import com.github.klee0kai.stone.test_feature.hr.model.DepartmentInfo;
-import com.github.klee0kai.stone.test_feature.hr.model.EmployeeInfo;
+import com.github.klee0kai.stone.test_feature.hr.model.DepartmentInfo
+import com.github.klee0kai.stone.test_feature.hr.model.EmployeeInfo
+import java.util.*
 
-import java.util.List;
-import java.util.UUID;
+open class DepartmentImpl : Department {
+    var uuid: String? = UUID.randomUUID().toString()
 
-public class DepartmentImpl implements Department {
+    override val id: String? get() = uuid
 
-    public String uuid = UUID.randomUUID().toString();
+    override val info: DepartmentInfo? get() = null
 
-    @Override
-    public String getId() {
-        return uuid;
+    override fun employers(): MutableList<EmployeeInfo?>? {
+        return null
     }
 
-    @Override
-    public DepartmentInfo getInfo() {
-        return null;
+    override fun hireEmployee(employeeInfo: EmployeeInfo?) {
     }
 
-    @Override
-    public List<EmployeeInfo> employers() {
-        return null;
-    }
-
-    @Override
-    public void hireEmployee(EmployeeInfo employeeInfo) {
-
-    }
-
-    @Override
-    public void fireEmployee(EmployeeInfo employeeInfo) {
-
+    override fun fireEmployee(employeeInfo: EmployeeInfo?) {
     }
 }
