@@ -7,7 +7,9 @@ import com.github.klee0kai.wiki.provide.identifiers.PresentersModule
 import com.github.klee0kai.wiki.provide.identifiers.ScreenId
 import com.github.klee0kai.wiki.provide.identifiers.ThreadsModule
 
-@Component(identifiers = [ScreenId::class, LoginId::class])
+@Component(
+    identifiers = [ScreenId::class, LoginId::class]
+)
 interface AppComponent {
 
     fun threadsModule(): ThreadsModule
