@@ -1,6 +1,6 @@
 [versions]
 
-stone = "2.0.0"
+stone = "2.0.0_alpha"
 
 kotlin = "2.2.21"
 ksp = "2.3.2"

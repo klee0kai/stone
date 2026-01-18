@@ -37,8 +37,8 @@ In the project module, import dependencies
 ```kotlin
 dependencies {
     // stone
-    implementation("com.github.klee0kai.stone:stone_multiplatform:2.0.0")
-    ksp("com.github.klee0kai.stone:stone_ksp:2.0.0")
+    implementation("com.github.klee0kai.stone:stone_multiplatform:2.0.0_alpha")
+    ksp("com.github.klee0kai.stone:stone_ksp:2.0.0_alpha")
 }
 ```
 
