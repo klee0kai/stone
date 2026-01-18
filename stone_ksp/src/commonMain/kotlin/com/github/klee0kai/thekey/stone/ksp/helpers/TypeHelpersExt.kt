@@ -22,17 +22,3 @@ fun KSType.isListType(
         ?.superTypes
         ?.any { it.resolve().isListType() } == true
 }
-
-@Deprecated("ue wrap helper ")
-fun KSType.noWrappedType(
-    wrappedTypes: List<KSType>,
-): KSType {
-    if (arguments.isEmpty()) return this
-    if (this in wrappedTypes) {
-        return arguments
-            .first().type?.resolve()
-            ?.noWrappedType(wrappedTypes)
-            ?: this
-    }
-    return this
-}
