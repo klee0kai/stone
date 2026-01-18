@@ -101,12 +101,7 @@ class GenModuleProcessor : TargetFileProcessor {
             ?.allIdentifierTypes?.toList()
             ?: emptyList()
 
-        val wrapperTypes = componentCl
-            ?.wrapperProviders?.toList()
-            ?: emptyList()
-
         val genModuleClassName = moduleCl.moduleStoneClName
-
 
         val fileSpec = genFileSpec(genModuleClassName.packageName, genModuleClassName.simpleName) {
             genLibComment()

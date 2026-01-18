@@ -427,8 +427,6 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
             addModifiers(KModifier.OVERRIDE)
             addCode(codeBlocks.clearNullsMethodBody.build())
         }
-
     }
-
 
 }
