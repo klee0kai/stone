@@ -37,8 +37,8 @@ In the project module, import dependencies
 ```kotlin
 dependencies {
     // stone
-    implementation("com.github.klee0kai.stone:stone_lib:1.0.7")
-    kapt("com.github.klee0kai.stone:stone_processor:1.0.7")
+    implementation("com.github.klee0kai.stone:stone_multiplatform:2.0.0")
+    ksp("com.github.klee0kai.stone:stone_ksp:2.0.0")
 }
 ```
 
@@ -64,7 +64,7 @@ interface PlanetsComponent {
 And further use.
 
 ```kotlin 
-val DI: PlanetsComponent = Stone.createComponent(PlanetsComponent::class.java)
+val DI: PlanetsComponent = PlanetsComponentStoneComponent()
 fun main(args: Array<String>) {
     val earth = DI.planets().earth()
 }
@@ -115,14 +115,9 @@ or to implement initialization in coroutine scopes.
 
 Documentation with examples
  - [Kotlin](https://github.com/klee0kai/stone/wiki/kotlin_start)
- - [Java](https://github.com/klee0kai/stone/wiki/java_start)
-
-## Find this library useful? 
-Support it by joining __[stargazers](https://github.com/klee0kai/stone/stargazers)__ for this repository. :star: <br>
-Also, __[follow me](https://github.com/klee0kai)__ on GitHub for more libraries!
 
 ## License
 
 ```
-Copyright (c) 2024 Andrey Kuzubov
+Copyright (c) 2022 Andrey Kuzubov
 ```
