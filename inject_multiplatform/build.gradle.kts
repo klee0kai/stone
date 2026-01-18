@@ -4,9 +4,8 @@ plugins {
     alias(libs.plugins.publish.maven)
 }
 
-group = "com.github.klee0kai.stone.inject"
+group = "com.github.klee0kai.stone"
 version = libs.versions.stone.get()
-
 
 kotlin {
     jvm()
@@ -17,6 +16,7 @@ kotlin {
 
     linuxX64()
     mingwX64()
+    wasmJs()
 
     sourceSets {
         commonMain.dependencies {
@@ -64,4 +64,12 @@ if (isMac) kotlin {
     }
 }
 
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name.set("Stone")
+            description.set("Library DI designed on weak references.")
+        }
+    }
+}
 

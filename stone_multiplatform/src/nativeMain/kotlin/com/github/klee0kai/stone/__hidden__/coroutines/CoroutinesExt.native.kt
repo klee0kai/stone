@@ -7,6 +7,3 @@ actual fun <T, R> T.syncIfAvailable(
     block: T.() -> R
 ): R = block()
 
-actual fun <T, R> T.syncIfAvailable(mutex: kotlinx.coroutines.sync.Mutex, block: T.() -> R): R {
-    TODO("Not yet implemented")
-}

@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.publish.maven)
 }
 
-group = "com.github.klee0kai.stone.ksp"
+group = "com.github.klee0kai.stone"
 version = libs.versions.stone.get()
 
 
@@ -19,6 +19,15 @@ kotlin {
                 implementation(libs.bundles.kotlinpoet)
                 implementation(libs.ksp)
             }
+        }
+    }
+}
+
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name.set("Stone")
+            description.set("Library DI designed on weak references.")
         }
     }
 }

@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.publish.maven)
 }
 
-group = "com.github.klee0kai.stone.weakref"
+group = "com.github.klee0kai.stone"
 version = libs.versions.stone.get()
 
 kotlin {
@@ -16,6 +16,7 @@ kotlin {
 
     linuxX64()
     mingwX64()
+    wasmJs()
 
     sourceSets {
         commonMain.dependencies {
@@ -71,4 +72,13 @@ if (isMac) kotlin {
     }
 }
 
+
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name.set("WeakRef")
+            description.set("Multi platform weak ref implementation.")
+        }
+    }
+}
 

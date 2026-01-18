@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.weakref
 
-actual class SoftRef<T : Any?> actual constructor(value: T) : Ref<T?> {
+actual class SoftRef<T : Any?> actual constructor(value: T) : Ref<T?>, AutoCloseable {
 
     private var weakRefDynamic: dynamic = null
     private var strongFallback: T? = null
@@ -27,6 +27,11 @@ actual class SoftRef<T : Any?> actual constructor(value: T) : Ref<T?> {
     }
 
     actual fun clear() {
+        weakRefDynamic = null
+        strongFallback = null
+    }
+
+    actual override fun close() {
         weakRefDynamic = null
         strongFallback = null
     }

@@ -1,19 +1,18 @@
 package com.github.klee0kai.stone.weakref
 
-import java.lang.ref.WeakReference
 
 actual class WeakRef<T> actual constructor(value: T) : Ref<T?>, AutoCloseable {
 
-    val weakRef: WeakReference<T> = WeakReference(value)
+    private var ref: T? = value
 
-    actual override fun get(): T? = weakRef.get()
+    actual override fun get(): T? = ref
 
     actual fun clear() {
-        weakRef.clear()
+        ref = null
     }
 
     actual override fun close() {
-        weakRef.clear()
+        ref = null
     }
 
 }
