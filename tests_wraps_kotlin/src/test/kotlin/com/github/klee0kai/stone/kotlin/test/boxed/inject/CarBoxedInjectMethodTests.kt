@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.boxed.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponent
+import com.github.klee0kai.test.boxed.di.inject.CarBoxedInjectComponentStoneComponent
 import com.github.klee0kai.test.boxed.model.CarBoxedInject
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectLists
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectProvider
@@ -26,7 +25,7 @@ class CarBoxedInjectMethodTests {
     @Test
     fun carInjectTest() {
         //Given
-        val DI = Stone.createComponent(CarBoxedInjectComponent::class.java)
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         val carInject = CarBoxedInject()
@@ -42,9 +41,7 @@ class CarBoxedInjectMethodTests {
     @Test
     fun carInjectReusableTest() {
         //Given
-        val DI = Stone.createComponent(
-            CarBoxedInjectComponent::class.java
-        )
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarBoxedInject()
@@ -75,7 +72,7 @@ class CarBoxedInjectMethodTests {
     @Test
     fun carInjectListTest() {
         //Given
-        val DI = Stone.createComponent(CarBoxedInjectComponent::class.java)
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         val carInject = CarBoxedInjectLists()
@@ -102,7 +99,7 @@ class CarBoxedInjectMethodTests {
     @Test
     fun carInjectListReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarBoxedInjectComponent::class.java)
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarBoxedInjectLists()
@@ -131,7 +128,7 @@ class CarBoxedInjectMethodTests {
     @Test
     fun carInjectProviderTest() {
         //Given
-        val DI = Stone.createComponent(CarBoxedInjectComponent::class.java)
+        val DI = CarBoxedInjectComponentStoneComponent()
 
         //When
         val carInject = CarBoxedInjectProvider()
@@ -148,9 +145,8 @@ class CarBoxedInjectMethodTests {
     @Test
     fun carInjectProvideReusableTest() {
         //Given
-        val DI = Stone.createComponent(
-            CarBoxedInjectComponent::class.java
-        )
+        val DI = CarBoxedInjectComponentStoneComponent()
+
 
         //When
         val carInject1 = CarBoxedInjectProvider()

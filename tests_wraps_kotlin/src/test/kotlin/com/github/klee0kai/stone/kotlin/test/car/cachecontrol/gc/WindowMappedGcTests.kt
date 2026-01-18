@@ -1,18 +1,18 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class WindowMappedGcTests {
+
     @Test
     fun createWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
 
         //When
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
@@ -30,7 +30,7 @@ class WindowMappedGcTests {
     @Test
     fun createAfterGcWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         DI.gcAll()
 
         //When
@@ -49,7 +49,7 @@ class WindowMappedGcTests {
     @Test
     fun gcAllTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }
@@ -70,7 +70,7 @@ class WindowMappedGcTests {
     @Test
     fun gcWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }
@@ -90,7 +90,7 @@ class WindowMappedGcTests {
     @Test
     fun gcSoftTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }
@@ -110,7 +110,7 @@ class WindowMappedGcTests {
     @Test
     fun gcStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }
@@ -130,7 +130,7 @@ class WindowMappedGcTests {
     @Test
     fun gcWindows() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }
@@ -150,7 +150,7 @@ class WindowMappedGcTests {
     @Test
     fun gcWindowsAndWheels() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }
@@ -170,7 +170,7 @@ class WindowMappedGcTests {
     @Test
     fun gcWheelsTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }
@@ -191,7 +191,7 @@ class WindowMappedGcTests {
     @Test
     fun gcNothing() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { WeakReference(it) }

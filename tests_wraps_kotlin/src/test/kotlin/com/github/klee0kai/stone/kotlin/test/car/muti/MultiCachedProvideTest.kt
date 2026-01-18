@@ -1,18 +1,19 @@
 package com.github.klee0kai.stone.kotlin.test.car.muti
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.lists.cached.CarMultiCachedComponent
+import com.github.klee0kai.test.car.di.lists.cached.CarMultiCachedComponentStoneComponent
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
 import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class MultiCachedProvideTest {
+
     @BeforeEach
     fun init() {
         Bumper.createCount = 0
@@ -24,9 +25,7 @@ class MultiCachedProvideTest {
     @Test
     fun firstBumperFromCollection() {
         //Given
-        val DI = Stone.createComponent(
-            CarMultiCachedComponent::class.java
-        )
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         assertEquals(0, Bumper.createCount)
@@ -42,9 +41,7 @@ class MultiCachedProvideTest {
     @Test
     fun cachedBumperFromCollection() {
         //Given
-        val DI = Stone.createComponent(
-            CarMultiCachedComponent::class.java
-        )
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         val bumperProvide = DI.singleBumper()
@@ -62,9 +59,7 @@ class MultiCachedProvideTest {
     @Test
     fun fourWheelsAndSpare() {
         //Given
-        val DI = Stone.createComponent(
-            CarMultiCachedComponent::class.java
-        )
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         assertEquals(0, Wheel.createCount)
@@ -83,7 +78,7 @@ class MultiCachedProvideTest {
     @Test
     fun fourWheelsAndSpareCached() {
         //Given
-        val DI = Stone.createComponent(CarMultiCachedComponent::class.java)
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         val wheelsProviderList = DI.wheels()
@@ -103,7 +98,7 @@ class MultiCachedProvideTest {
     @Test
     fun oneWheelFromList() {
         //Given
-        val DI = Stone.createComponent(CarMultiCachedComponent::class.java)
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         val wheel1 = DI.wheel()
@@ -117,7 +112,7 @@ class MultiCachedProvideTest {
     @Test
     fun allWindowsInCar() {
         //Given
-        val DI = Stone.createComponent(CarMultiCachedComponent::class.java)
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         assertEquals(0, Window.createCount)
@@ -135,7 +130,7 @@ class MultiCachedProvideTest {
     @Test
     fun allWindowsInCarFactory() {
         //Given
-        val DI = Stone.createComponent(CarMultiCachedComponent::class.java)
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         assertEquals(0, Window.createCount)
@@ -153,7 +148,7 @@ class MultiCachedProvideTest {
     @Test
     fun allWindowsInCarProvideWrapper() {
         //Given
-        val DI = Stone.createComponent(CarMultiCachedComponent::class.java)
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         assertEquals(0, Window.createCount)
@@ -172,7 +167,7 @@ class MultiCachedProvideTest {
     @Test
     fun createCarsWithDeps() {
         //Given
-        val DI = Stone.createComponent(CarMultiCachedComponent::class.java)
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)
@@ -187,7 +182,7 @@ class MultiCachedProvideTest {
         assertNotNull(car[1]!!.bumpers)
         assertNotNull(car[1]!!.wheels)
         assertNotNull(car[1]!!.windows)
-        Assertions.assertNotEquals(
+        assertNotEquals(
             car[0]!!.windows!!.size,
             car[1]!!.windows!!.size,
             "Red use single deps and Blue car use listed deps"
@@ -197,7 +192,7 @@ class MultiCachedProvideTest {
     @Test
     fun cacheCreatedCar() {
         //Given
-        val DI = Stone.createComponent(CarMultiCachedComponent::class.java)
+        val DI = CarMultiCachedComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)

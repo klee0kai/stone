@@ -9,8 +9,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - java_version: 11
-            java_distribution: "temurin"
           - java_version: 17
             java_distribution: "temurin"
           - java_version: 17
@@ -21,7 +19,7 @@ jobs:
     name: Run Unit Tests on Java ${{ matrix.java_distribution }} ${{ matrix.java_version }}
     steps:
       - uses: actions/checkout@v3
-      - name: set up JDK 11
+      - name: set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java_version }}
@@ -33,44 +31,33 @@ jobs:
         run: ./gradlew test
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: test-report
+          name: test-report-${{ matrix.java_distribution }}-${{ matrix.java_version }}
           path: |
             ./**/build/reports
             ./**/build/test-results
-
-  dorny_report:
-    name: Prepare Dorny Test Report
-    needs: tests
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Download Test Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: test-report
-
-      - name: Publish Dorny Test Report
-        uses: dorny/test-reporter@v1
-        with:
-          name: Dorny JUnit Test Report
-          path: '**/build/test-results/**/*.xml'
-          reporter: java-junit
-          list-tests: 'all'
 
   mikepenz_report:
     name: Prepare Mikepenz Test Report
     needs: tests
     runs-on: ubuntu-latest
     if: ${{ always() }}
+    strategy:
+      matrix:
+        include:
+          - java_version: 17
+            java_distribution: "temurin"
+          - java_version: 17
+            java_distribution: "oracle"
+          - java_version: 17
+            java_distribution: "corretto"
     steps:
       - uses: actions/checkout@v3
       - name: Download Test Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: test-report
+          name: test-report-${{ matrix.java_distribution }}-${{ matrix.java_version }}
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3

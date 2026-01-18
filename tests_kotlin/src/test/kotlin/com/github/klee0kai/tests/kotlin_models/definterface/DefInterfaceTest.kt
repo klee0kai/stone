@@ -1,9 +1,8 @@
 package com.github.klee0kai.tests.kotlin_models.definterface
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.KConnectType
 import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.MonitorSize
-import com.github.klee0kai.test_kotlin.di.definterface.DefInterfaceComponent
+import com.github.klee0kai.test_kotlin.di.definterface.DefInterfaceComponentStoneComponent
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -12,7 +11,7 @@ class DefInterfaceTest {
     @Test
     fun provideKeyboardTest() {
         //Given
-        val DI = Stone.createComponent(DefInterfaceComponent::class.java)
+        val DI = DefInterfaceComponentStoneComponent()
 
         //When
         val keyboard1 = DI.factory().keyboard()
@@ -33,7 +32,7 @@ class DefInterfaceTest {
     @Test
     fun provideMonitorTest() {
         //Given
-        val DI = Stone.createComponent(DefInterfaceComponent::class.java)
+        val DI = DefInterfaceComponentStoneComponent()
 
         //When
         val monitor = DI.factory().monitor(MonitorSize("2"))
@@ -47,7 +46,7 @@ class DefInterfaceTest {
     @Test
     fun provideMouseTest() {
         //Given
-        val DI = Stone.createComponent(DefInterfaceComponent::class.java)
+        val DI = DefInterfaceComponentStoneComponent()
 
         //When
         val mouse1 = DI.factory().mouse()

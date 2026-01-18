@@ -1,6 +1,7 @@
 package com.github.klee0kai.test_kotlin.di.base_comp
 
 import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.component.Init
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.Company
 import com.github.klee0kai.test_kotlin.di.base_comp.identifiers.KConnectType
@@ -14,6 +15,9 @@ import com.github.klee0kai.test_kotlin.tech.comp.GameComp
 interface CompComponent {
 
     fun techModule(): TechModule
+
+    @Init
+    fun initTechModule(module: TechModule)
 
     fun inject(
         comp: DesktopComp,

@@ -5,5 +5,5 @@ import java.util.concurrent.ThreadPoolExecutor
 class FeaturePresenter {
     constructor(executor: ThreadPoolExecutor)
 
-    constructor(screenId: ScreenId, loginId: LoginId)
+    constructor(screenId: ScreenId?, loginId: LoginId?)
 }

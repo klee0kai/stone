@@ -1,7 +1,8 @@
 package com.github.klee0kai.test.car.di.lists.factory
 
-import com.github.klee0kai.stone.annotations.component.*
-import com.github.klee0kai.stone.wrappers.Ref
+import com.github.klee0kai.stone.annotations.component.Component
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
+import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
@@ -12,12 +13,23 @@ import javax.inject.Provider
 
 @Component
 interface CarMultiComponent {
+
     fun module(): CarMultiModule?
+
     fun singleBumper(): Ref<Bumper?>?
+
+    @IgnoreQualifier
     fun wheels(): List<Provider<WeakReference<Wheel?>?>?>?
+
     fun wheel(): Wheel?
+
+    @IgnoreQualifier
     fun windows(): List<List<Window?>?>?
-    fun windowsProviding(): List<Provider<List<Window?>?>?>?
+
+    @IgnoreQualifier
+    fun windowsProviding(): List<Provider<List<Window>?>?>?
+
+    @IgnoreQualifier
     fun cars(): List<Car?>?
 
     @Named("blueCar")

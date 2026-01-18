@@ -6,9 +6,14 @@ import com.github.klee0kai.test.boxed.model.CarBoxedInject
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectLists
 import com.github.klee0kai.test.boxed.model.CarBoxedInjectProvider
 
-@Component
+@Component(
+    wrapperHelpers = [
+        CarBoxedWrapper::class,
+    ]
+)
 abstract class CarBoxedInjectComponent {
-    protected abstract fun module(): CarBoxedInjectModule
+
+    abstract fun module(): CarBoxedInjectModule
     abstract fun inject(carInject: CarBoxedInject)
     abstract fun inject(carInject: CarBoxedInjectLists)
     abstract fun inject(carInject: CarBoxedInjectProvider)

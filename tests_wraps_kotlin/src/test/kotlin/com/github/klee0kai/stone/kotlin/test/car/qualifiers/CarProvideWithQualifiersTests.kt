@@ -1,15 +1,15 @@
 package com.github.klee0kai.stone.kotlin.test.car.qualifiers
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.qualifiers.CarQComponent
+import com.github.klee0kai.test.car.di.qualifiers.CarQComponentStoneComponent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class CarProvideWithQualifiersTests {
+
     @Test
     fun namedEmptyProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carNamedEmpty()
@@ -23,7 +23,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun namedAProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carNameA()
@@ -37,7 +37,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifier()
@@ -51,7 +51,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierStringProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifierString()
@@ -65,7 +65,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierStringAProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifierStringA()
@@ -79,7 +79,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierStringBProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifierStringB()
@@ -93,7 +93,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierMultiProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifierMulti()
@@ -107,7 +107,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierMultiA1ProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifierMultiA1()
@@ -121,7 +121,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierMultiA2ProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifierMultiA2()
@@ -135,7 +135,7 @@ class CarProvideWithQualifiersTests {
     @Test
     fun carMyQualifierMultiA2HardProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
 
         //When
         val car = DI.carMyQualifierMultiA2Hard()

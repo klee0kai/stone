@@ -22,7 +22,9 @@ interface RainForestComponent {
     fun gcAll()
 
     fun inject(university: University)
+
     fun inject(gorilla: Gorilla)
+
     fun inject(cougar: Cougar)
 
     @ProtectInjected(timeMillis = 50)

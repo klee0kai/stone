@@ -1,0 +1,59 @@
+[versions]
+
+stone = "2.0.0_alpha"
+
+kotlin = "2.2.21"
+ksp = "2.3.2"
+agp = "8.12.3"
+
+javax-inject = "1"
+kotlinx-coroutines = "1.10.1"
+jetbrain-immutable = "0.3.7"
+jetbrain-coroutines = "1.10.1"
+kotlinx-atomicfu = "0.29.0"
+
+kotlinpoet = "2.0.0"
+
+junit = "6.0.0"
+junit-launcher = "6.0.0"
+testing-compile = "0.23.0"
+
+
+[libraries]
+
+
+jetbrain-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "jetbrain-immutable" }
+jetbrain-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "jetbrain-coroutines" }
+
+# https://mvnrepository.com/artifact/javax.inject/javax.inject
+java-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
+
+kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu", version.ref = "kotlinx-atomicfu" }
+
+ksp = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "ksp" }
+
+kotlinpoet = { group = "com.squareup", name = "kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoet-ksp = { group = "com.squareup", name = "kotlinpoet-ksp", version.ref = "kotlinpoet" }
+
+jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit" }
+jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit" }
+jupiter-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junit-launcher" }
+
+testing-kapt-compile = { group = "com.google.testing.compile", name = "compile-testing", version.ref = "testing-compile" }
+
+[bundles]
+
+junit = ["jupiter-api", "jupiter-engine", "jupiter-launcher"]
+kotlinpoet = ["kotlinpoet", "kotlinpoet-ksp"]
+kotlin = ["jetbrain-coroutines", "jetbrain-immutable"]
+
+[plugins]
+
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
+publish-maven = { id = "org.gradle.maven-publish" }
+publish-stone = { id = "com.github.klee0kai.stone.publish" }

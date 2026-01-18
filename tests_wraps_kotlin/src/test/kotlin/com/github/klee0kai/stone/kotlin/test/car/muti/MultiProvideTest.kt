@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.car.muti
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.lists.factory.CarMultiComponent
+import com.github.klee0kai.test.car.di.lists.factory.CarMultiComponentStoneComponent
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class MultiProvideTest {
+
     @BeforeEach
     fun init() {
         Bumper.createCount = 0
@@ -22,7 +22,7 @@ class MultiProvideTest {
     @Test
     fun firstBumperFromCollection() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         assertEquals(0, Bumper.createCount)
@@ -38,7 +38,7 @@ class MultiProvideTest {
     @Test
     fun factoryBumperFromCollection() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         val bumperProvide = DI.singleBumper()
@@ -56,7 +56,7 @@ class MultiProvideTest {
     @Test
     fun fourWheelsAndSpare() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         assertEquals(0, Wheel.createCount)
@@ -75,7 +75,7 @@ class MultiProvideTest {
     @Test
     fun fourWheelsAndSpareFactory() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         val wheelsProviderList = DI.wheels()
@@ -92,7 +92,7 @@ class MultiProvideTest {
     @Test
     fun oneWheelFromList() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         val wheel1 = DI.wheel()
@@ -106,7 +106,7 @@ class MultiProvideTest {
     @Test
     fun allWindowsInCar() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         assertEquals(0, Window.createCount)
@@ -124,7 +124,7 @@ class MultiProvideTest {
     @Test
     fun allWindowsInCarFactory() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         assertEquals(0, Window.createCount)
@@ -142,7 +142,7 @@ class MultiProvideTest {
     @Test
     fun allWindowsInCarProvideWrapper() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         assertEquals(0, Window.createCount)
@@ -161,7 +161,7 @@ class MultiProvideTest {
     @Test
     fun createCarsWithDeps() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)
@@ -176,6 +176,7 @@ class MultiProvideTest {
         assertNotNull(car[1]!!.bumpers)
         assertNotNull(car[1]!!.wheels)
         assertNotNull(car[1]!!.windows)
+
         assertNotEquals(
             car[0]!!.windows!!.size,
             car[1]!!.windows!!.size,
@@ -186,7 +187,7 @@ class MultiProvideTest {
     @Test
     fun factoryCreatedCar() {
         //Given
-        val DI = Stone.createComponent(CarMultiComponent::class.java)
+        val DI = CarMultiComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)

@@ -4,12 +4,12 @@ import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.annotations.component.ExtendOf
 import com.github.klee0kai.test.app.di.dependencies.AppDependencyProvider
 import com.github.klee0kai.test.core.di.CoreComponent
-import com.github.klee0kai.test.core.di.wrapper.CustomWrappersStone
+import com.github.klee0kai.test.core.di.wrapper.StoneCustomWrapper
 
 
 @Component(
-    wrapperProviders = [
-        CustomWrappersStone::class,
+    wrapperHelpers = [
+        StoneCustomWrapper::class,
     ],
 )
 // TODO https://github.com/klee0kai/stone/issues/116

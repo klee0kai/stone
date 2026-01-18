@@ -6,7 +6,9 @@ import com.github.klee0kai.stone.wrappers.PhantomProvide
 import com.github.klee0kai.test.tech.components.Battery
 import com.github.klee0kai.test.tech.components.Ram
 
-@Component(wrapperProviders = [CustomWrapper::class])
+@Component(
+    wrapperHelpers = [CustomLazyWrapper::class],
+)
 interface TechFactoryComponent {
 
     fun factory(): TechFactoryModule

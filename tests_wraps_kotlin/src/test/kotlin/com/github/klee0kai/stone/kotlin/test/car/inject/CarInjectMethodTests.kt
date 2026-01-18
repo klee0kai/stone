@@ -1,14 +1,13 @@
 package com.github.klee0kai.stone.kotlin.test.car.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.inject.CarInjectComponent
+import com.github.klee0kai.test.car.di.inject.CarInjectComponentStoneComponent
 import com.github.klee0kai.test.car.model.*
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CarInjectMethodTests {
+
     @BeforeEach
     fun init() {
         Bumper.createCount = 0
@@ -20,7 +19,7 @@ class CarInjectMethodTests {
     @Test
     fun carInjectTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject = CarInject()
@@ -36,7 +35,7 @@ class CarInjectMethodTests {
     @Test
     fun carInjectReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInject()
@@ -59,7 +58,7 @@ class CarInjectMethodTests {
     @Test
     fun carInjectListTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject = CarInjectLists()
@@ -86,7 +85,7 @@ class CarInjectMethodTests {
     @Test
     fun carInjectListReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInjectLists()
@@ -115,7 +114,7 @@ class CarInjectMethodTests {
     @Test
     fun carInjectProviderTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject = CarInjectProvider()
@@ -132,7 +131,7 @@ class CarInjectMethodTests {
     @Test
     fun carInjectProvideReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInjectProvider()
@@ -153,7 +152,7 @@ class CarInjectMethodTests {
             carInject2.wheelFromMethod!!.get().uuid,
             "should cache "
         )
-        Assertions.assertNotEquals(
+        assertNotEquals(
             carInject1.windowFromMethod!!.get().value!!.uuid,
             carInject2.windowFromMethod!!.get().value!!.uuid,
             "provide via Provider. No caching"

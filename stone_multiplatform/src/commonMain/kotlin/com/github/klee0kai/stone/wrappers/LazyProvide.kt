@@ -1,0 +1,25 @@
+package com.github.klee0kai.stone.wrappers
+
+import com.github.klee0kai.stone.weakref.Ref
+
+/**
+ * Providing an object with lazy providing.
+ * The object will be provided the first time it is used.
+ * <pre>`ㅤ@Component
+ * interface Component {
+ *
+ * LazyProvide<WelcomePresenter> presenter();
+ *
+ * }
+`</pre> *
+ */
+class LazyProvide<T>(private val call: Ref<T>) : Ref<T?> {
+
+    private var value: T? = null
+
+    override fun get(): T {
+        value?.let { return it }
+        return call.get().also { value = it }
+    }
+
+}

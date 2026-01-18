@@ -1,13 +1,13 @@
 package com.github.klee0kai.stone.kotlin.test.car.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.inject.CarInjectComponent
+import com.github.klee0kai.test.car.di.inject.CarInjectComponentStoneComponent
 import com.github.klee0kai.test.car.model.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CarInjectTests {
+
     @BeforeEach
     fun init() {
         Bumper.createCount = 0
@@ -19,7 +19,7 @@ class CarInjectTests {
     @Test
     fun carInjectTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject = CarInject()
@@ -35,7 +35,7 @@ class CarInjectTests {
     @Test
     fun carInjectReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInject()
@@ -58,7 +58,7 @@ class CarInjectTests {
     @Test
     fun carInjectListTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject = CarInjectLists()
@@ -85,7 +85,7 @@ class CarInjectTests {
     @Test
     fun carInjectListReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInjectLists()
@@ -108,7 +108,7 @@ class CarInjectTests {
     @Test
     fun carInjectProviderTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject = CarInjectProvider()
@@ -125,9 +125,7 @@ class CarInjectTests {
     @Test
     fun carInjectProvideReusableTest() {
         //Given
-        val DI = Stone.createComponent(
-            CarInjectComponent::class.java
-        )
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInjectProvider()

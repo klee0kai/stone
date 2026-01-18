@@ -1,0 +1,19 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.ksp)
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation(project(":stone_multiplatform"))
+    ksp(project(":stone_ksp"))
+
+    implementation(project(":tests"))
+
+    testImplementation(libs.bundles.junit)
+}
+
+

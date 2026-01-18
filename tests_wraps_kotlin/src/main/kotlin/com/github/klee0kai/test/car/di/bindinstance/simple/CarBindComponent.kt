@@ -2,7 +2,7 @@ package com.github.klee0kai.test.car.di.bindinstance.simple
 
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.annotations.module.BindInstance
-import com.github.klee0kai.stone.wrappers.Ref
+import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Wheel
 import com.github.klee0kai.test.car.model.Window
@@ -31,11 +31,18 @@ interface CarBindComponent {
     @BindInstance
     fun bindWindowRefs(window: Collection<WeakReference<Window>>)
 
-    fun provideWheel(): Wheel
+    fun provideWheel(): Wheel?
+
     fun provideWheelRef(): Reference<Wheel?>?
+
     fun provideWheels(): List<Reference<Wheel?>?>?
+
     fun provideBumper(): Ref<Bumper?>?
+
     fun provideBumpers(): List<Bumper?>?
-    fun provideWindow(): Window
+
+    fun provideWindow(): Window?
+
     fun provideWindows(): Collection<Window?>?
+
 }

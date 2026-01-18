@@ -1,17 +1,17 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class WindowMappedReusableGcTests {
+
     @Test
     fun createWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
 
         //When
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
@@ -33,7 +33,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcAllTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }
@@ -71,7 +71,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }
@@ -108,7 +108,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcSoftTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }
@@ -145,7 +145,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }
@@ -182,7 +182,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcWindows() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }
@@ -219,7 +219,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcWindowsAndWheels() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }
@@ -256,7 +256,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcWheelsTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }
@@ -293,7 +293,7 @@ class WindowMappedReusableGcTests {
     @Test
     fun gcNothing() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowsFactory1 = DI.windowsMappedModule()!!.windowFactory("1").get()!!.map { it.uuid }
         val windowWeak1 = DI.windowsMappedModule()!!.windowWeak("1").get()!!.map { it.uuid }
         val windowSoft1 = DI.windowsMappedModule()!!.windowSoft("1").get()!!.map { it.uuid }

@@ -9,12 +9,13 @@ import java.lang.ref.WeakReference
 
 @Module
 interface CarBindModule {
-    @BindInstance
-    fun wheel(): Wheel
 
     @BindInstance
-    fun bumper(): WeakReference<Bumper>
+    fun wheel(): Wheel?
 
     @BindInstance
-    fun windows(): WeakReference<List<Window>>
+    fun bumper(): WeakReference<Bumper?>?
+
+    @BindInstance
+    fun windows(): WeakReference<List<Window>>?
 }
