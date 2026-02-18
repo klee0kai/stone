@@ -301,7 +301,7 @@ class ModulesGraph(
             )
 
         } else {
-            codeBlock.add(".first() ")
+            codeBlock.add(if (providingType.isNullable) ".firstOrNull()" else ".first() ")
 
             return wrapHelper.transform(
                 providingType,

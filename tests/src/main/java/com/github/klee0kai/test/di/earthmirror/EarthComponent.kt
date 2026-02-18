@@ -5,7 +5,8 @@ import com.github.klee0kai.test.mowgli.earth.Cave.CaveType
 
 @Component(identifiers = [CaveType::class, Int::class])
 interface EarthComponent {
-    fun east(): EastModule?
 
-    fun west(): WestModule?
+    fun east(): EastModule
+
+    fun west(): WestModule
 }

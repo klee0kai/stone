@@ -22,9 +22,9 @@ interface HouseComponent {
 
     fun house(): House?
 
-    fun sanitizers(): Sanitizers?
+    fun sanitizers(): Sanitizers
 
-    fun house(type: StoreAreaType?): House?
+    fun house(type: StoreAreaType?): House
 
     fun inject(storeAreaType: StoreAreaType?, inHouse: InHouse?)
 
