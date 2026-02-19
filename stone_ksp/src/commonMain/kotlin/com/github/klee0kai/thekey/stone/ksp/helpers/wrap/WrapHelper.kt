@@ -1,6 +1,8 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.wrap
 
 import com.github.klee0kai.stone.weakref.Ref
+import com.github.klee0kai.stone.weakref.SoftRef
+import com.github.klee0kai.stone.weakref.WeakRef
 import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.stone.wrappers.PhantomProvide
@@ -217,6 +219,38 @@ class WrapHelper {
             support(wrapType)
         }
 
+
+        for (cl in listOf(
+            WeakRef::class,
+            SoftRef::class,
+            Ref::class,
+        )) {
+            val creator =  cl.asClassName()
+
+            val wrapType = WrapType(
+                typeName = creator,
+                isNoCachingWrapper = false,
+                wrap = { or, srcNullable, targetNullable, argTypeNullable ->
+                    codeBlock {
+                        when {
+                            !srcNullable -> add("%T( %L )", creator, or)
+                            targetNullable -> add("%L?.let{ %T( it ) }", or, creator)
+                            else -> add("%T( %L!! )", creator, or)
+                        }
+                    }
+                },
+                unwrap = { or, srcNullable, targetNullable ->
+                    codeBlock {
+                        when {
+                            targetNullable -> add("%L?.get()", or)
+                            else -> add("%L!!.get()!!", or)
+                        }
+                    }
+                }
+            )
+            support(wrapType)
+        }
+
         for (cl in listOf(
             Lazy::class,
         )) {
@@ -247,7 +281,6 @@ class WrapHelper {
 
         for (cl in listOf(
             PhantomProvide::class,
-            Ref::class,
             Provider::class,
             LazyProvide::class,
             AsyncCoroutineProvide::class

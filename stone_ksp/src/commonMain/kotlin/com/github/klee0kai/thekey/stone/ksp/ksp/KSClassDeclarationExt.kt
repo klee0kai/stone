@@ -17,9 +17,9 @@ fun KSTypeReference.resolveNotNullable(): KSType = resolve().makeNotNullable().u
 
 fun KSType.unwrapAlias(): KSType {
     var current: KSType = this
-    while (current.declaration is KSTypeAlias) {
+    if (current.declaration is KSTypeAlias) {
         val alias = current.declaration as KSTypeAlias
-        current = alias.type.resolve()
+        current = alias.type.resolve().replace(current.arguments)
     }
     return current
 }
