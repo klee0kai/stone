@@ -2,9 +2,6 @@ package com.github.klee0kai.stone.test.bindinstance.solarsystem
 
 import com.github.klee0kai.test.di.bindinstance.solarsystem.SolarSystemComponentStoneComponent
 import com.github.klee0kai.test.mowgli.galaxy.SolarSystem
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Test
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

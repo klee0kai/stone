@@ -5,9 +5,6 @@ import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
 import com.github.klee0kai.test.mowgli.animal.Horse
 import com.github.klee0kai.test.mowgli.animal.Mowgli
 import com.github.klee0kai.test.mowgli.animal.Snake
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

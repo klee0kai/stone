@@ -24,6 +24,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
+import com.github.klee0kai.thekey.stone.ksp.ksp.cacheProtected
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.*
@@ -144,10 +145,10 @@ class GenModuleProcessor : TargetFileProcessor {
                                     fieldName = "${function.simpleName.asString()}$holderIdx",
                                     returnType = returnType,
                                     idArguments = idArguments,
-                                    cacheType = bindAnn.cache.toItemCacheType(),
+                                    cacheType = bindAnn.cacheProtected.toItemCacheType(),
                                     wrapHelper = wrapHelper,
                                 )
-                                gcScopes += bindAnn.cache.toItemCacheType().gcScopeClassName
+                                gcScopes += bindAnn.cacheProtected.toItemCacheType().gcScopeClassName
                                 codeBlocks.switchRefStatementBuilders.getOrPut(gcScopes) { CodeBlock.builder() }
                                     .add(itemHolderCodeHelper.statementSwitchRef(CodeBlock.of("__params")))
 
@@ -184,7 +185,7 @@ class GenModuleProcessor : TargetFileProcessor {
 
                             }
 
-                            provideAnn == null || provideAnn.cache == Provide.CacheType.Factory -> {
+                            provideAnn == null || provideAnn.cacheProtected == Provide.CacheType.Factory -> {
                                 genOverrideFun(function) {
                                     addStatement(
                                         "return %L.%L(%L)", factoryFieldName,
@@ -210,10 +211,10 @@ class GenModuleProcessor : TargetFileProcessor {
                                     fieldName = "${function.simpleName.asString()}$holderIdx",
                                     returnType = returnType,
                                     idArguments = idArguments,
-                                    cacheType = provideAnn.cache.toItemCacheType() ?: return@forEachFun,
+                                    cacheType = provideAnn.cacheProtected.toItemCacheType() ?: return@forEachFun,
                                     wrapHelper = wrapHelper,
                                 )
-                                gcScopes += provideAnn.cache.toItemCacheType()!!.gcScopeClassName
+                                gcScopes += provideAnn.cacheProtected.toItemCacheType()!!.gcScopeClassName
                                 codeBlocks.switchRefStatementBuilders.getOrPut(gcScopes) { CodeBlock.builder() }
                                     .add(itemHolderCodeHelper.statementSwitchRef(CodeBlock.of("__params")))
                                 codeBlocks.clearNullsMethodBody.add(itemHolderCodeHelper.clearNullsStatement())

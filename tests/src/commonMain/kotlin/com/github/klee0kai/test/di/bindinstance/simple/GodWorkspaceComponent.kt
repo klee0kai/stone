@@ -7,10 +7,12 @@ import com.github.klee0kai.test.mowgli.galaxy.IPlanet
 import com.github.klee0kai.test.mowgli.galaxy.Saturn
 import com.github.klee0kai.test.mowgli.galaxy.Sun
 
+expect fun genGodWorkspaceComponent(): GodWorkspaceComponent
+
 @Component
 interface GodWorkspaceComponent {
 
-    fun sunSystem(): SunSystemModule?
+    fun sunSystem(): SunSystemModule
 
     @BindInstance
     fun bindPlanet(planet: IPlanet?)

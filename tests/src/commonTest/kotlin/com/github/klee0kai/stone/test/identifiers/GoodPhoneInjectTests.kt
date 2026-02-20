@@ -4,8 +4,6 @@ import com.github.klee0kai.test.di.base_phone.PhoneComponentStoneComponent
 import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
 import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
 import com.github.klee0kai.test.tech.phone.GoodPhone
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

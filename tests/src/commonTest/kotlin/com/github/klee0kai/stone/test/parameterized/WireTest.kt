@@ -3,10 +3,6 @@ package com.github.klee0kai.stone.test.parameterized
 import com.github.klee0kai.test.di.wire.WireComponentStoneComponent
 import com.github.klee0kai.test.wire.Wire
 import com.github.klee0kai.test.wire.types.MiniUsb
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

@@ -6,10 +6,6 @@ import com.github.klee0kai.test.di.bindinstance.singlemethod_inject.StarSkyCompo
 import com.github.klee0kai.test.mowgli.MoonSky
 import com.github.klee0kai.test.mowgli.galaxy.Mercury
 import com.github.klee0kai.test.mowgli.galaxy.Sun
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
-import java.lang.ref.WeakReference
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull

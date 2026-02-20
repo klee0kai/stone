@@ -2,7 +2,6 @@ package com.github.klee0kai.stone.test.inject
 
 import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
 import com.github.klee0kai.test.mowgli.animal.Mowgli
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

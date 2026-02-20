@@ -3,8 +3,6 @@ package com.github.klee0kai.stone.test.identifiers
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
 import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponentStoneComponent
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Test
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
 

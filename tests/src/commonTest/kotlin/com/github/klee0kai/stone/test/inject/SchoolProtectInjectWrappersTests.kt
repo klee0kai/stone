@@ -3,10 +3,6 @@ package com.github.klee0kai.stone.test.inject
 import com.github.klee0kai.stone.weakref.WeakRef
 import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
 import com.github.klee0kai.test.mowgli.School
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
-import java.lang.ref.WeakReference
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull

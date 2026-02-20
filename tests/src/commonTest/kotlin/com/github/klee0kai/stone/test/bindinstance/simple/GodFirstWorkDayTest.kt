@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.test.bindinstance.simple
 
-import com.github.klee0kai.test.di.bindinstance.simple.GodWorkspaceComponentStoneComponent
+import com.github.klee0kai.test.di.bindinstance.simple.genGodWorkspaceComponent
 import com.github.klee0kai.test.mowgli.galaxy.Earth
 import com.github.klee0kai.test.mowgli.galaxy.Saturn
 import com.github.klee0kai.test.mowgli.galaxy.Sun
@@ -13,7 +13,7 @@ class GodFirstWorkDayTest {
     @Test
     fun firstCreateSunTest() {
         //Given
-        val DI = GodWorkspaceComponentStoneComponent()
+        val DI = genGodWorkspaceComponent()
         val sun = Sun()
 
         //When
@@ -28,7 +28,7 @@ class GodFirstWorkDayTest {
     @Test
     fun createSunAndEarthTest() {
         //Given
-        val DI = GodWorkspaceComponentStoneComponent()
+        val DI = genGodWorkspaceComponent()
         val sun = Sun()
         val earth = Earth()
 
@@ -46,7 +46,7 @@ class GodFirstWorkDayTest {
     @Test
     fun createSunEarthSaturnTest() {
         //Given
-        val DI = GodWorkspaceComponentStoneComponent()
+        val DI = genGodWorkspaceComponent()
         val sun = Sun()
         val earth = Earth()
         val saturn = Saturn()
@@ -67,7 +67,7 @@ class GodFirstWorkDayTest {
     @Test
     fun createSaturnEarthSunTest() {
         //Given
-        val DI = GodWorkspaceComponentStoneComponent()
+        val DI = genGodWorkspaceComponent()
         val sun = Sun()
         val earth = Earth()
         val saturn = Saturn()

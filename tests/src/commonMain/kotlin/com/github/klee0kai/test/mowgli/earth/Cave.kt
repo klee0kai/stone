@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.github.klee0kai.test.mowgli.earth
 
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class Cave : IMountain {

@@ -3,15 +3,7 @@ package com.github.klee0kai.stone.test.deps
 import com.github.klee0kai.test.di.house.simple.HouseComponentStoneComponent
 import com.github.klee0kai.test.house.InHouse
 import com.github.klee0kai.test.house.identifiers.StoreAreaType
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 class InHouseTests {
 

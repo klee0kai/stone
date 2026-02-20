@@ -223,7 +223,6 @@ class WrapHelper {
         for (cl in listOf(
             WeakRef::class,
             SoftRef::class,
-            Ref::class,
         )) {
             val creator =  cl.asClassName()
 
@@ -281,6 +280,7 @@ class WrapHelper {
 
         for (cl in listOf(
             PhantomProvide::class,
+            Ref::class,
             Provider::class,
             LazyProvide::class,
             AsyncCoroutineProvide::class

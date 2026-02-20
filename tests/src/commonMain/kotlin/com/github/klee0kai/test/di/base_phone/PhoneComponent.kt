@@ -15,6 +15,7 @@ import com.github.klee0kai.test.tech.phone.OnePhone
     ]
 )
 interface PhoneComponent {
+    
     fun components(): TechModule?
 
     fun inject(onePhone: OnePhone?)

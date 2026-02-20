@@ -4,10 +4,6 @@ import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion
 import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
 import com.github.klee0kai.test.di.techfactory.TechFactoryComponentStoneComponent
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

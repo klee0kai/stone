@@ -2,10 +2,6 @@ package com.github.klee0kai.stone.test.gc
 
 import com.github.klee0kai.stone.weakref.WeakRef
 import com.github.klee0kai.test.di.gcforest.GcGodComponentStoneComponent
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
-import org.junit.jupiter.api.assertNull
-import java.lang.ref.WeakReference
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull

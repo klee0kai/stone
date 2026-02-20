@@ -4,7 +4,6 @@ import com.github.klee0kai.test.di.bindinstance.simple_inject.SevenPlanetCompone
 import com.github.klee0kai.test.mowgli.MoonSky
 import com.github.klee0kai.test.mowgli.galaxy.Earth
 import com.github.klee0kai.test.mowgli.galaxy.Mercury
-import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
