@@ -11,4 +11,4 @@ package com.github.klee0kai.stone.weakref
  * implementation should be thread safe. The implementation of the scope
  * itself is left up to the injector.
  */
-expect annotation class Scope()
+annotation class Scope

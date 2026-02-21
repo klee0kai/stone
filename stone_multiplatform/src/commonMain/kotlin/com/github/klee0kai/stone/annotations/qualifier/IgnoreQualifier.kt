@@ -1,7 +1,5 @@
 package com.github.klee0kai.stone.annotations.qualifier
 
-import com.github.klee0kai.stone.weakref.Qualifier
-
 /**
  * For dependencies, we ignore all qualifier rules.
  * If we collect dependencies into a collection, all available implementations with all qualifiers will be collected.

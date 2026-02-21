@@ -7,7 +7,9 @@ actual class SoftRef<T : Any?> actual constructor(value: T) : Ref<T?>, AutoClose
 
     init {
         val hasWeakRef = js("typeof WeakRef !== 'undefined'") as Boolean
-        if (hasWeakRef) {
+        val isObject = value != null && jsTypeOf(value) == "object"
+
+        if (hasWeakRef && isObject) {
             weakRefDynamic = js("new WeakRef")(value)
             strongFallback = null
         } else {

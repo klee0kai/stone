@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.github.klee0kai.test.wire.types
 
-import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class MiniUsb {
-    val uuid: UUID = UUID.randomUUID()
+    val uuid: String = Uuid.random().toString()
 }

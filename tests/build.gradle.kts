@@ -16,13 +16,25 @@ kotlin {
     wasmJs()
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(project(":stone_multiplatform"))
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":stone_multiplatform"))
+            }
+        }
 
+//        val linuxMain by getting
+
+        val jsMain by getting
+        val wasmJsMain by getting
+
+
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
         }
-        commonTest.dependencies {
-            implementation(kotlin("test"))
-        }
+
+
     }
 }
 

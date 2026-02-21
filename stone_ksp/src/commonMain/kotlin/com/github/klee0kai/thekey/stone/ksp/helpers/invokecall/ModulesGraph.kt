@@ -15,6 +15,7 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.identifierParameters
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.*
 import com.github.klee0kai.thekey.stone.ksp.helpers.qualifierAnnotations
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
+import com.github.klee0kai.thekey.stone.ksp.ksp.cacheProtected
 import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
 import com.github.klee0kai.thekey.stone.ksp.ksp.isNotPrimitive
 import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
@@ -67,7 +68,7 @@ class ModulesGraph(
                     val returnType = m.returnType?.resolveNotNullable()?.toTypeName() ?: continue
                     val provTypeName = wrapHelper.nonWrappedType(returnType)
                     val isCached = m.getAnnotationsByType(Provide::class)
-                        .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)
+                        .firstOrNull()?.cacheProtected !in listOf(Provide.CacheType.Factory, null)
                     val isBindInstance = m.getAnnotationsByType(BindInstance::class).firstOrNull() != null
 
                     provideTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())
@@ -118,7 +119,7 @@ class ModulesGraph(
 
                 val provTypeName = wrapHelper.nonWrappedType(returnType)
                 val isCached = componentMethod.getAnnotationsByType(Provide::class)
-                    .firstOrNull()?.cache !in listOf(Provide.CacheType.Factory, null)
+                    .firstOrNull()?.cacheProtected !in listOf(Provide.CacheType.Factory, null)
                 val isBindInstance = componentMethod.getAnnotationsByType(BindInstance::class).firstOrNull() != null
 
                 provideTypeCodes.putIfAbsent(provTypeName, HashSet<InvokeCall>())

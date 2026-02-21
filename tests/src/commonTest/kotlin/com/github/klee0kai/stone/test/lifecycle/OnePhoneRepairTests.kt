@@ -4,7 +4,6 @@ import com.github.klee0kai.stone.weakref.Memory
 import com.github.klee0kai.stone.weakref.WeakRef
 import com.github.klee0kai.test.di.base_phone.PhoneComponentStoneComponent
 import com.github.klee0kai.test.tech.phone.OnePhone
-import java.util.*
 import kotlin.test.*
 
 /**
@@ -49,7 +48,7 @@ class OnePhoneRepairTests {
     }
 
     @Test
-    @Throws(InterruptedException::class)
+//    @Throws(InterruptedException::class)
     fun onePhoneDropWatterTest() {
         //Given
         val DI = PhoneComponentStoneComponent()
