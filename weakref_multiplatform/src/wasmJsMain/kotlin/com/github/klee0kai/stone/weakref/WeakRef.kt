@@ -4,7 +4,7 @@ import js.WeakRef as JsWeakRef
 
 actual class WeakRef<T : Any?> actual constructor(value: T) : Ref<T?>, AutoCloseable {
 
-    var weakRef: JsWeakRef<T>? = JsWeakRef(value)
+    var weakRef = value?.let { JsWeakRef(value) }
 
     actual override fun get(): T? = weakRef?.deref()
 

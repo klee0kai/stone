@@ -13,7 +13,10 @@ kotlin {
 
     linuxX64()
     mingwX64()
-    wasmJs()
+    wasmJs {
+        browser()
+        nodejs()
+    }
 
     sourceSets {
         val commonMain by getting {
@@ -31,7 +34,6 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-
 
     }
 }

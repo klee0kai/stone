@@ -16,7 +16,10 @@ kotlin {
 
     linuxX64()
     mingwX64()
-    wasmJs()
+    wasmJs {
+        browser()
+        nodejs()
+    }
 
     sourceSets {
         commonMain.dependencies {

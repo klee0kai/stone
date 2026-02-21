@@ -1,6 +1,5 @@
 package com.github.klee0kai.stone.test.inject
 
-import com.github.klee0kai.stone.weakref.Memory
 import com.github.klee0kai.stone.weakref.WeakRef
 import com.github.klee0kai.test.di.base_forest.ForestComponentStoneComponent
 import com.github.klee0kai.test.mowgli.animal.Horse
@@ -8,26 +7,32 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class HorseProtectInjectTests {
+class HorseProtectInjectGcTests {
+
 
     @Test
-    fun withoutProtectInjectTest() {
+    fun withProtectInjectTest() {
         // Given
         val DI = ForestComponentStoneComponent()
         var horse: Horse? = Horse()
 
-
         //When
         DI.inject(
             horse,
-            stoneLifeCycleOwner = { }
+            stoneLifeCycleOwner = {}
         )
 
-        val historyWeakReference = WeakRef(horse?.history)
+        val historyWeakReference = WeakRef(horse!!.history)
+        DI.protectInjected(horse)
         horse = null
-        Memory.gc()
+        DI.gcAll()
 
-        //Then: without protect all not uses should be garbage collected
+        //Then
+        assertNotNull(historyWeakReference.get())
+
+        //after protect finished
+        Thread.sleep(50)
+        DI.gcAll()
         assertNull(historyWeakReference.get())
     }
 

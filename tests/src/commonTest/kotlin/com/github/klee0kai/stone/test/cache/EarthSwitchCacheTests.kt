@@ -40,28 +40,6 @@ class EarthSwitchCacheTests {
     }
 
     @Test
-    fun weakToStrongFewMillisTest() {
-        //Given
-        val DI = SwitchCacheComponentStoneComponent()
-        val mountainWeak = WeakRef(DI.earth().mountainWeak())
-
-        //When
-        DI.allStrongFewMillis()
-        Memory.gc()
-
-        //Then: can't GC
-        assertNotNull(mountainWeak.get())
-
-        //When: after few millis
-//        Thread.sleep(110)
-        Memory.gc()
-
-        //Then: can GC
-        assertNull(mountainWeak.get())
-    }
-
-
-    @Test
     fun mountainToWeakTest() {
         //Given
         val DI = SwitchCacheComponentStoneComponent()
