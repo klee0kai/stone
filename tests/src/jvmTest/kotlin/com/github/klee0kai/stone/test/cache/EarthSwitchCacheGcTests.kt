@@ -11,6 +11,52 @@ class EarthSwitchCacheGcTests {
 
 
     @Test
+    fun allToWeakTest() {
+        //Given
+        val DI = SwitchCacheComponentStoneComponent()
+        val mountain = WeakRef(DI.earth().mountainStrong())
+
+        //When
+        DI.allWeak()
+        Memory.gc()
+
+        //Then
+        assertNull(mountain.get())
+    }
+
+    @Test
+    fun strongToWeakTest() {
+        //Given
+        val DI = SwitchCacheComponentStoneComponent()
+        val mountainStrong = WeakRef(DI.earth().mountainStrong())
+        val mountainSoft = WeakRef(DI.earth().mountainSoft())
+
+        //When
+        DI.strongToWeak()
+        Memory.gc()
+
+        //Then
+        assertNull(mountainStrong.get())
+        assertNotNull(mountainSoft.get())
+    }
+
+    @Test
+    fun mountainToWeakTest() {
+        //Given
+        val DI = SwitchCacheComponentStoneComponent()
+        val mountain = WeakRef(DI.earth().mountainStrong())
+        val river = WeakRef(DI.earth().riverSoft())
+
+        //When
+        DI.mountainToWeak()
+        Memory.gc()
+
+        //Then
+        assertNull(mountain.get())
+        assertNotNull(river.get())
+    }
+
+    @Test
     fun weakToStrongFewMillisTest() {
         //Given
         val DI = SwitchCacheComponentStoneComponent()

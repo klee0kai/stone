@@ -14,6 +14,42 @@ import kotlin.test.*
 class GoodPhoneRepairGcTests {
 
 
+    @Test
+    fun goodPhoneInjectTest() {
+        //Given
+        val DI = PhoneComponentStoneComponent()
+
+        //When buy
+        val goodPhone = GoodPhone()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
+
+        //Then
+        assertNotNull(goodPhone.battery)
+        assertNotNull(goodPhone.dataStorage)
+        assertNotNull(goodPhone.ram)
+    }
+
+    @Test
+    fun goodPhoneBrokeTest() {
+        //Given
+        val DI = PhoneComponentStoneComponent()
+        val goodPhone = GoodPhone()
+        DI.inject(goodPhone, goodPhone.lifeCycleOwner, DataStorageSize("64G"), RamSize("4G"))
+        val batteryRef = WeakRef(goodPhone.battery)
+        val dataStorageRef = WeakRef(goodPhone.dataStorage)
+        val ramRef = WeakRef(goodPhone.ram)
+
+        //When broke and repair
+        goodPhone.broke()
+        Memory.gc()
+        DI.inject(goodPhone, DataStorageSize("64G"), RamSize("4G"))
+
+        //Then: Need new details for repair phone. Old components collected  by GC
+        assertNull(batteryRef.get())
+        assertNull(dataStorageRef.get())
+        assertNull(ramRef.get())
+    }
+
 
     @Test
     fun goodPhoneDropWatterGcTest() {
