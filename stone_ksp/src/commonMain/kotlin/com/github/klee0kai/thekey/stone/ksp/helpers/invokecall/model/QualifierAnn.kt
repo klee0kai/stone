@@ -1,6 +1,7 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model
 
 import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
+import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
@@ -23,7 +24,7 @@ fun QualifierAnn.Companion.ignoreQualifier(
 
 fun KSAnnotation.toQualifierAnn(
 ) = QualifierAnn(
-    typeName = annotationType.resolve().toClassName(),
+    typeName = annotationType.resolveAlias().toClassName(),
     values = arguments.map { it.name?.asString()!! to it.value }.groupBy { it.first },
 )
 

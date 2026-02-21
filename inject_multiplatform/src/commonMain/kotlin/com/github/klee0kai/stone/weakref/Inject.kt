@@ -8,4 +8,4 @@ package com.github.klee0kai.stone.weakref
  * in superclasses are injected before those in subclasses. Ordering of
  * injection among fields and among methods in the same class is not specified.
  */
-expect annotation class Inject()
+annotation class Inject

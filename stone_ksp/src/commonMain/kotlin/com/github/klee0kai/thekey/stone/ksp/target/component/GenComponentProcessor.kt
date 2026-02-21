@@ -22,12 +22,10 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.ModulesGraph
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.toFieldDetail
 import com.github.klee0kai.thekey.stone.ksp.helpers.invokecall.model.toQualifierAnn
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
+import com.github.klee0kai.thekey.stone.ksp.ksp.*
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
-import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveAlias
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.*
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
 import com.google.devtools.ksp.KspExperimental
@@ -441,7 +439,11 @@ class GenComponentProcessor : TargetFileProcessor {
 
 
                 for (injectField in injectableCl.getAllProperties()) {
-                    if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
+                    if (!injectField.anyAnnotation(
+                            Inject::class.asClassName(),
+                            javax.inject.Inject::class.asClassName()
+                        ).any()
+                    ) continue
 
                     val provideCode = modulesGraph.codeProvideType(
                         methodName = null,
@@ -469,7 +471,11 @@ class GenComponentProcessor : TargetFileProcessor {
                 }
 
                 for (injectMethod in injectableCl.getAllMethods(false, false, "<init>")) {
-                    if (!injectMethod.anyAnnotation(Inject::class.asClassName()).any()) continue
+                    if (!injectMethod.anyAnnotation(
+                            Inject::class.asClassName(),
+                            javax.inject.Inject::class.asClassName()
+                        ).any()
+                    ) continue
                     val providingArgsCode = CodeBlock.builder()
                     for (injectField in injectMethod.parameters) {
                         val provideCode = modulesGraph.codeProvideType(
@@ -516,7 +522,11 @@ class GenComponentProcessor : TargetFileProcessor {
                         lifeCycleOwnerArg.name!!.asString(),
                     )
                     for (injectField in injectableCl.getAllProperties()) {
-                        if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
+                        if (!injectField.anyAnnotation(
+                                Inject::class.asClassName(),
+                                javax.inject.Inject::class.asClassName()
+                            ).any()
+                        ) continue
                         if (wrapHelper.isNonCachingWrapper(injectField.type.resolveNotNullable().toClassName())) {
                             //nothing to protect
                             continue
@@ -548,7 +558,7 @@ class GenComponentProcessor : TargetFileProcessor {
         wrapHelper: WrapHelper,
     ) {
         val protectTimeMillis = method.getAnnotationsByType(ProtectInjected::class)
-            .firstOrNull()?.timeMillis
+            .firstOrNull()?.timeMillisProtected
             ?: throw IncorrectSignatureException(
                 message = "Use ProtectInjected annotation at method ${componentCl.simpleName.asString()}.${method.simpleName.asString()}",
                 element = method,
@@ -573,7 +583,12 @@ class GenComponentProcessor : TargetFileProcessor {
 
 
                 for (injectField in injectableCl.getAllProperties()) {
-                    if (!injectField.anyAnnotation(Inject::class.asClassName()).any()) continue
+                    if (!injectField.anyAnnotation(
+                            Inject::class.asClassName(),
+                            javax.inject.Inject::class.asClassName()
+                        ).any()
+                    ) continue
+
                     if (wrapHelper.isNonCachingWrapper(injectField.type.resolveNotNullable().toTypeName())) {
                         //nothing to protect
                         continue
@@ -653,8 +668,8 @@ class GenComponentProcessor : TargetFileProcessor {
             addStatement(
                 "val switchCacheParams = %T( %T.%L , %L )",
                 SwitchCacheParam::class,
-                SwitchCache.CacheType::class, switchCacheAnn.cache.name,
-                switchCacheAnn.timeMillis,
+                SwitchCache.CacheType::class, switchCacheAnn.cacheProtected.name,
+                switchCacheAnn.timeMillisProtected,
             )
 
             addStatement(

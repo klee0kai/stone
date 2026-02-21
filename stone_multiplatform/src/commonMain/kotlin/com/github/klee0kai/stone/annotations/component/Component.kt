@@ -231,7 +231,6 @@ annotation class Component(
      */
     val identifiers: Array<KClass<*>> = [],
 
-
     /**
      * TODO Kdoc
      */

@@ -29,4 +29,4 @@ package com.github.klee0kai.stone.weakref
  *
  * @see [Named]
  */
-expect annotation class Qualifier()
+annotation class Qualifier

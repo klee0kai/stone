@@ -6,11 +6,15 @@ import kotlin.test.assertNull
 
 class WeakRefTests {
 
+    class TestClass(
+        val string: String,
+    )
+
     @Test
     fun clearRefTest() {
-        val ref = WeakRef("some text")
+        val ref = WeakRef(TestClass("some text"))
 
-        assertEquals("some text", ref.get())
+        assertEquals("some text", ref.get()?.string)
 
         ref.clear()
 

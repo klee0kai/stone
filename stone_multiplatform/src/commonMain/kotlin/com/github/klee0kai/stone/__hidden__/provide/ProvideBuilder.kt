@@ -8,10 +8,17 @@ class ProvideBuilder<T>(
         fun provide(consumer: ProvideConsumer<T>)
     }
 
-    fun first(): T? {
+    fun firstOrNull(): T? {
         val consumer = ProvideConsumer<T>()
         provideBody.provide(consumer)
         return consumer.first
+    }
+
+
+    fun first(): T {
+        val consumer = ProvideConsumer<T>()
+        provideBody.provide(consumer)
+        return consumer.first!!
     }
 
     fun all(): List<T> {

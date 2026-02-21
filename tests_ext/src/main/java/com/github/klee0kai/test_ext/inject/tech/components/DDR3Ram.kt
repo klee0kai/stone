@@ -1,12 +1,15 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.github.klee0kai.test_ext.inject.tech.components
 
 import com.github.klee0kai.test.di.base_phone.identifiers.RamSize
 import com.github.klee0kai.test.tech.components.Ram
 import com.github.klee0kai.test_ext.inject.di.techfactory.identifiers.Frequency
-import java.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class DDR3Ram : Ram {
-    override val uuid: UUID = UUID.randomUUID()
+    override val uuid: String = Uuid.random().toString()
 
     val frequency: String?
 

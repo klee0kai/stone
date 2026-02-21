@@ -1,39 +1,19 @@
 package com.github.klee0kai.stone.weakref
 
+import js.WeakRef as JsWeakRef
+
 actual class WeakRef<T : Any?> actual constructor(value: T) : Ref<T?>, AutoCloseable {
 
-    private var weakRefDynamic: dynamic = null
-    private var strongFallback: T? = null
+    var weakRef: JsWeakRef<T>? = JsWeakRef(value)
 
-    init {
-        val hasWeakRef = js("typeof WeakRef !== 'undefined'") as Boolean
-        if (hasWeakRef) {
-            weakRefDynamic = js("new WeakRef")(value)
-            strongFallback = null
-        } else {
-            weakRefDynamic = null
-            strongFallback = value
-        }
-    }
-
-
-    actual override fun get(): T? {
-        return if (weakRefDynamic != null) {
-            val derefResult = weakRefDynamic.deref?.invoke()
-            derefResult as T?
-        } else {
-            strongFallback
-        }
-    }
+    actual override fun get(): T? = weakRef?.deref()
 
     actual fun clear() {
-        weakRefDynamic = null
-        strongFallback = null
+        weakRef = null
     }
 
     actual override fun close() {
-        weakRefDynamic = null
-        strongFallback = null
+        weakRef = null
     }
 
 }

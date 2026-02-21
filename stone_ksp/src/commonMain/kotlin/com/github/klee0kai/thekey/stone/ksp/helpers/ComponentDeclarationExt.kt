@@ -7,7 +7,6 @@ import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
 import com.github.klee0kai.stone.weakref.Named
 import com.github.klee0kai.stone.weakref.Qualifier
-import com.github.klee0kai.stone.weakref.Scope
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnnotation
 import com.github.klee0kai.thekey.stone.ksp.ksp.isAnyType
 import com.github.klee0kai.thekey.stone.ksp.ksp.isChildOf
@@ -18,6 +17,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
+import com.github.klee0kai.stone.weakref.Scope as StoneScope
 
 fun Resolver.findComponentForModuleOrDep(
     moduleCl: ClassName,
@@ -75,7 +75,7 @@ val KSAnnotated.scopeAnnotations: Sequence<KSAnnotation>
                     || funAnnotation.annotationType.resolveNotNullable().declaration.annotations.any { annotationOfAnnotation ->
                 annotationOfAnnotation.annotationType.resolveNotNullable().declaration.isAnyType(
                     GcScopeAnnotation::class,
-                    Scope::class,
+                    StoneScope::class,
                     javax.inject.Scope::class
                 )
             }
@@ -86,13 +86,17 @@ val KSAnnotated.qualifierAnnotations: Sequence<KSAnnotation>
     get() {
         val standardQualifierAnnotations = listOf(
             Named::class,
+            javax.inject.Named::class,
             IgnoreQualifier::class,
         )
 
         return annotations.filter { funAnnotation ->
             standardQualifierAnnotations.any { funAnnotation.annotationType.resolveNotNullable().declaration.isType(it) }
                     || funAnnotation.annotationType.resolveNotNullable().declaration.annotations.any { annotationOfAnnotation ->
-                annotationOfAnnotation.annotationType.resolveNotNullable().declaration.isType(Qualifier::class)
+                annotationOfAnnotation.annotationType.resolveNotNullable().declaration.isAnyType(
+                    Qualifier::class,
+                    javax.inject.Qualifier::class
+                )
             }
         }
     }
