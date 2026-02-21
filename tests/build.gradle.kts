@@ -22,8 +22,6 @@ kotlin {
             }
         }
 
-//        val linuxMain by getting
-
         val jsMain by getting
         val wasmJsMain by getting
 
