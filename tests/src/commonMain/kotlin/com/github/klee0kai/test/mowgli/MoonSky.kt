@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.mowgli
 
-import com.github.klee0kai.stone.weakref.Inject
+import com.github.klee0kai.stone.Inject
 import com.github.klee0kai.test.mowgli.galaxy.*
 import kotlin.jvm.JvmField
 

@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.core.di.wrapper
 
 import com.github.klee0kai.stone.annotations.wrappers.WrappersHelper
-import com.github.klee0kai.stone.weakref.Provider
+import com.github.klee0kai.stone.Provider
 
 @WrappersHelper
 object StoneCustomWrapper {

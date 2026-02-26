@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.weakref
+package com.github.klee0kai.stone
 
 /**
  * Provides instances of [T]. Typically implemented by an injector. For

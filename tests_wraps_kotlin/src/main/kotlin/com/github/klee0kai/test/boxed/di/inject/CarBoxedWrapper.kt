@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.boxed.di.inject
 
 import com.github.klee0kai.stone.annotations.wrappers.WrappersHelper
-import com.github.klee0kai.stone.weakref.Provider
+import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.test.car.di.wrapped.custom.wrappers.CarLazy
 import com.github.klee0kai.test.car.di.wrapped.custom.wrappers.CarProvide
 

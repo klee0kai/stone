@@ -2,7 +2,7 @@ package com.github.klee0kai.test.di.techfactory
 
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
-import com.github.klee0kai.stone.weakref.Named
+import com.github.klee0kai.stone.Named
 import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion

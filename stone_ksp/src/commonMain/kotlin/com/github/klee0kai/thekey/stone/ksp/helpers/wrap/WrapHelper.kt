@@ -1,6 +1,6 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.wrap
 
-import com.github.klee0kai.stone.weakref.Provider
+import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.weakref.SoftRef
 import com.github.klee0kai.stone.weakref.WeakRef

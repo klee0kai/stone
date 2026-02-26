@@ -1,7 +1,7 @@
 package com.github.klee0kai.test.mowgli
 
-import com.github.klee0kai.stone.weakref.Inject
-import com.github.klee0kai.stone.weakref.Provider
+import com.github.klee0kai.stone.Inject
+import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.stone.wrappers.PhantomProvide

@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.di.gcforest.scopes
 
-import com.github.klee0kai.stone.weakref.Scope
+import com.github.klee0kai.stone.Scope
 
 
 @Scope

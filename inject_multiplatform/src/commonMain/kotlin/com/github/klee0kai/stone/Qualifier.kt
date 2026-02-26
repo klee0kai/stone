@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.weakref
+package com.github.klee0kai.stone
 
 /**
  * Identifies qualifier annotations. Anyone can define a new qualifier. A
