@@ -1,5 +1,7 @@
 package com.github.klee0kai.stone.annotations.module
 
+import kotlin.reflect.KClass
+
 /**
  * Providing objects.
  * This annotation marks the methods in the module for providing objects.
@@ -33,7 +35,12 @@ annotation class Provide(
     /**
      * Object caching type
      */
-    val cache: CacheType = CacheType.Factory
+    val cache: CacheType = CacheType.Factory,
+
+    /**
+     * provide dependency with wrapper packaging
+     */
+    val provideWrapper: KClass<*> = Nothing::class,
 ) {
     enum class CacheType {
         Factory,

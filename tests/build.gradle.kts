@@ -20,6 +20,8 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+
             dependencies {
                 implementation(project(":stone_multiplatform"))
             }
@@ -39,7 +41,7 @@ kotlin {
 }
 
 dependencies {
-    ksp(project(":stone_ksp"))
+    add("kspCommonMainMetadata", project(":stone_ksp"))
 
 }
 
