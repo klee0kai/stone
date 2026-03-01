@@ -1,9 +1,9 @@
 package com.github.klee0kai.stone.__hidden__.coroutines
 
-import kotlinx.coroutines.sync.Mutex
+import com.github.klee0kai.stone.mutex.ReentrantMutex
 
 expect fun <T, R> T.syncIfAvailable(
-    mutex: Mutex,
+    mutex: ReentrantMutex,
     block: T.() -> R
 ): R
 
