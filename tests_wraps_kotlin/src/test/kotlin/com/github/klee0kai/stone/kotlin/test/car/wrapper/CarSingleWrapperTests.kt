@@ -8,6 +8,7 @@ import com.github.klee0kai.test.car.model.Window
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -160,6 +161,20 @@ class CarSingleWrapperTests {
         assertNotNull(car1!!.get()!!.uuid)
         assertEquals(car1.get()!!.uuid, car2!!.get()!!.uuid)
         assertEquals(1, Car.createCount)
+    }
+
+    @Test
+    fun bumperAsyncPhantomTest() = runBlocking {
+        //Given
+        val DI = CarWrappedCreateComponentStoneComponent()
+
+        //When
+        val bumper = DI.bumperAsyncPhantom()
+
+        // Then
+        assertNotNull(bumper.get().uuid)
+        assertNotEquals(bumper.get().uuid, bumper.get().uuid)
+        assertEquals(3, Bumper.createCount)
     }
 
     @Test
