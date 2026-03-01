@@ -182,7 +182,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
         }
 
         genOverrideFun(function) {
-            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
+            beginControlFlow("return syncIfAvailable(%L.mutex)", itemHolderCodeHelper.fieldName)
             addStatement(
                 "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
                 overridedModuleFieldName,
@@ -242,7 +242,7 @@ class GenHiddenModuleProcessor : TargetFileProcessor {
                 addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
             }
 
-            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
+            beginControlFlow("return syncIfAvailable(%L.mutex)", itemHolderCodeHelper.fieldName)
             addStatement(
                 "%L.get()?.%L( __action, %L ) ",
                 overridedModuleFieldName,

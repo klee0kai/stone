@@ -3,11 +3,11 @@ package com.github.klee0kai.stone.__hidden__.types.holders
 import com.github.klee0kai.stone.__hidden__.StoneScope
 import com.github.klee0kai.stone.__hidden__.SwitchCacheParam
 import com.github.klee0kai.stone.annotations.component.SwitchCache
-import com.github.klee0kai.stone.mutex.ReentrantMutex
 import com.github.klee0kai.stone.weakref.Ref
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 /**
  * Stone Private class
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 @Suppress("UNCHECKED_CAST")
 class SingleItemHolder<T>(
     private val defType: StoneRefType,
-    val mutex: ReentrantMutex = ReentrantMutex(),
+    val mutex: Mutex = Mutex(),
 ) {
     private var curRefType: StoneRefType = defType
 

@@ -7,13 +7,15 @@ import com.github.klee0kai.stone.weakref.Ref
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 /**
  * Stone Private class
  */
 @Suppress("UNCHECKED_CAST")
 class MapItemHolder<Key, T>(
-    private val defType: StoneRefType
+    private val defType: StoneRefType,
+    val mutex: Mutex = Mutex(),
 ) {
 
     private var curRefType: StoneRefType = defType

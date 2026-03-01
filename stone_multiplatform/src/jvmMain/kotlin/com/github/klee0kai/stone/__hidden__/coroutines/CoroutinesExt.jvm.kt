@@ -1,10 +1,11 @@
 package com.github.klee0kai.stone.__hidden__.coroutines
 
-import com.github.klee0kai.stone.mutex.ReentrantMutex
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 actual fun <T, R> T.syncIfAvailable(
-    mutex: ReentrantMutex,
+    mutex: Mutex,
     block: T.() -> R,
 ): R = runBlocking {
     mutex.withLock {

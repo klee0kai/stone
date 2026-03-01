@@ -267,7 +267,7 @@ class GenModuleProcessor : TargetFileProcessor {
         }
 
         genOverrideFun(function) {
-            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
+            beginControlFlow("return syncIfAvailable(%L.mutex)", itemHolderCodeHelper.fieldName)
             addStatement(
                 "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
                 overridedModuleFieldName,
@@ -316,7 +316,7 @@ class GenModuleProcessor : TargetFileProcessor {
     ) {
         val returnType = function.returnType?.resolve()?.toTypeName() ?: return
         genOverrideFun(function) {
-            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
+            beginControlFlow("return syncIfAvailable(%L.mutex)", itemHolderCodeHelper.fieldName)
             addStatement(
                 "val cached = %L.get()?.%L( %T.getValueAction, %L ) ",
                 overridedModuleFieldName,
@@ -383,7 +383,7 @@ class GenModuleProcessor : TargetFileProcessor {
                 addParameter(it.name!!.asString(), it.type.resolve().toTypeName())
             }
 
-            beginControlFlow("return syncIfAvailable(%L.mutex)", overridedModuleFieldName)
+            beginControlFlow("return syncIfAvailable(%L.mutex)", itemHolderCodeHelper.fieldName)
             addStatement(
                 "%L.get()?.%L( __action, %L ) ",
                 overridedModuleFieldName,
