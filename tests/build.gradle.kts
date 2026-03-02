@@ -40,8 +40,12 @@ kotlin {
     }
 }
 
-dependencies {
-    add("kspCommonMainMetadata", project(":stone_ksp"))
+// Trigger Common Metadata Generation from Native tasks
+tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata" }.configureEach {
+    dependsOn("kspCommonMainKotlinMetadata")
+}
 
+dependencies {
+    kspCommonMainMetadata(project(":stone_ksp"))
 }
 
