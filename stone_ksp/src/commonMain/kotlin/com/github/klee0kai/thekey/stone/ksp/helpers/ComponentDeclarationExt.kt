@@ -5,8 +5,8 @@ package com.github.klee0kai.thekey.stone.ksp.helpers
 import com.github.klee0kai.stone.annotations.component.*
 import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner
-import com.github.klee0kai.stone.weakref.Named
-import com.github.klee0kai.stone.weakref.Qualifier
+import com.github.klee0kai.stone.Named
+import com.github.klee0kai.stone.Qualifier
 import com.github.klee0kai.thekey.stone.ksp.helpers.annotations.findComponentAnnotation
 import com.github.klee0kai.thekey.stone.ksp.ksp.isAnyType
 import com.github.klee0kai.thekey.stone.ksp.ksp.isChildOf
@@ -17,7 +17,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
-import com.github.klee0kai.stone.weakref.Scope as StoneScope
+import com.github.klee0kai.stone.Scope as StoneScope
 
 fun Resolver.findComponentForModuleOrDep(
     moduleCl: ClassName,

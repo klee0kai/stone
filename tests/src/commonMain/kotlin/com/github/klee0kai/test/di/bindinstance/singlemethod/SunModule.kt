@@ -2,7 +2,7 @@ package com.github.klee0kai.test.di.bindinstance.singlemethod
 
 import com.github.klee0kai.stone.annotations.module.BindInstance
 import com.github.klee0kai.stone.annotations.module.Module
-import com.github.klee0kai.stone.weakref.Named
+import com.github.klee0kai.stone.Named
 import com.github.klee0kai.test.di.gcforest.scopes.GcSunScope
 import com.github.klee0kai.test.mowgli.galaxy.IStar
 import com.github.klee0kai.test.mowgli.galaxy.Sun

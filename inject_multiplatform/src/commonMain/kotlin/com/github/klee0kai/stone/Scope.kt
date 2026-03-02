@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.weakref
+package com.github.klee0kai.stone
 
 /**
  * Identifies scope annotations. A scope annotation applies to a class

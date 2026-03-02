@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.house
 
-import com.github.klee0kai.stone.weakref.Inject
+import com.github.klee0kai.stone.Inject
 import com.github.klee0kai.test.house.kitchen.Kichen
 import com.github.klee0kai.test.house.kitchen.storagearea.StoreArea
 import com.github.klee0kai.test.house.rooms.BathRoom

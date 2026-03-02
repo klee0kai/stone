@@ -1,6 +1,6 @@
 package com.github.klee0kai.stone.annotations.component
 
-import com.github.klee0kai.stone.weakref.Scope
+import com.github.klee0kai.stone.Scope
 
 
 /**

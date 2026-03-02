@@ -1,4 +1,4 @@
-package com.github.klee0kai.stone.weakref
+package com.github.klee0kai.stone
 
 /**
  * Identifies injectable constructors, methods, and fields. May apply to static

@@ -11,7 +11,7 @@ import com.github.klee0kai.stone.annotations.component.ProtectInjected
 import com.github.klee0kai.stone.annotations.component.SwitchCache
 import com.github.klee0kai.stone.annotations.dependencies.Dependencies
 import com.github.klee0kai.stone.annotations.module.Module
-import com.github.klee0kai.stone.weakref.Inject
+import com.github.klee0kai.stone.Inject
 import com.github.klee0kai.stone.weakref.Memory
 import com.github.klee0kai.thekey.stone.ksp.exceptions.IncorrectSignatureException
 import com.github.klee0kai.thekey.stone.ksp.exceptions.ObjectNotProvidedException

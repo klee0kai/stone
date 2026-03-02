@@ -10,7 +10,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 class SimpleMapItemHolderCodeHelper(
-    val fieldName: String,
+   override val fieldName: String,
     val returnType: TypeName,
     val nonWrappedReturnType: TypeName,
     val itemCacheType: ItemCacheType,

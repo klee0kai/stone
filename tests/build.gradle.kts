@@ -20,6 +20,8 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+
             dependencies {
                 implementation(project(":stone_multiplatform"))
             }
@@ -38,8 +40,12 @@ kotlin {
     }
 }
 
-dependencies {
-    ksp(project(":stone_ksp"))
+// Trigger Common Metadata Generation from Native tasks
+tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata" }.configureEach {
+    dependsOn("kspCommonMainKotlinMetadata")
+}
 
+dependencies {
+    kspCommonMainMetadata(project(":stone_ksp"))
 }
 

@@ -1,10 +1,11 @@
 package com.github.klee0kai.thekey.stone.ksp.helpers.wrap
 
-import com.github.klee0kai.stone.weakref.Provider
+import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.weakref.SoftRef
 import com.github.klee0kai.stone.weakref.WeakRef
 import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
+import com.github.klee0kai.stone.wrappers.FantomAsyncProvide
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.stone.wrappers.PhantomProvide
 import com.github.klee0kai.thekey.stone.ksp.exceptions.StoneException
@@ -284,7 +285,8 @@ class WrapHelper {
             Provider::class,
             javax.inject.Provider::class,
             LazyProvide::class,
-            AsyncCoroutineProvide::class
+            AsyncCoroutineProvide::class,
+            FantomAsyncProvide::class,
         )) {
             val isNoCachingWrapper = cl != LazyProvide::class && cl != AsyncCoroutineProvide::class
 

@@ -33,7 +33,6 @@ class GenWrappersSupportProcessor : TargetFileProcessor {
         )
     }
 
-
     override suspend fun findSymbolsToProcess(
         resolver: Resolver
     ) = SymbolsToProcess(

@@ -9,6 +9,8 @@ import com.squareup.kotlinpoet.TypeSpec
 interface ItemHolderCodeHelper {
     companion object;
 
+    val fieldName: String
+
     fun TypeSpec.Builder.genCacheField()
 
     fun codeGetCachedValue(): CodeBlock

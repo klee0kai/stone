@@ -13,6 +13,7 @@ import com.github.klee0kai.thekey.stone.ksp.target.hiddenmodule.GenHiddenModuleP
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleCacheControlProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleFactoryProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.module.GenModuleProcessor
+import com.github.klee0kai.thekey.stone.ksp.target.provider.GenProviderProcessor
 import com.github.klee0kai.thekey.stone.ksp.target.wrapper.GenWrappersSupportProcessor
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -70,6 +71,7 @@ class Processor(
 
     val dispatcher by lazy { if (multithread) Dispatchers.Default else Dispatchers.Unconfined }
     val targetProcessors = arrayOf(
+        GenProviderProcessor(),
         GenModuleFactoryProcessor(),
         GenModuleCacheControlProcessor(),
         GenModuleProcessor(),

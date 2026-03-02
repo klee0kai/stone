@@ -1,5 +1,7 @@
 package com.github.klee0kai.test.di.techfactory
 
+import com.github.klee0kai.stone.Named
+import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.stone.weakref.*
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.stone.wrappers.PhantomProvide

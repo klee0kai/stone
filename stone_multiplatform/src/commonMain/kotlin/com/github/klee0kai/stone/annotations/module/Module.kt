@@ -79,4 +79,6 @@ package com.github.klee0kai.stone.annotations.module
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
-annotation class Module 
+annotation class Module(
+    val genProviderName: String = "",
+)
