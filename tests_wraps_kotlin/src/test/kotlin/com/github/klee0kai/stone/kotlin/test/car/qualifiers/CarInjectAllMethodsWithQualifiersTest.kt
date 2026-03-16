@@ -1,17 +1,17 @@
 package com.github.klee0kai.stone.kotlin.test.car.qualifiers
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.qualifiers.CarQComponent
+import com.github.klee0kai.test.car.di.qualifiers.CarQComponentStoneComponent
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.CarsInjectQualifiers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class CarInjectAllMethodsWithQualifiersTest {
+
     @Test
     fun namedEmptyProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -28,9 +28,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun namedAProvideTest() {
         //Given
-        val DI = Stone.createComponent(
-            CarQComponent::class.java
-        )
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -47,7 +45,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun carMyQualifierProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -65,7 +63,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun carMyQualifierStringProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -82,7 +80,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun carMyQualifierStringAProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -93,13 +91,13 @@ class CarInjectAllMethodsWithQualifiersTest {
         //Then
         assertEquals(1, filtered.size)
         assertEquals("reinforced", car.bumpers!![0]!!.qualifier)
-        assertEquals(4, car.wheels!!.size, "four wheel +1")
+        assertEquals(4, car.wheels!!.size, "four wheel")
     }
 
     @Test
     fun carMyQualifierStringBProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -116,7 +114,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun carMyQualifierMultiProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -133,7 +131,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun carMyQualifierMultiA1ProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -150,7 +148,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun carMyQualifierMultiA2ProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -167,7 +165,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun carMyQualifierMultiA2HardProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When
@@ -184,7 +182,7 @@ class CarInjectAllMethodsWithQualifiersTest {
     @Test
     fun allCarsProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarQComponent::class.java)
+        val DI = CarQComponentStoneComponent()
         val carInject = CarsInjectQualifiers()
 
         //When

@@ -1,18 +1,18 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.swcache
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent
+import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponentStoneComponent
 import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class WindowSwitchCacheTests {
+
     @Test
     fun allWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -34,7 +34,7 @@ class WindowSwitchCacheTests {
     @Test
     fun weakToStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -56,7 +56,7 @@ class WindowSwitchCacheTests {
     @Throws(InterruptedException::class)
     fun weakToStrongAfterFewMillisTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -78,7 +78,7 @@ class WindowSwitchCacheTests {
     @Test
     fun softToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -99,7 +99,7 @@ class WindowSwitchCacheTests {
     @Test
     fun strongToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -120,7 +120,7 @@ class WindowSwitchCacheTests {
     @Test
     fun windowsToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -141,7 +141,7 @@ class WindowSwitchCacheTests {
     @Test
     fun windowsAndWheelsToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -162,7 +162,7 @@ class WindowSwitchCacheTests {
     @Test
     fun wheelsToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }
@@ -184,7 +184,7 @@ class WindowSwitchCacheTests {
     @Test
     fun weakNothingTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val windowsFactory = DI.windowsModule()!!.windowFactory().get()!!.map { WeakReference(it) }
         val windowWeak = DI.windowsModule()!!.windowWeak().get()!!.map { WeakReference(it) }
         val windowSoft = DI.windowsModule()!!.windowSoft().get()!!.map { WeakReference(it) }

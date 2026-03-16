@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.car.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.inject.CarInjectComponent
+import com.github.klee0kai.test.car.di.inject.CarInjectComponentStoneComponent
 import com.github.klee0kai.test.car.model.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CarInjectMixedTests {
+
     @BeforeEach
     fun init() {
         Bumper.createCount = 0
@@ -20,7 +20,7 @@ class CarInjectMixedTests {
     @Test
     fun carInjectReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInject()
@@ -43,7 +43,7 @@ class CarInjectMixedTests {
     @Test
     fun carInjectListReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInjectLists()
@@ -66,7 +66,7 @@ class CarInjectMixedTests {
     @Test
     fun carInjectProvideReusableTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         val carInject1 = CarInjectProvider()

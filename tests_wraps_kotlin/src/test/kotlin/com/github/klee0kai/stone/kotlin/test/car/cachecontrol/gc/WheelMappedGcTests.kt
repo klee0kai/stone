@@ -1,16 +1,16 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class WheelMappedGcTests {
+
     @Test
     fun createWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
 
         //When
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
@@ -28,7 +28,7 @@ class WheelMappedGcTests {
     @Test
     fun createAfterGcWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         DI.gcAll()
 
         //When
@@ -47,7 +47,7 @@ class WheelMappedGcTests {
     @Test
     fun gcAllTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")
@@ -66,7 +66,7 @@ class WheelMappedGcTests {
     @Test
     fun gcWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")
@@ -85,7 +85,7 @@ class WheelMappedGcTests {
     @Test
     fun gcSoftTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")
@@ -104,7 +104,7 @@ class WheelMappedGcTests {
     @Test
     fun gcStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")
@@ -123,7 +123,7 @@ class WheelMappedGcTests {
     @Test
     fun gcWheelsTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")
@@ -142,7 +142,7 @@ class WheelMappedGcTests {
     @Test
     fun gcNothing() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")
@@ -161,7 +161,7 @@ class WheelMappedGcTests {
     @Test
     fun gcWindows() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")
@@ -180,7 +180,7 @@ class WheelMappedGcTests {
     @Test
     fun gcWindowsAndWheels() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory = DI.wheelMappedModule()!!.wheelFactory("1")
         val wheelWeak = DI.wheelMappedModule()!!.wheelWeak("1")
         val wheelSoft = DI.wheelMappedModule()!!.wheelSoft("1")

@@ -1,18 +1,18 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.swcache
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponent
+import com.github.klee0kai.test.car.di.cachecontrol.swcache.CarSwCacheComponentStoneComponent
 import com.github.klee0kai.test.car.model.Bumper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class BumperSwitchCacheTests {
+
     @Test
     fun allWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -33,7 +33,7 @@ class BumperSwitchCacheTests {
     @Test
     fun weakToStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -55,7 +55,7 @@ class BumperSwitchCacheTests {
     @Throws(InterruptedException::class)
     fun weakToStrongAfterFewMillisTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -77,7 +77,7 @@ class BumperSwitchCacheTests {
     @Test
     fun softToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -98,7 +98,7 @@ class BumperSwitchCacheTests {
     @Test
     fun strongToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -119,7 +119,7 @@ class BumperSwitchCacheTests {
     @Test
     fun bumpersToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -140,7 +140,7 @@ class BumperSwitchCacheTests {
     @Test
     fun redBumpersToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -161,7 +161,7 @@ class BumperSwitchCacheTests {
     @Test
     fun redBumpersToWeak2Test() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -182,7 +182,7 @@ class BumperSwitchCacheTests {
     @Test
     fun wheelsToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }
@@ -204,7 +204,7 @@ class BumperSwitchCacheTests {
     @Test
     fun nothingToWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarSwCacheComponent::class.java)
+        val DI = CarSwCacheComponentStoneComponent()
         val bumperFactory = DI.bumpersModule()!!.bumperFactory().map { WeakReference(it) }
         val bumperWeak = DI.bumpersModule()!!.bumperWeak().map { WeakReference(it) }
         val bumperSoft = DI.bumpersModule()!!.bumperSoft().map { WeakReference(it) }

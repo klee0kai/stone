@@ -6,8 +6,11 @@ class Car {
     var uuid = UUID.randomUUID().toString()
 
     var bumpers: List<Bumper?>?
+
     var wheels: List<Wheel?>?
+
     var windows: List<Window?>?
+
     var qualifier: String? = null
 
     constructor(
@@ -21,7 +24,7 @@ class Car {
         windows = listOf(window)
     }
 
-    constructor(bumpers: List<Bumper?>?, wheels: List<Wheel?>?, windows: List<Window?>?) {
+    constructor(bumpers: List<Bumper>,  wheels: List<Wheel>, windows: List<Window>) {
         createCount++
         this.bumpers = bumpers
         this.wheels = wheels

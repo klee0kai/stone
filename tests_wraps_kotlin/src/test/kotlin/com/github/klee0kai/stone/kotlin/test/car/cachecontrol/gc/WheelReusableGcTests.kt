@@ -1,16 +1,16 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class WheelReusableGcTests {
+
     @Test
     fun gcAllTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule().wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule().wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule().wheelSoft()!!.get()!!.uuid
@@ -33,7 +33,7 @@ class WheelReusableGcTests {
     @Test
     fun gcWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule()!!.wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule()!!.wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule()!!.wheelSoft()!!.get()!!.uuid
@@ -56,7 +56,7 @@ class WheelReusableGcTests {
     @Test
     fun gcSoftTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule()!!.wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule()!!.wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule()!!.wheelSoft()!!.get()!!.uuid
@@ -79,7 +79,7 @@ class WheelReusableGcTests {
     @Test
     fun gcStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule()!!.wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule()!!.wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule()!!.wheelSoft()!!.get()!!.uuid
@@ -102,7 +102,7 @@ class WheelReusableGcTests {
     @Test
     fun gcWheelsTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule()!!.wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule()!!.wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule()!!.wheelSoft()!!.get()!!.uuid
@@ -125,7 +125,7 @@ class WheelReusableGcTests {
     @Test
     fun gcNothing() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule()!!.wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule()!!.wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule()!!.wheelSoft()!!.get()!!.uuid
@@ -148,7 +148,7 @@ class WheelReusableGcTests {
     @Test
     fun gcWindows() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule()!!.wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule()!!.wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule()!!.wheelSoft()!!.get()!!.uuid
@@ -171,7 +171,7 @@ class WheelReusableGcTests {
     @Test
     fun gcWindowsAndWheels() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val wheelFactory1 = DI.wheelsModule()!!.wheelFactory()!!.get()!!.uuid
         val wheelWeak1 = DI.wheelsModule()!!.wheelWeak()!!.get()!!.uuid
         val wheelSoft1 = DI.wheelsModule()!!.wheelSoft()!!.get()!!.uuid

@@ -12,8 +12,8 @@ abstract class PresentersModule {
     ): FeaturePresenter
 
     abstract fun provideFeaturePresenter(
-        screenId: ScreenId,
-        loginId: LoginId
+        screenId: ScreenId?,
+        loginId: LoginId?,
     ): FeaturePresenter
 
 }

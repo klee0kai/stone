@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.car.inject
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.inject.CarInjectComponent
+import com.github.klee0kai.test.car.di.inject.CarInjectComponentStoneComponent
 import com.github.klee0kai.test.car.model.CarInject
 import com.github.klee0kai.test.car.model.CarInjectLists
 import com.github.klee0kai.test.car.model.CarInjectProvider
@@ -10,10 +9,11 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class CarProtectInjectedTests {
+
     @Test
     fun carProtectInjectedTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         var carInject: CarInject? = CarInject()
@@ -36,7 +36,7 @@ class CarProtectInjectedTests {
 
     @Test
     fun carProtectListInjectedTest() {
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         var carInject: CarInjectLists? = CarInjectLists()
@@ -72,7 +72,7 @@ class CarProtectInjectedTests {
     @Test
     fun carProtectProviderTest() {
         //Given
-        val DI = Stone.createComponent(CarInjectComponent::class.java)
+        val DI = CarInjectComponentStoneComponent()
 
         //When
         var carInject: CarInjectProvider? = CarInjectProvider()
@@ -96,4 +96,5 @@ class CarProtectInjectedTests {
             "LazyProvide non support caching. Non should protect"
         )
     }
+
 }

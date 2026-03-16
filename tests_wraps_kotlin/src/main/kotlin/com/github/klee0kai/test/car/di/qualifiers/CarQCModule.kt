@@ -2,6 +2,7 @@ package com.github.klee0kai.test.car.di.qualifiers
 
 import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
+import com.github.klee0kai.stone.annotations.qualifier.IgnoreQualifier
 import com.github.klee0kai.test.car.di.qualifiers.qualifiers.*
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
@@ -14,6 +15,7 @@ import javax.inject.Provider
 
 @Module
 open class CarQCModule {
+
     @Provide(cache = Provide.CacheType.Factory)
     open fun carSimple(wheel: Wheel?, @BumperQualifier bumper: Bumper?, window: Window?): Car {
         return Car(bumper, wheel, window)
@@ -38,13 +40,21 @@ open class CarQCModule {
     }
 
     @Provide(cache = Provide.CacheType.Factory)
-    open fun carList(@BumperQualifier bumper: List<Bumper?>?, wheel: List<Wheel?>?, window: List<Window?>?): Car {
+    open fun carList(
+        @BumperQualifier bumper: List<Bumper>,
+        wheel: List<Wheel>,
+        window: List<Window>,
+    ): Car {
         return Car(bumper, wheel, window)
     }
 
     @Named
     @Provide(cache = Provide.CacheType.Factory)
-    open fun carNamedEmpty(@BumperQualifier bumper: List<Bumper?>?, wheel: List<Wheel?>?, window: List<Window?>?): Car {
+    open fun carNamedEmpty(
+        @BumperQualifier bumper: List<Bumper>,
+        @IgnoreQualifier wheel: List<Wheel>,
+        window: List<Window>
+    ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "named_empty"
         return car
@@ -53,9 +63,9 @@ open class CarQCModule {
     @Named("a")
     @Provide(cache = Provide.CacheType.Factory)
     open fun carNamedA(
-        @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) bumper: List<Bumper?>?,
-        wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) bumper: List<Bumper>,
+        @IgnoreQualifier wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "named_a"
@@ -65,9 +75,9 @@ open class CarQCModule {
     @MyQualifier
     @Provide(cache = Provide.CacheType.Factory)
     open fun carMyQualifier(
-        @BumperQualifier bumper: List<Bumper?>?,
-        wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier bumper: List<Bumper>,
+        @IgnoreQualifier wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "my_qualifier"
@@ -77,9 +87,9 @@ open class CarQCModule {
     @MyQualifierWithString
     @Provide(cache = Provide.CacheType.Factory)
     open fun carIdQualifier(
-        @BumperQualifier bumper: List<Bumper?>?,
-        wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier bumper: List<Bumper>,
+        @IgnoreQualifier wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "my_qualifier_with_string"
@@ -89,9 +99,10 @@ open class CarQCModule {
     @MyQualifierWithString(id = "a")
     @Provide(cache = Provide.CacheType.Factory)
     open fun carIdQualifierA(
-        @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) bumper: List<Bumper?>?,
-        @WheelCount(count = 4) wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier(type = BumperQualifier.BumperType.Reinforced)
+        bumper: List<Bumper>,
+        @WheelCount(count = 4) wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "my_qualifier_a"
@@ -101,9 +112,9 @@ open class CarQCModule {
     @MyQualifierWithString(id = "b")
     @Provide(cache = Provide.CacheType.Factory)
     open fun carIdQualifierB(
-        @BumperQualifier bumper: List<Bumper?>?,
-        wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier bumper: List<Bumper>,
+        @IgnoreQualifier wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>,
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "my_qualifier_b"
@@ -113,9 +124,9 @@ open class CarQCModule {
     @MyQualifierMulti
     @Provide(cache = Provide.CacheType.Factory)
     open fun carQualifierMulti(
-        @BumperQualifier bumper: List<Bumper?>?,
-        @WheelCount(count = 4) wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier bumper: List<Bumper>,
+        @WheelCount(count = 4) wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "qualifier_multi"
@@ -125,9 +136,9 @@ open class CarQCModule {
     @MyQualifierMulti(id = "a", indx = 1)
     @Provide(cache = Provide.CacheType.Factory)
     open fun carQualifierMultiA1(
-        @BumperQualifier bumper: List<Bumper?>?,
-        wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier bumper: List<Bumper>,
+        @IgnoreQualifier wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "qualifier_multi_a1"
@@ -137,9 +148,9 @@ open class CarQCModule {
     @MyQualifierMulti(id = "a", indx = 2)
     @Provide(cache = Provide.CacheType.Factory)
     open fun carQualifierMultiA2(
-        @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) bumper: List<Bumper?>?,
-        @WheelCount(count = 4) wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier(type = BumperQualifier.BumperType.Reinforced) bumper: List<Bumper>,
+        @WheelCount(count = 4) wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>,
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "qualifier_multi_a2"
@@ -149,9 +160,9 @@ open class CarQCModule {
     @MyQualifierMulti(id = "a", indx = 2, type = MyQualifierMulti.Type.HARD)
     @Provide(cache = Provide.CacheType.Factory)
     open fun carQualifierMultiA2Hard(
-        @BumperQualifier(type = BumperQualifier.BumperType.Simple) bumper: List<Bumper?>?,
-        @WheelCount(count = 4) wheel: List<Wheel?>?,
-        window: List<Window?>?
+        @BumperQualifier(type = BumperQualifier.BumperType.Simple) bumper: List<Bumper>,
+        @WheelCount(count = 4) wheel: List<Wheel>,
+        @IgnoreQualifier window: List<Window>
     ): Car {
         val car = Car(bumper, wheel, window)
         car.qualifier = "qualifier_multi_a2_hard"

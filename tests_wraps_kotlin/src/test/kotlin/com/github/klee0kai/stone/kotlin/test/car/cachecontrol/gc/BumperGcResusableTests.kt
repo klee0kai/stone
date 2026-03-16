@@ -1,17 +1,17 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class BumperGcResusableTests {
+
     @Test
     fun gcAllTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -35,7 +35,7 @@ class BumperGcResusableTests {
     @Test
     fun gcWeakTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -60,7 +60,7 @@ class BumperGcResusableTests {
     @Test
     fun gcSoftTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -84,7 +84,7 @@ class BumperGcResusableTests {
     @Test
     fun gcStrongTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -108,7 +108,7 @@ class BumperGcResusableTests {
     @Test
     fun gcBumpers() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -132,7 +132,7 @@ class BumperGcResusableTests {
     @Test
     fun gcRedBumpers() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -156,7 +156,7 @@ class BumperGcResusableTests {
     @Test
     fun gcRedBumpers2() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -180,7 +180,7 @@ class BumperGcResusableTests {
     @Test
     fun gcWheelsTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }
@@ -204,7 +204,7 @@ class BumperGcResusableTests {
     @Test
     fun gcNothing() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val bumperFactoryUids1 = DI.bumpersModule()!!.bumperFactory().map { it.uuid }
         val bumperWeakUids1 = DI.bumpersModule()!!.bumperWeak().map { it.uuid }
         val bumperSoftUids1 = DI.bumpersModule()!!.bumperSoft().map { it.uuid }

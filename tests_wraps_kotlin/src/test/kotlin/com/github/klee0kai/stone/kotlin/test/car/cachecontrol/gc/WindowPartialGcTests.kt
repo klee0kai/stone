@@ -1,18 +1,18 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class WindowPartialGcTests {
+
     @Test
     fun createWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
 
         //When
         val windowStrong = DI.windowsModule()!!.windowStrong().get()!!.map { WeakReference(it) }
@@ -24,7 +24,7 @@ class WindowPartialGcTests {
     @Test
     fun holdInListTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowStrong = DI.windowsModule()!!.windowStrong().get()!!.map { WeakReference(it) }
         val holder = DI.windowsModule()!!.windowStrong().get()!![1]
 
@@ -42,7 +42,7 @@ class WindowPartialGcTests {
     @Test
     fun partialRecreateList1Test() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val uids1 = DI.windowsModule()!!.windowStrong().get()!!.map { it.uuid }
         val holder = DI.windowsModule()!!.windowStrong().get()!![0]
 
@@ -63,15 +63,15 @@ class WindowPartialGcTests {
     @Test
     fun partialRecreateList2Test() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
-        val uids1 = DI.windowsModule()!!.windowStrong().get()!!.map { it.uuid }
-        val holder = DI.windowsModule()!!.windowStrong().get()!![1]
+        val DI = CarGcComponentStoneComponent()
+        val uids1 = DI.windowsModule().windowStrong().get()!!.map { it.uuid }
+        val holder = DI.windowsModule().windowStrong().get()!![1]
 
 
         //When
         resetKotlinRegisters()
         DI.gcAll()
-        val uids2 = DI.windowsModule()!!.windowStrong().get()!!.map { it.uuid }
+        val uids2 = DI.windowsModule().windowStrong().get()!!.map { it.uuid }
 
 
         // Then
@@ -84,7 +84,7 @@ class WindowPartialGcTests {
     @Test
     fun partialRecreateList3Test() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val uids1 = DI.windowsModule()!!.windowStrong().get()!!.map { it.uuid }
         val holder = DI.windowsModule()!!.windowStrong().get()!![2]
 

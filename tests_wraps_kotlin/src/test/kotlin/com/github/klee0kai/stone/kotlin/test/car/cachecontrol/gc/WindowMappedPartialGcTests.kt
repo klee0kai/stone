@@ -1,18 +1,18 @@
 package com.github.klee0kai.stone.kotlin.test.car.cachecontrol.gc
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.stone.kotlin.test.utils.KotlinUtils.resetKotlinRegisters
-import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponent
+import com.github.klee0kai.test.car.di.cachecontrol.gc.CarGcComponentStoneComponent
 import com.github.klee0kai.test.car.model.Window
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class WindowMappedPartialGcTests {
+
     @Test
     fun createWorkCorrect() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
 
         //When
         val windowStrong1 = DI.windowsMappedModule()!!.windowStrong("1").get()!!.map { WeakReference(it) }
@@ -26,7 +26,7 @@ class WindowMappedPartialGcTests {
     @Test
     fun holdInListTest() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val windowStrong1 = DI.windowsMappedModule()!!.windowStrong("1").get()!!.map { WeakReference(it) }
         val windowStrong2 = DI.windowsMappedModule()!!.windowStrong("2").get()!!.map { WeakReference(it) }
         val holder1 = DI.windowsMappedModule()!!.windowStrong("1").get()!![1]
@@ -49,7 +49,7 @@ class WindowMappedPartialGcTests {
     @Test
     fun partialRecreateList1Test() {
         // Given
-        val DI = Stone.createComponent(CarGcComponent::class.java)
+        val DI = CarGcComponentStoneComponent()
         val uids1 = DI.windowsMappedModule()!!.windowStrong("1").get()!!.map { it.uuid }
         val uids2 = DI.windowsMappedModule()!!.windowStrong("2").get()!!.map { it.uuid }
         val uids3 = DI.windowsMappedModule()!!.windowStrong("3").get()!!.map { it.uuid }

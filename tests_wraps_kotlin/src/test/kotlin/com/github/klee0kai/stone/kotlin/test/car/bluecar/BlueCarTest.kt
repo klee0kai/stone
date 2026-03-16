@@ -1,9 +1,8 @@
 package com.github.klee0kai.stone.kotlin.test.car.bluecar
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.bestOf.blue.BlueCarComponent
-import com.github.klee0kai.test.car.di.bestOf.both.BothCarComponent
-import com.github.klee0kai.test.car.di.bestOf.red.RedCarComponent
+import com.github.klee0kai.test.car.di.bestOf.blue.BlueCarComponentStoneComponent
+import com.github.klee0kai.test.car.di.bestOf.both.BothCarComponentStoneComponent
+import com.github.klee0kai.test.car.di.bestOf.red.RedCarComponentStoneComponent
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class BlueCarTest {
+
     @BeforeEach
     fun init() {
         Bumper.createCount = 0
@@ -25,7 +25,7 @@ class BlueCarTest {
     @Test
     fun blueCarComponent() {
         //Given
-        val DI = Stone.createComponent(BlueCarComponent::class.java)
+        val DI = BlueCarComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)
@@ -42,7 +42,7 @@ class BlueCarTest {
     @Test
     fun createBlueCar() {
         //Given
-        val DI = Stone.createComponent(BothCarComponent::class.java)
+        val DI = BothCarComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)
@@ -59,7 +59,7 @@ class BlueCarTest {
     @Test
     fun redCarComponent() {
         //Given
-        val DI = Stone.createComponent(RedCarComponent::class.java)
+        val DI = RedCarComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)
@@ -76,7 +76,7 @@ class BlueCarTest {
     @Test
     fun createRedCar() {
         //Given
-        val DI = Stone.createComponent(BothCarComponent::class.java)
+        val DI = BothCarComponentStoneComponent()
 
         //When
         assertEquals(0, Car.createCount)

@@ -1,7 +1,6 @@
 package com.github.klee0kai.stone.kotlin.test.car.bindinstance.simple
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.bindinstance.simple.CarBindComponent
+import com.github.klee0kai.test.car.di.bindinstance.simple.CarBindComponentStoneComponent
 import com.github.klee0kai.test.car.model.Wheel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -9,10 +8,11 @@ import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
 
 class BindWheelRefTests {
+
     @Test
     fun noBindTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //Then
         assertNull(DI.module().wheel())
@@ -24,7 +24,7 @@ class BindWheelRefTests {
     @Test
     fun nullBindTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //When
         DI.bindWheelRef(null)
@@ -39,13 +39,13 @@ class BindWheelRefTests {
     @Test
     fun nullRefBindTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //When
         DI.bindWheelRef(WeakReference(null))
 
         //Then
-        assertNull(DI.module()!!.wheel())
+        assertNull(DI.module().wheel())
         assertNull(DI.provideWheel())
         assertNull(DI.provideWheelRef())
         assertEquals(0, DI.provideWheels()!!.size)
@@ -54,7 +54,7 @@ class BindWheelRefTests {
     @Test
     fun bindWheelSimpleTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
 
         //When
         val wheel = Wheel()
@@ -71,7 +71,7 @@ class BindWheelRefTests {
     @Test
     fun rebindWheelSimpleTest() {
         //Given
-        val DI = Stone.createComponent(CarBindComponent::class.java)
+        val DI = CarBindComponentStoneComponent()
         DI.bindWheel(Wheel())
 
         //When

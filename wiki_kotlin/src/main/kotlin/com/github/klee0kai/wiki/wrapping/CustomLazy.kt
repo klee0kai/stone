@@ -1,6 +1,6 @@
 package com.github.klee0kai.wiki.wrapping
 
-import com.github.klee0kai.stone.wrappers.Ref
+import com.github.klee0kai.stone.weakref.Ref
 import java.lang.ref.WeakReference
 
 class CustomLazy<T>(call: Ref<T>) {

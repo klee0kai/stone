@@ -1,6 +1,5 @@
 package com.github.klee0kai.wiki.provide.inject
 
-import com.github.klee0kai.stone.Stone
 import com.github.klee0kai.wiki.provide.identifiers.FeaturePresenter
 import javax.inject.Inject
 
@@ -14,7 +13,7 @@ class FeatureScreen {
     }
 
     fun start() {
-        val DI = Stone.createComponent(AppComponent::class.java)
+        val DI = AppComponentStoneComponent()
         DI.inject(this)
     }
 }

@@ -30,6 +30,6 @@ open class WindowGcModule {
     @GcWindowScope
     @Provide(cache = Provide.CacheType.Strong)
     open fun windowStrong(): WeakReference<List<Window>> {
-        return WeakReference(Arrays.asList(Window(), Window(), Window()))
+        return WeakReference(listOf(Window(), Window(), Window()))
     }
 }

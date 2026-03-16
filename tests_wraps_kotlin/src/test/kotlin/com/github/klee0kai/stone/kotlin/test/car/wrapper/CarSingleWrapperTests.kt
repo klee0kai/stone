@@ -1,17 +1,21 @@
 package com.github.klee0kai.stone.kotlin.test.car.wrapper
 
-import com.github.klee0kai.stone.Stone
-import com.github.klee0kai.test.car.di.wrapped.create.CarWrappedCreateComponent
+import com.github.klee0kai.test.car.di.wrapped.create.CarWrappedCreateComponentStoneComponent
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
 import com.github.klee0kai.test.car.model.Window
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class CarSingleWrapperTests {
+
     @BeforeEach
     fun init() {
         Bumper.createCount = 0
@@ -23,7 +27,7 @@ class CarSingleWrapperTests {
     @Test
     fun wheelSimpleTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val wheel1 = DI.wheel()
@@ -38,7 +42,7 @@ class CarSingleWrapperTests {
     @Test
     fun wheelProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val wheel1 = DI.wheelProvide()
@@ -53,7 +57,7 @@ class CarSingleWrapperTests {
     @Test
     fun wheelLazyTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val wheel1 = DI.wheelLazy()
@@ -68,7 +72,7 @@ class CarSingleWrapperTests {
     @Test
     fun wheelWeakTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val wheel1 = DI.wheelWeak()
@@ -83,7 +87,7 @@ class CarSingleWrapperTests {
     @Test
     fun wheelProvideWeakTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val wheel1 = DI.whellProviderWeak()
@@ -98,7 +102,7 @@ class CarSingleWrapperTests {
     @Test
     fun wheelLazyProvideWeakTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val wheel1 = DI.whellLazyProviderWeak()
@@ -116,7 +120,7 @@ class CarSingleWrapperTests {
     @Test
     fun wheelProviderTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val wheel1 = DI.whellProvider()
@@ -131,7 +135,7 @@ class CarSingleWrapperTests {
     @Test
     fun carLazyTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val car1 = DI.carLazy()
@@ -145,9 +149,9 @@ class CarSingleWrapperTests {
     }
 
     @Test
-    fun carAsyncTest() {
+    fun carAsyncTest() = runBlocking {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val car1 = DI.carAsync()
@@ -160,9 +164,23 @@ class CarSingleWrapperTests {
     }
 
     @Test
+    fun bumperAsyncPhantomTest() = runBlocking {
+        //Given
+        val DI = CarWrappedCreateComponentStoneComponent()
+
+        //When
+        val bumper = DI.bumperAsyncPhantom()
+
+        // Then
+        assertNotNull(bumper.get().uuid)
+        assertNotEquals(bumper.get().uuid, bumper.get().uuid)
+        assertEquals(3, Bumper.createCount)
+    }
+
+    @Test
     fun carProvideTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val car1 = DI.carProvider()
@@ -178,7 +196,7 @@ class CarSingleWrapperTests {
     @Test
     fun carWeakTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val car1 = DI.carWeak()
@@ -193,7 +211,7 @@ class CarSingleWrapperTests {
     @Test
     fun windowTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val window1 = DI.window()
@@ -208,7 +226,7 @@ class CarSingleWrapperTests {
     @Test
     fun carTest() {
         //Given
-        val DI = Stone.createComponent(CarWrappedCreateComponent::class.java)
+        val DI = CarWrappedCreateComponentStoneComponent()
 
         //When
         val car1 = DI.car()
