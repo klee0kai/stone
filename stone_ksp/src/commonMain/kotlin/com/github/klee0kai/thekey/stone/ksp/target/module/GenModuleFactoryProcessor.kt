@@ -10,17 +10,16 @@ import com.github.klee0kai.thekey.stone.ksp.helpers.factoryStoneClName
 import com.github.klee0kai.thekey.stone.ksp.helpers.findComponentForModuleOrDep
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.WrapHelper
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.rawType
+import com.github.klee0kai.thekey.stone.ksp.ksp.*
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.GenSpec
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.SymbolsToProcess
 import com.github.klee0kai.thekey.stone.ksp.ksp.arch.TargetFileProcessor
-import com.github.klee0kai.thekey.stone.ksp.ksp.findConstructor
-import com.github.klee0kai.thekey.stone.ksp.ksp.getAllMethods
-import com.github.klee0kai.thekey.stone.ksp.ksp.joinInvokeArguments
-import com.github.klee0kai.thekey.stone.ksp.ksp.resolveNotNullable
 import com.github.klee0kai.thekey.stone.ksp.poet.genClass
 import com.github.klee0kai.thekey.stone.ksp.poet.genFileSpec
 import com.github.klee0kai.thekey.stone.ksp.poet.genLibComment
 import com.github.klee0kai.thekey.stone.ksp.poet.genOverrideFun
+import com.github.klee0kai.thekey.stone.ksp.psi.InMemoryPsiParser
+import com.github.klee0kai.thekey.stone.ksp.psi.isSamePlace
 import com.github.klee0kai.thekey.stone.ksp.target.component.collectWrapHelper
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.containingFile
@@ -38,6 +37,8 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtNamedFunction
 
 class GenModuleFactoryProcessor : TargetFileProcessor {
 
@@ -64,6 +65,7 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
             .firstOrNull()
 
         val wrapHelper = componentCl?.collectWrapHelper() ?: WrapHelper()
+        val filePsi = InMemoryPsiParser(moduleCl.location.fileText())
 
         val genFactoryClassName = moduleCl.factoryStoneClName
         val fileSpec = genFileSpec(genFactoryClassName.packageName, fileName = genFactoryClassName.simpleName) {
@@ -82,6 +84,15 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                     .forEachFun { _, function ->
                         if (!function.modifiers.contains(Modifier.ABSTRACT) && moduleCl.classKind != ClassKind.INTERFACE) return@forEachFun
                         val returnType = function.returnType?.toTypeName() ?: return@forEachFun
+                        val psiFunc by lazy {
+                            filePsi.ktFile.declarations
+                                .filterIsInstance<KtClass>()
+                                .firstOrNull()
+                                ?.declarations
+                                ?.filterIsInstance<KtNamedFunction>()
+                                ?.firstOrNull { it.isSamePlace(function) }
+                        }
+
                         val nonWrappedType = wrapHelper.nonWrappedType(returnType)
                         val nonWrappedClDec = resolver.getClassDeclarationByName(nonWrappedType.rawType().toString())
 
@@ -100,6 +111,14 @@ class GenModuleFactoryProcessor : TargetFileProcessor {
                                         "throw %T(%S)",
                                         NotImplementedError::class.asClassName(),
                                         "Object generation is not available for bind instance methods"
+                                    )
+                                }
+
+                                psiFunc?.hasBody() == true -> {
+                                    addStatement(
+                                        "return super.%L( %L )",
+                                        function.simpleName.asString(),
+                                        function.parameters.joinToString(", ") { it.name?.asString() ?: "it" },
                                     )
                                 }
 
