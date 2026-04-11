@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
-class AsyncCoroutineProvide<T>(
+class AsyncLazy<T>(
     private val provider: suspend () -> T
 ) {
 

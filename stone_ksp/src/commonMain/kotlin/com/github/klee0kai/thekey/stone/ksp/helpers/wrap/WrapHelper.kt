@@ -4,7 +4,7 @@ import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.weakref.SoftRef
 import com.github.klee0kai.stone.weakref.WeakRef
-import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
+import com.github.klee0kai.stone.wrappers.AsyncLazy
 import com.github.klee0kai.stone.wrappers.FantomAsyncProvide
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.stone.wrappers.PhantomProvide
@@ -285,10 +285,10 @@ class WrapHelper {
             Provider::class,
             javax.inject.Provider::class,
             LazyProvide::class,
-            AsyncCoroutineProvide::class,
+            AsyncLazy::class,
             FantomAsyncProvide::class,
         )) {
-            val isNoCachingWrapper = cl != LazyProvide::class && cl != AsyncCoroutineProvide::class
+            val isNoCachingWrapper = cl != LazyProvide::class && cl != AsyncLazy::class
 
             val wrapper = cl.asClassName()
             val wrapType = WrapType(

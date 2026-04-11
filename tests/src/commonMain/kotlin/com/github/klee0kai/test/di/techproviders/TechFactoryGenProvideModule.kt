@@ -6,7 +6,7 @@ import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.weakref.WeakRef
-import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
+import com.github.klee0kai.stone.wrappers.AsyncLazy
 import com.github.klee0kai.stone.wrappers.LazyProvide
 import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
@@ -42,7 +42,7 @@ interface TechFactoryGenProvideModule {
     @Provide(cache = Provide.CacheType.Factory, provideWrapper = WeakRef::class)
     fun phoneOsNamed(osType: PhoneOsType?): OperationSystem?
 
-    @Provide(cache = Provide.CacheType.Factory, provideWrapper = AsyncCoroutineProvide::class)
+    @Provide(cache = Provide.CacheType.Factory, provideWrapper = AsyncLazy::class)
     fun phoneOs(
         phoneOsType: PhoneOsType? = PhoneOsType.UbuntuTouch,
         version: PhoneOsVersion? = PhoneOsVersion(version = "def_version")
