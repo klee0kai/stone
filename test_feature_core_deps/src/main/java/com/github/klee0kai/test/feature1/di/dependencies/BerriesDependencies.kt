@@ -1,6 +1,6 @@
 package com.github.klee0kai.test.feature1.di.dependencies
 
-import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
+import com.github.klee0kai.stone.wrappers.AsyncLazy
 import com.github.klee0kai.test.core.di.wrapper.CustomStoneProvide
 import com.github.klee0kai.test.feature1.berries.*
 
@@ -10,10 +10,10 @@ interface BerriesDependencies {
 
     fun cherry(): CustomStoneProvide<Cherry>
 
-    fun currant(): AsyncCoroutineProvide<Currant>
+    fun currant(): AsyncLazy<Currant>
 
-    fun raspberry(): AsyncCoroutineProvide<Raspberry>
+    fun raspberry(): AsyncLazy<Raspberry>
 
-    fun strawberry(): AsyncCoroutineProvide<Strawberry>
+    fun strawberry(): AsyncLazy<Strawberry>
 
 }

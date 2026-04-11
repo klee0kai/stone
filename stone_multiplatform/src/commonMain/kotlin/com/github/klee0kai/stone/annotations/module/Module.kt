@@ -2,83 +2,184 @@ package com.github.klee0kai.stone.annotations.module
 
 
 /**
- * You can provide new dependencies and objects via modules.
- * Stone supports the announcement of new dependencies and providers.
- * A module can be a public class, an abstract class, or an interface.
+ * Marks a class or interface as a DI module that provides dependencies.
  *
+ * A module is the primary place where object creation and binding logic is defined.
+ * It can be a **class**, **abstract class**, or **interface**. Each method in a module
+ * is either a provider (`@Provide`) or a binding (`@BindInstance`). If neither annotation
+ * is specified, `@Provide(cache = CacheType.Factory)` is assumed by default.
  *
- * Each object provision must use one of the 2 annotations.
- * `@Provide` - providing a new object
- * `@BindInstance` - providing an already known object in the application.
- * If you do not specify any of the specified annotations,
- * then the `@Provide` annotation is assumed by default.
+ * ---
  *
+ * ## Basic module
  *
- * So for example in the machine creation module
- * <pre>`ㅤ@Module
- * public abstract class CarModule {
+ * ```kotlin
+ * @Module
+ * abstract class SevenPlanetModule {
+ *     @Provide(cache = Provide.CacheType.Soft)
+ *     open fun earth(): Earth = Earth()
  *
- * ㅤ@BindInstance
- * abstract Wheel wheel();
- *
- * ㅤ@Provide
- * Bumper bumper(){
- * return new Bumper();
+ *     @Provide(cache = Provide.CacheType.Soft)
+ *     abstract fun mars(): Mars?
  * }
+ * ```
  *
- * Window window(){
- * return new Window();
+ * ---
+ *
+ * ## Interface module with automatic constructor resolution
+ *
+ * For abstract or interface methods without a body, Stone automatically finds and
+ * invokes the appropriate constructor of the return type. Method parameters are
+ * passed as constructor arguments:
+ *
+ * ```kotlin
+ * @Module
+ * interface RoomsModule {
+ *     @Provide(cache = Provide.CacheType.Soft)
+ *     fun kitchen(cookingArea: CookingArea?, sinkArea: SinkArea?): Kitchen?
+ *
+ *     @Provide(cache = Provide.CacheType.Soft)
+ *     fun bathRoom(storeArea: StoreArea?): BathRoom?
  * }
+ * ```
  *
+ * ---
+ *
+ * ## Caching strategies
+ *
+ * Each provider method can specify a caching strategy:
+ *
+ * ```kotlin
+ * @Module
+ * abstract class CarModule {
+ *     @BindInstance(cache = BindInstance.CacheType.Weak)
+ *     abstract fun wheel(wheel: Wheel? = null): Wheel?
+ *
+ *     @Provide(cache = Provide.CacheType.Weak)
+ *     open fun bumper(): Bumper = Bumper()
+ *
+ *     @Provide(cache = Provide.CacheType.Soft)
+ *     open fun window(): Window = Window()
  * }
-`</pre> *
+ * ```
  *
+ * ---
  *
- * In our case, the wheel must be defined when initializing the DI component,
- * the bumper and the window have the same behavior - each time a new one is created.
+ * ## Bind instance
  *
+ * Objects created outside of DI can be provided via `@BindInstance`:
  *
- * Each element can be cached by specifying how the object is cached.
- * <pre>`ㅤ@Module
- * public abstract class CarModule {
- *
- * ㅤ@BindInstance(cache = BindInstance.CacheType.Weak)
- * abstract Wheel wheel();
- *
- * ㅤ@Provide(cache = Provide.CacheType.Weak)
- * Bumper bumper(){
- * return new Bumper();
+ * ```kotlin
+ * @Module
+ * interface SunSystemModule {
+ *     @BindInstance(cache = BindInstance.CacheType.Weak)
+ *     fun sun(sun: Sun? = null): Sun
  * }
+ * ```
  *
- * ㅤ@Provide(cache = Provide.CacheType.Soft)
- * Window window(){
- * return new Window();
+ * ---
+ *
+ * ## Generated provider class
+ *
+ * When [genProviderName] is set, Stone generates an additional class that wraps
+ * each provider method with the wrapper type specified in [Provide.provideWrapper]:
+ *
+ * ```kotlin
+ * @Module(genProviderName = "TechFactoryProviders")
+ * interface TechFactoryGenProvideModule {
+ *     @Provide(cache = Provide.CacheType.Factory, provideWrapper = LazyProvider::class)
+ *     fun battery(): Battery?
+ *
+ *     @Provide(cache = Provide.CacheType.Factory, provideWrapper = Provider::class)
+ *     fun ram(): Ram?
+ *
+ *     @Provide(cache = Provide.CacheType.Factory, provideWrapper = AsyncLazy::class)
+ *     fun phoneOs(phoneOsType: PhoneOsType?): OperationSystem?
  * }
+ * ```
  *
+ * ---
+ *
+ * ## Module with qualifiers
+ *
+ * Qualifier annotations on methods distinguish multiple providers of the same type:
+ *
+ * ```kotlin
+ * @Module
+ * abstract class PresentersModule {
+ *     @MyQualifier
+ *     abstract fun provideFeaturePresenter(
+ *         @ThreadQualifier(type = ThreadQualifier.ThreadType.Main) executor: ThreadPoolExecutor
+ *     ): FeaturePresenter
  * }
-`</pre> *
+ * ```
  *
+ * ---
  *
- * And also, you can not explicitly specify the use of the constructor.
- * The constructor will be found by the library automatically when using parameters.
+ * ## Module with GC scopes
  *
- * <pre>`ㅤ@Module
- * public interface CarModule {
+ * GC scope annotations group cached objects for selective garbage collection:
  *
- * ㅤ@BindInstance(cache = BindInstance.CacheType.Weak)
- * Wheel wheel();
+ * ```kotlin
+ * @Module
+ * interface PlanetsModule {
+ *     @GcMercuryScope
+ *     @BindInstance
+ *     fun mercury(mercury: Mercury? = null): Mercury?
  *
- * ㅤ@Provide(cache = Provide.CacheType.Weak)
- * Bumper bumper();
- *
- * ㅤ@Provide(cache = Provide.CacheType.Soft)
- * Window window();
- *
+ *     @Provide(cache = Provide.CacheType.Soft)
+ *     fun venus(): Venus?
  * }
-`</pre> *
+ * ```
+ *
+ * ---
+ *
+ * ## Module inheritance
+ *
+ * Modules can be subclassed to override creation logic:
+ *
+ * ```kotlin
+ * @Module
+ * abstract class UnitedBlueModule : UnitedModule() {
+ *     @Provide(cache = Provide.CacheType.Strong)
+ *     override fun blood(): Blood? = Blood(1)
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Nuances
+ *
+ * - If a module is an **interface**, all methods are abstract and Stone resolves constructors automatically.
+ * - If a module is an **abstract class**, you can mix abstract methods (auto-resolved) with
+ *   concrete methods (custom creation logic).
+ * - If a module is a **concrete class**, methods must be `open` to allow Stone to override them for caching.
+ * - A module's methods are used both for direct access and for resolving dependencies
+ *   in provider and injection methods of the component.
+ * - The [genProviderName] parameter is optional and only needed when you want a separate
+ *   generated provider class with wrapped return types.
+ *
+ * @see Provide
+ * @see BindInstance
+ * @see com.github.klee0kai.stone.annotations.component.Component
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 annotation class Module(
+    /**
+     * Name for the generated provider class.
+     *
+     * When set, Stone generates an additional class with this name where each provider
+     * method returns the object wrapped according to [Provide.provideWrapper].
+     * Leave empty (default) if no separate provider class is needed.
+     *
+     * ```kotlin
+     * @Module(genProviderName = "TechFactoryProviders")
+     * interface TechFactoryGenProvideModule {
+     *     @Provide(cache = Provide.CacheType.Factory, provideWrapper = LazyProvider::class)
+     *     fun battery(): Battery?
+     * }
+     * ```
+     */
     val genProviderName: String = "",
 )

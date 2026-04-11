@@ -6,8 +6,8 @@ import com.github.klee0kai.stone.annotations.module.Module
 import com.github.klee0kai.stone.annotations.module.Provide
 import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.weakref.WeakRef
-import com.github.klee0kai.stone.wrappers.AsyncCoroutineProvide
-import com.github.klee0kai.stone.wrappers.LazyProvide
+import com.github.klee0kai.stone.wrappers.AsyncLazy
+import com.github.klee0kai.stone.wrappers.LazyProvider
 import com.github.klee0kai.test.di.base_phone.identifiers.DataStorageSize
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsType
 import com.github.klee0kai.test.di.base_phone.identifiers.PhoneOsVersion
@@ -20,7 +20,7 @@ import com.github.klee0kai.test.tech.components.Ram
 @Module(genProviderName = "TechFactoryProviders")
 interface TechFactoryGenProvideModule {
 
-    @Provide(cache = Provide.CacheType.Factory, provideWrapper = LazyProvide::class)
+    @Provide(cache = Provide.CacheType.Factory, provideWrapper = LazyProvider::class)
     fun battery(): Battery?
 
     @Named("null_args")
@@ -42,7 +42,7 @@ interface TechFactoryGenProvideModule {
     @Provide(cache = Provide.CacheType.Factory, provideWrapper = WeakRef::class)
     fun phoneOsNamed(osType: PhoneOsType?): OperationSystem?
 
-    @Provide(cache = Provide.CacheType.Factory, provideWrapper = AsyncCoroutineProvide::class)
+    @Provide(cache = Provide.CacheType.Factory, provideWrapper = AsyncLazy::class)
     fun phoneOs(
         phoneOsType: PhoneOsType? = PhoneOsType.UbuntuTouch,
         version: PhoneOsVersion? = PhoneOsVersion(version = "def_version")

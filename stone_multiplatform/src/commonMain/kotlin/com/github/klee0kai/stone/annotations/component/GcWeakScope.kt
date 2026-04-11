@@ -4,8 +4,25 @@ import com.github.klee0kai.stone.Scope
 
 
 /**
- * A standard library scope that enumerates all cacheable objects using weak references.
- * Used for garbage collection and caching change methods.
+ * A built-in scope that targets objects cached with **weak** references
+ * (`@Provide(cache = CacheType.Weak)`).
+ *
+ * Used with [RunGc] or [SwitchCache] to selectively manage weak-cached objects:
+ *
+ * ```kotlin
+ * @Component
+ * abstract class GcGodComponent {
+ *     @RunGc @GcWeakScope
+ *     abstract fun gcWeak()
+ * }
+ * ```
+ *
+ * Weak-cached objects are almost always collected when not held by anyone,
+ * so `@RunGc @GcWeakScope` is typically the least impactful GC operation.
+ *
+ * @see RunGc
+ * @see SwitchCache
+ * @see GcScopeAnnotation
  */
 @GcScopeAnnotation
 @Scope

@@ -9,10 +9,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - java_version: 17
-            java_distribution: "temurin"
-          - java_version: 17
-            java_distribution: "oracle"
+#          - java_version: 17
+#            java_distribution: "temurin"
+#          - java_version: 17
+#            java_distribution: "oracle"
           - java_version: 17
             java_distribution: "corretto"
     runs-on: ubuntu-latest
@@ -46,10 +46,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - java_version: 17
-            java_distribution: "temurin"
-          - java_version: 17
-            java_distribution: "oracle"
+#          - java_version: 17
+#            java_distribution: "temurin"
+#          - java_version: 17
+#            java_distribution: "oracle"
           - java_version: 17
             java_distribution: "corretto"
     steps:

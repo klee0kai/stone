@@ -2,28 +2,58 @@ package com.github.klee0kai.stone.annotations.component
 
 
 /**
- * A component extends a parent component.
- * With the help of such an annotation, an extension method is declared on the parent component.
- * <pre>`ㅤ@Component
- * public interface AppExtendComponent extends AppComponent {
+ * Declares a component extension method that inherits DI state from a parent component.
  *
- * ㅤ@ExtendOf
- * void extOf(AppComponent parent);
+ * When a component extends another, it inherits the parent's cached objects and modules.
+ * The child component can override module methods to provide new implementations
+ * while sharing the same DI graph.
  *
+ * ---
+ *
+ * ## Basic extension
+ *
+ * ```kotlin
+ * @Component
+ * interface AppComponent {
+ *     fun feature(): FeatureModule
+ *
+ *     @Init
+ *     fun initFeatureModule(featureModule: FeatureModule?)
  * }
-`</pre> *
  *
+ * @Component
+ * interface AppProComponent : AppComponent {
+ *     override fun feature(): ProFeatureModule
  *
- * For the parent component, all object creation factories are replaced with new ones,
- * from the child extending component.
- * Components become interconnected, all cleanups,
- * caching type changes are performed simultaneously for both components.
+ *     @ExtendOf
+ *     fun extendComponent(parent: AppComponent)
+ * }
+ * ```
  *
+ * Usage:
  *
- * The replacement of generated and provided objects is not done immediately, but gradually.
- * As they are cleared from memory.
- * Be careful, the new objects provided should extend the functionality of the previous ones, not break the old logic.
- * In some cases, interaction between objects of different versions is possible.
+ * ```kotlin
+ * val baseComponent = AppComponentStoneComponent()
+ * val proComponent = AppProComponentStoneComponent()
+ * proComponent.extendComponent(baseComponent)
+ * ```
+ *
+ * ---
+ *
+ * ## Nuances
+ *
+ * - After extension, the parent component's factories are replaced with the child's.
+ *   Both components become **interconnected** — all cleanups and caching type
+ *   changes are performed simultaneously for both.
+ * - The replacement of provided objects is **not immediate but gradual** —
+ *   old cached instances are replaced as they are cleared from memory.
+ * - New objects provided by the child should **extend** the functionality
+ *   of the previous ones, not break existing logic. During the transition period,
+ *   interaction between objects of different versions is possible.
+ * - The extending component must inherit (implement) the parent component's interface.
+ *
+ * @see Component
+ * @see Init
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)

@@ -3,8 +3,7 @@ package com.github.klee0kai.test.mowgli
 import com.github.klee0kai.stone.Inject
 import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.stone.weakref.Ref
-import com.github.klee0kai.stone.wrappers.LazyProvide
-import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.stone.wrappers.LazyProvider
 import com.github.klee0kai.test.mowgli.community.History
 import com.github.klee0kai.test.mowgli.identity.Knowledge
 import kotlin.jvm.JvmField
@@ -13,7 +12,7 @@ class School {
 
     @JvmField
     @Inject
-    var historyLazyProvide: LazyProvide<History?>? = null
+    var historyLazyProvide: LazyProvider<History?>? = null
 
     @JvmField
     @Inject
@@ -25,6 +24,6 @@ class School {
 
     @JvmField
     @Inject
-    var knowledgePhantomProvide: PhantomProvide<Knowledge?>? = null
+    var knowledgePhantomProvide: Provider<Knowledge?>? = null
 
 }

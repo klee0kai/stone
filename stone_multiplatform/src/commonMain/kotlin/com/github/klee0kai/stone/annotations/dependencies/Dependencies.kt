@@ -2,45 +2,109 @@ package com.github.klee0kai.stone.annotations.dependencies
 
 
 /**
- * Component dependencies are provided through a class annotated with `@Dependencies`.
- * When resolving dependencies, the objects declared in this class will also be used.
+ * Marks an interface as an external dependency contract for a component.
  *
+ * A `@Dependencies` interface declares objects that come from outside the component
+ * (e.g., from another component or a factory). Unlike modules, dependencies are
+ * **not cached** by the consuming component — they are already cached in their source.
+ * Dependencies **must be initialized** (via `@Init`) before use.
  *
- * The signature of a dependency class is the same as that of a module.
- * In this class, you just need to enumerate the provided objects and dependencies as interface methods.
+ * ---
  *
- * <pre>`ㅤ@Dependencies
- * public interface CarDependencies {
+ * ## Declaring dependencies
  *
- * Wheel wheel();
- *
- * Bumper bumper();
- *
- * Window window();
- *
- * }
-`</pre> *
- * Any factory, provider, or DI component can provide these dependencies by simply implementing this interface.
- * <pre>`ㅤ@Component
- * public abstract class AppComponent implements CommonDependencies {
- * // some code
+ * ```kotlin
+ * @Dependencies
+ * interface StarsDependencies {
+ *     fun sun(): Sun
  * }
  *
- * ㅤ@Dependencies
- * public interface CommonDependencies{
- * // some code
+ * @Dependencies
+ * interface PlanningDependencies {
+ *     fun workCalendar(): WorkCalendar?
+ *     fun securityDepartment(): SecurityDepartment?
  * }
-`</pre> *
+ * ```
  *
+ * ---
  *
- * In your component, you simply initialize these dependencies.
- * <pre>`ㅤ@Comonent
- * public abstract class FeatureComponent {
- * public abstract CommonDependencies dependencies();
- * ㅤ@Init
- * void initDependencies(CommonDependencies dependencies);
+ * ## Using dependencies in a component
+ *
+ * Declare the dependency interface as a method in the component and initialize it
+ * with `@Init`:
+ *
+ * ```kotlin
+ * @Component
+ * interface AppComponent {
+ *     fun feature(): FeatureModule
+ *     fun starsDependencies(): StarsDependencies
+ *
+ *     @Init
+ *     fun initFeatureModule(featureModule: FeatureModule?)
  * }
-`</pre> *
+ * ```
+ *
+ * ---
+ *
+ * ## Providing dependencies from another component
+ *
+ * Any component, factory, or class can provide dependencies by implementing the interface:
+ *
+ * ```kotlin
+ * @Component
+ * abstract class AppComponent : CommonDependencies {
+ *     // provides CommonDependencies to child components
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Dependency composition (inheritance)
+ *
+ * Dependencies can extend other dependency interfaces to compose contracts:
+ *
+ * ```kotlin
+ * @Dependencies
+ * interface CoreDependenciesProvider : BirdsDependencies, TreesDependencies {
+ *     fun alder(): Alder
+ *     fun ash(): Ash
+ *     fun beech(): Beech
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Dependency methods with wrappers
+ *
+ * Dependency methods can return wrapper types:
+ *
+ * ```kotlin
+ * @Dependencies
+ * interface BerriesDependencies {
+ *     fun currant(): AsyncLazy<Currant>
+ *     fun raspberry(): AsyncLazy<Raspberry>
+ *     fun strawberry(): AsyncLazy<Strawberry>
+ * }
+ *
+ * interface SolarSystemDependencies {
+ *     fun earth(): LazyProvider<Earth?>?
+ *     fun mercury(): LazyProvider<Mercury?>?
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Nuances
+ *
+ * - Dependencies **must be initialized** before use — accessing an uninitialized
+ *   dependency results in `null`.
+ * - Dependencies are **not cached** by the consuming component — they delegate
+ *   to the source that provides them.
+ * - The dependency interface signature is similar to a module's, but without
+ *   `@Provide` or `@BindInstance` annotations.
+ *
+ * @see com.github.klee0kai.stone.annotations.component.Component
+ * @see com.github.klee0kai.stone.annotations.component.Init
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
