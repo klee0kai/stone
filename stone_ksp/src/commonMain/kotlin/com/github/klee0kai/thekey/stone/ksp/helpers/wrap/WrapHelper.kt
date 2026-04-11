@@ -5,9 +5,8 @@ import com.github.klee0kai.stone.weakref.Ref
 import com.github.klee0kai.stone.weakref.SoftRef
 import com.github.klee0kai.stone.weakref.WeakRef
 import com.github.klee0kai.stone.wrappers.AsyncLazy
-import com.github.klee0kai.stone.wrappers.FantomAsyncProvide
-import com.github.klee0kai.stone.wrappers.LazyProvide
-import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.stone.wrappers.AsyncProvider
+import com.github.klee0kai.stone.wrappers.LazyProvider
 import com.github.klee0kai.thekey.stone.ksp.exceptions.StoneException
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils.noWildCardType
 import com.github.klee0kai.thekey.stone.ksp.helpers.wrap.ClassNameUtils.rawTypeOf
@@ -280,15 +279,14 @@ class WrapHelper {
         }
 
         for (cl in listOf(
-            PhantomProvide::class,
-            Ref::class,
             Provider::class,
+            Ref::class,
             javax.inject.Provider::class,
-            LazyProvide::class,
+            LazyProvider::class,
             AsyncLazy::class,
-            FantomAsyncProvide::class,
+            AsyncProvider::class,
         )) {
-            val isNoCachingWrapper = cl != LazyProvide::class && cl != AsyncLazy::class
+            val isNoCachingWrapper = cl != LazyProvider::class && cl != AsyncLazy::class
 
             val wrapper = cl.asClassName()
             val wrapType = WrapType(

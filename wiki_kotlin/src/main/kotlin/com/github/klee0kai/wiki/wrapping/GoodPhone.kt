@@ -1,7 +1,7 @@
 package com.github.klee0kai.wiki.wrapping
 
-import com.github.klee0kai.stone.wrappers.LazyProvide
-import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.stone.Provider
+import com.github.klee0kai.stone.wrappers.LazyProvider
 import com.github.klee0kai.test.tech.components.Battery
 import com.github.klee0kai.test.tech.components.Ram
 import javax.inject.Inject
@@ -11,10 +11,10 @@ val DI: TechFactoryComponent = TechFactoryComponentStoneComponent()
 class GoodPhone {
 
     @Inject
-    lateinit var battery: PhantomProvide<Battery>
+    lateinit var battery: Provider<Battery>
 
     @Inject
-    lateinit var ram: LazyProvide<Ram>
+    lateinit var ram: LazyProvider<Ram>
 
     fun create() {
         DI.inject(this)

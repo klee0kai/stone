@@ -6,7 +6,7 @@ import com.github.klee0kai.stone.weakref.Ref
  * Transparent provider of an object or dependency.
  * Does not cache the value after provisioning.
  */
-class FantomAsyncProvide<T>(
+class AsyncProvider<T>(
     private val provider: suspend () -> T
 ) {
 

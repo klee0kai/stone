@@ -13,7 +13,7 @@ import com.github.klee0kai.stone.weakref.Ref
  * }
 `</pre> *
  */
-class LazyProvide<T>(private val call: Ref<T>) : Ref<T?> {
+class LazyProvider<T>(private val call: Ref<T>) : Ref<T?> {
 
     private var value: T? = null
 

@@ -2,8 +2,8 @@ package com.github.klee0kai.test.car.di.wrapped.create
 
 import com.github.klee0kai.stone.annotations.component.Component
 import com.github.klee0kai.stone.wrappers.AsyncLazy
-import com.github.klee0kai.stone.wrappers.FantomAsyncProvide
-import com.github.klee0kai.stone.wrappers.LazyProvide
+import com.github.klee0kai.stone.wrappers.AsyncProvider
+import com.github.klee0kai.stone.wrappers.LazyProvider
 import com.github.klee0kai.test.car.model.Bumper
 import com.github.klee0kai.test.car.model.Car
 import com.github.klee0kai.test.car.model.Wheel
@@ -19,17 +19,17 @@ interface CarWrappedCreateComponent {
 
     fun wheelProvide(): Provider<Wheel?>?
 
-    fun wheelLazy(): LazyProvide<Wheel?>?
+    fun wheelLazy(): LazyProvider<Wheel?>?
 
     fun wheelWeak(): WeakReference<Wheel?>?
 
     fun whellProviderWeak(): Provider<WeakReference<Wheel?>?>?
 
-    fun whellLazyProviderWeak(): LazyProvide<Provider<WeakReference<Wheel?>?>?>?
+    fun whellLazyProviderWeak(): LazyProvider<Provider<WeakReference<Wheel?>?>?>?
 
     fun whellProvider(): Provider<Wheel?>?
 
-    fun carLazy(): LazyProvide<Car?>?
+    fun carLazy(): LazyProvider<Car?>?
 
     fun carProvider(): Provider<Car?>?
 
@@ -41,7 +41,7 @@ interface CarWrappedCreateComponent {
 
     fun carAsync(): AsyncLazy<Car?>?
 
-    fun bumperAsyncPhantom(): FantomAsyncProvide<Bumper>
+    fun bumperAsyncPhantom(): AsyncProvider<Bumper>
 
 
 }

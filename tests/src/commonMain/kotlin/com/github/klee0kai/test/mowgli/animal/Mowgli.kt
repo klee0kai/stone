@@ -3,8 +3,7 @@ package com.github.klee0kai.test.mowgli.animal
 import com.github.klee0kai.stone.Inject
 import com.github.klee0kai.stone.Provider
 import com.github.klee0kai.stone.weakref.*
-import com.github.klee0kai.stone.wrappers.LazyProvide
-import com.github.klee0kai.stone.wrappers.PhantomProvide
+import com.github.klee0kai.stone.wrappers.LazyProvider
 import com.github.klee0kai.test.mowgli.body.Blood
 import com.github.klee0kai.test.mowgli.community.History
 import com.github.klee0kai.test.mowgli.galaxy.Earth
@@ -40,7 +39,7 @@ class Mowgli : IAnimal {
 
     @JvmField
     @Inject
-    var knowledgeLazyProvide: LazyProvide<Knowledge?>? = null
+    var knowledgeLazyProvide: LazyProvider<Knowledge?>? = null
 
     @JvmField
     @Inject
@@ -51,7 +50,7 @@ class Mowgli : IAnimal {
 
     @JvmField
     @Inject
-    var knowledgePhantomProvide: PhantomProvide<Knowledge?>? = null
+    var knowledgePhantomProvide: Provider<Knowledge?>? = null
 
     @JvmField
     var methodKnowledgeWeakRef: WeakRef<Knowledge?>? = null
@@ -60,7 +59,7 @@ class Mowgli : IAnimal {
     var methodKnowledgeSoftRef: SoftRef<Knowledge?>? = null
 
     @JvmField
-    var methodKnowledgeLazyProvide: LazyProvide<Knowledge?>? = null
+    var methodKnowledgeLazyProvide: LazyProvider<Knowledge?>? = null
 
     @JvmField
     var methodKnowledgePhantomProvide2: Ref<Knowledge?>? = null
@@ -69,7 +68,7 @@ class Mowgli : IAnimal {
     var methodKnowledgePhantomProvide3: Provider<Knowledge?>? = null
 
     @JvmField
-    var methodKnowledgePhantomProvide: PhantomProvide<Knowledge?>? = null
+    var methodKnowledgePhantomProvide: Provider<Knowledge?>? = null
 
     @Inject
     fun refInject(knowledgeWeakRef: WeakRef<Knowledge?>?, knowledgeSoftRef: SoftRef<Knowledge?>?) {
@@ -80,10 +79,10 @@ class Mowgli : IAnimal {
 
     @Inject
     fun wrapperInject(
-        knowledgeLazyProvide: LazyProvide<Knowledge?>?,
+        knowledgeLazyProvide: LazyProvider<Knowledge?>?,
         knowledgePhantomProvide2: Ref<Knowledge?>?,
         knowledgePhantomProvide3: Provider<Knowledge?>?,
-        knowledgePhantomProvide: PhantomProvide<Knowledge?>?
+        knowledgePhantomProvide: Provider<Knowledge?>?
     ) {
         methodKnowledgeLazyProvide = knowledgeLazyProvide
         methodKnowledgePhantomProvide2 = knowledgePhantomProvide2
