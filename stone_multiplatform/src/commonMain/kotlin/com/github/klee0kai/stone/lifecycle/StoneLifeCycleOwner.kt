@@ -1,56 +1,83 @@
 package com.github.klee0kai.stone.lifecycle
 
 /**
- * Objects in an application can have a life cycle.
- * Various components of your application can be created, destroyed, and re-created.
+ * Enables automatic injection protection tied to a consumer's lifecycle.
  *
+ * Application components (e.g., Android Activities, Fragments) can be destroyed and
+ * re-created. During re-creation, injected objects might be garbage-collected before
+ * the new instance can receive them. `StoneLifeCycleOwner` automates the protection
+ * process by subscribing to lifecycle events and calling
+ * [StoneLifeCycleListener.protectForInjected] at the right moments.
  *
- * At the time of re-creation of the object, it may be necessary to save the objects provided to it from DI.
- * In a normal case, this can be done by declaring an additional `@ProtectInjected` method in the component.
- * For example:
- * <pre>`ㅤ@Component
+ * ---
+ *
+ * ## Android Activity example
+ *
+ * Create a lifecycle owner that protects injected objects when the activity pauses:
+ *
+ * ```kotlin
+ * fun lifeCycleOwner(lifecycle: Lifecycle, protectTimeMillis: Long): StoneLifeCycleOwner {
+ *     return StoneLifeCycleOwner { listener ->
+ *         lifecycle.addObserver(object : DefaultLifecycleObserver {
+ *             override fun onPause(owner: LifecycleOwner) {
+ *                 listener.protectForInjected(protectTimeMillis)
+ *             }
+ *         })
+ *     }
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Using with injection
+ *
+ * Pass the lifecycle owner as an additional parameter to the inject method:
+ *
+ * ```kotlin
+ * @Component
+ * interface ForestComponent {
+ *     fun inject(horse: Horse?, stoneLifeCycleOwner: StoneLifeCycleOwner?)
+ *     fun inject(horse: Horse?)
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## With identifiers
+ *
+ * Lifecycle owners can be combined with identifiers in injection methods:
+ *
+ * ```kotlin
+ * @Component(identifiers = [ScreenId::class, LoginId::class])
  * interface AppComponent {
- *
- * void inject(Activity activity);
- *
- * ㅤ@ProtectInjected
- * void protectInjected(Activity activity);
- *
+ *     fun inject(screen: FeatureScreen, owner: StoneLifeCycleOwner, loginId: LoginId, screenId: ScreenId)
  * }
-`</pre> *
+ * ```
  *
+ * ---
  *
- * If your class can track life cycle events.
- * Then for such classes, you can implement the Stone life cycle,
- * which independently calls the deletion protection methods.
+ * ## Nuances
  *
+ * - If the consumer class itself implements `StoneLifeCycleOwner`, it can be
+ *   passed directly — no additional parameter is needed.
+ * - The lifecycle owner is called once during injection to subscribe to events.
+ *   Subsequent lifecycle events (e.g., `onPause`) trigger protection automatically.
+ * - This is an alternative to explicitly calling `@ProtectInjected` methods.
  *
- * For example, for Android Activity it will look like this.
- * <pre>`public static StoneLifeCycleOwner lifeCycleOwner(Lifecycle lifecycle, long protectTimeMillis) {
- * return listener -> lifecycle.addObserver(new DefaultLifecycleObserver() {
- * ㅤ@Override
- * public void onPause(@NonNull @NotNull LifecycleOwner owner1) {
- * DefaultLifecycleObserver.super.onPause(owner1);
- * listener.protectForInjected(protectTimeMillis);
- * }
- * });
- * }
-`</pre> *
- *
- *
- * Further, you simply use your class when injecting itself (if it implements StoneLifeCycleOwner),
- * or with an additional StoneLifeCycleOwner argument
- *
- * <pre>`ㅤ@Component
- * interface AppComponent {
- *
- * void inject(Activity activity, StoneLifeCycleOwner owner);
- *
- * }
-`</pre> *
+ * @see StoneLifeCycleListener
+ * @see com.github.klee0kai.stone.annotations.component.ProtectInjected
  */
 fun interface StoneLifeCycleOwner {
 
+    /**
+     * Subscribes to lifecycle events to receive protection callbacks.
+     *
+     * Called by Stone during injection. The implementation should register
+     * the [listener] with the platform's lifecycle mechanism and invoke
+     * [StoneLifeCycleListener.protectForInjected] at the appropriate moments.
+     *
+     * @param listener the listener that triggers injection protection
+     */
     fun subscribe(listener: StoneLifeCycleListener)
 
 }

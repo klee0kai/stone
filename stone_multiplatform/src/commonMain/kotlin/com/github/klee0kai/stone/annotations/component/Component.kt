@@ -4,235 +4,468 @@ import kotlin.reflect.KClass
 
 
 /**
- * The main component of providing dependencies.
- * Here we list the modules for creating objects.
- * Can be a public class, an abstract class, or an interface.
+ * The main annotation for declaring a DI component.
  *
+ * A component is the central entry point for providing and injecting dependencies.
+ * It declares which modules create objects, how dependencies are resolved, and
+ * how injection is performed. Can be applied to an **interface**, **abstract class**,
+ * or a concrete **class**.
  *
- * Based on this class, the library generates a child class `ClassName`StoneComponent.
- * Which can be used directly, or simplified notation.
+ * Based on the annotated class, the Stone KSP processor generates a child class
+ * named `<ClassName>StoneComponent` that implements all the DI wiring.
  *
+ * ```kotlin
+ * // Direct instantiation
+ * val DI = SevenPlanetComponentStoneComponent()
  *
- * `ClassName` DI = Stone.createComponent(`ClassName`.class);
+ * // Or via Stone factory
+ * val DI = Stone.createComponent(SevenPlanetComponent::class)
+ * ```
  *
+ * ---
  *
- * **Modules**
+ * ## Modules
  *
+ * Modules are classes annotated with `@Module` that define how objects are created.
+ * Declare a method returning the module type to make it available to the component:
  *
- * In the DI component, you can declare the modules used.
- * To do this, you need to create a class with the @Module annotation, and provide it in the component.
- *
- *
- * <pre>`ㅤ@Component
- * public abstract class AppComponent {
- * public abstract RepositoriesModule repositories();
+ * ```kotlin
+ * @Component
+ * interface SevenPlanetComponent {
+ *     fun planets(): SevenPlanetModule
  * }
+ * ```
  *
- * ㅤ@Module
- * public interface RepositoriesModule{
- * // some code
+ * Modules can be used directly, and are also used internally to resolve dependencies
+ * for provider and injection methods in the component.
+ *
+ * A module can be replaced at runtime via an [Init]-annotated initialization method:
+ *
+ * ```kotlin
+ * @Component
+ * interface AppComponent {
+ *     fun feature(): FeatureModule
+ *
+ *     @Init
+ *     fun initFeatureModule(featureModule: FeatureModule?)
  * }
-`</pre> *
- * Modules can be used directly.
- * Also, declared modules in the component are used to resolve dependencies into injection methods,
- * as well as into provider methods in the component.
+ * ```
  *
+ * Initialization can be performed at component creation or later.
+ * Provided objects will be replaced gradually as old ones are cleared from memory.
  *
- * Providing a module can be replaced by calling an initialization method.
- * <pre>`ㅤ@Component
- * public abstract class AppComponent {
- * public abstract RepositoriesModule repositories();
- * ㅤ@Init
- * void initRepositories(RepositoriesModule repositories);
+ * Multiple modules can be initialized in a single `@Init` method:
+ *
+ * ```kotlin
+ * @Component
+ * interface ForestComponent {
+ *     fun united(): UnitedModule?
+ *     fun identity(): IdentityModule?
+ *
+ *     @Init
+ *     fun initUnitedModule(unitedModule: UnitedModule?)
+ *
+ *     @Init
+ *     fun iniAllModules(unitedModule: UnitedModule?, identityModule: IdentityModule?)
  * }
+ * ```
  *
-`</pre> *
+ * ---
  *
+ * ## Dependencies
  *
- * Moreover, this initialization can be performed as when creating a component,
- * and when using this component directly.
- * In this case, the objects provided in the module will be replaced gradually as they are destroyed in memory.
+ * External dependencies from other components are declared the same way as modules,
+ * but the dependency interface must be annotated with `@Dependencies`.
+ * Dependencies **must be initialized before use** and are **not cached** —
+ * they are already cached in their own component.
  *
+ * ```kotlin
+ * @Component
+ * interface AppComponent {
+ *     fun feature(): FeatureModule
+ *     fun starsDependencies(): StarsDependencies
  *
- *
- * **Dependencies**
- *
- *
- * All component dependencies are declared in the same way as modules.
- * Dependency classes must use the `@Dependencies` annotation
- * <pre>`ㅤ@Component
- * public abstract class FeatureComponent {
- * public abstract CommonDependencies dependencies();
- * ㅤ@Init
- * void initDependencies(CommonDependencies dependencies);
+ *     @Init
+ *     fun initFeatureModule(featureModule: FeatureModule?)
  * }
+ * ```
  *
- * ㅤ@Dependencies
- * public interface CommonDependencies{
- * // some code
+ * ---
+ *
+ * ## Providing objects
+ *
+ * If a component has at least one module, it can directly provide any object
+ * produced by its modules. Dependencies are resolved automatically:
+ *
+ * ```kotlin
+ * @Component
+ * interface CarWrappedCreateComponent {
+ *     fun factory(): CarWrappedCreateModule?
+ *
+ *     fun wheel(): Wheel?
+ *     fun car(): Car?
+ *     fun window(): Window?
  * }
-`</pre> *
- * Note that dependencies must be initialized before use.
+ * ```
  *
+ * Return types can be wrapped with [com.github.klee0kai.stone.Provider],
+ * [com.github.klee0kai.stone.wrappers.LazyProvider],
+ * [com.github.klee0kai.stone.wrappers.AsyncLazy],
+ * [com.github.klee0kai.stone.wrappers.AsyncProvider],
+ * `WeakReference`, and other registered wrappers:
  *
- * Dependencies are not cached because
- * they are already cached in their component or in their factory, the provider.
+ * ```kotlin
+ * @Component
+ * interface CarWrappedCreateComponent {
+ *     fun factory(): CarWrappedCreateModule?
  *
+ *     fun wheelProvide(): Provider<Wheel?>?
+ *     fun wheelLazy(): LazyProvider<Wheel?>?
+ *     fun wheelWeak(): WeakReference<Wheel?>?
+ *     fun carAsync(): AsyncLazy<Car?>?
+ *     fun bumperAsyncPhantom(): AsyncProvider<Bumper>
  *
- *
- * **Provide objects**
- *
- *
- * If a component contains at least one module, it can directly provide the dependencies
- * of that and its other modules directly.
- *
- *
- * In a component, you can declare a provider method of any object that is provided in one of its modules.
- * By providing this object, dependencies will be resolved automatically.
- * <pre>`ㅤ@Component
- * public interface CarComponent {
- *
- * CarModule module();
- *
- * Car car();
+ *     // nested wrappers are also supported
+ *     fun whellProviderWeak(): Provider<WeakReference<Wheel?>?>?
+ *     fun whellLazyProviderWeak(): LazyProvider<Provider<WeakReference<Wheel?>?>?>?
  * }
+ * ```
  *
- * ㅤ@Module
- * public interface CarModule{
- * Wheel wheel();
- * Window window();
- * Bumper bumper();
+ * ---
  *
- * Car car(Wheel wheel,Window window, Bumper bumper);
+ * ## Identifiers
+ *
+ * Identifiers allow providing and caching **unique instances** of the same type.
+ * Declare identifier types in the [identifiers] parameter; they must implement
+ * `hashCode` and `equals` (Kotlin `data class`):
+ *
+ * ```kotlin
+ * @Component(identifiers = [ScreenId::class, LoginId::class])
+ * interface AppComponent {
+ *     fun planetsModule(): SevenPlanetModule
+ *     fun presentersModule(): PresentersModule
+ *
+ *     fun featurePresenter(loginId: LoginId, screenId: ScreenId): FeaturePresenter
+ *
+ *     fun inject(screen: FeatureScreen, loginId: LoginId, screenId: ScreenId)
  * }
-`</pre> *
- * You can also use additional identifiers to provide a unique object instance.
- * The result can be wrapped in declared wrappers, for example, lazy providing, and asynchronous providing.
+ * ```
  *
+ * Identifiers are also used when resolving dependencies — if a dependency uses an identifier,
+ * it will be created with the matching key. If no identifier is passed, `null` is used.
  *
+ * ---
  *
- * **Bind Instances**
+ * ## Bind instances
  *
+ * Already existing objects can be provided as dependencies using `@BindInstance`.
+ * Supports different cache types:
  *
- * The library allows you to use already known objects in the application as dependencies, as well as provisioning.
+ * ```kotlin
+ * @Component
+ * interface PlanetComponent {
+ *     fun sunModule(): SunModule?
  *
+ *     // bind and provide (with return type)
+ *     @BindInstance
+ *     fun planet(planet: IPlanet?): IPlanet?
  *
- * To do this, it is enough to declare the provision of an object with the `@BindInstance` annotation, if the declaration is performed directly in the component.
- * Or without this annotation, if it has already been used in the module.
+ *     // bind with weak caching
+ *     @BindInstance(cache = BindInstance.CacheType.Weak)
+ *     fun earth(earth: Earth?): Earth?
  *
+ *     // bind only, no provide (void return)
+ *     @BindInstance
+ *     fun bindSun(sun: Sun?)
  *
- *
- * **Inject**
- *
- *
- * DI allows you to provide objects to classes.
- * To do this, it is enough to declare an injection method without a return type,
- * with only one argument - the injection class.
- * <pre>`ㅤ@Component
- * public interface AppComponent {
- * void inject(Activity activity);
+ *     fun providePlanet(): IPlanet?
  * }
-`</pre> *
- * When this method is called,
- * all fields and methods with the `@Inject` annotation will be initialized or called.
+ * ```
  *
+ * ---
  *
+ * ## Injection
  *
- * **Initialization**
+ * Injection methods have no return type and accept a single argument — the target object.
+ * When called, all fields and methods annotated with `@Inject` in the target are initialized:
  *
+ * ```kotlin
+ * @Component
+ * interface TechFactoryComponent {
+ *     fun factory(): TechFactoryModule
+ *     fun battery(): Provider<Battery>
+ *     fun ramMemory(): LazyProvider<Ram>
  *
- * The component allows you to initialize its dependencies and modules with the @Init annotation.
- *
- *
- *
- * **Extension**
- *
- *
- * A component can extend another component with the `ExtendOf` annotation.
- * When one component is extended by another, both begin to provide child component objects.
- *
- *
- * At the same time, object caching is temporarily preserved for the parent component.
- * New objects are provided after being cleared from memory,
- * or after explicitly using a child component.
- *
- * <pre>`ㅤ@Component
- * public interface AppProComponent extends AppComponent {
- *
- * ㅤ@ExtendOf
- * void extOf(AppComponent parent);
- *
+ *     fun inject(goodPhone: GoodPhone)
  * }
-`</pre> *
+ * ```
  *
+ * Injection methods can also accept identifiers and a [com.github.klee0kai.stone.lifecycle.StoneLifeCycleOwner]:
  *
- * **GC collect**
- *
- *
- * The library allows you to explicitly call garbage collection for cached objects.
- * To do this, you need to declare a method without arguments and a return value
- * with the @RunGc annotation and one or more scopes.
- * <pre>`ㅤ@Component
- * public interface AppProComponent extends AppComponent {
- *
- * ㅤ@RunGc
- * ㅤ@GcAllScope
- * void gcAll();
- *
+ * ```kotlin
+ * @Component
+ * interface ForestComponent {
+ *     fun inject(horse: Horse?, stoneLifeCycleOwner: StoneLifeCycleOwner?)
+ *     fun inject(horse: Horse?)
+ *     fun inject(mowgli: Mowgli?)
  * }
-`</pre> *
- * Caching will be cleared only for those objects
- * that are not actually used in the application and are not held by anyone.
- * If you hold on to the provided and cached object when calling this method, it will not be destroyed.
+ * ```
  *
+ * ---
  *
- * **Switch cache**
+ * ## Extension
  *
+ * A component can extend another component with the [ExtendOf] annotation.
+ * The child component inherits the parent's cached objects and modules,
+ * while new objects are provided after old ones are cleared from memory:
  *
- * DI also allows you to change the caching for provided objects.
- * To do this, you need to declare a method without arguments and a return value,
- * use one of the GC scopes, and additionally use the `@SwitchCache` annotation
+ * ```kotlin
+ * @Component
+ * interface AppProComponent : AppComponent {
+ *     override fun feature(): ProFeatureModule
+ *
+ *     @ExtendOf
+ *     fun extendComponent(parent: AppComponent)
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Qualifiers
+ *
+ * Components support `@Named` and custom qualifier annotations to distinguish
+ * between multiple instances of the same type:
+ *
+ * ```kotlin
+ * @Component
+ * interface CarQComponent {
+ *     fun module1(): CarQPModule?
+ *     fun module2(): CarQCModule?
+ *
+ *     @Named
+ *     fun carNamedEmpty(): Car?
+ *
+ *     @Named("a")
+ *     fun carNameA(): Car?
+ *
+ *     @MyQualifier
+ *     fun carMyQualifier(): Car?
+ *
+ *     @MyQualifierMulti(type = MyQualifierMulti.Type.HARD, indx = 2, id = "a")
+ *     fun carMyQualifierMultiA2Hard(): Car?
+ *
+ *     // collect all instances ignoring qualifiers
+ *     @IgnoreQualifier
+ *     fun allCars(): List<Car?>?
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## GC collect
+ *
+ * Explicit garbage collection for cached objects can be triggered via
+ * methods annotated with [RunGc] and one or more scope annotations.
+ * Only objects **not held** by the application will be cleared:
+ *
+ * ```kotlin
+ * @Component
+ * abstract class GcGodComponent {
+ *     abstract fun sunSystem(): GcSunSystemModule?
+ *     abstract fun earth(): GcEarthModule?
+ *
+ *     @RunGc @GcAllScope
+ *     abstract fun gcAll()
+ *
+ *     @RunGc @GcStrongScope
+ *     abstract fun gcStrong()
+ *
+ *     @RunGc @GcSoftScope
+ *     abstract fun gcSoft()
+ *
+ *     @RunGc @GcWeakScope
+ *     abstract fun gcWeak()
+ *
+ *     @RunGc @GcSunScope
+ *     abstract fun gcSun()
+ *
+ *     @RunGc @GcPlanetScope
+ *     abstract fun gcPlanets()
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Switch cache
+ *
+ * The caching strategy for provided objects can be changed at runtime
+ * using [SwitchCache] combined with a GC scope. An optional `timeMillis`
+ * parameter limits how long the new strategy stays active:
+ *
+ * ```kotlin
+ * @Component
+ * interface SwitchCacheComponent {
+ *     fun earth(): GcEarthModule?
+ *
+ *     @GcAllScope
+ *     @SwitchCache(cache = SwitchCache.CacheType.Weak)
+ *     fun allWeak()
+ *
+ *     @GcAllScope
+ *     @SwitchCache(cache = SwitchCache.CacheType.Strong, timeMillis = 100)
+ *     fun allStrongFewMillis()
+ *
+ *     @GcStrongScope
+ *     @SwitchCache(cache = SwitchCache.CacheType.Weak)
+ *     fun strongToWeak()
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Protect injected
+ *
+ * [ProtectInjected] temporarily protects injected objects from garbage collection
+ * for the specified duration:
+ *
+ * ```kotlin
+ * @Component
+ * interface ForestComponent {
+ *     fun inject(horse: Horse?)
+ *     fun inject(mowgli: Mowgli?)
+ *
+ *     @ProtectInjected(timeMillis = 30)
+ *     fun protectInjected(horse: Horse?)
+ *
+ *     @ProtectInjected(timeMillis = 30)
+ *     fun protectInjected(horse: Mowgli?)
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Custom wrapper helpers
+ *
+ * Additional wrapper types (beyond built-in `Provider`, `LazyProvider`, etc.)
+ * can be registered with the [wrapperHelpers] parameter. See [com.github.klee0kai.stone.wrappers] for details:
+ *
+ * ```kotlin
+ * @Component(wrapperHelpers = [CustomLazyWrapper::class])
+ * interface TechFactoryComponent {
+ *     fun factory(): TechFactoryModule
+ *     fun battery(): Provider<Battery>
+ *     fun ramMemory(): LazyProvider<Ram>
+ *     fun inject(goodPhone: GoodPhone)
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ## Abstract class form
+ *
+ * Components can be abstract classes, allowing concrete helper methods alongside
+ * abstract DI declarations:
+ *
+ * ```kotlin
+ * @Component
+ * abstract class GcGodComponent : GcEarthComponent() {
+ *     abstract fun sunSystem(): GcSunSystemModule?
+ *
+ *     @BindInstance
+ *     abstract fun bind(sun: Sun?)
+ *
+ *     @RunGc @GcAllScope
+ *     abstract fun gcAll()
+ *
+ *     // concrete helper combining multiple GC calls
+ *     fun gcSunAndPlanets() {
+ *         gcSun()
+ *         gcPlanets()
+ *     }
+ * }
+ * ```
+ *
+ * @see Init
+ * @see ExtendOf
+ * @see RunGc
+ * @see SwitchCache
+ * @see ProtectInjected
+ * @see GcAllScope
+ * @see com.github.klee0kai.stone.annotations.module.Module
+ * @see com.github.klee0kai.stone.annotations.module.BindInstance
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS)
 annotation class Component(
     /**
-     * You can use object identifiers.
-     * Identifiers allow you to provide and cache unique instances of an object.
+     * Object identifier types that allow providing and caching **unique instances**
+     * of the same object type, distinguished by identifier values.
      *
      *
-     * To use identifiers, you need to declare object types,
-     * implementing the `hashCode` and `equals` methods (Kotlin data classes)
-     * and list them when declaring the component.
-     * <pre>`ㅤ@Component(identifiers = [PresenterTag::class])
+     * Identifiers must implement `hashCode` and `equals` (Kotlin `data class`es are recommended).
+     *
+     *
+     * ```kotlin
+     * @Component(identifiers = [ScreenId::class, LoginId::class])
      * interface AppComponent {
-     * PresentersModule module();
-     * WelcomePresenter welcomePresenter(PresenterTag tag);
-     * }
+     *     fun presentersModule(): PresentersModule
      *
-     * ㅤ@Module
-     * interface PresentersModule {
-     * WelcomePresenter createWelcomePresenter(PresenterTag tag);
+     *     fun featurePresenter(loginId: LoginId, screenId: ScreenId): FeaturePresenter
+     *
+     *     fun inject(screen: FeatureScreen, loginId: LoginId, screenId: ScreenId)
      * }
-    `</pre> *
+     * ```
      *
      *
      * Identifiers are also used when resolving dependencies.
-     * For example, if a dependency uses an identifier,
-     * then when providing an object with dependencies,
-     * the dependency will be created by a unique identifier.
+     * If a dependency uses an identifier, the dependency will be created with
+     * the matching identifier key. To use different identifiers for a provided
+     * object and its dependencies, use identifiers of different types.
      *
      *
-     * If you want to use different identifiers for a provided object and its dependencies,
-     * use identifiers of different types.
-     *
-     *
-     * If no identifier is specified when providing the object, it will be null instead.
+     * If no identifier is specified when providing the object, `null` is used instead.
      */
     val identifiers: Array<KClass<*>> = [],
 
     /**
-     * TODO Kdoc
+     * Custom wrapper helper classes that extend the set of supported return-type wrappers.
+     *
+     *
+     * By default, Stone supports `Provider`, `LazyProvider`, `AsyncLazy`, `AsyncProvider`,
+     * `WeakReference`, `WeakRef`, and `SoftRef` as return-type wrappers in component methods.
+     * If you need a custom wrapper, create a helper object annotated with `@WrappersHelper`
+     * that defines `transformTo*` methods accepting a `Provider<T>`, and register it here.
+     *
+     *
+     * ```kotlin
+     * @WrappersHelper
+     * object CustomLazyWrapper {
+     *     fun <T> transformToCarLay(
+     *         origin: Provider<T>,
+     *     ): CustomLazy<T> = CustomLazy { origin.get() }
+     * }
+     *
+     * @Component(wrapperHelpers = [CustomLazyWrapper::class])
+     * interface TechFactoryComponent {
+     *     fun factory(): TechFactoryModule
+     *     fun battery(): Provider<Battery>
+     *     fun ramMemory(): LazyProvider<Ram>
+     * }
+     * ```
+     *
+     *
+     * Multiple helpers can be specified:
+     *
+     *
+     * ```kotlin
+     * @Component(wrapperHelpers = [CarBoxedWrapper::class, CarRefWrapper::class])
+     * interface CarCustomWrappersComponent {
+     *     fun car(): Car?
+     *     fun carRef(): CarRef<Car?>?
+     *     fun carLazy(): CarLazy<Car?>?
+     *     fun carProvide(): CarProvide<Car?>?
+     * }
+     * ```
      */
     val wrapperHelpers: Array<KClass<*>> = [],
 )

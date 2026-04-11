@@ -2,82 +2,120 @@ package com.github.klee0kai.stone.annotations.module
 
 
 /**
- * Those objects that are created outside of DI.
- * Can be included in DI by using the `@BindInstance` annotation
+ * Binds an already-existing object into the DI graph.
  *
+ * Unlike `@Provide`, which creates new instances, `@BindInstance` is used for objects
+ * that are created **outside** of DI and need to be made available as dependencies.
+ * Can be declared on methods in both modules and components.
  *
- * Binding can be declared in a module.
- * To do this, we define the provider method in the module and the binding method in the module.
- * <pre>`ㅤ@Component
- * public interface SpaceComponent {
+ * ---
  *
- * SunSystemModule sunSystem();
+ * ## Binding in a module
  *
- * ㅤ@BindInstance
- * void bindSun(Sun sun);
+ * A module method annotated with `@BindInstance` declares a binding slot.
+ * The method takes an optional parameter to set the value and returns the bound object:
  *
+ * ```kotlin
+ * @Module
+ * interface SunSystemModule {
+ *     @BindInstance(cache = BindInstance.CacheType.Weak)
+ *     fun sun(sun: Sun? = null): Sun
  * }
+ * ```
  *
- * ㅤ@Module
- * public interface SunSystemModule {
+ * ---
  *
- * ㅤ@BindInstance
- * Sun sun();
+ * ## Binding in a component
  *
+ * **Bind-and-provide** — a single method both sets and retrieves the bound value:
+ *
+ * ```kotlin
+ * @Component
+ * interface PlanetComponent {
+ *     fun sunModule(): SunSystemModule?
+ *
+ *     @BindInstance
+ *     fun planet(planet: IPlanet?): IPlanet?
+ *
+ *     @BindInstance(cache = BindInstance.CacheType.Weak)
+ *     fun earth(earth: Earth?): Earth?
  * }
-`</pre> *
+ * ```
  *
+ * **Bind-only** — a `void` (Unit) return type means the method only sets the value,
+ * without providing it back:
  *
- * The method in the module should not contain arguments, but only return an object.
- * A method in a component should only receive that object as an argument.
- * Further, this object can already be passed in the component directly or through injection.
- * <pre>`ㅤ@Component
- * public interface SpaceComponent {
- * // some code
+ * ```kotlin
+ * @Component
+ * interface SpaceComponent {
+ *     fun sunSystem(): SunSystemModule
  *
- * // providing method
- * Sun sun();
- *
+ *     @BindInstance
+ *     fun bindSun(sun: Sun?)
  * }
-`</pre> *
+ * ```
  *
+ * The bound object is then available through the module or a separate providing method:
  *
- * The second way to declare the use of binding is to declare everything in one method in the DI component.
- * <pre>`ㅤ@Component
- * public interface SpaceComponent {
+ * ```kotlin
+ * @Component
+ * interface SpaceComponent {
+ *     fun sunSystem(): SunSystemModule
  *
- * ㅤ@BindInstance
- * Sun sun(Sun sun);
+ *     @BindInstance
+ *     fun bindSun(sun: Sun?)
  *
+ *     fun provideSun(): Sun?
  * }
-`</pre> *
+ * ```
  *
+ * ---
  *
- * The method receives and returns the same type. If null is passed as an argument,
- * then the value of the binding does not change, but the object is simply provided.
+ * ## Nuances
  *
+ * - If `null` is passed as an argument, the binding is **not cleared** — the
+ *   previously bound value is returned unchanged. This is the "provide" behavior.
+ * - Binding **does not support nulling** (setting the value to `null`). Once bound,
+ *   the value can only be replaced by a new non-null instance. Use different
+ *   caching methods ([CacheType.Weak]) to allow GC to reclaim the object.
+ * - Unlike `@Provide`, `@BindInstance` does not support `CacheType.Factory`
+ *   because a factory implies creating new objects, which contradicts binding semantics.
  *
- * Binding does not support nulling. Use different caching methods.
+ * @see Provide
+ * @see Module
+ * @see com.github.klee0kai.stone.annotations.component.Component
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 annotation class BindInstance(
     /**
-     * Object caching type
+     * Caching strategy for the bound object.
      *
-     *  *  Factory - creation of new objects without caching.
-     *  *  Weak - caching weak reference objects.
-     *  *  Soft - caching objects with a soft link.
-     *  * Strong - caching objects with a strong link.
+     * Defaults to [CacheType.Soft] — the object is retained until the JVM
+     * reclaims it under memory pressure.
      *
+     * ```kotlin
+     * @BindInstance(cache = BindInstance.CacheType.Weak)
+     * fun sun(sun: Sun? = null): Sun
      *
-     *
+     * @BindInstance(cache = BindInstance.CacheType.Strong)
+     * fun earth(earth: Earth? = null): Earth
+     * ```
      */
     val cache: CacheType = CacheType.Soft
 ) {
+
+    /**
+     * Caching strategies for bound objects.
+     */
     enum class CacheType {
+        /** The object is cached via a weak reference. Reclaimed when no strong references remain. */
         Weak,
+
+        /** The object is cached via a soft reference. Reclaimed under memory pressure. */
         Soft,
+
+        /** The object is cached via a strong reference. Never reclaimed automatically. */
         Strong
     }
 }

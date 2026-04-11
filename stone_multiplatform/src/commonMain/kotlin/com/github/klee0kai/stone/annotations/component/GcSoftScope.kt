@@ -4,8 +4,26 @@ import com.github.klee0kai.stone.Scope
 
 
 /**
- * A standard library scope that lists all cached objects using soft references.
- * Used for garbage collection and caching change methods.
+ * A built-in scope that targets objects cached with **soft** references
+ * (`@Provide(cache = CacheType.Soft)`).
+ *
+ * Used with [RunGc] or [SwitchCache] to selectively manage soft-cached objects:
+ *
+ * ```kotlin
+ * @Component
+ * abstract class GcGodComponent {
+ *     @RunGc @GcSoftScope
+ *     abstract fun gcSoft()
+ *
+ *     @GcSoftScope
+ *     @SwitchCache(cache = SwitchCache.CacheType.Strong, timeMillis = 100)
+ *     abstract fun protectSoftTemporarily()
+ * }
+ * ```
+ *
+ * @see RunGc
+ * @see SwitchCache
+ * @see GcScopeAnnotation
  */
 @GcScopeAnnotation
 @Scope
