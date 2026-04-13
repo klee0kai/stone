@@ -24,6 +24,6 @@ actual class WeakRef<T> actual constructor(value: T) : Ref<T?>, AutoCloseable {
         if (other === this) return true
         if (other == null) return false
         if (this::class != other::class) return false
-        return get() == (other as SoftRef<*>?)?.get()
+        return get() == (other as WeakRef<*>?)?.get()
     }
 }
