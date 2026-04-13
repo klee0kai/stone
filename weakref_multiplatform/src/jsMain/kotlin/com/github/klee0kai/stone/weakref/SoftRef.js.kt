@@ -16,4 +16,15 @@ actual class SoftRef<T : Any?> actual constructor(value: T) : Ref<T?>, AutoClose
         weakRef = null
     }
 
+    actual override fun hashCode(): Int {
+        return get().hashCode()
+    }
+
+    actual override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        if (other == null) return false
+        if (this::class != other::class) return false
+        return get() == (other as SoftRef<*>?)?.get()
+    }
+
 }

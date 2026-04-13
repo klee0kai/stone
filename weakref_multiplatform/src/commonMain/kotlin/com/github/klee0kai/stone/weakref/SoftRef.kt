@@ -83,4 +83,8 @@ expect class SoftRef<T : Any?> constructor(value: T) : Ref<T?>, AutoCloseable {
      */
     override fun close()
 
+    override fun hashCode(): Int
+
+    override fun equals(other: Any?): Boolean
+
 }
