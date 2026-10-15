@@ -116,6 +116,10 @@ or to implement initialization in coroutine scopes.
 Documentation with examples
  - [Kotlin](https://github.com/klee0kai/stone/wiki/kotlin_start)
 
+## Projects
+
+https://thekeysecurity.com/ - The front-end and back-end implementation of the website utilises KMP’s DI Stone implementation  
+
 ## License
 
 ```
